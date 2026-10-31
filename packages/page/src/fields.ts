@@ -22,6 +22,8 @@ export interface LinkField extends Common {
     kind: "link";
     /** A text field this fills in, when a link's service is recognised and the text is empty. */
     fills?: string;
+    /** A field this sets to the link's icon, such as a link's type, when it's recognised. */
+    sets?: string;
 }
 export interface PhotoField extends Common {
     kind: "photo";

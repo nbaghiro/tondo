@@ -45,13 +45,30 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
     };
 }
 
-const paintedCentred = (p: HeaderParts) =>
-    `<div class="p-paint">${p.art}</div><header class="p-head">${p.avatar}${p.name}${p.tagline}${p.bio}${p.links}</header>${p.button}`;
+const paintBack = (p: HeaderParts) => `<div class="p-paint">${p.art}</div>`;
+const words = (p: HeaderParts) => `${p.name}${p.tagline}${p.bio}${p.links}`;
+
+// Every look can use these, so they only rely on the look's variables.
+const LAYOUTS = {
+    centred: (p: HeaderParts) =>
+        `${paintBack(p)}<header class="p-head">${p.avatar}${words(p)}</header>`,
+    left: (p: HeaderParts) =>
+        `${paintBack(p)}<header class="p-head">${p.avatar}<div>${p.name}${p.tagline}</div></header><div class="h-after">${p.bio}${p.links}</div>`,
+    full: (p: HeaderParts) =>
+        `<div class="h-pic">${p.image}</div><header class="p-head">${words(p)}</header>`,
+    arch: (p: HeaderParts) =>
+        `${paintBack(p)}<div class="h-pic">${p.image}</div><header class="p-head">${words(p)}</header>`,
+    banner: (p: HeaderParts) =>
+        `<div class="h-pic">${p.image}</div><header class="p-head">${p.avatar}${words(p)}</header>`,
+};
 
 export function renderHeader(page: Page, ctx: RenderContext): string {
     const look = looks[page.look];
     const parts = partsOf(page, ctx);
-    const own = page.header.layout === "look";
-    const body = own && look.header ? look.header(parts) : paintedCentred(parts);
-    return `<div class="${own ? "h-own" : `h-${page.header.layout}`}">${body}</div>`;
+    const { layout } = page.header;
+    if (layout === "look") {
+        const own = look.header ? look.header(parts) : `${LAYOUTS.centred(parts)}${parts.button}`;
+        return `<div class="h-own">${own}</div>`;
+    }
+    return `<div class="h-${layout}">${LAYOUTS[layout](parts)}${parts.button}</div>`;
 }

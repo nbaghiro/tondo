@@ -9,7 +9,7 @@ export const handleSchema = z
     .refine((handle) => !isReservedHandle(handle), "That address is reserved.");
 
 // Render fills in each look. Its record is keyed by this list, so a missing look won't compile.
-export const lookNames = ["madder", "dusk"] as const;
+export const lookNames = ["madder", "sumi", "surf", "dusk"] as const;
 export const lookNameSchema = z.enum(lookNames);
 export type LookName = z.output<typeof lookNameSchema>;
 

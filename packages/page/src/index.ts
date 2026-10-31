@@ -10,6 +10,8 @@ export type { Block, BlockType, LeafBlock } from "./blocks";
 export { escapeHtml, isShowing, photoTag, photoValue, safeHref } from "./define-block";
 export type { BlockDefinition, BlockGroup, Layout, Photo, RenderContext } from "./define-block";
 export type { BlockValues, Field, ListField, SourceOption } from "./fields";
+export { demoPhotos } from "./demo-photos";
+export { headerFields, headerLayoutLabels } from "./header-fields";
 export { readLink } from "./links";
 export type { LinkReading } from "./links";
 export {
