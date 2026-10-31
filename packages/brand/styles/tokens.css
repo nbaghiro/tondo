@@ -1,0 +1,15 @@
+:root {
+    --paper: #fdf8f5;
+    --ink: #3b1222;
+    --soft: #6f4a55;
+    --madder: #a42a55;
+    --coral: #e8876a;
+    --sienna: #f2b56b;
+    --blush: #f8e4dc;
+    --font-display: Fraunces, serif;
+    --font-body: Mulish, sans-serif;
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--ink) 24%, transparent) transparent;
+}

@@ -1,0 +1,12 @@
+---
+import { paint } from "@tondo/render";
+
+interface Props {
+    palette?: readonly string[];
+    seed: number;
+}
+
+const { palette = ["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], seed } = Astro.props;
+---
+
+<Fragment set:html={paint(palette, seed)} />

@@ -1,0 +1,31 @@
+---
+import AuthLayout from "../layouts/AuthLayout.astro";
+---
+
+<AuthLayout title="Check your email | Tondo">
+    <h1>Check your email</h1>
+    <p class="auth-lead">
+        We sent a code to <b data-email></b>. It lasts 15 minutes.
+    </p>
+    <form data-auth="verify" novalidate>
+        <label class="auth-field">
+            Code
+            <input name="code" inputmode="numeric" autocomplete="one-time-code" required />
+        </label>
+        <p class="auth-error" role="alert" data-error></p>
+        <p class="auth-notice" role="status" data-notice></p>
+        <button class="auth-submit" type="submit">
+            Verify email
+        </button>
+    </form>
+    <p class="auth-switch">
+        Didn't get it?{" "}
+        <button class="auth-text" type="button" data-resend>
+            Send a new code
+        </button>
+    </p>
+</AuthLayout>
+
+<script>
+    import "../lib/auth-form";
+</script>

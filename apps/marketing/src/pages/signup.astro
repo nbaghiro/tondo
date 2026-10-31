@@ -1,0 +1,42 @@
+---
+import GoogleButton from "../components/GoogleButton.astro";
+import AuthLayout from "../layouts/AuthLayout.astro";
+---
+
+<AuthLayout title="Create your Tondo account">
+    <h1>Create your account</h1>
+    <p class="auth-lead" data-lead>
+        It's free to start, and you can change your page any time.
+    </p>
+    <GoogleButton label="Continue with Google" />
+    <div class="auth-or">or</div>
+    <form data-auth="signup" novalidate>
+        <label class="auth-field">
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+            Password
+            <input
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                minlength="8"
+                required
+            />
+            <span class="auth-hint">At least 8 characters.</span>
+        </label>
+        <input name="handle" type="hidden" />
+        <p class="auth-error" role="alert" data-error></p>
+        <button class="auth-submit" type="submit">
+            Create account
+        </button>
+    </form>
+    <p class="auth-switch">
+        Already have an account? <a href="/login">Log in</a>
+    </p>
+</AuthLayout>
+
+<script>
+    import "../lib/auth-form";
+</script>

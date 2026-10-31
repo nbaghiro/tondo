@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tondo: Wash study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f7fb;--ink:#22263f;--soft:#585e7c;--rose:#f7a8c4;--peri:#9fb2ff;--aqua:#92e2cf;--butter:#ffd98c;--lilac:#c9a6f5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:19px/1.55 Gabarito,sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+h1,h2{font-weight:600;letter-spacing:-.025em;line-height:1.03;margin:0}
+h1{font-size:clamp(44px,5.7vw,82px);max-width:15em;margin:auto}
+h2{font-size:clamp(38px,5vw,66px)}
+.wrap{max-width:1180px;margin:auto;padding:0 28px;position:relative}
+.bloom{position:absolute;border-radius:50%;filter:url(#bleed) blur(5px);opacity:.62;mix-blend-mode:multiply;pointer-events:none}
+.top{position:relative;overflow:hidden;padding-bottom:0}
+nav{display:flex;align-items:center;gap:26px;padding:16px 26px;margin:20px auto 0;max-width:1000px;background:rgba(255,255,255,.62);border-radius:40px;position:relative;z-index:2;backdrop-filter:blur(14px)}
+nav .logo{font-weight:700;font-size:26px;margin-right:auto}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:40px;padding:13px 24px;font:600 17px Gabarito,sans-serif;cursor:pointer;display:inline-block}
+nav .btn{padding:9px 18px}
+.hero{position:relative;z-index:1;text-align:center;padding:52px 0 0}
+.hero p{font-size:22px;color:var(--soft);max-width:29em;margin:24px auto 28px}
+.claim{display:flex;align-items:center;background:#fff;border-radius:44px;padding:7px 7px 7px 24px;max-width:520px;margin:auto;box-shadow:0 18px 44px rgba(90,100,170,.2);text-align:left}
+.claim label{white-space:nowrap}
+.claim input{border:0;background:transparent;flex:1;min-width:30px;font:inherit;padding:8px 3px;color:var(--ink)}
+.phones{display:flex;justify-content:center;align-items:flex-end;margin-top:60px;margin-bottom:-90px}
+.phone{width:290px;background:rgba(255,255,255,.82);border-radius:34px;padding:22px 18px 30px;text-align:center;box-shadow:0 30px 60px rgba(90,100,170,.24);flex:none;position:relative;backdrop-filter:blur(8px)}
+.phone.side{transform:scale(.86) translateY(30px);opacity:.96}
+.phone.left{margin-right:-48px;transform-origin:right bottom;rotate:-5deg}.phone.right{margin-left:-48px;transform-origin:left bottom;rotate:5deg}
+.phone.mid{z-index:2}
+.av{width:88px;height:88px;border-radius:50%;margin:0 auto 10px;display:block}
+.w1{background:radial-gradient(circle at 30% 30%,var(--rose),transparent 62%),radial-gradient(circle at 75% 70%,var(--peri),transparent 62%),var(--butter)}
+.w2{background:radial-gradient(circle at 30% 35%,var(--aqua),transparent 62%),radial-gradient(circle at 70% 75%,var(--peri),transparent 62%),#fff}
+.w3{background:radial-gradient(circle at 30% 35%,var(--butter),transparent 62%),radial-gradient(circle at 74% 70%,var(--lilac),transparent 62%),var(--rose)}
+.phone b{display:block;font-size:23px;font-weight:600}
+.phone small{display:block;color:var(--soft);font-size:15.5px;margin-bottom:12px}
+.phone span{display:block;background:#fff;border-radius:18px;padding:11px;margin-top:8px;font-weight:500;box-shadow:0 3px 12px rgba(90,100,170,.12)}
+section{padding:110px 0}
+.how{padding-top:190px;text-align:center}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:54px;text-align:center}
+.steps i{display:grid;place-items:center;width:112px;height:112px;margin:0 auto 18px;border-radius:50%;font:600 34px Gabarito,sans-serif;font-style:normal}
+.steps h3{font-size:27px;font-weight:600;margin:0 0 6px}
+.steps p{color:var(--soft);margin:0 auto;max-width:17em}
+.art{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+.art p,.team p{font-size:21px;color:var(--soft);max-width:28em;margin:22px 0 0}
+.gal{position:relative;aspect-ratio:1.2}
+.gal i{position:absolute;border-radius:50%;filter:url(#bleed);display:block}
+.g1{width:50%;aspect-ratio:1;left:2%;top:4%}.g2{width:38%;aspect-ratio:1;right:6%;top:0}.g3{width:44%;aspect-ratio:1;right:14%;bottom:0}.g4{width:26%;aspect-ratio:1;left:14%;bottom:2%}
+.teamb{background:linear-gradient(180deg,var(--paper),#e9edff 30%,#fbe9f2 80%,var(--paper))}
+.team{text-align:center}.team p{margin:22px auto 34px}
+.people{display:flex;justify-content:center}
+.people i{width:128px;height:128px;border-radius:50%;margin-left:-20px;border:6px solid #fff;display:block}
+.people i:first-child{margin-left:0}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:50px;background:#fff;border-radius:36px;box-shadow:0 22px 60px rgba(90,100,170,.14)}
+.plan{padding:36px 34px 40px}
+.plan+.plan{border-left:1px solid #e2e5f2}
+.plan h3{font-size:22px;margin:0;font-weight:600}
+.plan strong{display:block;font-size:38px;font-weight:600;letter-spacing:-.02em;margin:2px 0 12px}
+.plan ul{padding-left:18px;margin:0;color:var(--soft)}
+.ptitle,.end{text-align:center}
+.end{position:relative;overflow:hidden}.end .claim{margin-top:32px;position:relative}.end h2{position:relative}
+footer{padding:24px 0;font-size:16px;color:var(--soft);text-align:center}
+@media(max-width:860px){.top .bloom{opacity:.38}.hero p{color:var(--ink)}.phone.side{display:none}.phones{margin-bottom:-70px;margin-top:44px}.art,.steps,.plans{grid-template-columns:1fr}.plan+.plan{border-left:0;border-top:1px solid #e2e5f2}.navlink{display:none}.wrap{padding:0 20px}nav{margin:12px 14px 0;padding:10px 16px}.hero{padding-top:50px}section{padding:72px 0}.how{padding-top:140px}.claim{padding-left:16px;font-size:17px}.btn{padding:12px 15px;font-size:16px}.people i{width:88px;height:88px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="bleed" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".014" numOctaves="3" seed="5"/><feDisplacementMap in="SourceGraphic" scale="46"/></filter></svg>
+<div class="top">
+<i class="bloom" style="width:520px;height:520px;background:var(--rose);left:-120px;top:120px"></i>
+<i class="bloom" style="width:620px;height:620px;background:var(--peri);right:-160px;top:-90px"></i>
+<i class="bloom" style="width:440px;height:440px;background:var(--aqua);left:32%;top:520px"></i>
+<i class="bloom" style="width:340px;height:340px;background:var(--butter);right:12%;top:640px"></i>
+<nav><a class="logo" href="#">Tondo</a><a class="navlink" href="#art">Examples</a><a class="navlink" href="#teams">Teams</a><a class="navlink" href="#pricing">Pricing</a><a href="#">Log in</a><a class="btn" href="#claim">Get started</a></nav>
+<div class="wrap hero">
+<h1>One link to everything you do, on a page that looks like yours.</h1>
+<p>Add your links, choose a look and share one address. Tondo takes care of the design.</p>
+<form class="claim" id="claim"><label for="h1">tondo.page/</label><input id="h1" placeholder="maya" aria-label="Your name"><button class="btn" type="button">Claim your link</button></form>
+<div class="phones">
+<div class="phone side left" aria-hidden="true"><i class="av w2"></i><b>Theo Lindqvist</b><small>Film photographer</small><span>Prints</span><span>Portfolio</span><span>Book a shoot</span></div>
+<div class="phone mid" role="img" aria-label="Sample Tondo page for Maya Okafor"><i class="av w1"></i><b>Maya Okafor</b><small>Ceramicist in Vancouver</small><span>New work</span><span>Studio sales</span><span>Workshops</span><span>Newsletter</span></div>
+<div class="phone side right" aria-hidden="true"><i class="av w3"></i><b>Aster &amp; Bell</b><small>Floral studio</small><span>Weddings</span><span>Shop</span><span>Our team</span></div>
+</div>
+</div>
+</div>
+<section class="how"><div class="wrap"><h2>How it works</h2>
+<div class="steps">
+<div><i class="w1">1</i><h3>Claim your name</h3><p>Choose your address, like tondo.page/maya.</p></div>
+<div><i class="w2">2</i><h3>Add your links</h3><p>Paste a link and Tondo fills in the title and icon.</p></div>
+<div><i class="w3">3</i><h3>Choose a look</h3><p>Each look sets the colours, type and background together, so everything matches.</p></div>
+</div></div></section>
+<section id="art" style="padding-top:20px"><div class="wrap art">
+<div><h2>Every look starts with a painting</h2><p>Backgrounds are drawn for your page, so two people using the same look get different pictures. Change one colour and the rest of the page follows.</p></div>
+<div class="gal"><i class="g1 w1"></i><i class="g2 w2"></i><i class="g3 w3"></i><i class="g4 w2"></i></div>
+</div></section>
+<section class="teamb" id="teams"><div class="wrap team"><h2>One look for the whole team</h2><p>Give everyone their own page and keep them consistent. Change the team's look once and it reaches every page. Owners decide who can edit what.</p>
+<div class="people"><i class="w1"></i><i class="w2"></i><i class="w3"></i><i class="w1"></i></div></div></section>
+<section id="pricing"><div class="wrap"><h2 class="ptitle">Free to start</h2>
+<div class="plans">
+<div class="plan"><h3>Free</h3><strong>$0</strong><ul><li>One page</li><li>All block types</li><li>A set of core looks</li></ul></div>
+<div class="plan"><h3>Pro</h3><strong>$6 a month</strong><ul><li>Custom domain</li><li>Click analytics</li><li>No Tondo mark</li></ul></div>
+<div class="plan"><h3>Team</h3><strong>$4 a person</strong><ul><li>A page for each person</li><li>Shared looks</li><li>Roles and permissions</li></ul></div>
+</div></div></section>
+<section class="end"><i class="bloom" style="width:520px;height:420px;background:var(--lilac);left:6%;top:30px"></i><i class="bloom" style="width:500px;height:420px;background:var(--aqua);right:6%;top:60px"></i><div class="wrap"><h2>Claim your link</h2><form class="claim"><label for="h2">tondo.page/</label><input id="h2" placeholder="maya" aria-label="Your name"><button class="btn" type="button">Claim your link</button></form></div></section>
+<footer><div class="wrap">Design study. Prices, features and people are placeholders.</div></footer>
+</body>
+</html>

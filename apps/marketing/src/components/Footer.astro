@@ -1,0 +1,54 @@
+---
+import Art from "./Art.astro";
+
+const columns = [
+    {
+        title: "Product",
+        links: [
+            ["Gallery", "/gallery"],
+            ["Teams", "/#teams"],
+            ["Pricing", "/#pricing"],
+            ["Log in", "/login"],
+        ],
+    },
+    {
+        title: "Company",
+        links: [
+            ["About", "/about"],
+            ["Support", "/support"],
+        ],
+    },
+    {
+        title: "Legal",
+        links: [
+            ["Privacy policy", "/privacy"],
+            ["Terms of service", "/terms"],
+        ],
+    },
+];
+---
+
+<footer class="foot">
+    <div class="wrap">
+        <div class="foot-top">
+            <div class="foot-brand">
+                <a class="logo" href="/">
+                    <span>
+                        <Art seed={9} />
+                    </span>
+                    Tondo
+                </a>
+                <p>One link to everything you do, on a page that looks like yours.</p>
+            </div>
+            {columns.map((column) => (
+                <nav class="foot-col" aria-label={column.title}>
+                    <h2>{column.title}</h2>
+                    {column.links.map(([label, href]) => (
+                        <a href={href}>{label}</a>
+                    ))}
+                </nav>
+            ))}
+        </div>
+        <p class="foot-note">© {new Date().getFullYear()} Tondo</p>
+    </div>
+</footer>

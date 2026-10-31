@@ -1,0 +1,39 @@
+---
+import examples from "../data/examples.json";
+import Art from "./Art.astro";
+import ClaimForm from "./ClaimForm.astro";
+import Nav from "./Nav.astro";
+
+const fan = ["bookshop", "aster", "maya", "noor", "harbour"].flatMap((id) =>
+    examples.filter((example) => example.id === id),
+);
+---
+
+<div class="wrap">
+    <Nav />
+    <div class="hero">
+        <h1>One link to everything you do, on a page that looks like yours.</h1>
+        <p class="lead">
+            Add your links, choose a look and share one address. Tondo takes care of the design.
+        </p>
+        <ClaimForm id="claim" />
+    </div>
+</div>
+<div class="fan-wrap">
+    <div class="fan-art">
+        <Art seed={3} />
+    </div>
+    <div class="fan-art-right">
+        <Art seed={7} />
+    </div>
+    {fan.map((example, i) => (
+        <img
+            class={`fan f${i}`}
+            src={`/examples/assets/shots/${example.id}.jpg`}
+            alt={`${example.name}, ${example.role}`}
+            style={`--a:${(i - 2) * 13}deg`}
+            width="390"
+            height="844"
+        />
+    ))}
+</div>

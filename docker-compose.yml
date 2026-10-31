@@ -1,0 +1,41 @@
+# Tondo's local services. Host ports use 8100 to 8106, listed in scripts/ports.ts. They are bound to
+# loopback because the local passwords are in this file. Container ports stay conventional.
+name: tondo
+
+services:
+    postgres:
+        image: postgres:18
+        container_name: tondo-pg
+        ports:
+            - "127.0.0.1:8102:5432"
+        environment:
+            POSTGRES_USER: tondo
+            POSTGRES_PASSWORD: tondo
+            POSTGRES_DB: tondo
+        volumes:
+            # The 18 image keeps a major-version subdirectory under this mount.
+            - tondo-pgdata:/var/lib/postgresql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U tondo -d tondo"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    # Nothing uses this yet. Art, share images and uploads will. It speaks the S3 API. MinIO no longer
+    # publishes free images, so this is the RustFS image Clientbridge pins.
+    object-storage:
+        image: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c
+        container_name: tondo-s3
+        ports:
+            - "127.0.0.1:8105:9000"
+            - "127.0.0.1:8106:9001"
+        environment:
+            RUSTFS_ACCESS_KEY: tondo
+            RUSTFS_SECRET_KEY: tondo-local
+            RUSTFS_CONSOLE_ENABLE: "true"
+        volumes:
+            - tondo-s3data:/data
+
+volumes:
+    tondo-pgdata:
+    tondo-s3data:

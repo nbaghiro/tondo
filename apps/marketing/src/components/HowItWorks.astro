@@ -1,0 +1,73 @@
+---
+const looks = [
+    { name: "Madder", bg: "#fdf6f2", fg: "#3b1222", button: "#a42a55", font: "Fraunces, serif" },
+    {
+        name: "Dusk",
+        bg: "#121832",
+        fg: "#f4effb",
+        button: "#e05f8c",
+        font: "'Instrument Serif', serif",
+    },
+    { name: "Sap", bg: "#eef2e3", fg: "#17331f", button: "#17331f", font: "Gloock, serif" },
+];
+---
+
+<section>
+    <div class="wrap">
+        <h2>How it works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-demo" aria-hidden="true">
+                    <div class="demo-claim">
+                        <span>tondo.page/</span>
+                        <b>maya</b>
+                    </div>
+                    <p class="demo-ok">
+                        <i></i>This name is available
+                    </p>
+                </div>
+                <h3>1. Claim your name</h3>
+                <p>Choose your address, like tondo.page/maya.</p>
+            </div>
+            <div class="step">
+                <div class="step-demo" aria-hidden="true">
+                    <div class="demo-paste">instagram.com/mayamakes</div>
+                    <div class="demo-link">
+                        <span>
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.7"
+                            >
+                                <rect x="4" y="4" width="16" height="16" rx="5"></rect>
+                                <circle cx="12" cy="12" r="3.6"></circle>
+                            </svg>
+                        </span>
+                        <b>Maya on Instagram</b>
+                    </div>
+                </div>
+                <h3>2. Add your links</h3>
+                <p>Paste a link and Tondo fills in the title and icon.</p>
+            </div>
+            <div class="step">
+                <div class="step-demo demo-looks" aria-hidden="true">
+                    {looks.map((look, i) => (
+                        <div
+                            class:list={["demo-look", { on: i === 0 }]}
+                            style={`background:${look.bg};color:${look.fg}`}
+                        >
+                            <b style={`font-family:${look.font}`}>Aa</b>
+                            <i style={`background:${look.button}`} />
+                            <small>{look.name}</small>
+                        </div>
+                    ))}
+                </div>
+                <h3>3. Choose a look</h3>
+                <p>
+                    Each look sets the colours, type and background together, so everything matches.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

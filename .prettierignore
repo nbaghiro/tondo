@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.turbo/
+.astro/
+pnpm-lock.yaml
+.scratchpad/
+.docs/
+packages/db/migrations/
+apps/marketing/public/
+apps/marketing/src/data/pages/

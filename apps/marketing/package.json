@@ -1,0 +1,23 @@
+{
+    "name": "@tondo/marketing",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "typecheck": "astro check --minimumSeverity warning"
+    },
+    "dependencies": {
+        "@tondo/brand": "workspace:*",
+        "@tondo/contract": "workspace:*",
+        "@tondo/page": "workspace:*",
+        "@tondo/render": "workspace:*",
+        "astro": "^7.4.4"
+    },
+    "devDependencies": {
+        "@astrojs/check": "^0.9.12",
+        "typescript": "catalog:"
+    }
+}

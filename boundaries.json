@@ -1,0 +1,26 @@
+{
+    "packages/page": { "internal": [], "external": ["zod"], "node": false },
+    "packages/brand": { "internal": [], "external": [], "node": false },
+    "packages/render": { "internal": ["@tondo/page"], "external": [], "node": false },
+    "packages/contract": { "internal": ["@tondo/page"], "external": ["zod"], "node": false },
+    "packages/db": {
+        "internal": ["@tondo/page"],
+        "external": ["drizzle-orm", "postgres"],
+        "node": true
+    },
+    "apps/server": {
+        "internal": ["@tondo/page", "@tondo/render", "@tondo/contract", "@tondo/db"],
+        "external": ["hono", "@hono/node-server", "@neon/auth"],
+        "node": true
+    },
+    "apps/editor": {
+        "internal": ["@tondo/page", "@tondo/render", "@tondo/contract", "@tondo/brand"],
+        "external": ["solid-js"],
+        "node": false
+    },
+    "apps/marketing": {
+        "internal": ["@tondo/page", "@tondo/render", "@tondo/brand", "@tondo/contract"],
+        "external": ["astro"],
+        "node": false
+    }
+}

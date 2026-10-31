@@ -1,0 +1,34 @@
+---
+const plans = [
+    { name: "Free", price: "$0", features: ["One page", "All block types", "A set of core looks"] },
+    {
+        name: "Pro",
+        price: "$6 a month",
+        features: ["Custom domain", "Click analytics", "No Tondo mark"],
+    },
+    {
+        name: "Team",
+        price: "$4 a person",
+        features: ["A page for each person", "Shared looks", "Roles and permissions"],
+    },
+];
+---
+
+<section class="band" id="pricing">
+    <div class="wrap">
+        <h2>Free to start</h2>
+        <div class="plans">
+            {plans.map((plan) => (
+                <div class="plan">
+                    <h3>{plan.name}</h3>
+                    <strong>{plan.price}</strong>
+                    <ul>
+                        {plan.features.map((feature) => (
+                            <li>{feature}</li>
+                        ))}
+                    </ul>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>

@@ -1,0 +1,32 @@
+---
+import AuthLayout from "../layouts/AuthLayout.astro";
+---
+
+<AuthLayout title="Choose a new password | Tondo">
+    <h1>Choose a new password</h1>
+    <p class="auth-lead">
+        If <b data-email></b> has an account, we've sent it a code.
+    </p>
+    <form data-auth="reset" novalidate>
+        <label class="auth-field">
+            Code
+            <input name="code" inputmode="numeric" autocomplete="one-time-code" required />
+        </label>
+        <label class="auth-field">
+            New password
+            <input name="password" type="password" autocomplete="new-password" required />
+            <span class="auth-hint">At least 8 characters.</span>
+        </label>
+        <p class="auth-error" role="alert" data-error></p>
+        <button class="auth-submit" type="submit">
+            Save new password
+        </button>
+    </form>
+    <p class="auth-switch">
+        <a href="/forgot">Send a new code</a>
+    </p>
+</AuthLayout>
+
+<script>
+    import "../lib/auth-form";
+</script>

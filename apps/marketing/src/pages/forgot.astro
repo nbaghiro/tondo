@@ -1,0 +1,25 @@
+---
+import AuthLayout from "../layouts/AuthLayout.astro";
+---
+
+<AuthLayout title="Reset your password | Tondo">
+    <h1>Reset your password</h1>
+    <p class="auth-lead">Enter your email and we'll send you a code.</p>
+    <form data-auth="forgot" novalidate>
+        <label class="auth-field">
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <p class="auth-error" role="alert" data-error></p>
+        <button class="auth-submit" type="submit">
+            Send code
+        </button>
+    </form>
+    <p class="auth-switch">
+        <a href="/login">Back to log in</a>
+    </p>
+</AuthLayout>
+
+<script>
+    import "../lib/auth-form";
+</script>

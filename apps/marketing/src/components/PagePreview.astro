@@ -1,0 +1,97 @@
+<dialog class="pv" aria-labelledby="pv-handle">
+    <div class="pv-panel">
+        <button type="button" class="pv-round pv-close" data-pv="close" aria-label="Close">
+            ×
+        </button>
+        <button type="button" class="pv-round pv-prev" data-pv="prev" aria-label="Previous page">
+            ←
+        </button>
+        <button type="button" class="pv-round pv-next" data-pv="next" aria-label="Next page">
+            →
+        </button>
+        <div class="pv-phone"></div>
+        <div>
+            <h2 id="pv-handle"></h2>
+            <p class="pv-name"></p>
+            <p class="pv-copy">
+                Designed by the Tondo team. Make it your own with the same blocks and looks.
+            </p>
+            <div class="pv-actions">
+                <a class="mbtn pv-visit" href="/">
+                    Visit this page
+                </a>
+                <a href="/signup">Create your own</a>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<script>
+    const dialog = document.querySelector<HTMLDialogElement>("dialog.pv");
+    const phone = dialog?.querySelector<HTMLElement>(".pv-phone");
+    const title = dialog?.querySelector("h2");
+    const name = dialog?.querySelector(".pv-name");
+    const visit = dialog?.querySelector<HTMLAnchorElement>(".pv-visit");
+
+    if (dialog && phone && title && name && visit) {
+        // Copies in the moving strip open the same page, so only originals count for next and previous.
+        const cards = () => [
+            ...document.querySelectorAll<HTMLAnchorElement>("a[data-preview]:not([aria-hidden])"),
+        ];
+        let index = 0;
+
+        const show = (next: number) => {
+            const list = cards();
+            index = (next + list.length) % list.length;
+            const card = list[index];
+            if (!card) return;
+            const handle = card.getAttribute("data-preview") ?? "";
+            const role = card.getAttribute("data-role") ?? "";
+            title.textContent = `@${handle}`;
+            name.textContent = `${card.getAttribute("data-name") ?? ""}, ${role}`;
+            visit.href = `/${handle}`;
+            phone.style.backgroundImage = `url(/examples/assets/shots/${card.getAttribute("data-shot") ?? ""}.jpg)`;
+            // A new frame each time, so moving between pages doesn't fill the back button's history.
+            const frame = document.createElement("iframe");
+            frame.src = `/${handle}`;
+            frame.title = `${handle} on Tondo`;
+            phone.replaceChildren(frame);
+        };
+        const close = () => {
+            dialog.close();
+        };
+
+        document.addEventListener("click", (event) => {
+            const target = event.target;
+            if (!(target instanceof Element) || event.metaKey || event.ctrlKey || event.shiftKey) {
+                return;
+            }
+            const card = target.closest<HTMLAnchorElement>("a[data-preview]");
+            if (!card) return;
+            event.preventDefault();
+            const handle = card.getAttribute("data-preview");
+            show(cards().findIndex((other) => other.getAttribute("data-preview") === handle));
+            document.documentElement.style.overflow = "hidden";
+            dialog.showModal();
+        });
+        dialog.addEventListener("close", () => {
+            document.documentElement.style.overflow = "";
+            phone.replaceChildren();
+        });
+        dialog.addEventListener("click", (event) => {
+            const target = event.target;
+            if (target === dialog) {
+                close();
+                return;
+            }
+            const action = target instanceof Element ? target.getAttribute("data-pv") : null;
+            if (action === "close") close();
+            if (action === "prev") show(index - 1);
+            if (action === "next") show(index + 1);
+        });
+        dialog.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") show(index - 1);
+            if (event.key === "ArrowRight") show(index + 1);
+        });
+    }
+</script>

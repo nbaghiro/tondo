@@ -1,0 +1,36 @@
+---
+import GoogleButton from "../components/GoogleButton.astro";
+import AuthLayout from "../layouts/AuthLayout.astro";
+---
+
+<AuthLayout title="Log in to Tondo">
+    <h1>Welcome back</h1>
+    <p class="auth-lead">Log in to keep working on your page.</p>
+    <GoogleButton label="Continue with Google" />
+    <div class="auth-or">or</div>
+    <form data-auth="login" novalidate>
+        <label class="auth-field">
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <label class="auth-field">
+            Password
+            <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <a class="auth-forgot" href="/forgot">
+            Forgot your password?
+        </a>
+        <p class="auth-notice" role="status" data-notice></p>
+        <p class="auth-error" role="alert" data-error></p>
+        <button class="auth-submit" type="submit">
+            Log in
+        </button>
+    </form>
+    <p class="auth-switch">
+        New to Tondo? <a href="/signup">Create an account</a>
+    </p>
+</AuthLayout>
+
+<script>
+    import "../lib/auth-form";
+</script>

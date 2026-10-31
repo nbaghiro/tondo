@@ -1,0 +1,452 @@
+[
+    {
+        "id": "maya",
+        "handle": "maya",
+        "name": "Maya Okafor",
+        "role": "ceramicist",
+        "look": "Madder",
+        "kind": "Shops and makers",
+        "shows": "Sale banner, products, workshops"
+    },
+    {
+        "id": "theo",
+        "handle": "theolindqvist",
+        "name": "Theo Lindqvist",
+        "role": "film photographer",
+        "look": "Noir",
+        "kind": "Creators and personal pages",
+        "shows": "Full photo header, gallery, prints"
+    },
+    {
+        "id": "aster",
+        "handle": "asterandbell",
+        "name": "Aster & Bell",
+        "role": "floral studio",
+        "look": "Sap",
+        "kind": "Shops and makers",
+        "shows": "Arch header, team, carousel"
+    },
+    {
+        "id": "noor",
+        "handle": "noor",
+        "name": "Noor Haddad",
+        "role": "musician",
+        "look": "Dusk",
+        "kind": "Creators and personal pages",
+        "shows": "Music player, tour dates, video"
+    },
+    {
+        "id": "priya",
+        "handle": "priyaraman",
+        "name": "Priya Raman",
+        "role": "nutrition coach",
+        "look": "Indigo",
+        "kind": "Health and beauty",
+        "shows": "Time slots, paid guide, quote"
+    },
+    {
+        "id": "sam",
+        "handle": "smallrooms",
+        "name": "Sam Ortiz",
+        "role": "podcast host",
+        "look": "Signal",
+        "kind": "Creators and personal pages",
+        "shows": "Video, ribbon, listen buttons"
+    },
+    {
+        "id": "harbour",
+        "handle": "harbourbakery",
+        "name": "Harbour Bakery",
+        "role": "neighbourhood bakery",
+        "look": "Bakehouse",
+        "kind": "Food and stays",
+        "shows": "Product grid, opening hours"
+    },
+    {
+        "id": "lena",
+        "handle": "lenasato",
+        "name": "Lena Sato",
+        "role": "writer",
+        "look": "Sumi",
+        "kind": "Creators and personal pages",
+        "shows": "Painted ring, book, essays"
+    },
+    {
+        "id": "lume",
+        "handle": "osterialume",
+        "name": "Osteria Lume",
+        "role": "restaurant",
+        "look": "Lume",
+        "kind": "Food and stays",
+        "shows": "Tabs, menu, map, reservations"
+    },
+    {
+        "id": "second",
+        "handle": "secondstreet",
+        "name": "Second Street Barbers",
+        "role": "barbershop",
+        "look": "Second Street",
+        "kind": "Health and beauty",
+        "shows": "Service menu, reviews, barbers, map"
+    },
+    {
+        "id": "kai",
+        "handle": "kaimercer",
+        "name": "Kai Mercer",
+        "role": "travel creator",
+        "look": "Lagoon",
+        "kind": "Creators and personal pages",
+        "shows": "Instagram and TikTok feeds, stats, media kit"
+    },
+    {
+        "id": "ines",
+        "handle": "inesandtomas",
+        "name": "Ines and Tomas",
+        "role": "wedding",
+        "look": "Vellum",
+        "kind": "Events, teams and communities",
+        "shows": "Countdown, schedule, RSVP, map, registry"
+    },
+    {
+        "id": "dee",
+        "handle": "deewalker",
+        "name": "Dee Walker",
+        "role": "strength coach",
+        "look": "Volt",
+        "kind": "Health and beauty",
+        "shows": "Price tiers, stats, reviews, FAQ"
+    },
+    {
+        "id": "oskar",
+        "handle": "oskarbloom",
+        "name": "Oskar Bloom",
+        "role": "product designer",
+        "look": "Bloom",
+        "kind": "Creators and personal pages",
+        "shows": "Drawn flower header, work as product screens, work history"
+    },
+    {
+        "id": "clara",
+        "handle": "claravoss",
+        "name": "Clara Voss",
+        "role": "real estate agent",
+        "look": "Estate",
+        "kind": "Trades and professionals",
+        "shows": "Listings, contact list, sales stats"
+    },
+    {
+        "id": "river",
+        "handle": "cleanriver",
+        "name": "Clean River Project",
+        "role": "non-profit",
+        "look": "Tide",
+        "kind": "Events, teams and communities",
+        "shows": "Donations, goal progress, volunteer events"
+    },
+    {
+        "id": "mika",
+        "handle": "mikasol",
+        "name": "Mika Sol",
+        "role": "DJ",
+        "look": "Rave",
+        "kind": "Creators and personal pages",
+        "shows": "Next show countdown, tips, videos, music"
+    },
+    {
+        "id": "gooddog",
+        "handle": "gooddog",
+        "name": "Good Dog Grooming",
+        "role": "dog groomer",
+        "look": "Biscuit",
+        "kind": "Trades and professionals",
+        "shows": "Service list, calendar booking, FAQ"
+    },
+    {
+        "id": "understory",
+        "handle": "understory",
+        "name": "Understory",
+        "role": "plant shop",
+        "look": "Fern",
+        "kind": "Shops and makers",
+        "shows": "Product list, free downloads, blog posts"
+    },
+    {
+        "id": "secondact",
+        "handle": "secondact",
+        "name": "Second Act Vintage",
+        "role": "vintage shop",
+        "look": "Atelier",
+        "kind": "Shops and makers",
+        "shows": "Single product, drop countdown, carousel"
+    },
+    {
+        "id": "margin",
+        "handle": "themargin",
+        "name": "The Margin",
+        "role": "newsletter",
+        "look": "Press",
+        "kind": "Creators and personal pages",
+        "shows": "Posts from RSS, subscriber count, sign-up"
+    },
+    {
+        "id": "walkers",
+        "handle": "northshorewalkers",
+        "name": "North Shore Walkers",
+        "role": "walking club",
+        "look": "Trail",
+        "kind": "Events, teams and communities",
+        "shows": "Next event, group chat, FAQ, map"
+    },
+    {
+        "id": "hana",
+        "handle": "hanaito",
+        "name": "Hana Ito",
+        "role": "interior designer",
+        "look": "Plaster",
+        "kind": "Trades and professionals",
+        "shows": "Enquiry form, project gallery, process"
+    },
+    {
+        "id": "lantern",
+        "handle": "blacklantern",
+        "name": "Black Lantern",
+        "role": "tattoo studio",
+        "look": "Ink",
+        "kind": "Health and beauty",
+        "shows": "Artist tabs, booking status, consent FAQ"
+    },
+    {
+        "id": "slowpour",
+        "handle": "slowpour",
+        "name": "Slow Pour",
+        "role": "coffee roaster",
+        "look": "Roast",
+        "kind": "Food and stays",
+        "shows": "Round photo header, subscription tiers, products"
+    },
+    {
+        "id": "stillwater",
+        "handle": "stillwateryoga",
+        "name": "Stillwater Yoga",
+        "role": "yoga teacher",
+        "look": "Lilac",
+        "kind": "Health and beauty",
+        "shows": "Oval photo, weekly schedule in tabs, class passes"
+    },
+    {
+        "id": "lowtide",
+        "handle": "lowtidesurf",
+        "name": "Low Tide Surf",
+        "role": "surf school",
+        "look": "Surf",
+        "kind": "Teaching and learning",
+        "shows": "Drawn sun header, lessons, reviews, FAQ"
+    },
+    {
+        "id": "bookshop",
+        "handle": "marginalia",
+        "name": "Marginalia Books",
+        "role": "bookshop",
+        "look": "Shelf",
+        "kind": "Shops and makers",
+        "shows": "Book plate header, staff picks, reading events"
+    },
+    {
+        "id": "ferries",
+        "handle": "nightferries",
+        "name": "The Night Ferries",
+        "role": "band",
+        "look": "Riso",
+        "kind": "Creators and personal pages",
+        "shows": "Two-colour poster header, tour, merch"
+    },
+    {
+        "id": "amara",
+        "handle": "amaracole",
+        "name": "Amara Cole",
+        "role": "therapist",
+        "look": "Calm",
+        "kind": "Health and beauty",
+        "shows": "Text-led header, what to expect, private contact"
+    },
+    {
+        "id": "smallweb",
+        "handle": "smallwebday",
+        "name": "Small Web Day",
+        "role": "conference",
+        "look": "Ticket",
+        "kind": "Events, teams and communities",
+        "shows": "Ticket header, schedule tabs, speakers, sponsors"
+    },
+    {
+        "id": "fieldoffice",
+        "handle": "fieldoffice",
+        "name": "Field Office",
+        "role": "design agency",
+        "look": "Office",
+        "kind": "Events, teams and communities",
+        "shows": "Team directory linking to each person's page"
+    },
+    {
+        "id": "alderwick",
+        "handle": "alderandwick",
+        "name": "Alder and Wick",
+        "role": "candle maker",
+        "look": "Wax",
+        "kind": "Shops and makers",
+        "shows": "Bottle label header, scents, refill subscription"
+    },
+    {
+        "id": "comet",
+        "handle": "tacocomet",
+        "name": "Taco Comet",
+        "role": "food truck",
+        "look": "Comet",
+        "kind": "Food and stays",
+        "shows": "Sunburst header, this week's locations, short menu"
+    },
+    {
+        "id": "salthouse",
+        "handle": "salthouse",
+        "name": "The Salt House",
+        "role": "guesthouse",
+        "look": "Brine",
+        "kind": "Food and stays",
+        "shows": "Window pane header, rooms, stay dates, map"
+    },
+    {
+        "id": "greengage",
+        "handle": "greengagefarm",
+        "name": "Greengage Farm",
+        "role": "organic farm",
+        "look": "Harvest",
+        "kind": "Food and stays",
+        "shows": "Crate stencil header, weekly box, pickup points"
+    },
+    {
+        "id": "bright",
+        "handle": "brightdental",
+        "name": "Bright Street Dental",
+        "role": "dental clinic",
+        "look": "Smile",
+        "kind": "Health and beauty",
+        "shows": "Curved header, new patients, insurance answers"
+    },
+    {
+        "id": "nix",
+        "handle": "studionix",
+        "name": "Studio Nix",
+        "role": "nail studio",
+        "look": "Lacquer",
+        "kind": "Health and beauty",
+        "shows": "Painted nail header, service menu, deposit policy"
+    },
+    {
+        "id": "rivetelectric",
+        "handle": "rivetelectric",
+        "name": "Rivet Electric",
+        "role": "electrician",
+        "look": "Rivet",
+        "kind": "Trades and professionals",
+        "shows": "Hazard tape header, call button, quote form"
+    },
+    {
+        "id": "marsh",
+        "handle": "adaezemarsh",
+        "name": "Adaeze Marsh",
+        "role": "family lawyer",
+        "look": "Letterhead",
+        "kind": "Trades and professionals",
+        "shows": "Letterhead header, how it works, plain fees"
+    },
+    {
+        "id": "tally",
+        "handle": "tallyandco",
+        "name": "Tally and Co",
+        "role": "accountant",
+        "look": "Ledger",
+        "kind": "Trades and professionals",
+        "shows": "Ledger paper, price sums, tax deadline, checklist"
+    },
+    {
+        "id": "hablemos",
+        "handle": "hablemos",
+        "name": "Hablemos",
+        "role": "language tutor",
+        "look": "Postal",
+        "kind": "Teaching and learning",
+        "shows": "Postcard header, lesson slots, free worksheet"
+    },
+    {
+        "id": "keystudio",
+        "handle": "eliasmoreau",
+        "name": "Elias Moreau",
+        "role": "piano teacher",
+        "look": "Keys",
+        "kind": "Teaching and learning",
+        "shows": "Piano key header, recital date, trial lessons"
+    },
+    {
+        "id": "crumbschool",
+        "handle": "crumbschool",
+        "name": "Crumb School",
+        "role": "online course",
+        "look": "Crumb",
+        "kind": "Teaching and learning",
+        "shows": "Diagonal photo header, course outline, paid tiers"
+    },
+    {
+        "id": "pip",
+        "handle": "pixelpip",
+        "name": "pixelpip",
+        "role": "game streamer",
+        "look": "Pixel",
+        "kind": "Creators and personal pages",
+        "shows": "Live banner, stream schedule, clips, memberships"
+    },
+    {
+        "id": "juno",
+        "handle": "junopark",
+        "name": "Juno Park",
+        "role": "illustrator",
+        "look": "Cutout",
+        "kind": "Creators and personal pages",
+        "shows": "Cut paper header, prints, commissions status"
+    },
+    {
+        "id": "lucia",
+        "handle": "luciaferrer",
+        "name": "Lucía Ferrer",
+        "role": "personal page",
+        "look": "Scrapbook",
+        "kind": "Creators and personal pages",
+        "shows": "Taped photo header, résumé, projects, contact"
+    },
+    {
+        "id": "staidan",
+        "handle": "staidans",
+        "name": "St Aidan's",
+        "role": "parish church",
+        "look": "Rose window",
+        "kind": "Events, teams and communities",
+        "shows": "Stained glass header, service times, giving"
+    },
+    {
+        "id": "rovers",
+        "handle": "riversiderovers",
+        "name": "Riverside Rovers",
+        "role": "youth football club",
+        "look": "Rovers",
+        "kind": "Events, teams and communities",
+        "shows": "Kit stripes and crest, fixtures, results, sign-up"
+    },
+    {
+        "id": "eastvale",
+        "handle": "eastvalelibrary",
+        "name": "Eastvale Library",
+        "role": "public library",
+        "look": "Stacks",
+        "kind": "Events, teams and communities",
+        "shows": "Library card header, opening hours, free classes"
+    }
+]

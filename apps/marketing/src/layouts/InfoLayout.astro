@@ -1,0 +1,23 @@
+---
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+    title: string;
+    description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={`${title} | Tondo`} description={description}>
+    <div class="wrap">
+        <Nav />
+        <main class="info">
+            <h1>{title}</h1>
+            <slot />
+        </main>
+    </div>
+    <Footer />
+</BaseLayout>

@@ -1,0 +1,26 @@
+# One web service runs Hono, which serves the built marketing site and editor and the API on one
+# origin. That keeps Neon Auth's cookies first-party. Postgres and auth are on Neon. See .docs/deploy.md.
+services:
+    - type: web
+      name: tondo
+      runtime: node
+      region: ohio # keep this close to the Neon project's region
+      plan: starter
+      branch: main
+      autoDeploy: true
+      # Migrations run last, so a failed build or migration leaves the old deploy live.
+      buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build && pnpm db:migrate
+      startCommand: pnpm start
+      healthCheckPath: /health
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: HOST
+            value: 0.0.0.0
+          - key: NEON_AUTH_COOKIE_SECRET
+            generateValue: true
+          # Set these in the Render dashboard. They are never committed.
+          - key: DATABASE_URL # Neon direct connection string
+            sync: false
+          - key: NEON_AUTH_BASE_URL # the Auth URL from the Neon console
+            sync: false

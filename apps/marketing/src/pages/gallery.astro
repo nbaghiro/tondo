@@ -1,0 +1,58 @@
+---
+import ExampleCard from "../components/ExampleCard.astro";
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
+import PagePreview from "../components/PagePreview.astro";
+import examples from "../data/examples.json";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const groups = [
+    "Shops and makers",
+    "Food and stays",
+    "Health and beauty",
+    "Trades and professionals",
+    "Teaching and learning",
+    "Creators and personal pages",
+    "Events, teams and communities",
+];
+---
+
+<BaseLayout
+    title="Gallery | Tondo"
+    description="Pages for shops, services, creators and communities, each with its own look."
+>
+    <div class="wrap logo-wide">
+        <Nav />
+        <header class="exh">
+            <h1>What a Tondo page can be</h1>
+            <p class="sub">
+                {examples.length} pages, each with its own look. Open any of them to scroll around
+                and try the tabs and questions.
+            </p>
+            <p class="note">
+                We designed these to show what's possible. The people and businesses are fictional.
+            </p>
+        </header>
+        {groups.map((group) => (
+            <section class="exg">
+                <h2>{group}</h2>
+                <div class="exgrid">
+                    {examples
+                        .filter((example) => example.kind === group)
+                        .map((example) => (
+                            <ExampleCard
+                                id={example.id}
+                                handle={example.handle}
+                                name={example.name}
+                                role={example.role}
+                                look={example.look}
+                                shows={example.shows}
+                            />
+                        ))}
+                </div>
+            </section>
+        ))}
+    </div>
+    <PagePreview />
+    <Footer />
+</BaseLayout>

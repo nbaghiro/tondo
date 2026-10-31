@@ -1,0 +1,96 @@
+---
+import Art from "./Art.astro";
+
+const swatches = [
+    { label: "Madder", colour: "#a42a55", hue: 0 },
+    { label: "Sienna", colour: "#b8641f", hue: 35 },
+    { label: "Sap", colour: "#4d7a2a", hue: 110 },
+    { label: "Indigo", colour: "#2b4fb8", hue: 235 },
+    { label: "Violet", colour: "#7a45b8", hue: 290 },
+];
+
+const people = [
+    {
+        name: "June Aster",
+        role: "Florist",
+        photo: "face-24",
+        position: "50% 50%",
+        seed: 51,
+        cta: "Order flowers",
+    },
+    {
+        name: "Rae Bell",
+        role: "Wedding planner",
+        photo: "face-25",
+        position: "50% 50%",
+        seed: 54,
+        cta: "Ask about a date",
+    },
+    {
+        name: "Ana Ruiz",
+        role: "Web developer",
+        photo: "face-29",
+        position: "50% 50%",
+        seed: 56,
+        cta: "See my work",
+    },
+];
+---
+
+<section class="band">
+    <div class="wrap art">
+        <div>
+            <h2>Every look starts with a painting</h2>
+            <p class="sub">
+                Backgrounds are drawn for your page, so two people using the same look get different
+                pictures. Change one colour and the rest of the page follows.
+            </p>
+            <div class="sw" role="group" aria-label="Try a colour">
+                {swatches.map((swatch, i) => (
+                    <button
+                        type="button"
+                        aria-pressed={i === 0 ? "true" : "false"}
+                        aria-label={swatch.label}
+                        style={`background:${swatch.colour}`}
+                        data-hue={swatch.hue}
+                        data-colour={swatch.colour}
+                    />
+                ))}
+            </div>
+        </div>
+        <div class="pgs" id="paints">
+            {people.map((person) => (
+                <div class="pg">
+                    <div class="pg-art">
+                        <Art seed={person.seed} />
+                    </div>
+                    <img
+                        src={`/examples/assets/${person.photo}.jpg`}
+                        alt=""
+                        style={`object-position:${person.position}`}
+                        loading="lazy"
+                    />
+                    <b>{person.name}</b>
+                    <small>{person.role}</small>
+                    <span class="pg-btn">{person.cta}</span>
+                    <i />
+                    <i />
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>(".sw button")];
+    const paints = document.getElementById("paints");
+    for (const button of buttons) {
+        button.addEventListener("click", () => {
+            for (const other of buttons) {
+                other.setAttribute("aria-pressed", String(other === button));
+            }
+            paints?.style.setProperty("--hue", `${button.getAttribute("data-hue") ?? "0"}deg`);
+            paints?.style.setProperty("--accent", button.getAttribute("data-colour") ?? "#a42a55");
+        });
+    }
+</script>

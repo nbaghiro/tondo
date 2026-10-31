@@ -1,0 +1,21 @@
+---
+import showcase from "../data/showcase.json";
+---
+
+<section class="band">
+    <div class="wrap">
+        <h2>More than a list of buttons</h2>
+        <p class="sub">
+            Add a player, a booking calendar, a shop or your opening hours. Each block picks up your
+            look.
+        </p>
+        <div class="bks">
+            {showcase.map((block) => (
+                <div class="bk">
+                    <div class={`look ${block.look} bk-in`} set:html={block.html} />
+                    <p>{block.cap}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>

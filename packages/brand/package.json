@@ -1,0 +1,13 @@
+{
+    "name": "@tondo/brand",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts",
+        "./tokens.css": "./styles/tokens.css"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    }
+}

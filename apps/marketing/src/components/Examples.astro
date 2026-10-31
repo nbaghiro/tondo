@@ -1,0 +1,134 @@
+---
+import examples from "../data/examples.json";
+import ExampleCard from "./ExampleCard.astro";
+import PagePreview from "./PagePreview.astro";
+---
+
+<section id="pages" style="padding-top:60px">
+    <div class="wrap ctr">
+        <h2>Pages with room for what you do</h2>
+        <p class="sub">
+            Shops, studios, creators and clubs each get a page of their own. Open any of them for a
+            closer look, or <a href="/gallery">see all {examples.length}</a>.
+        </p>
+    </div>
+    <div class="ex-row" data-strip aria-label="Pages made with Tondo" role="group">
+        <div class="ex-track">
+            {examples.map((example) => (
+                <ExampleCard
+                    id={example.id}
+                    handle={example.handle}
+                    name={example.name}
+                    role={example.role}
+                    look={example.look}
+                />
+            ))}
+        </div>
+    </div>
+    <div class="ex-steps">
+        <button type="button" class="ex-step" data-step="-1" aria-label="Previous pages">
+            ←
+        </button>
+        <button type="button" class="ex-step" data-step="1" aria-label="Next pages">
+            →
+        </button>
+    </div>
+    <PagePreview />
+</section>
+
+<script>
+    const SPEED = 26;
+    const HOVER_SPEED = 6;
+    const EASE_MS = 450;
+
+    const row = document.querySelector<HTMLElement>("[data-strip]");
+    const track = row?.querySelector<HTMLElement>(".ex-track");
+    if (row && track) {
+        const originals = [...track.children];
+        // A second copy lets the strip wrap with no visible jump. Keyboards and screen readers skip it.
+        for (const card of originals) {
+            const copy = card.cloneNode(true) as HTMLElement;
+            copy.setAttribute("aria-hidden", "true");
+            copy.tabIndex = -1;
+            track.append(copy);
+        }
+        row.classList.add("is-moving");
+
+        const still = matchMedia("(prefers-reduced-motion: reduce)");
+        const setWidth = () => {
+            const copy = track.children[originals.length];
+            return copy instanceof HTMLElement ? copy.offsetLeft : track.scrollWidth / 2;
+        };
+        // Starts with the first page a little in from the left, and earlier pages filling the gap.
+        let x = setWidth() - Math.min(170, Math.max(20, innerWidth * 0.085));
+        let speed = still.matches ? 0 : SPEED;
+        let hovering = false;
+        let focused = false;
+        let visible = true;
+        let last = 0;
+
+        const draw = () => {
+            track.style.transform = `translate3d(${-x}px, 0, 0)`;
+        };
+        const wrap = () => {
+            const width = setWidth();
+            x = ((x % width) + width) % width;
+        };
+        const frame = (now: number) => {
+            const ms = Math.min(now - last, 100);
+            last = now;
+            if (visible && !still.matches) {
+                const target = focused ? 0 : hovering ? HOVER_SPEED : SPEED;
+                speed += (target - speed) * (1 - Math.exp(-ms / EASE_MS));
+                x += (speed * ms) / 1000;
+                wrap();
+                draw();
+            }
+            requestAnimationFrame(frame);
+        };
+        draw();
+        requestAnimationFrame((now) => {
+            last = now;
+            frame(now);
+        });
+
+        new IntersectionObserver((entries) => {
+            visible = entries.some((entry) => entry.isIntersecting);
+        }).observe(row);
+        row.addEventListener("pointerover", (event) => {
+            hovering =
+                event.pointerType !== "touch" &&
+                event.target instanceof Element &&
+                event.target.closest(".ex") !== null;
+        });
+        row.addEventListener("pointerleave", () => {
+            hovering = false;
+        });
+
+        // The strip stops while a card has keyboard focus, with that card in view.
+        row.addEventListener("focusin", (event) => {
+            const card = event.target;
+            if (!(card instanceof HTMLElement) || !card.matches(":focus-visible")) return;
+            focused = true;
+            const left = card.offsetLeft - x;
+            if (left < 20 || left + card.offsetWidth > row.clientWidth - 20) {
+                x = card.offsetLeft - 40;
+                wrap();
+                draw();
+            }
+        });
+        row.addEventListener("focusout", () => {
+            focused = false;
+        });
+
+        for (const button of document.querySelectorAll<HTMLButtonElement>("[data-step]")) {
+            button.addEventListener("click", () => {
+                const card = originals[0];
+                const step = card instanceof HTMLElement ? card.offsetWidth + 26 : 336;
+                x += step * Number(button.getAttribute("data-step"));
+                wrap();
+                draw();
+            });
+        }
+    }
+</script>

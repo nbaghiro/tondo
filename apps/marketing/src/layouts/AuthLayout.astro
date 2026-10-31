@@ -1,0 +1,63 @@
+---
+import "@tondo/brand/tokens.css";
+import "../styles/auth.css";
+import examples from "../data/examples.json";
+import fonts from "../data/fonts.json";
+import Art from "../components/Art.astro";
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+
+// Every example page once, in an order that keeps similar looks apart. Sam's yellow is left out.
+const pages = examples.map((example) => example.id).filter((id) => id !== "sam");
+const COLUMNS = 8;
+const PER_COLUMN = 7;
+const columns = Array.from({ length: COLUMNS }, (_, column) =>
+    Array.from(
+        { length: PER_COLUMN },
+        (_, row) => pages[(column * PER_COLUMN + row * 3 + column) % pages.length] ?? "maya",
+    ),
+);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href={fonts.href} />
+    </head>
+    <body class="auth">
+        <main class="auth-main">
+            <a class="auth-logo" href="/">
+                <span>
+                    <Art seed={9} />
+                </span>
+                Tondo
+            </a>
+            <div class="auth-box">
+                <slot />
+            </div>
+        </main>
+        <div class="auth-side" aria-hidden="true">
+            <div class="auth-strip">
+                {columns.map((column) => (
+                    <div class="auth-col">
+                        {column.map((id) => (
+                            <img src={`/auth-strip/${id}.jpg`} alt="" width="180" height="390" />
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,40 @@
+---
+interface Props {
+    id: string;
+    handle: string;
+    name: string;
+    role: string;
+    look: string;
+    shows?: string | undefined;
+}
+
+const { id, handle, name, role, look, shows } = Astro.props;
+---
+
+<a
+    class="ex"
+    href={`/${handle}`}
+    data-preview={handle}
+    data-name={name}
+    data-role={role}
+    data-shot={id}
+>
+    <figure style="margin:0">
+        <div class="ex-phone">
+            <img
+                src={`/examples/assets/shots/${id}.jpg`}
+                alt=""
+                width="390"
+                height="844"
+                loading="lazy"
+            />
+        </div>
+        <figcaption>
+            <b>{name}</b>
+            <span>
+                {role.charAt(0).toUpperCase() + role.slice(1)}. {look} look.
+            </span>
+            {shows && <span>{shows}</span>}
+        </figcaption>
+    </figure>
+</a>

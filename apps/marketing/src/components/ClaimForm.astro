@@ -1,0 +1,15 @@
+---
+interface Props {
+    id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<form class="claim" id={id} action="/signup" method="get">
+    <label for={`${id}-name`}>tondo.page/</label>
+    <input id={`${id}-name`} name="handle" placeholder="maya" aria-label="Your name" />
+    <button class="mbtn" type="submit">
+        Claim your link
+    </button>
+</form>

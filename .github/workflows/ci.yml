@@ -1,0 +1,71 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .node-version
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - name: Format
+              run: pnpm format:check
+            - name: Suppressions
+              run: pnpm check:suppressions
+            - name: Boundaries
+              run: pnpm check:boundaries
+            - name: Ports
+              run: pnpm check:ports
+            - name: Naming
+              run: pnpm check:naming
+            - name: Lint
+              run: pnpm lint
+            - name: Typecheck
+              run: pnpm typecheck
+            - name: Test
+              run: pnpm test
+            - name: Build
+              run: pnpm build
+            - name: Compose file
+              run: docker compose config --quiet
+
+    # Runs the migrations against a real Postgres and requests a seeded page from the running server.
+    integration:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:18
+                env:
+                    POSTGRES_USER: tondo
+                    POSTGRES_PASSWORD: tondo
+                    POSTGRES_DB: tondo
+                ports:
+                    - 8102:5432
+                options: >-
+                    --health-cmd "pg_isready -U tondo -d tondo"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .node-version
+                  cache: pnpm
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm db:migrate
+            - run: pnpm db:seed
+            - name: Serve a page
+              run: |
+                  pnpm --filter @tondo/server start &
+                  curl --fail --silent --retry 20 --retry-delay 1 --retry-connrefused http://127.0.0.1:8101/health
+                  curl --fail --silent http://127.0.0.1:8101/maya | grep "Maya Okafor"

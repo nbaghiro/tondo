@@ -1,0 +1,12 @@
+packages:
+    - "apps/*"
+    - "packages/*"
+
+# One version of anything used in more than one workspace.
+catalog:
+    "@types/node": ^22.19.0
+    drizzle-orm: ^0.45.4
+    tsx: ^4.23.15
+    # typescript-eslint supports TypeScript below 6.1, so this can't move to 7 yet.
+    typescript: ~6.0.3
+    zod: ^4.6.7

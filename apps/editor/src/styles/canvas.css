@@ -1,0 +1,78 @@
+/* Editor-only rules inside the page's iframe. Published pages never get these. */
+html.look {
+    scrollbar-width: none;
+}
+.t-block,
+#t-header {
+    position: relative;
+    cursor: pointer;
+    display: flow-root;
+}
+.t-block > *,
+#t-header .p-head {
+    outline: 2px solid transparent;
+    outline-offset: 3px;
+    transition: outline-color 0.12s;
+}
+.t-block:hover > *,
+#t-header:hover .p-head {
+    outline-color: color-mix(in srgb, var(--sel) 38%, transparent);
+}
+.t-selected > *,
+#t-header.t-selected .p-head {
+    outline-color: var(--sel);
+}
+.t-dragging {
+    opacity: 0.25;
+}
+.t-fresh {
+    animation: t-grow 0.42s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+}
+@keyframes t-grow {
+    from {
+        opacity: 0;
+        transform: scale(0.94) translateY(8px);
+    }
+}
+[contenteditable] {
+    outline: 0;
+    cursor: text;
+    box-shadow: 0 2px 0 var(--sel);
+}
+[data-field]:empty::before {
+    content: "Add text";
+    opacity: 0.5;
+}
+#t-drop {
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--sel);
+    box-shadow: 0 0 0 2px #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+.t-empty {
+    margin-top: 26px;
+    padding: 26px 20px;
+    text-align: center;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--r);
+}
+.t-empty b {
+    display: block;
+    font: var(--dw, 500) 21px/1.2 var(--disp);
+}
+.t-empty span {
+    display: block;
+    margin-top: 6px;
+    color: var(--mut);
+}
+@media (prefers-reduced-motion: reduce) {
+    .t-fresh {
+        animation: none;
+    }
+}

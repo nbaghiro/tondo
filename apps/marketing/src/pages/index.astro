@@ -1,0 +1,27 @@
+---
+import BlockShowcase from "../components/BlockShowcase.astro";
+import Closing from "../components/Closing.astro";
+import Examples from "../components/Examples.astro";
+import Footer from "../components/Footer.astro";
+import Hero from "../components/Hero.astro";
+import HowItWorks from "../components/HowItWorks.astro";
+import PaintSection from "../components/PaintSection.astro";
+import Pricing from "../components/Pricing.astro";
+import Teams from "../components/Teams.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+    title="Tondo: one link to everything you do"
+    description="Add your links, choose a look and share one address. Tondo takes care of the design."
+>
+    <Hero />
+    <Examples />
+    <BlockShowcase />
+    <HowItWorks />
+    <PaintSection />
+    <Teams />
+    <Pricing />
+    <Closing />
+    <Footer />
+</BaseLayout>
