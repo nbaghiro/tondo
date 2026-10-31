@@ -89,3 +89,7 @@ pnpm dev
 ```
 
 Then open the editor at `http://127.0.0.1:8100`, the example page at `http://127.0.0.1:8101/maya` and the marketing site at `http://127.0.0.1:8103`.
+
+## Browser tests
+
+`tests/` holds Playwright tests, run with `pnpm e2e`. They build the apps and run them through the real server on port 8109, with a local stand-in for Neon Auth on 8108 and their own `tondo_test` database. They aren't part of `pnpm check`, so CI runs them as a separate job.

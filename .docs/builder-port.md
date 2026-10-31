@@ -199,6 +199,8 @@ Commit today's work, because the repo has no commits at all and a port this size
 
 ### 1. Safety net
 
+Done. `pnpm e2e` runs in CI as the `browser` job.
+
 - Add Playwright to the repo and CI, covering what's been checked by hand: selecting, inline editing, dragging, undo, phone sheet.
 - Tests can't use real Neon, so they run the server against a local stand-in for Neon's API, which only the test setup can turn on.
 - A smaller set covers sign-up, the verify screen and the claim screen.
@@ -206,6 +208,8 @@ Commit today's work, because the repo has no commits at all and a port this size
 Finished when the tests pass on today's editor.
 
 ### 2. Foundations
+
+Done.
 
 - `defineBlock` gains layouts with availability, sources and field conditions. `defineLook` gains `header`.
 - CSS moves per block, so a page only sends what it uses.
@@ -216,6 +220,8 @@ Finished when the tests pass on today's editor.
 Finished when today's three blocks and two looks still render through the new shape, with tests extended.
 
 ### 3. One slice, all the way through: **Review**
+
+Built on 2026-10-31 and waiting for review. `heading`, `text`, `button`, `link-card` and `gallery`, in Madder, Sumi, Surf and Dusk. All 12 field types exist. `source` and `file` aren't used by these blocks, so they can be tried at `/?fields` on the dev server only.
 
 Before moving everything, build a small set to full quality: `heading`, `text`, `button`, `link-card` and `gallery` (the hardest common one), in Madder, Sumi and Surf (one signature header).
 

@@ -28,6 +28,7 @@ export function createEditor(account: { handle: string; name: string }) {
     const [selected, setSelected] = createSignal<string | null>(null);
     const [saved, setSaved] = createSignal(true);
     const [version, setVersion] = createSignal(0);
+    let justAdded = false;
 
     const apply = (next: Page) => {
         setPage(next);
@@ -56,6 +57,12 @@ export function createEditor(account: { handle: string; name: string }) {
         selected,
         saved,
         select: setSelected,
+        /** True once after a block is added, so the panel can focus its first field. */
+        takeJustAdded() {
+            const was = justAdded;
+            justAdded = false;
+            return was;
+        },
         canUndo: () => {
             version();
             return history.canUndo();
@@ -76,6 +83,7 @@ export function createEditor(account: { handle: string; name: string }) {
             const after = current.blocks.findIndex((other) => other.id === selected());
             const index = at ?? (after >= 0 ? after + 1 : current.blocks.length);
             change(addBlock(current, block, index));
+            justAdded = true;
             setSelected(block.id);
         },
         move(id: string, to: number) {

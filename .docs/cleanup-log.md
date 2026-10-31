@@ -39,5 +39,6 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Done | Example pages open at their own addresses | `/maya`, `/oskarbloom` and so on. Reserved, so people can't claim them |
 | Later | Onboarding flow for new people | After the builder port |
 | Done | Fuller gallery with smaller gaps and no labels | 12px gaps, and names stay available to screen readers |
+| For review | Builder port step 3: one slice with the real inspector | Five blocks in four looks, in `apps/editor`. See `builder-port.md` |
 
 The site changes are in `apps/marketing`. `.docs/marketing/index.html` is now an older reference and doesn't have the rebuilt sections.

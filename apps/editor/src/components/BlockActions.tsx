@@ -1,4 +1,4 @@
-import { blockDefinitions } from "@tondo/page";
+import { blockDefinitions, findBlock } from "@tondo/page";
 import { createEffect, createSignal, Show } from "solid-js";
 import { startDrag } from "../lib/drag";
 import { blockNode } from "../lib/frame";
@@ -12,7 +12,6 @@ interface BlockActionsProps {
     layoutTick: () => number;
 }
 
-const GAP = 12;
 const EDGE = 8;
 
 export function BlockActions(props: BlockActionsProps) {
@@ -24,7 +23,16 @@ export function BlockActions(props: BlockActionsProps) {
         const selected = props.editor.selected();
         return selected && selected !== HEADER ? selected : null;
     };
-    const index = () => props.editor.page().blocks.findIndex((block) => block.id === id());
+    const found = () => findBlock(props.editor.page(), id() ?? "");
+    const index = () => found()?.index ?? -1;
+    const siblings = () => {
+        const place = found()?.place;
+        if (!place) return props.editor.page().blocks.length;
+        const tabs = props.editor.page().blocks.find((block) => block.id === place.tabs);
+        return tabs?.type === "tabs"
+            ? (tabs.tabs.find((tab) => tab.id === place.tab)?.blocks.length ?? 0)
+            : 0;
+    };
 
     createEffect(() => {
         props.layoutTick();
@@ -36,10 +44,14 @@ export function BlockActions(props: BlockActionsProps) {
         if (!node) return;
         const outer = frame.getBoundingClientRect();
         const inner = node.getBoundingClientRect();
-        const height = element.offsetHeight;
-        const wanted = outer.top + inner.top + inner.height / 2 - height / 2;
-        setTop(Math.max(outer.top + EDGE, Math.min(outer.bottom - height - EDGE, wanted)));
-        setLeft(outer.left - element.offsetWidth - GAP);
+        const wanted = outer.top + inner.top - element.offsetHeight / 2;
+        setTop(
+            Math.max(
+                outer.top + EDGE,
+                Math.min(outer.bottom - element.offsetHeight - EDGE, wanted),
+            ),
+        );
+        setLeft(outer.left + Math.min(inner.right, frame.clientWidth) - element.offsetWidth - EDGE);
     });
 
     return (
@@ -57,7 +69,7 @@ export function BlockActions(props: BlockActionsProps) {
                         aria-label="Drag to move"
                         onPointerDown={(e) => {
                             const frame = props.frame();
-                            const block = props.editor.page().blocks[index()];
+                            const block = found()?.block;
                             if (!frame || !block) return;
                             startDrag({
                                 event: e,
@@ -86,7 +98,7 @@ export function BlockActions(props: BlockActionsProps) {
                     </button>
                     <button
                         aria-label="Move down"
-                        disabled={index() >= props.editor.page().blocks.length - 1}
+                        disabled={index() >= siblings() - 1}
                         onClick={() => {
                             props.editor.move(selected, index() + 1);
                         }}

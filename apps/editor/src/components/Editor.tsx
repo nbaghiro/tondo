@@ -1,4 +1,4 @@
-import { looks, paint } from "@tondo/render";
+import { fontsHref, looks, paint } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { Account } from "../lib/account";
 import { createEditor, HEADER } from "../state/document";
@@ -12,11 +12,44 @@ import { TopBar } from "./TopBar";
 
 type Sheet = "add" | "look" | null;
 
+/** How far the sheet's grip has to move to count as a drag and not a tap. */
+const GRIP_DRAG = 24;
+
 export function Editor(props: { account: Account }) {
     const editor = createEditor(untrack(() => props.account));
     const [frame, setFrame] = createSignal<HTMLIFrameElement>();
     const [layoutTick, setLayoutTick] = createSignal(0);
     const [sheet, setSheet] = createSignal<Sheet>(null);
+    const [size, setSize] = createSignal<"half" | "full">("half");
+
+    // Fonts for the page live in its iframe, and thumbnails need them out here too.
+    createEffect(() => {
+        const href = fontsHref(editor.page());
+        const id = "look-fonts";
+        let link = document.getElementById(id) as HTMLLinkElement | null;
+        if (!link) {
+            link = document.createElement("link");
+            link.id = id;
+            link.rel = "stylesheet";
+            document.head.append(link);
+        }
+        if (link.getAttribute("href") !== href) link.setAttribute("href", href);
+    });
+
+    const onGripDown = (e: PointerEvent) => {
+        const startY = e.clientY;
+        const onUp = (up: PointerEvent) => {
+            const moved = up.clientY - startY;
+            if (Math.abs(moved) < GRIP_DRAG) return;
+            if (moved < 0) setSize("full");
+            else if (size() === "full") setSize("half");
+            else {
+                setSheet(null);
+                editor.select(null);
+            }
+        };
+        window.addEventListener("pointerup", onUp, { once: true });
+    };
 
     // The palette is limited to hex colours by the page schema, so this markup is safe to insert.
     const [backdrop, setBackdrop] = createSignal<HTMLDivElement>();
@@ -25,7 +58,9 @@ export function Editor(props: { account: Account }) {
         const look = looks[page.look];
         const element = backdrop();
         if (element)
-            element.innerHTML = paint(page.paint ?? look.palette, (page.seed ?? look.seed) + 1);
+            element.innerHTML = paint(page.paint ?? look.palette, (page.seed ?? look.seed) + 1, {
+                ring: look.ring,
+            });
     });
 
     const onKey = (e: KeyboardEvent) => {
@@ -33,6 +68,7 @@ export function Editor(props: { account: Account }) {
         const typing =
             target instanceof HTMLInputElement ||
             target instanceof HTMLTextAreaElement ||
+            target instanceof HTMLSelectElement ||
             (target instanceof HTMLElement && target.isContentEditable);
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z" && !typing) {
             e.preventDefault();
@@ -40,9 +76,13 @@ export function Editor(props: { account: Account }) {
             else editor.undo();
             return;
         }
+        if (e.key === "Escape") {
+            if (target instanceof HTMLElement) target.blur();
+            editor.select(null);
+            return;
+        }
         if (typing) return;
         const id = editor.selected();
-        if (e.key === "Escape") editor.select(null);
         if (id && id !== HEADER && (e.key === "Backspace" || e.key === "Delete")) {
             e.preventDefault();
             editor.remove(id);
@@ -60,11 +100,18 @@ export function Editor(props: { account: Account }) {
     });
 
     createEffect(() => {
-        if (editor.selected()) setSheet(null);
+        if (editor.selected()) {
+            setSheet(null);
+            setSize("half");
+        }
     });
 
     return (
-        <div class="editor" data-sheet={sheet() ?? (editor.selected() ? "edit" : undefined)}>
+        <div
+            class="editor"
+            data-sheet={sheet() ?? (editor.selected() ? "edit" : undefined)}
+            data-size={size()}
+        >
             <div class="backdrop" aria-hidden="true" ref={setBackdrop} />
             <TopBar editor={editor} account={props.account} />
             <aside class="panel shelf" aria-label="Add to your page">
@@ -86,16 +133,23 @@ export function Editor(props: { account: Account }) {
             <BlockActions editor={editor} frame={frame} layoutTick={layoutTick} />
             <aside class="panel side" aria-label="Look and settings">
                 <button
-                    class="round sheet-close"
-                    aria-label="Close"
-                    onClick={() => {
-                        setSheet(null);
-                        editor.select(null);
-                    }}
+                    type="button"
+                    class="sheet-grip"
+                    aria-label={
+                        size() === "half" ? "Make the panel taller" : "Make the panel shorter"
+                    }
+                    onClick={() => setSize((was) => (was === "half" ? "full" : "half"))}
+                    onPointerDown={onGripDown}
+                />
+                <Show
+                    when={editor.selected()}
+                    keyed
+                    fallback={
+                        <div class="side-body">
+                            <Looks editor={editor} />
+                        </div>
+                    }
                 >
-                    <Icon name="close" />
-                </button>
-                <Show when={editor.selected()} fallback={<Looks editor={editor} />}>
                     <Inspector editor={editor} onClose={() => editor.select(null)} />
                 </Show>
             </aside>

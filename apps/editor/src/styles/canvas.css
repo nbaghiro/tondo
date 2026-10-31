@@ -8,18 +8,23 @@ html.look {
     cursor: pointer;
     display: flow-root;
 }
-.t-block > *,
-#t-header .p-head {
+#t-header {
     outline: 2px solid transparent;
-    outline-offset: 3px;
+    outline-offset: -2px;
+    border-radius: 14px;
     transition: outline-color 0.12s;
 }
-.t-block:hover > *,
-#t-header:hover .p-head {
+.t-block > :not(.t-badge) {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: outline-color 0.12s;
+}
+.t-block:hover > :not(.t-badge),
+#t-header:hover {
     outline-color: color-mix(in srgb, var(--sel) 38%, transparent);
 }
-.t-selected > *,
-#t-header.t-selected .p-head {
+.t-block.t-selected > :not(.t-badge),
+#t-header.t-selected {
     outline-color: var(--sel);
 }
 .t-dragging {
@@ -39,9 +44,45 @@ html.look {
     cursor: text;
     box-shadow: 0 2px 0 var(--sel);
 }
-[data-field]:empty::before {
-    content: "Add text";
+/* Empty fields take no room, until their block is selected. */
+[data-field]:empty {
+    display: none;
+}
+.t-selected [data-field]:empty {
+    display: block;
+    min-width: 3em;
     opacity: 0.5;
+}
+.t-selected [data-field]:empty::before {
+    content: "Add text";
+}
+.t-off > :not(.t-badge) {
+    opacity: 0.38;
+}
+.t-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    z-index: 2;
+    padding: 3px 9px;
+    font:
+        700 11.5px Mulish,
+        sans-serif;
+    color: #fff;
+    background: #3b1222;
+    border-radius: 20px;
+    pointer-events: none;
+}
+.t-placeholder {
+    margin-top: 10px;
+    padding: 16px;
+    font:
+        600 13.5px Mulish,
+        sans-serif;
+    text-align: center;
+    color: var(--mut);
+    border: 1.5px dashed var(--line);
+    border-radius: 12px;
 }
 #t-drop {
     position: fixed;
@@ -56,6 +97,7 @@ html.look {
     z-index: 3;
 }
 .t-empty {
+    background: var(--bg);
     margin-top: 26px;
     padding: 26px 20px;
     text-align: center;
