@@ -1,4 +1,4 @@
-import { pageSchema } from "@tondo/page";
+import { readPage } from "@tondo/page";
 import type { Page } from "@tondo/page";
 import { and, eq } from "drizzle-orm";
 import type { Db } from "./client";
@@ -14,7 +14,7 @@ export async function findPublishedPage(db: Db, handle: string): Promise<Page | 
         .innerJoin(users, eq(pages.userId, users.id))
         .where(and(eq(users.handle, handle), eq(pages.slug, MAIN_PAGE)))
         .limit(1);
-    return row?.published ? pageSchema.parse(row.published) : null;
+    return row?.published ? readPage(row.published) : null;
 }
 
 /** Publishes a main page for a made-up user. For seed data. */

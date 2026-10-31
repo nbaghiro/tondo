@@ -14,6 +14,8 @@ const filter = (id: string, seed: number, scale = 26, mottle = 0.75) =>
 export interface PaintOptions {
     /** Lightens instead of darkens where paint overlaps, for dark looks. */
     screen?: boolean | undefined;
+    /** Draws one brush ring of this width instead of a painting. */
+    ring?: number | undefined;
 }
 
 export function paint(
@@ -23,6 +25,9 @@ export function paint(
 ): string {
     const random = rng(seed * 7919 + 11);
     const id = `paint-${seed}`;
+    if (options.ring) {
+        return `<svg class="tondo" viewBox="0 0 400 400" aria-hidden="true"><defs>${filter(id, seed, 12, 0.6)}</defs><g filter="url(#${id})"><circle cx="200" cy="200" r="165" fill="none" stroke="${palette[0] ?? "#000000"}" stroke-width="${options.ring}" stroke-dasharray="930 110" stroke-linecap="round" transform="rotate(${seed * 47} 200 200)"/></g></svg>`;
+    }
     const shift = seed % palette.length;
     const colours = palette.map((_, i) => palette[(i + shift) % palette.length] ?? "#000000");
     const blend = options.screen ? "screen" : "multiply";

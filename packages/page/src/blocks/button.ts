@@ -4,20 +4,25 @@ import { link, text } from "../fields";
 
 export const button = defineBlock({
     schema: blockSchema("button", ["filled", "outline"], {
-        text: z.string().max(120),
         url: linkValue,
+        text: z.string().max(40),
     }),
     name: "Button",
     group: "actions",
-    variantLabels: { filled: "Filled", outline: "Outline" },
-    fields: [text("text", "Text"), link("url", "Link")],
+    layouts: { filled: { label: "Filled" }, outline: { label: "Outline" } },
+    fields: [
+        link("url", "Link", { fills: "text" }),
+        text("text", "Button text", { max: 40, inline: true }),
+    ],
     make: () => ({
         type: "button" as const,
         variant: "filled" as const,
-        text: "Visit my website",
         url: "",
+        text: "Visit my shop",
     }),
-    css: `.b-btn{display:block;text-align:center;font-weight:600;padding:14px 18px;margin-top:10px;background:var(--btn);color:var(--btnfg)!important;border-radius:var(--rb);border:var(--bb,0)}.b-btn-outline{background:var(--card);color:var(--cardfg)!important;border:var(--line-b,1px solid var(--line))}`,
+    css: `.b-btn{display:block;text-align:center;font-weight:600;padding:14px 18px;margin-top:10px;background:var(--btn);color:var(--btnfg)!important;border-radius:var(--rb);border:var(--bb,0)}.b-btn.alt{background:var(--card);color:var(--cardfg)!important;border:var(--line-b,1px solid var(--line))}`,
     render: (block, ctx) =>
-        `<a class="b-btn${block.variant === "outline" ? " b-btn-outline" : ""}" href="${safeHref(block.url)}">${editableText(ctx, "span", "text", block.text)}</a>`,
+        block.text || ctx.editable
+            ? `<a class="b-btn${block.variant === "outline" ? " alt" : ""}" href="${safeHref(block.url)}">${editableText(ctx, "span", "text", block.text)}</a>`
+            : "",
 });

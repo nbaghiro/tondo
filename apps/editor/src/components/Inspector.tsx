@@ -1,4 +1,4 @@
-import { blockDefinitions } from "@tondo/page";
+import { blockDefinitions, findBlock } from "@tondo/page";
 import type { Field } from "@tondo/page";
 import { createSignal, For, Show } from "solid-js";
 import { getField, HEADER } from "../state/document";
@@ -6,9 +6,9 @@ import type { EditorState } from "../state/document";
 import { Icon } from "./Icon";
 
 const HEADER_FIELDS: readonly Field[] = [
-    { kind: "text", key: "name", label: "Name" },
-    { kind: "text", key: "tagline", label: "Short line" },
-    { kind: "longText", key: "bio", label: "About" },
+    { kind: "text", key: "name", label: "Name", max: 80 },
+    { kind: "text", key: "tagline", label: "Short line", max: 120 },
+    { kind: "longText", key: "bio", label: "About", max: 280 },
 ];
 
 function FieldInput(props: { editor: EditorState; target: string; field: Field }) {
@@ -29,7 +29,13 @@ function FieldInput(props: { editor: EditorState; target: string; field: Field }
     };
 
     return (
-        <Show when={props.field.kind !== "photo" && props.field.kind !== "choice"}>
+        <Show
+            when={
+                props.field.kind === "text" ||
+                props.field.kind === "longText" ||
+                props.field.kind === "link"
+            }
+        >
             <label class="field">
                 <span>{props.field.label}</span>
                 <Show
@@ -63,7 +69,7 @@ function FieldInput(props: { editor: EditorState; target: string; field: Field }
 }
 
 export function Inspector(props: { editor: EditorState; onClose: () => void }) {
-    const block = () => props.editor.page().blocks.find((b) => b.id === props.editor.selected());
+    const block = () => findBlock(props.editor.page(), props.editor.selected() ?? "")?.block;
     const definition = () => {
         const current = block();
         return current ? blockDefinitions[current.type] : null;
@@ -85,10 +91,10 @@ export function Inspector(props: { editor: EditorState; onClose: () => void }) {
                 </button>
                 <h2>{isHeader() ? "Your details" : definition()?.name}</h2>
             </div>
-            <Show when={Object.entries(definition()?.variantLabels ?? {}).length > 1}>
+            <Show when={Object.entries(definition()?.layouts ?? {}).length > 1}>
                 <div class="seg" role="group" aria-label="Layout">
-                    <For each={Object.entries(definition()?.variantLabels ?? {})}>
-                        {([variant, label]) => (
+                    <For each={Object.entries(definition()?.layouts ?? {})}>
+                        {([variant, layout]) => (
                             <button
                                 aria-pressed={block()?.variant === variant}
                                 onClick={() => {
@@ -96,7 +102,7 @@ export function Inspector(props: { editor: EditorState; onClose: () => void }) {
                                     if (id) props.editor.setField(id, "variant", variant);
                                 }}
                             >
-                                {label}
+                                {layout.label}
                             </button>
                         )}
                     </For>

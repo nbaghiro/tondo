@@ -1,4 +1,4 @@
-import { blockDefinitions, escapeHtml } from "@tondo/page";
+import { allBlocks, blockDefinitions, drawBlock, escapeHtml } from "@tondo/page";
 import type { Block, Page, RenderContext } from "@tondo/page";
 import { baseCss } from "./base-css";
 import { renderHeader } from "./header";
@@ -6,38 +6,24 @@ import { looks } from "./looks";
 
 const FONT_ORIGIN = "https://fonts.googleapis.com/css2?";
 
-const blockCss = Object.values(blockDefinitions)
-    .map((definition) => definition.css)
-    .join("\n");
-
 export function fontsHref(page: Page): string {
     return `${FONT_ORIGIN}${looks[page.look].fonts}&display=swap`;
 }
 
-/** Everything the page needs apart from its fonts. Only the page's own look is included. */
+/** Everything the page needs apart from its fonts: only its own look, and only the blocks it uses. */
 export function renderCss(page: Page): string {
+    const used = new Set(allBlocks(page.blocks).map((block) => block.type));
+    const blockCss = [...used].map((type) => blockDefinitions[type].css).join("\n");
     return `${baseCss}\n${blockCss}\n${looks[page.look].css}`;
 }
 
-function isShowing(block: Block, now: Date): boolean {
-    if (block.hidden) return false;
-    if (block.showFrom && new Date(block.showFrom) > now) return false;
-    if (block.showUntil && new Date(block.showUntil) < now) return false;
-    return true;
-}
-
 export function renderBlock(block: Block, ctx: RenderContext): string {
-    const html = blockDefinitions[block.type].draw(block, ctx);
-    return ctx.editable
-        ? `<div class="t-block" data-block-id="${escapeHtml(block.id)}">${html}</div>`
-        : html;
+    return drawBlock(block, ctx);
 }
 
 export function renderBody(page: Page, ctx: RenderContext, now = new Date()): string {
-    const blocks = ctx.editable
-        ? page.blocks
-        : page.blocks.filter((block) => isShowing(block, now));
-    return `<main class="page"><div id="t-header">${renderHeader(page, ctx)}</div><div id="t-blocks">${blocks.map((block) => renderBlock(block, ctx)).join("")}</div></main>`;
+    const withNow = { ...ctx, now };
+    return `<main class="page"><div id="t-header">${renderHeader(page, withNow)}</div><div id="t-blocks">${page.blocks.map((block) => drawBlock(block, withNow)).join("")}</div></main>`;
 }
 
 export interface DocumentOptions extends RenderContext {

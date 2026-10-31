@@ -1,4 +1,4 @@
-const SAFE_URL = /^(?:https?:\/\/[^\s/]|mailto:[^\s])\S*$/i;
+const SAFE_URL = /^(?:https?:\/\/[^\s/]|mailto:[^\s]|tel:[^\s])\S*$/i;
 
 // Pages hold links written by anyone, so a javascript: address must never reach a visitor. This allows
 // only known schemes and no whitespace or control characters, which browsers strip before parsing.

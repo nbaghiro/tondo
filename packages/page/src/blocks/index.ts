@@ -1,25 +1,38 @@
 import { z } from "zod";
-import type { BlockDefinition } from "../define-block";
-import { button } from "./button";
-import { heading } from "./heading";
-import { linkCard } from "./link-card";
+import { wrapBlock } from "../define-block";
+import type { BlockDefinition, RenderContext } from "../define-block";
+import { leafDefinitions, leafSchemaUnion } from "./leaves";
+import type { LeafBlock } from "./leaves";
+import { tabs } from "./tabs";
 
-// Adding a block: copy a block file, change it, then add it to both lists here.
+export { leafSchemaUnion };
+export type { LeafBlock };
+
 export const blockSchemaUnion = z.discriminatedUnion("type", [
-    heading.schema,
-    button.schema,
-    linkCard.schema,
+    ...leafSchemaUnion.options,
+    tabs.schema,
 ]);
 
 export type Block = z.output<typeof blockSchemaUnion>;
 export type BlockType = Block["type"];
 
-export const blockDefinitions: Record<BlockType, BlockDefinition> = {
-    heading,
-    button,
-    "link-card": linkCard,
-};
+export const blockDefinitions: Record<BlockType, BlockDefinition> = { ...leafDefinitions, tabs };
 
 export const blockTypes = Object.keys(blockDefinitions).filter(
     (type): type is BlockType => type in blockDefinitions,
 );
+
+/** What the shelf offers. Held blocks still render, because saved pages may use them. */
+export const availableBlockTypes = blockTypes.filter((type) => !blockDefinitions[type].held);
+
+export function drawBlock(block: Block, ctx: RenderContext): string {
+    const definition = blockDefinitions[block.type];
+    return wrapBlock(block, definition.name, definition.draw(block, ctx), ctx);
+}
+
+/** Every block on the page, including those inside tabs. */
+export function allBlocks(blocks: readonly Block[]): Block[] {
+    return blocks.flatMap((block) =>
+        block.type === "tabs" ? [block, ...block.tabs.flatMap((tab) => tab.blocks)] : [block],
+    );
+}

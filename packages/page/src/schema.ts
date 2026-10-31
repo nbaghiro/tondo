@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { blockSchemaUnion } from "./blocks";
+import { linkValue, photoValue } from "./define-block";
 import { isReservedHandle, isValidHandle } from "./handle";
-import { linkValue } from "./define-block";
 
 export const handleSchema = z
     .string()
@@ -13,7 +13,7 @@ export const lookNames = ["madder", "dusk"] as const;
 export const lookNameSchema = z.enum(lookNames);
 export type LookName = z.output<typeof lookNameSchema>;
 
-export const socialNetworks = [
+export const linkTypes = [
     "instagram",
     "tiktok",
     "youtube",
@@ -21,23 +21,40 @@ export const socialNetworks = [
     "apple",
     "globe",
     "mail",
+    "phone",
+    "chat",
     "pin",
 ] as const;
 
+/** "look" is whatever the look draws for itself. The others work in every look. */
+export const headerLayouts = ["look", "centred", "left", "full", "arch", "banner"] as const;
+
 const headerSchema = z.strictObject({
+    layout: z.enum(headerLayouts),
     name: z.string().max(80),
-    tagline: z.string().max(120),
-    bio: z.string().max(280),
-    photo: z.string(),
-    position: z.string().optional(),
-    zoom: z.number().min(1).max(3).optional(),
-    social: z.array(z.strictObject({ network: z.enum(socialNetworks), url: linkValue })).max(40),
+    tagline: z.string().max(120).optional(),
+    bio: z.string().max(280).optional(),
+    photo: photoValue.optional(),
+    links: z
+        .array(
+            z.strictObject({
+                id: z.string().min(1),
+                type: z.enum(linkTypes),
+                value: linkValue,
+            }),
+        )
+        .max(12),
+    buttonText: z.string().max(40).optional(),
+    buttonUrl: linkValue.optional(),
 });
 
 const colour = z.string().regex(/^#[0-9a-f]{6}$/i);
 
-/** One page's content. Its address belongs to the profile, so it isn't stored here. */
+export const PAGE_VERSION = 1;
+
+/** One page's content. Its address belongs to the user, so it isn't stored here. */
 export const pageSchema = z.strictObject({
+    version: z.literal(PAGE_VERSION),
     look: lookNameSchema,
     /** The chosen paint colours. Leaving this out uses the look's own. */
     paint: z.array(colour).min(1).max(6).optional(),

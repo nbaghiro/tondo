@@ -1,36 +1,57 @@
-import { escapeHtml, icon, safeHref } from "@tondo/page";
+import { escapeHtml, icon, photoTag, safeHref } from "@tondo/page";
 import type { Page, RenderContext } from "@tondo/page";
 import { paint } from "./art";
+import type { HeaderParts } from "./define-look";
 import { looks } from "./looks";
 
-const editable = (ctx: RenderContext, tag: string, path: string, value: string, cls = "") => {
+const editable = (
+    ctx: RenderContext,
+    tag: string,
+    path: string,
+    value: string | undefined,
+    cls = "",
+) => {
+    if (!value && !ctx.editable) return "";
     const className = cls ? ` class="${cls}"` : "";
     const data = ctx.editable ? ` data-field="${path}"` : "";
-    return `<${tag}${className}${data}>${escapeHtml(value)}</${tag}>`;
+    return `<${tag}${className}${data}>${escapeHtml(value ?? "")}</${tag}>`;
 };
 
-function avatar(page: Page, ctx: RenderContext): string {
-    const { photo, position, zoom } = page.header;
-    if (!photo) return "";
-    const style = position ? ` style="object-position:${escapeHtml(position)}"` : "";
-    const wrap = zoom ? ` p-zoom" style="--zoom:${zoom}` : "";
-    return `<span class="p-av${wrap}"><img src="${escapeHtml(ctx.assetBase + photo)}.jpg" alt=""${style}></span>`;
+function partsOf(page: Page, ctx: RenderContext): HeaderParts {
+    const look = looks[page.look];
+    const { name, tagline, bio, photo, links, buttonText, buttonUrl } = page.header;
+    const image = photoTag(ctx, photo);
+    return {
+        art: paint(page.paint ?? look.palette, page.seed ?? look.seed, {
+            screen: look.screen,
+            ring: look.ring,
+        }),
+        image,
+        avatar: image ? `<span class="p-av">${image}</span>` : "",
+        name: editable(ctx, "h1", "name", name),
+        tagline: editable(ctx, "span", "tagline", tagline, "p-tag"),
+        bio: editable(ctx, "p", "bio", bio),
+        links: links.length
+            ? `<div class="b-social">${links
+                  .map(
+                      (link) =>
+                          `<a href="${safeHref(link.value)}" aria-label="${link.type}">${icon(link.type)}</a>`,
+                  )
+                  .join("")}</div>`
+            : "",
+        button: buttonText
+            ? `<a class="b-btn p-btn" href="${safeHref(buttonUrl)}">${editable(ctx, "span", "buttonText", buttonText)}</a>`
+            : "",
+    };
 }
 
-// Looks will choose between several arrangements. The first is the centred avatar.
+const paintedCentred = (p: HeaderParts) =>
+    `<div class="p-paint">${p.art}</div><header class="p-head">${p.avatar}${p.name}${p.tagline}${p.bio}${p.links}</header>${p.button}`;
+
 export function renderHeader(page: Page, ctx: RenderContext): string {
     const look = looks[page.look];
-    const { name, tagline, bio, social } = page.header;
-    const art = paint(page.paint ?? look.palette, page.seed ?? look.seed, { screen: look.screen });
-    const icons = social.length
-        ? `<div class="b-social">${social
-              .map(
-                  (s) =>
-                      `<a href="${safeHref(s.url)}" aria-label="${s.network}">${icon(s.network)}</a>`,
-              )
-              .join("")}</div>`
-        : "";
-    const line = tagline || ctx.editable ? editable(ctx, "span", "tagline", tagline, "p-tag") : "";
-    const about = bio || ctx.editable ? editable(ctx, "p", "bio", bio) : "";
-    return `<div class="p-paint">${art}</div><header class="p-head">${avatar(page, ctx)}${editable(ctx, "h1", "name", name)}${line}${about}${icons}</header>`;
+    const parts = partsOf(page, ctx);
+    const own = page.header.layout === "look";
+    const body = own && look.header ? look.header(parts) : paintedCentred(parts);
+    return `<div class="${own ? "h-own" : `h-${page.header.layout}`}">${body}</div>`;
 }

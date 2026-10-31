@@ -1,7 +1,7 @@
 import { pageSchema } from "@tondo/page";
 import type { Page } from "@tondo/page";
 
-const key = (handle: string) => `tondo-draft-v1:${handle}`;
+const key = (handle: string) => `tondo-draft-v2:${handle}`;
 
 export function loadDraft(handle: string): Page | null {
     try {

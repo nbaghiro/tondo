@@ -1,48 +1,22 @@
-import { blockDefinitions, blockSchemaUnion, pageSchema, starterPage } from "@tondo/page";
-import type { Block, BlockType, Header, LookName, Page } from "@tondo/page";
+import {
+    addBlock,
+    duplicateBlock,
+    findBlock,
+    getField,
+    HEADER,
+    moveBlock,
+    newBlock,
+    removeBlock,
+    setBlockField,
+    setHeaderField,
+    starterPage,
+} from "@tondo/page";
+import type { BlockType, LookName, Page } from "@tondo/page";
 import { createSignal } from "solid-js";
 import { createHistory } from "./history";
 import { loadDraft, saveDraft } from "./storage";
 
-export const HEADER = "header";
-
-export function newBlock(type: BlockType, id: string): Block {
-    return blockSchemaUnion.parse({ id, ...blockDefinitions[type].make() });
-}
-
-export function addBlock(page: Page, block: Block, at: number): Page {
-    const blocks = [...page.blocks];
-    blocks.splice(at, 0, block);
-    return { ...page, blocks };
-}
-
-export function moveBlock(page: Page, id: string, to: number): Page {
-    const from = page.blocks.findIndex((block) => block.id === id);
-    const block = page.blocks[from];
-    if (!block || to < 0 || to >= page.blocks.length || to === from) return page;
-    const blocks = page.blocks.filter((other) => other.id !== id);
-    blocks.splice(to, 0, block);
-    return { ...page, blocks };
-}
-
-export function removeBlock(page: Page, id: string): Page {
-    return { ...page, blocks: page.blocks.filter((block) => block.id !== id) };
-}
-
-/** Returns the page unchanged if the value isn't allowed, such as text over a block's limit. */
-export function setBlockField(page: Page, id: string, key: string, value: unknown): Page {
-    const blocks = page.blocks.map((block) => {
-        if (block.id !== id) return block;
-        const parsed = blockSchemaUnion.safeParse({ ...block, [key]: value });
-        return parsed.success ? parsed.data : block;
-    });
-    return { ...page, blocks };
-}
-
-export function setHeaderField(page: Page, key: string, value: unknown): Page {
-    const parsed = pageSchema.safeParse({ ...page, header: { ...page.header, [key]: value } });
-    return parsed.success ? parsed.data : page;
-}
+export { getField, HEADER };
 
 export type EditorState = ReturnType<typeof createEditor>;
 
@@ -68,7 +42,7 @@ export function createEditor(account: { handle: string; name: string }) {
     };
     const clearMissingSelection = (next: Page) => {
         const id = selected();
-        if (id && id !== HEADER && !next.blocks.some((block) => block.id === id)) setSelected(null);
+        if (id && id !== HEADER && !findBlock(next, id)) setSelected(null);
     };
     const travel = (step: (current: Page) => Page | null) => {
         const next = step(page());
@@ -108,13 +82,9 @@ export function createEditor(account: { handle: string; name: string }) {
             change(moveBlock(page(), id, to));
         },
         duplicate(id: string) {
-            const current = page();
-            const index = current.blocks.findIndex((block) => block.id === id);
-            const block = current.blocks[index];
-            if (!block) return;
-            const copy = { ...block, id: crypto.randomUUID() };
-            change(addBlock(current, copy, index + 1));
-            setSelected(copy.id);
+            const [next, copy] = duplicateBlock(page(), id, () => crypto.randomUUID());
+            change(next);
+            if (copy) setSelected(copy);
         },
         remove(id: string) {
             change(removeBlock(page(), id));
@@ -136,10 +106,4 @@ export function createEditor(account: { handle: string; name: string }) {
             change({ ...page(), seed: 1 + Math.floor(Math.random() * 998) });
         },
     };
-}
-
-export function getField(page: Page, target: string, key: string): unknown {
-    const owner: Header | Block | undefined =
-        target === HEADER ? page.header : page.blocks.find((block) => block.id === target);
-    return owner ? Object.entries(owner).find(([name]) => name === key)?.[1] : undefined;
 }

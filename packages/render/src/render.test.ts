@@ -21,6 +21,12 @@ describe("renderDocument", () => {
         expect(html).not.toContain("data-block-id");
     });
 
+    it("includes only the blocks the page uses", () => {
+        const html = renderDocument({ ...samplePage, blocks: [] }, options);
+        expect(html).not.toContain(".b-thumb");
+        expect(renderDocument(samplePage, options)).toContain(".b-thumb");
+    });
+
     it("includes only the page's own look", () => {
         const html = renderDocument(samplePage, options);
         expect(html).toContain(".madder{");

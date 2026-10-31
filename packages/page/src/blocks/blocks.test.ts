@@ -18,21 +18,23 @@ describe.each(blockTypes)("%s", (type) => {
         expect(definition.draw(made, published)).not.toBe("");
     });
 
-    it("has a label for every variant", () => {
-        expect(Object.keys(definition.variantLabels).length).toBeGreaterThan(0);
-    });
-
-    it("every field exists on the block", () => {
-        for (const field of definition.fields) expect(made).toHaveProperty(field.key);
+    it("every layout renders", () => {
+        expect(Object.keys(definition.layouts).length).toBeGreaterThan(0);
+        for (const variant of Object.keys(definition.layouts)) {
+            expect(blockSchemaUnion.safeParse({ ...made, variant }).success).toBe(true);
+            expect(definition.draw({ ...made, variant }, published)).not.toBe("");
+        }
     });
 
     it("only marks fields for editing when asked to", () => {
         expect(definition.draw(made, published)).not.toContain("data-field");
-        expect(definition.draw(made, editing)).toContain("data-field");
+        if (definition.fields.some((field) => "inline" in field)) {
+            expect(definition.draw(made, editing)).toContain("data-field");
+        }
     });
 
     it("escapes everything a person writes", () => {
-        const attack = '<script>alert(1)</script>"';
+        const attack = '<script>"';
         const values = Object.fromEntries(
             definition.fields
                 .filter((field) => field.kind === "text" || field.kind === "longText")

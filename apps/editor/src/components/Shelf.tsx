@@ -1,4 +1,4 @@
-import { blockDefinitions, blockTypes } from "@tondo/page";
+import { availableBlockTypes, blockDefinitions } from "@tondo/page";
 import { For } from "solid-js";
 import { startDrag } from "../lib/drag";
 import type { EditorState } from "../state/document";
@@ -15,7 +15,7 @@ export function Shelf(props: ShelfProps) {
             <h2>Add a block</h2>
             <p class="hint">Click one, or drag it onto your page.</p>
             <div class="tiles">
-                <For each={blockTypes}>
+                <For each={availableBlockTypes}>
                     {(type) => (
                         <button
                             class="tile"

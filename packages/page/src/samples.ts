@@ -4,18 +4,18 @@ import type { Page } from "./schema";
 export const sampleHandle = "sample";
 
 export const samplePage: Page = {
+    version: 1,
     look: "madder",
     header: {
+        layout: "look",
         name: "Maya Okafor",
         tagline: "Ceramicist in Vancouver",
         bio: "Stoneware for everyday use, thrown by hand in my East Van studio.",
-        photo: "woman23",
-        position: "50% 22%",
-        zoom: 1.8,
-        social: [
-            { network: "instagram", url: "https://example.com/instagram" },
-            { network: "globe", url: "https://example.com" },
-            { network: "mail", url: "mailto:maya@example.com" },
+        photo: { file: "woman23.jpg", x: 20, y: 22, zoom: 1.7 },
+        links: [
+            { id: "a", type: "instagram", value: "https://example.com/instagram" },
+            { id: "b", type: "globe", value: "https://example.com" },
+            { id: "c", type: "mail", value: "mailto:maya@example.com" },
         ],
     },
     blocks: [
@@ -23,8 +23,7 @@ export const samplePage: Page = {
             id: "sale",
             type: "link-card",
             variant: "large",
-            photo: "ceramic0",
-            position: "50% 60%",
+            photo: { file: "ceramic0.jpg", y: 60 },
             title: "The autumn studio sale",
             text: "Seconds, test glazes and a few favourites, until November 22.",
             url: "https://example.com/shop",
@@ -34,7 +33,7 @@ export const samplePage: Page = {
             id: "vase",
             type: "link-card",
             variant: "small",
-            photo: "ceramic7",
+            photo: { file: "ceramic7.jpg" },
             title: "Tall ash vase",
             text: "$145 CAD",
             url: "https://example.com/vase",
@@ -43,7 +42,7 @@ export const samplePage: Page = {
             id: "mugs",
             type: "link-card",
             variant: "small",
-            photo: "potter0",
+            photo: { file: "potter0.jpg" },
             title: "Made to order mugs",
             text: "From $48 CAD",
             url: "https://example.com/mugs",
@@ -69,8 +68,9 @@ export const samplePage: Page = {
 /** What a new person starts with. */
 export function starterPage(name: string): Page {
     return {
+        version: 1,
         look: "madder",
-        header: { name, tagline: "", bio: "", photo: "", social: [] },
+        header: { layout: "look", name, links: [] },
         blocks: [],
     };
 }
