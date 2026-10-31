@@ -12,4 +12,6 @@ export const PORTS = {
     objectStorage: 8105,
     objectStorageConsole: 8106,
     scratchpad: 8107,
+    testNeon: 8108,
+    testServer: 8109,
 } as const;

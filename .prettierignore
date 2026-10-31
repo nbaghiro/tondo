@@ -8,3 +8,5 @@ pnpm-lock.yaml
 packages/db/migrations/
 apps/marketing/public/
 apps/marketing/src/data/pages/
+test-results/
+playwright-report/
