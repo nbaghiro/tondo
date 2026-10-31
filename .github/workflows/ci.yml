@@ -68,4 +68,4 @@ jobs:
               run: |
                   pnpm --filter @tondo/server start &
                   curl --fail --silent --retry 20 --retry-delay 1 --retry-connrefused http://127.0.0.1:8101/health
-                  curl --fail --silent http://127.0.0.1:8101/maya | grep "Maya Okafor"
+                  curl --fail --silent http://127.0.0.1:8101/sample | grep "Maya Okafor"
