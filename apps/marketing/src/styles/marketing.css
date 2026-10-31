@@ -499,12 +499,28 @@ body {
 }
 .exgrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 310px);
-    gap: 38px 26px;
-    justify-content: space-between;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
 }
-.exgrid .ex figcaption span {
-    display: block;
+.m .exgrid a.ex {
+    flex: none;
+    width: auto;
+}
+.exgrid .ex-phone {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 390 / 780;
+    border-radius: 12px;
+    box-shadow: 0 8px 18px rgba(59, 18, 34, 0.14);
+}
+.exgrid .ex-phone img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+.exgrid figcaption {
+    display: none;
 }
 .logo-wide {
     max-width: 1320px;
@@ -514,7 +530,8 @@ body {
 }
 @media (max-width: 760px) {
     .exgrid {
-        justify-content: center;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 }
 .steps {

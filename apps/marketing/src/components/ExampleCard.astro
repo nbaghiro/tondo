@@ -5,14 +5,14 @@ interface Props {
     name: string;
     role: string;
     look: string;
-    shows?: string | undefined;
 }
 
-const { id, handle, name, role, look, shows } = Astro.props;
+const { id, handle, name, role, look } = Astro.props;
 ---
 
 <a
     class="ex"
+    aria-label={`${name}, ${role}`}
     href={`/${handle}`}
     data-preview={handle}
     data-name={name}
@@ -34,7 +34,6 @@ const { id, handle, name, role, look, shows } = Astro.props;
             <span>
                 {role.charAt(0).toUpperCase() + role.slice(1)}. {look} look.
             </span>
-            {shows && <span>{shows}</span>}
         </figcaption>
     </figure>
 </a>

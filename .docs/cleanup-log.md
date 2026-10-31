@@ -38,5 +38,6 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Done | Clicking a page opens a preview | `PagePreview.astro`, shared by the strip and the gallery |
 | Done | Example pages open at their own addresses | `/maya`, `/oskarbloom` and so on. Reserved, so people can't claim them |
 | Later | Onboarding flow for new people | After the builder port |
+| Done | Fuller gallery with smaller gaps and no labels | 12px gaps, and names stay available to screen readers |
 
 The site changes are in `apps/marketing`. `.docs/marketing/index.html` is now an older reference and doesn't have the rebuilt sections.
