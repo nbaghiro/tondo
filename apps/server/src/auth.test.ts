@@ -1,3 +1,4 @@
+import { starterPage } from "@tondo/page";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
 import type { AuthConfig } from "./auth";
@@ -156,11 +157,7 @@ describe("claiming an address", () => {
     it("refuses taken, reserved and invalid addresses", async () => {
         fakeNeon(sessionFor);
         const store = createFakeStore();
-        await store.claimHandle("someone-else", "rae", {
-            look: "madder",
-            header: { name: "", tagline: "", bio: "", photo: "", social: [] },
-            blocks: [],
-        });
+        await store.claimHandle("someone-else", "rae", starterPage("Rae"));
         const app = setup({ store });
         const post = (handle: string) =>
             app.request("/api/v1/me/handle", postJson({ handle }, SESSION));
