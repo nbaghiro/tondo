@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { createAccountStore, createDb, findPublishedPage } from "@tondo/db";
+import { createAccountStore, createDb, createPageStore } from "@tondo/db";
 import { createApp } from "./app";
 import { mountSite } from "./site";
 
@@ -16,7 +16,7 @@ const app = createApp({
         neon: baseUrl && cookieSecret ? { baseUrl, cookieSecret } : undefined,
     },
     mountSite: production ? mountSite : undefined,
-    findPage: (handle) => findPublishedPage(db, handle),
+    pages: createPageStore(db),
     // Demo photos, until object storage takes over. The server runs from apps/server.
     photos: serveStatic({
         root: "../../packages/brand/photos",

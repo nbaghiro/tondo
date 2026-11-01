@@ -1,11 +1,11 @@
 import { sampleHandle, samplePage } from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app";
-import { createFakeStore } from "./fake-store";
+import { createFakePages, createFakeStore } from "./fake-store";
 
 const app = createApp({
     auth: { store: createFakeStore(), siteUrl: "http://site", editorUrl: "http://editor" },
-    findPage: (handle) => Promise.resolve(handle === sampleHandle ? samplePage : null),
+    pages: createFakePages({ [sampleHandle]: samplePage }).store,
 });
 
 describe("server", () => {
@@ -23,7 +23,9 @@ describe("server", () => {
     });
 
     it("finds a page whatever the case of the address", async () => {
-        expect((await app.request("/SAMPLE")).status).toBe(200);
+        const res = await app.request("/SAMPLE");
+        expect(res.status).toBe(301);
+        expect(res.headers.get("location")).toBe("/sample");
     });
 
     it("returns a page as JSON", async () => {

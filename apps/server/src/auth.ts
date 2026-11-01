@@ -17,7 +17,7 @@ export interface AuthConfig {
     neon?: { baseUrl: string; cookieSecret: string } | undefined;
 }
 
-interface Person {
+export interface Person {
     id: string;
     email: string;
     name: string;
@@ -25,14 +25,16 @@ interface Person {
 
 const NOT_SET_UP = "Sign-in isn't set up yet.";
 
-export function mountAuth(app: Hono, config: AuthConfig): void {
+export type CurrentPerson = (c: Context) => Promise<Person | null>;
+
+export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     const { store, siteUrl, editorUrl, neon } = config;
 
     const fail = (c: Context, status: 400 | 401 | 409 | 415 | 503, error: string) =>
         c.json<ErrorResponse>({ error }, status);
 
     // Neon's toolkit caches the session in a signed cookie, so most requests don't reach Neon.
-    const currentPerson = async (c: Context): Promise<Person | null> => {
+    const currentPerson: CurrentPerson = async (c) => {
         if (!neon) return null;
         const res = await handleAuthProxyRequest({
             request: new Request(c.req.url, {
@@ -125,4 +127,6 @@ export function mountAuth(app: Hono, config: AuthConfig): void {
         }
         return c.redirect(`${siteUrl}/claim`);
     });
+
+    return currentPerson;
 }

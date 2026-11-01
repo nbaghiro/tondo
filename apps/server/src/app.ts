@@ -1,15 +1,16 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse, PageResponse } from "@tondo/contract";
+import type { PageStore } from "@tondo/db";
 import { handleSchema, normaliseHandle } from "@tondo/page";
-import type { Page } from "@tondo/page";
-import { renderDocument } from "@tondo/render";
+import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { MiddlewareHandler } from "hono";
 import { mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
+import { mountPages } from "./pages";
 
 export interface AppDeps {
-    findPage: (handle: string) => Promise<Page | null>;
+    pages: PageStore;
     photos?: MiddlewareHandler;
     /** Serves the built marketing site and editor, in production. */
     mountSite?: ((app: Hono) => void) | undefined;
@@ -19,36 +20,75 @@ export interface AppDeps {
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
 const PAGE_HEADERS = {
     "Content-Security-Policy":
-        "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:",
+        "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'",
     "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    // Visitors see a publish straight away. A CDN in front can cache this for a short time instead.
+    "Cache-Control": "no-cache",
 };
 
-export function createApp({ findPage, photos, mountSite, auth }: AppDeps) {
+// A count that fails to save shouldn't stop anyone reaching a page.
+const counted = (work: Promise<void>) => {
+    work.catch((error: unknown) => {
+        process.stderr.write(`Couldn't save a count: ${String(error)}\n`);
+    });
+};
+
+export function createApp({ pages, photos, mountSite, auth }: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
+    const live = (raw: string) => {
+        const handle = normaliseHandle(raw);
+        return handleSchema.safeParse(handle).success
+            ? pages.findLive(handle)
+            : Promise.resolve(null);
+    };
+
+    // Addresses are lowercase, whatever someone types or a phone capitalises.
+    app.use(async (c, next) => {
+        const { pathname, search } = new URL(c.req.url);
+        if (/^\/[^/.]*[A-Z][^/.]*$/.test(pathname)) {
+            return c.redirect(`${pathname.toLowerCase()}${search}`, 301);
+        }
+        await next();
+        return undefined;
+    });
 
     if (photos) app.get("/photos/*", photos);
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
-    mountAuth(app, auth);
+    const currentPerson = mountAuth(app, auth);
+    mountPages(app, pages, currentPerson);
 
     app.get(routes.page(":handle").replace("%3A", ":"), async (c) => {
-        const handle = normaliseHandle(c.req.param("handle") ?? "");
-        const page = handleSchema.safeParse(handle).success ? await findPage(handle) : null;
-        return page ? c.json<PageResponse>({ page }) : c.json(notFound, 404);
+        const found = await live(c.req.param("handle") ?? "");
+        return found ? c.json<PageResponse>({ page: found.page }) : c.json(notFound, 404);
+    });
+
+    // The destination comes from the live page, so this can't be used to send people elsewhere.
+    app.get("/l/:handle/:target", async (c) => {
+        const found = await live(c.req.param("handle"));
+        const target = c.req.param("target");
+        const url = found ? findLink(found.page, target) : null;
+        if (!found || !url) return c.text(notFound.error, 404);
+        counted(pages.count(found.id, target));
+        c.header("Cache-Control", "no-store");
+        return c.redirect(url, 302);
     });
 
     mountSite?.(app);
 
     app.get("/:handle", async (c) => {
-        const handle = normaliseHandle(c.req.param("handle"));
-        const page = handleSchema.safeParse(handle).success ? await findPage(handle) : null;
-        if (!page) return c.text(notFound.error, 404);
+        const handle = c.req.param("handle");
+        const found = await live(handle);
+        if (!found) return c.text(notFound.error, 404);
+        counted(pages.count(found.id, ""));
         return c.html(
-            renderDocument(page, {
-                title: page.header.name,
+            renderDocument(found.page, {
+                title: found.page.header.name,
                 assetBase: "/photos/",
                 editable: false,
+                trackAs: handle,
             }),
             200,
             PAGE_HEADERS,

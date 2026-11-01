@@ -1,6 +1,9 @@
 import { findBlock } from "@tondo/page";
 import { fontsHref, looks, paint } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
+import type { DraftResponse } from "@tondo/contract";
+import { publish, loadStats } from "../lib/api";
+import { pageUrl, toLogin } from "../lib/account";
 import type { Account } from "../lib/account";
 import { createEditor, HEADER } from "../state/document";
 import { BlockActions } from "./BlockActions";
@@ -9,6 +12,8 @@ import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
 import { Looks } from "./Looks";
 import { Preview } from "./Preview";
+import { PublishPanel } from "./PublishPanel";
+import type { PublishView } from "./PublishPanel";
 import { Shelf } from "./Shelf";
 import { TopBar } from "./TopBar";
 
@@ -17,8 +22,38 @@ type Sheet = "add" | "look" | null;
 /** How far the sheet's grip has to move to count as a drag and not a tap. */
 const GRIP_DRAG = 24;
 
-export function Editor(props: { account: Account }) {
-    const editor = createEditor(untrack(() => props.account));
+export function Editor(props: { account: Account; draft: DraftResponse }) {
+    const editor = untrack(() =>
+        createEditor({
+            handle: props.account.handle,
+            page: props.draft.page,
+            updatedAt: props.draft.updatedAt,
+            changed: props.draft.changed,
+            onLoggedOut: toLogin,
+        }),
+    );
+    const [publishing, setPublishing] = createSignal(false);
+    const [view, setView] = createSignal<PublishView | null>(null);
+
+    const startPublish = async () => {
+        setPublishing(true);
+        const failedSave = "Your latest changes aren't saved yet. Try again in a moment.";
+        const saved = await editor.saver.flush();
+        const result = saved
+            ? await publish(editor.saver.updatedAt())
+            : ({ state: "failed", message: editor.saver.message() || failedSave } as const);
+        setPublishing(false);
+        if (result.state === "published") {
+            editor.markPublished();
+            setView({
+                state: "live",
+                url: pageUrl(props.account.handle),
+                stats: await loadStats(),
+            });
+        } else {
+            setView(result);
+        }
+    };
     const [frame, setFrame] = createSignal<HTMLIFrameElement>();
     const [layoutTick, setLayoutTick] = createSignal(0);
     const [sheet, setSheet] = createSignal<Sheet>(null);
@@ -81,6 +116,7 @@ export function Editor(props: { account: Account }) {
         }
         if (e.key === "Escape") {
             setPreviewing(false);
+            setView(null);
             if (target instanceof HTMLElement) target.blur();
             editor.select(null);
             return;
@@ -128,7 +164,17 @@ export function Editor(props: { account: Account }) {
             data-size={size()}
         >
             <div class="backdrop" aria-hidden="true" ref={setBackdrop} />
-            <TopBar editor={editor} account={props.account} onPreview={() => setPreviewing(true)} />
+            <TopBar
+                editor={editor}
+                account={props.account}
+                onPreview={() => setPreviewing(true)}
+                publishing={publishing()}
+                onPublish={() => {
+                    startPublish().catch(() => {
+                        setPublishing(false);
+                    });
+                }}
+            />
             <aside class="panel shelf" aria-label="Add to your page">
                 <button class="round sheet-close" aria-label="Close" onClick={() => setSheet(null)}>
                     <Icon name="close" />
@@ -183,6 +229,18 @@ export function Editor(props: { account: Account }) {
                     Preview
                 </button>
             </nav>
+            <Show when={view()}>
+                {(current) => (
+                    <PublishPanel
+                        view={current()}
+                        onClose={() => setView(null)}
+                        onOpen={(target) => {
+                            setView(null);
+                            editor.select(target === "page" ? null : target);
+                        }}
+                    />
+                )}
+            </Show>
             <Show when={previewing()}>
                 <Preview page={editor.page()} onClose={() => setPreviewing(false)} />
             </Show>

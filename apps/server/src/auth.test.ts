@@ -2,7 +2,7 @@ import { starterPage } from "@tondo/page";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
 import type { AuthConfig } from "./auth";
-import { createFakeStore } from "./fake-store";
+import { createFakePages, createFakeStore } from "./fake-store";
 
 // This runs Neon's real toolkit, and replaces only the network call it makes to Neon.
 const neon = {
@@ -39,7 +39,7 @@ function fakeNeon(respond: (url: string, init?: RequestInit) => Response) {
 
 function setup(extra: Partial<AuthConfig> = {}) {
     return createApp({
-        findPage: () => Promise.resolve(null),
+        pages: createFakePages().store,
         auth: {
             store: createFakeStore(),
             siteUrl: "http://site",

@@ -1,5 +1,15 @@
 import type { Page } from "@tondo/page";
-import { jsonb, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import {
+    date,
+    integer,
+    jsonb,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+    unique,
+    uuid,
+} from "drizzle-orm/pg-core";
 
 // `id` is the user id from Neon Auth, which also holds their email and password. A row appears when
 // someone claims their address.
@@ -23,4 +33,18 @@ export const pages = pgTable(
         updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
     },
     (table) => [unique("pages_user_slug").on(table.userId, table.slug)],
+);
+
+// Daily counts. An empty target is a view of the page, and any other target is one of its links.
+export const stats = pgTable(
+    "stats",
+    {
+        pageId: uuid("page_id")
+            .notNull()
+            .references(() => pages.id, { onDelete: "cascade" }),
+        target: text("target").notNull().default(""),
+        day: date("day").notNull(),
+        count: integer("count").notNull().default(0),
+    },
+    (table) => [primaryKey({ columns: [table.pageId, table.target, table.day] })],
 );

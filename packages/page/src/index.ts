@@ -30,6 +30,8 @@ export {
     setHeaderField,
 } from "./operations";
 export type { MakeId, Place } from "./operations";
+export { publishIssues } from "./publish";
+export type { PublishIssue } from "./publish";
 export { readPage, upgradePage } from "./upgrade";
 export { isReservedHandle, isValidHandle, normaliseHandle } from "./handle";
 export { icon } from "./icons";

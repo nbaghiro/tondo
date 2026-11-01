@@ -18,6 +18,10 @@ export const routes = {
     authReturn: "/api/v1/auth/return",
     me: "/api/v1/me",
     claim: "/api/v1/me/handle",
+    draft: "/api/v1/me/page",
+    publish: "/api/v1/me/page/publish",
+    stats: "/api/v1/me/stats",
+    photos: "/api/v1/me/photos",
 } as const;
 
 export const healthResponse = z.strictObject({ status: z.literal("ok") });
@@ -33,6 +37,29 @@ export const meResponse = z.strictObject({
     handle: z.string().nullable(),
 });
 
+export const draftResponse = z.strictObject({
+    page: pageSchema,
+    updatedAt: z.string(),
+    published: z.boolean(),
+    changed: z.boolean(),
+});
+export const saveRequest = z.strictObject({ page: pageSchema, updatedAt: z.string().max(40) });
+export const publishRequest = z.strictObject({ updatedAt: z.string().max(40) });
+export const issuesResponse = z.strictObject({
+    error: z.string(),
+    issues: z.array(z.strictObject({ target: z.string(), message: z.string() })),
+});
+export const statsResponse = z.strictObject({ views: z.number(), clicks: z.number() });
+export const photosResponse = z.strictObject({ files: z.array(z.string()) });
+
+export type DraftResponse = z.infer<typeof draftResponse>;
+export type SaveRequest = z.infer<typeof saveRequest>;
+export type IssuesResponse = z.infer<typeof issuesResponse>;
+export type StatsResponse = z.infer<typeof statsResponse>;
+export type PhotosResponse = z.infer<typeof photosResponse>;
+export interface SaveResponse {
+    updatedAt: string;
+}
 export type ClaimRequest = z.infer<typeof claimRequest>;
 export type MeResponse = z.infer<typeof meResponse>;
 export type HealthResponse = z.infer<typeof healthResponse>;

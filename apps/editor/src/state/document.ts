@@ -10,31 +10,40 @@ import {
     removeBlock,
     setBlockField,
     setHeaderField,
-    starterPage,
 } from "@tondo/page";
 import type { Block, BlockType, LookName, Page, Place } from "@tondo/page";
 import { createSignal } from "solid-js";
 import { createHistory } from "./history";
-import { loadDraft, saveDraft } from "./storage";
+import { createSaver } from "./saver";
+import { loadBackup } from "./storage";
 
 export { getField, HEADER };
 
 export type EditorState = ReturnType<typeof createEditor>;
 
-export function createEditor(account: { handle: string; name: string }) {
+interface Start {
+    handle: string;
+    page: Page;
+    updatedAt: string;
+    changed: boolean;
+    onLoggedOut: () => void;
+}
+
+export function createEditor(start: Start) {
+    const saver = createSaver(start);
+    const backup = loadBackup(start.handle, start.updatedAt);
     const history = createHistory<Page>();
-    const [page, setPage] = createSignal<Page>(
-        loadDraft(account.handle) ?? starterPage(account.name),
-    );
+    const [page, setPage] = createSignal<Page>(backup ?? start.page);
+    const [changed, setChanged] = createSignal(start.changed || backup !== null);
     const [selected, setSelected] = createSignal<string | null>(null);
-    const [saved, setSaved] = createSignal(true);
     const [version, setVersion] = createSignal(0);
     const [chosenTabs, setChosenTabs] = createSignal<Readonly<Record<string, string>>>({});
     let justAdded = false;
 
     const apply = (next: Page) => {
         setPage(next);
-        setSaved(saveDraft(account.handle, next));
+        setChanged(true);
+        saver.change(next);
         setVersion((v) => v + 1);
     };
     const change = (next: Page, group?: string) => {
@@ -78,10 +87,16 @@ export function createEditor(account: { handle: string; name: string }) {
         setSelected(block.id);
     };
 
+    if (backup) saver.change(backup);
+
     return {
         page,
         selected,
-        saved,
+        saver,
+        changed,
+        markPublished() {
+            setChanged(false);
+        },
         select: setSelected,
         /** True once after a block is added, so the panel can focus its first field. */
         takeJustAdded() {
@@ -145,6 +160,10 @@ export function createEditor(account: { handle: string; name: string }) {
                     : setBlockField(current, target, key, value);
             change(next, group ?? `${target}:${key}`);
             return next !== current || value === getField(current, target, key);
+        },
+        setPageText(key: "title" | "description", value: string) {
+            const { [key]: _old, ...rest } = page();
+            change(value ? { ...rest, [key]: value } : rest, `page:${key}`);
         },
         setLook(look: LookName) {
             const { paint: _paint, seed: _seed, ...rest } = page();

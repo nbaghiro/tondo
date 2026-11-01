@@ -4,6 +4,7 @@ import { Editor } from "./components/Editor";
 import { BlockLab } from "./components/BlockLab";
 import { FieldLab } from "./components/FieldLab";
 import { loadAccount } from "./lib/account";
+import { loadDraft } from "./lib/api";
 import "./styles/editor.css";
 
 const root = document.getElementById("root");
@@ -16,8 +17,10 @@ if (import.meta.env.DEV && location.search === "?fields") {
 } else {
     // Null means the browser is already on its way to the login or claim page.
     loadAccount()
-        .then((account) => {
-            if (account) render(() => <Editor account={account} />, root);
+        .then(async (account) => {
+            if (!account) return;
+            const draft = await loadDraft();
+            render(() => <Editor account={account} draft={draft} />, root);
         })
         .catch(() => {
             root.textContent =

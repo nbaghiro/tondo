@@ -9,7 +9,7 @@ export function BlockLab() {
     const html = () =>
         renderDocument(everyLayoutPage(look()), {
             title: "Blocks",
-            assetBase: "/",
+            assetBase: "/photos/",
             editable: false,
         });
     return (

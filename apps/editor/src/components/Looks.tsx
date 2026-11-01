@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { Thumbnail } from "./Thumbnail";
 
 const TILE_WIDTH = 118;
-const ASSETS = "/";
+const ASSETS = "/photos/";
 const CTX = { assetBase: ASSETS, editable: false };
 
 const PAINTS: readonly (readonly [label: string, palette: string[]])[] = [
@@ -163,6 +163,38 @@ export function Looks(props: { editor: EditorState }) {
                     )}
                 </For>
             </div>
+            <details class="i-sec page-settings">
+                <summary>Page settings</summary>
+                <label class="fd">
+                    <div class="fd-l">
+                        <span>Page title</span>
+                    </div>
+                    <input
+                        class="in"
+                        maxLength={70}
+                        placeholder={props.editor.page().header.name}
+                        value={props.editor.page().title ?? ""}
+                        onInput={(e) => {
+                            props.editor.setPageText("title", e.currentTarget.value);
+                        }}
+                    />
+                </label>
+                <label class="fd">
+                    <div class="fd-l">
+                        <span>Description</span>
+                    </div>
+                    <textarea
+                        class="in"
+                        maxLength={160}
+                        rows="2"
+                        value={props.editor.page().description ?? ""}
+                        onInput={(e) => {
+                            props.editor.setPageText("description", e.currentTarget.value);
+                        }}
+                    />
+                    <small class="fd-h">Shows in browser tabs and when your link is shared.</small>
+                </label>
+            </details>
             <div class="look-list">
                 <For each={shown()}>{(name) => <LookTile name={name} editor={props.editor} />}</For>
             </div>

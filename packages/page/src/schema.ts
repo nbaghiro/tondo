@@ -96,6 +96,9 @@ export const PAGE_VERSION = 1;
 /** One page's content. Its address belongs to the user, so it isn't stored here. */
 export const pageSchema = z.strictObject({
     version: z.literal(PAGE_VERSION),
+    /** What shows in browser tabs and when the link is shared. Leaving this out uses the name. */
+    title: z.string().max(70).optional(),
+    description: z.string().max(160).optional(),
     look: lookNameSchema,
     /** The chosen paint colours. Leaving this out uses the look's own. */
     paint: z.array(colour).min(1).max(6).optional(),

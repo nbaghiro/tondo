@@ -3,7 +3,7 @@ import { createSignal, For } from "solid-js";
 import { FieldView, SourceInput } from "./Fields";
 import type { ConnectionState } from "./Fields";
 
-const ASSETS = import.meta.env.BASE_URL;
+const ASSETS = "/photos/";
 
 // Development only, at /?fields: each field type on its own, including the ones the slice doesn't
 // use yet.

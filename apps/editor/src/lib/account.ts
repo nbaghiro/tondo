@@ -22,6 +22,14 @@ export async function loadAccount(): Promise<Account | null> {
     return { ...account, handle: account.handle };
 }
 
+/** Where a published page lives. In development, the server is on its own port. */
+export const pageUrl = (handle: string): string =>
+    import.meta.env.DEV ? `http://localhost:8101/${handle}` : `/${handle}`;
+
+export const toLogin = (): void => {
+    location.assign(`${SITE_URL}/login`);
+};
+
 export function logOut(): void {
     const leave = () => {
         location.assign(SITE_URL || "/");
