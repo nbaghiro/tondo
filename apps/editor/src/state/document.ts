@@ -198,7 +198,7 @@ export function createEditor(start: Start) {
             const found = findSection(page(), id);
             if (!found) return false;
             const first = found.section.blocks[0];
-            const title = reading.title || reading.label;
+            const title = reading.title;
             if (key === "links") {
                 const blank = found.section.blocks.find(
                     (block) =>
@@ -233,7 +233,9 @@ export function createEditor(start: Start) {
                 const blank = first.items.find((entry) => !entry.url);
                 const items = blank
                     ? first.items.map((entry) =>
-                          entry.id === blank.id ? { ...entry, url: reading.url } : entry,
+                          entry.id === blank.id
+                              ? { ...entry, url: reading.url, ...(existing ? {} : { title }) }
+                              : entry,
                       )
                     : [
                           ...first.items,
@@ -241,7 +243,13 @@ export function createEditor(start: Start) {
                       ];
                 change(setBlockField(page(), first.id, "items", items));
             } else if (first) {
-                change(setBlockField(page(), first.id, "url", reading.url));
+                const linked = setBlockField(page(), first.id, "url", reading.url);
+                // A section made just now holds sample words, so the link names it.
+                change(
+                    !existing && "title" in first
+                        ? setBlockField(linked, first.id, "title", title)
+                        : linked,
+                );
             }
             setSelected(id);
             say(`Added to ${definition.name}`);

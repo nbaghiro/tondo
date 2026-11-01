@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Block } from "./blocks";
+import { readLink } from "./links";
 import { publishWarnings } from "./publish";
 import { liveContent } from "./sample-content";
 import { starterPage } from "./samples";
@@ -150,6 +151,73 @@ describe("sample content, field by field", () => {
         expect(new Set(messages).size).toBe(messages.length);
         expect(messages.join()).toContain("Services and prices");
         expect(messages.join()).not.toContain('"30 minutes"');
+    });
+
+    describe("sample words beside a person's own link", () => {
+        const SPOTIFY = "https://open.spotify.com/album/1";
+        const warnings = (blocks: Block[]) =>
+            publishWarnings(page(blocks))
+                .map((one) => one.message)
+                .join();
+
+        it.each([
+            ["links", "buttons", "button", "text", "My website"],
+            ["links", "cards", "link-card", "title", "My website"],
+            ["links", "icons", "link-card", "title", "My website"],
+            ["spotlight", "large", "link-card", "title", "Something worth seeing"],
+            ["bookings", "card", "booking", "title", "Book a time with me"],
+            ["media", "music", "music", "title", "My latest release"],
+        ])("%s, %s names it from the link", (key, style, type, field, sample) => {
+            const block = blockOf(freshBlocks(key, style), type);
+            const blocks = [withField(block, "url", "https://shop.example.com/a")];
+            const text = live(blocks);
+            expect(text).not.toContain(sample);
+            expect(text).toContain(`"${field}":"shop.example.com"`);
+            expect(warnings(blocks)).toContain("won't show");
+        });
+
+        it("names a video from its link and leaves other sample videos out", () => {
+            const block = blockOf(freshBlocks("media", "card"), "video");
+            const items = rowsOf(block, "items");
+            const edited = withField(block, "items", [
+                { ...items[0], url: "https://youtu.be/abc" },
+                items[1],
+            ]);
+            const text = live([edited]);
+            expect(text).toContain('"title":"YouTube"');
+            expect(text).not.toContain("Watch this first");
+            expect(text).not.toContain("Behind the scenes");
+            expect(warnings([edited])).toContain("sample");
+        });
+
+        it("uses the service's name, and keeps plain button wording", () => {
+            const block = blockOf(freshBlocks("media", "music"), "music");
+            expect(live([withField(block, "url", SPOTIFY)])).toContain('"title":"Spotify"');
+            const booking = blockOf(freshBlocks("bookings", "card"), "booking");
+            const text = live([withField(booking, "url", "https://calendly.com/a")]);
+            expect(text).toContain('"title":"Calendly"');
+            expect(text).toContain("Pick a time");
+            expect(text).not.toContain("less than a minute");
+        });
+
+        it("offers a real name for a pasted link, never what the link does", () => {
+            const title = (raw: string) => {
+                const reading = readLink(raw);
+                return reading.state === "ok" ? reading.title : null;
+            };
+            expect(title("myshop.example.com")).toBe("myshop.example.com");
+            expect(title("https://www.example.com/a")).toBe("example.com");
+            expect(title("instagram.com/june")).toBe("Instagram");
+            expect(title("june.etsy.com")).toBe("june.etsy.com");
+        });
+
+        it("keeps words the person wrote", () => {
+            const block = blockOf(freshBlocks("links", "buttons"), "button");
+            const text = live([
+                withField(withField(block, "url", SPOTIFY), "text", "Hear the album"),
+            ]);
+            expect(text).toContain("Hear the album");
+        });
     });
 
     describe("every field of every section, changed one at a time", () => {

@@ -40,7 +40,7 @@ export type LinkReading =
           /** Where it goes, in words. */
           label: string;
           icon: string;
-          /** A title to offer when the person hasn't written one. Empty if there's nothing useful. */
+          /** What to call it when the person hasn't: the service, or the site's own name. */
           title: string;
           /** The recognised service, if any. */
           service?: string;
@@ -57,10 +57,22 @@ export function readLink(raw: string): LinkReading {
         return { state: "bad", message: "This address can't be used, because it could run code." };
     }
     if (value.startsWith("mailto:") && isSafeUrl(value)) {
-        return { state: "ok", url: value, label: "Sends an email", icon: "mail", title: "" };
+        return {
+            state: "ok",
+            url: value,
+            label: "Sends an email",
+            icon: "mail",
+            title: "Email me",
+        };
     }
     if (value.startsWith("tel:") && isSafeUrl(value)) {
-        return { state: "ok", url: value, label: "Calls this number", icon: "phone", title: "" };
+        return {
+            state: "ok",
+            url: value,
+            label: "Calls this number",
+            icon: "phone",
+            title: "Call me",
+        };
     }
     if (EMAIL.test(value)) {
         return {
@@ -90,14 +102,21 @@ export function readLink(raw: string): LinkReading {
     if (!isSafeUrl(url)) return { state: "bad", message: "This address can't be used." };
     const host = url.replace(/^https?:\/\/(?:www\.)?/i, "").split(/[/?#]/)[0] ?? "";
     const service = SERVICES.find(([pattern]) => pattern.test(host));
-    if (!service) return { state: "ok", url, label: `Opens ${host}`, icon: "globe", title: "" };
+    if (!service) return { state: "ok", url, label: `Opens ${host}`, icon: "globe", title: host };
     const [, name, icon] = service;
     return {
         state: "ok",
         url,
         label: `Recognised ${name}`,
         icon,
-        title: name === "your shop" ? "Visit my shop" : `Find me on ${name}`,
+        title: name === "your shop" ? host : name,
         service: name,
     };
+}
+
+/** A plain name for a link, to use where a person hasn't written one. Empty if it isn't a link. */
+export function linkName(url: unknown): string {
+    if (typeof url !== "string") return "";
+    const reading = readLink(url);
+    return reading.state === "ok" ? reading.title : "";
 }

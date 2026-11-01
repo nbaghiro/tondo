@@ -37,7 +37,7 @@ export const booking = defineBlock({
         type: "booking" as const,
         variant: "card" as const,
         url: "",
-        title: "Book a free 20-minute call",
+        title: "Book a short call",
         sub: "I'll reply the same day",
         cta: "Book a time",
         slots: ["9:00 am", "11:30 am", "2:00 pm", "3:30 pm", "4:15 pm", "5:00 pm"],

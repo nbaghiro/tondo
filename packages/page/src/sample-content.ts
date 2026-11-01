@@ -4,6 +4,7 @@ import type { Block } from "./blocks";
 import { isPlaceholder } from "./define-block";
 import type { Photo } from "./define-block";
 import type { Field } from "./fields";
+import { linkName } from "./links";
 import type { Page } from "./schema";
 import { sectionDefinitions, sectionsOf } from "./sections";
 
@@ -35,6 +36,8 @@ const NOT_CONTENT = new Set([
 interface Rule {
     /** Plain wording that makes sense for anyone, so it stays once something else is theirs. */
     keep?: readonly string[];
+    /** Sample words that would claim something, so the block's link names it instead. */
+    named?: readonly string[];
     /** A row without one of these of their own means nothing to a visitor, so it's left out. */
     needs?: readonly string[];
     /** The same, when both halves are needed. */
@@ -45,15 +48,15 @@ interface Rule {
 
 /** What each block does with a part-finished row. Anything not listed just loses its sample fields. */
 const RULES: Readonly<Record<string, Rule>> = {
-    button: { keep: ["text"] },
-    "link-card": { keep: ["title"] },
-    booking: { keep: ["title", "sub", "cta"] },
-    music: { keep: ["title"] },
+    button: { named: ["text"] },
+    "link-card": { named: ["title"] },
+    booking: { keep: ["cta"], named: ["title"] },
+    music: { named: ["title"] },
     countdown: { keep: ["label"] },
     events: { keep: ["cta"] },
     services: { keep: ["cta"] },
     signup: { keep: ["cta"] },
-    "video.items": { keep: ["title"] },
+    "video.items": { named: ["title"] },
     "products.items": { needs: ["name", "photo"], asks: "its own name" },
     "services.items": { needs: ["name"], asks: "its own name" },
     "events.items": { needs: ["name", "at", "place"], asks: "a name, date or place" },
@@ -177,7 +180,7 @@ function trimRow(
     for (const field of fields) {
         if (mine(field) || isEmpty(entry[field]) || isPhoto(entry[field])) continue;
         if (rule.keep?.includes(field)) continue;
-        next[field] = "";
+        next[field] = rule.named?.includes(field) ? linkName(entry["url"]) : "";
         blanked = true;
     }
     return { row: next, own, asked: false, blanked };
@@ -264,7 +267,7 @@ function trimBlock(block: Block, section: string, leftOut: LeftOut[]): Block | n
         if (scalarOwn(key)) {
             own = true;
         } else if (!isPhoto(value) && !rule.keep?.includes(key)) {
-            next[key] = "";
+            next[key] = rule.named?.includes(key) ? linkName(values["url"]) : "";
             blanks.push(key);
         }
     }
