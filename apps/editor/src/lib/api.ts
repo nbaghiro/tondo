@@ -5,6 +5,7 @@ import type {
     ErrorResponse,
     HandleResponse,
     IssuesResponse,
+    LiveResponse,
     PhotosResponse,
     PublishCheckResponse,
     SaveResponse,
@@ -91,6 +92,13 @@ export async function publish(updatedAt: string): Promise<PublishResult> {
 }
 
 /** What only the server can check before publishing, such as a link it won't allow. */
+/** What visitors see now, or null if nothing is live. */
+export async function loadLive(): Promise<Page | null> {
+    const res = await fetch(routes.live).catch(() => null);
+    if (!res?.ok) return null;
+    return ((await res.json()) as LiveResponse).page;
+}
+
 export async function loadPublishChecks(): Promise<PublishIssue[]> {
     const res = await fetch(routes.publishCheck).catch(() => null);
     return res?.ok ? ((await res.json()) as PublishCheckResponse).issues : [];

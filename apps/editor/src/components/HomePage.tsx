@@ -6,7 +6,7 @@ import { renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
-import { loadStats, publish, savePendingWork } from "../lib/api";
+import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
 
 async function loadHome(
@@ -114,6 +114,7 @@ function Numbers(props: { stats: StatsResponse | null }) {
 export function HomePage(props: { account: Account }) {
     const [data, { refetch }] = createResource(() => props.account.handle, loadHome);
     const [busy, setBusy] = createSignal(false);
+    const [confirmDiscard, setConfirmDiscard] = createSignal(false);
     const toast = createToast();
     const address = () => `tondo.page/${props.account.handle}`;
     const fullLink = () => `https://${address()}`;
@@ -134,6 +135,20 @@ export function HomePage(props: { account: Account }) {
         } else {
             copy();
         }
+    };
+    const discard = async (updatedAt: string) => {
+        setBusy(true);
+        setConfirmDiscard(false);
+        const live = await loadLive();
+        const saved = live ? await saveDraft(live, updatedAt, null) : null;
+        setBusy(false);
+        if (saved?.state === "saved") toast.say("Back to your live page");
+        else if (saved?.state === "conflict")
+            toast.say(
+                "This page changed somewhere else, so nothing was discarded. Have another look.",
+            );
+        else toast.say("That didn't work. Please try again.");
+        await refetch();
     };
     const goLive = async (updatedAt: string) => {
         const page = data()?.draft.page;
@@ -223,6 +238,33 @@ export function HomePage(props: { account: Account }) {
                                     >
                                         {busy() ? "Publishing" : "Publish"}
                                     </button>
+                                    <Show
+                                        when={confirmDiscard()}
+                                        fallback={
+                                            <button
+                                                class="b discard"
+                                                disabled={busy()}
+                                                onClick={() => setConfirmDiscard(true)}
+                                            >
+                                                Discard changes, back to live
+                                            </button>
+                                        }
+                                    >
+                                        <button
+                                            class="b bad discard-yes"
+                                            disabled={busy()}
+                                            onClick={() => {
+                                                discard(draft().updatedAt).catch(() => {
+                                                    setBusy(false);
+                                                });
+                                            }}
+                                        >
+                                            Yes, discard my changes
+                                        </button>
+                                        <button class="b" onClick={() => setConfirmDiscard(false)}>
+                                            Keep them
+                                        </button>
+                                    </Show>
                                 </Show>
                             </PageHeader>
                             <div class="home">

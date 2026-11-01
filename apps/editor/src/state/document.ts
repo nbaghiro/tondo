@@ -37,6 +37,7 @@ interface Start {
     page: Page;
     updatedAt: string;
     changed: boolean;
+    published?: boolean;
     onLoggedOut: () => void;
 }
 
@@ -50,6 +51,7 @@ export function createEditor(start: Start) {
     const history = createHistory<Page>();
     const [page, setPage] = createSignal<Page>(backup ?? start.page);
     const [changed, setChanged] = createSignal(start.changed || backup !== null);
+    const [hasLive, setHasLive] = createSignal(start.published === true);
     const [selected, setSelected] = createSignal<string | null>(null);
     const [version, setVersion] = createSignal(0);
     const [chosenTabs, setChosenTabs] = createSignal<Readonly<Record<string, string>>>({});
@@ -133,12 +135,21 @@ export function createEditor(start: Start) {
         clearNotice() {
             setNotice("");
         },
+        hasLive,
         markPublished() {
+            setHasLive(true);
             setChanged(false);
         },
         /** What's live may have changed elsewhere, such as taking the page down in another tab. */
         syncLive(published: boolean, draftChanged: boolean) {
+            setHasLive(published);
             setChanged(!published || draftChanged);
+        },
+        /** Goes back to what's live. It saves like any edit, so Undo and the conflict check still work. */
+        discardTo(live: Page) {
+            setSelected(null);
+            change(live);
+            setChanged(false);
         },
         select: setSelected,
         /** True once after a section is added, so the panel can focus its first field. */

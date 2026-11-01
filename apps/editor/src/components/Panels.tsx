@@ -189,6 +189,7 @@ export function PagePanel(props: {
     onOpenLook: () => void;
     onOpenAdd: () => void;
     onAdded: () => void;
+    onDiscard: () => void;
     /** While a section is dragged on the phone, the list shows where it's landing. */
     dragOrder: () => { id: string; to: number } | null;
 }) {
@@ -348,6 +349,17 @@ export function PagePanel(props: {
                             <Glyph name="plus" />
                             Add a section
                         </button>
+                        <Show when={props.editor.hasLive() && props.editor.changed()}>
+                            <button
+                                type="button"
+                                class="discard-open"
+                                onClick={() => {
+                                    props.onDiscard();
+                                }}
+                            >
+                                Discard changes, back to live
+                            </button>
+                        </Show>
                         <button type="button" class="prev logout phone-only" onClick={logOut}>
                             Log out
                         </button>

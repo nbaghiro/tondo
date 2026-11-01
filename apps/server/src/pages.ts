@@ -1,6 +1,7 @@
 import { publishRequest, routes, saveRequest } from "@tondo/contract";
 import type {
     DraftResponse,
+    LiveResponse,
     ErrorResponse,
     IssuesResponse,
     PublishCheckResponse,
@@ -123,6 +124,14 @@ export function mountPages(
         await store.unpublish(person.id);
         await onPublishChange(person.id);
         return c.body(null, 204);
+    });
+
+    app.get(routes.live, async (c) => {
+        const person = await currentPerson(c);
+        if (!person) return fail(c, 401, "You're not logged in.");
+        const page = await store.findOwnLive(person.id);
+        if (!page) return fail(c, 404, "Your page isn't live.");
+        return c.json<LiveResponse>({ page });
     });
 
     app.get(routes.stats, async (c) => {

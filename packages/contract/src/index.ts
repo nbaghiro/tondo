@@ -21,6 +21,7 @@ export const routes = {
     handleCheck: (value: string) => `/api/v1/handles/${encodeURIComponent(value)}`,
     draft: "/api/v1/me/page",
     publish: "/api/v1/me/page/publish",
+    live: "/api/v1/me/page/live",
     publishCheck: "/api/v1/me/page/check",
     unpublish: "/api/v1/me/page/unpublish",
     stats: "/api/v1/me/stats",
@@ -41,6 +42,7 @@ export const meResponse = z.strictObject({
     handle: z.string().nullable(),
 });
 
+export const liveResponse = z.strictObject({ page: pageSchema });
 export const draftResponse = z.strictObject({
     page: pageSchema,
     updatedAt: z.string(),
@@ -92,6 +94,7 @@ export const deleteAccountResponse = z.strictObject({
     signInRemoved: z.boolean(),
 });
 export type DeleteAccountResponse = z.infer<typeof deleteAccountResponse>;
+export type LiveResponse = z.infer<typeof liveResponse>;
 export type DraftResponse = z.infer<typeof draftResponse>;
 export type SaveRequest = z.infer<typeof saveRequest>;
 export type IssuesResponse = z.infer<typeof issuesResponse>;

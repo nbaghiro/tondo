@@ -38,8 +38,11 @@ export function PublishPanel(props: {
     view: PublishView;
     onOpen: (issue: PublishIssue) => void;
     onPublishAnyway: () => void;
+    /** Only offered when there's a live copy to go back to. */
+    onDiscard?: (() => void) | undefined;
 }) {
     const [copied, setCopied] = createSignal(false);
+    const [confirming, setConfirming] = createSignal(false);
     return (
         <div class="pub" aria-label="Publish">
             <Show when={props.view.state === "issues" && props.view}>
@@ -116,6 +119,45 @@ export function PublishPanel(props: {
             </Show>
             <Show when={props.view.state === "failed" && props.view}>
                 {(view) => <p>{view().message}</p>}
+            </Show>
+            <Show when={props.view.state !== "live" && props.onDiscard}>
+                {(discard) => (
+                    <Show
+                        when={confirming()}
+                        fallback={
+                            <button
+                                type="button"
+                                class="pub-open discard"
+                                onClick={() => setConfirming(true)}
+                            >
+                                Discard changes, back to live
+                            </button>
+                        }
+                    >
+                        <p>
+                            Your changes will be replaced by what's live now. Undo brings them back.
+                        </p>
+                        <div class="pub-actions">
+                            <button
+                                type="button"
+                                class="go discard-yes"
+                                onClick={() => {
+                                    setConfirming(false);
+                                    discard()();
+                                }}
+                            >
+                                Yes, discard my changes
+                            </button>
+                            <button
+                                type="button"
+                                class="pub-open"
+                                onClick={() => setConfirming(false)}
+                            >
+                                Keep my changes
+                            </button>
+                        </div>
+                    </Show>
+                )}
             </Show>
         </div>
     );

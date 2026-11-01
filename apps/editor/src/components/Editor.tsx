@@ -4,7 +4,7 @@ import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { JSX } from "solid-js";
-import { loadDraft, loadPublishChecks, loadStats, publish } from "../lib/api";
+import { loadDraft, loadLive, loadPublishChecks, loadStats, publish } from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
 import type { Account } from "../lib/account";
 import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
@@ -94,6 +94,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             },
             updatedAt: props.draft.updatedAt,
             changed: props.draft.changed,
+            published: props.draft.published,
             onLoggedOut: toLogin,
         }),
     );
@@ -143,6 +144,21 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         showPublish();
     };
     // Only the server knows some problems. A refused link clears once it's gone from the page.
+    const discardChanges = () => {
+        loadLive()
+            .then((live) => {
+                if (!live) {
+                    setView({
+                        state: "failed",
+                        message: "We couldn't load your live page. Please try again.",
+                    });
+                    return;
+                }
+                editor.discardTo(live);
+                closeRight();
+            })
+            .catch(() => undefined);
+    };
     const stillApplies = (issue: PublishIssue) =>
         !issue.url ||
         JSON.stringify(editor.page()).includes(JSON.stringify(issue.url).slice(1, -1));
@@ -542,6 +558,9 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                                 setSheet("section");
                             }}
                             dragOrder={dragOrder}
+                            onDiscard={() => {
+                                openPublishList().catch(() => undefined);
+                            }}
                         />
                     </Panel>
                 }
@@ -646,6 +665,9 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     >
                         <PublishPanel
                             view={current()}
+                            onDiscard={
+                                editor.hasLive() && editor.changed() ? discardChanges : undefined
+                            }
                             onOpen={(issue) => {
                                 setRight(null);
                                 if (issue.target === "add") {
