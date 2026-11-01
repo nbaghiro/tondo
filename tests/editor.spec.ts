@@ -17,7 +17,7 @@ async function openShelf(page: Page, phone: boolean) {
 test("adds a block, edits it in the panel, and undoes", async ({ page }, info) => {
     desktopOnly(info.project.name);
     await openShelf(page, false);
-    await page.locator(".tile", { hasText: "Heading" }).click();
+    await page.locator('.tile[aria-label="Heading"]').click();
     const heading = canvas(page).locator("#t-blocks h2");
     await expect(heading).toHaveCount(1);
     const field = page.locator(".side input").first();
@@ -29,7 +29,7 @@ test("adds a block, edits it in the panel, and undoes", async ({ page }, info) =
 
 test("edits text in place, and the panel follows", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator(".tile", { hasText: "Heading" }).click();
+    await page.locator('.tile[aria-label="Heading"]').click();
     const heading = canvas(page).locator("#t-blocks h2");
     await expect(heading).toHaveClass(/./);
     await heading.click();
@@ -41,8 +41,8 @@ test("edits text in place, and the panel follows", async ({ page }, info) => {
 
 test("moves blocks by dragging on the canvas", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator(".tile", { hasText: "Heading" }).click();
-    await page.locator(".tile", { hasText: "Button" }).click();
+    await page.locator('.tile[aria-label="Heading"]').click();
+    await page.locator('.tile[aria-label="Button"]').click();
     await page.keyboard.press("Escape");
     const blocks = canvas(page).locator("#t-blocks > .t-block");
     await expect(blocks).toHaveCount(2);
@@ -59,7 +59,7 @@ test("moves blocks by dragging on the canvas", async ({ page }, info) => {
 
 test("the delete key removes the selected block", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator(".tile", { hasText: "Heading" }).click();
+    await page.locator('.tile[aria-label="Heading"]').click();
     await page.keyboard.press("Escape");
     const heading = canvas(page).locator("#t-blocks h2");
     await heading.click();
@@ -69,7 +69,7 @@ test("the delete key removes the selected block", async ({ page }, info) => {
 
 test("the draft survives a reload", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator(".tile", { hasText: "Heading" }).click();
+    await page.locator('.tile[aria-label="Heading"]').click();
     await page.locator(".side input").first().fill("Still here");
     await page.reload();
     await expect(canvas(page).locator("#t-blocks h2")).toHaveText("Still here");
@@ -80,7 +80,7 @@ test("on a phone, tapping a block opens the sheet with the block still in view",
 }, info) => {
     test.skip(info.project.name !== "phone", "Phone only");
     await openShelf(page, true);
-    await page.locator(".tile", { hasText: "Heading" }).tap();
+    await page.locator('.tile[aria-label="Heading"]').tap();
     await expect(page.locator(".side input").first()).toBeVisible();
     await expect(canvas(page).locator("#t-blocks h2")).toBeInViewport();
 });

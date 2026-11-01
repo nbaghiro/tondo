@@ -249,6 +249,8 @@ You review the gallery with your own content, because this is where the beauty s
 
 ### 6. Canvas and shelf
 
+Done.
+
 - Tabs on the canvas, and adding, dragging and selecting inside a tab.
 - Shelf with miniatures, grouped, and a paste box that picks the matching block.
 - Preview mode, keyboard shortcuts and the phone bottom bar.

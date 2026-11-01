@@ -1,5 +1,6 @@
 import {
     addBlock,
+    blockFromLink,
     duplicateBlock,
     findBlock,
     getField,
@@ -11,7 +12,7 @@ import {
     setHeaderField,
     starterPage,
 } from "@tondo/page";
-import type { BlockType, LookName, Page } from "@tondo/page";
+import type { Block, BlockType, LookName, Page, Place } from "@tondo/page";
 import { createSignal } from "solid-js";
 import { createHistory } from "./history";
 import { loadDraft, saveDraft } from "./storage";
@@ -28,6 +29,7 @@ export function createEditor(account: { handle: string; name: string }) {
     const [selected, setSelected] = createSignal<string | null>(null);
     const [saved, setSaved] = createSignal(true);
     const [version, setVersion] = createSignal(0);
+    const [chosenTabs, setChosenTabs] = createSignal<Readonly<Record<string, string>>>({});
     let justAdded = false;
 
     const apply = (next: Page) => {
@@ -50,6 +52,30 @@ export function createEditor(account: { handle: string; name: string }) {
         if (!next) return;
         clearMissingSelection(next);
         apply(next);
+    };
+
+    // A new block goes below the selected one, in the same list, or into the shown tab.
+    const where = (type: BlockType): { at: number; list?: Place } => {
+        const current = page();
+        const found = findBlock(current, selected() ?? "");
+        if (!found) return { at: current.blocks.length };
+        if (found.block.type === "tabs" && type !== "tabs") {
+            const tab =
+                found.block.tabs.find((other) => other.id === chosenTabs()[found.block.id]) ??
+                found.block.tabs[0];
+            if (tab) return { at: tab.blocks.length, list: { tabs: found.block.id, tab: tab.id } };
+        }
+        if (found.place && type === "tabs") {
+            const tabs = found.place.tabs;
+            return { at: current.blocks.findIndex((block) => block.id === tabs) + 1 };
+        }
+        return { at: found.index + 1, ...(found.place ? { list: found.place } : {}) };
+    };
+    const place = (block: Block, at?: number) => {
+        const spot = at === undefined ? where(block.type) : { at };
+        change(addBlock(page(), block, spot.at, spot.list));
+        justAdded = true;
+        setSelected(block.id);
     };
 
     return {
@@ -77,14 +103,27 @@ export function createEditor(account: { handle: string; name: string }) {
         redo: () => {
             travel((current) => history.redo(current));
         },
+        /** The tab to show: the one holding the selected block, or the last one chosen. */
+        shownTab(block: Extract<Block, { type: "tabs" }>) {
+            const inside = findBlock(page(), selected() ?? "")?.place;
+            if (inside?.tabs === block.id) return inside.tab;
+            const chosen = chosenTabs()[block.id];
+            return block.tabs.some((tab) => tab.id === chosen) ? chosen : block.tabs[0]?.id;
+        },
+        showTab(id: string, position: number) {
+            const found = findBlock(page(), id)?.block;
+            const tab = found?.type === "tabs" ? found.tabs[position] : undefined;
+            if (tab) setChosenTabs((was) => ({ ...was, [id]: tab.id }));
+        },
         add(type: BlockType, at?: number) {
-            const block = newBlock(type, crypto.randomUUID());
-            const current = page();
-            const after = current.blocks.findIndex((other) => other.id === selected());
-            const index = at ?? (after >= 0 ? after + 1 : current.blocks.length);
-            change(addBlock(current, block, index));
-            justAdded = true;
-            setSelected(block.id);
+            place(newBlock(type, crypto.randomUUID()), at);
+        },
+        /** Adds whichever block suits a pasted link. False if it isn't a usable link. */
+        addFromLink(raw: string) {
+            const block = blockFromLink(raw, crypto.randomUUID());
+            if (!block) return false;
+            place(block);
+            return true;
         },
         move(id: string, to: number) {
             change(moveBlock(page(), id, to));

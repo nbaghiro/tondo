@@ -15,26 +15,33 @@ export interface DragOptions {
     /** True when the drag started inside the iframe, so positions are relative to it. */
     fromFrame: boolean;
     label: string;
+    /** The list being dropped into. Leaving this out means the top of the page. */
+    list?: Element | null | undefined;
     onStart?: () => void;
     /** Called with the position in the block list, or null if it was dropped elsewhere. */
     onEnd: (index: number | null) => void;
 }
 
-function dropIndex(doc: Document, y: number): { index: number; line: number } {
-    const nodes = [...doc.querySelectorAll("#t-blocks > .t-block")];
+function dropIndex(
+    doc: Document,
+    y: number,
+    within?: Element | null,
+): { index: number; line: number } {
+    const root = within ?? doc.getElementById("t-blocks");
+    const nodes = root ? [...root.querySelectorAll(":scope > .t-block")] : [];
     for (const [index, node] of nodes.entries()) {
         const box = node.getBoundingClientRect();
         if (y < box.top + box.height / 2) return { index, line: box.top };
     }
     const last = nodes.at(-1)?.getBoundingClientRect();
-    const list = doc.getElementById("t-blocks")?.getBoundingClientRect();
+    const list = root?.getBoundingClientRect();
     return { index: nodes.length, line: last?.bottom ?? list?.top ?? 0 };
 }
 
 const isPointerEvent = (e: Event): e is PointerEvent => "clientX" in e;
 
 export function startDrag(options: DragOptions): void {
-    const { event, source, frame, fromFrame, label, onStart, onEnd } = options;
+    const { event, source, frame, fromFrame, label, list, onStart, onEnd } = options;
     const doc = frame.contentDocument;
     const scroller = doc?.scrollingElement;
     const line = doc?.getElementById("t-drop");
@@ -61,7 +68,7 @@ export function startDrag(options: DragOptions): void {
         if (inside) {
             if (point.y < EDGE) scroller.scrollTop -= EDGE_SPEED;
             else if (point.y > frame.clientHeight - EDGE) scroller.scrollTop += EDGE_SPEED;
-            const found = dropIndex(doc, point.y);
+            const found = dropIndex(doc, point.y, list);
             index = found.index;
             line.style.top = `${found.line}px`;
             line.style.opacity = "1";

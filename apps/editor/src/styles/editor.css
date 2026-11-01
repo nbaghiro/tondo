@@ -72,7 +72,8 @@ button {
     border-radius: 40px;
     font-weight: 600;
 }
-.logout {
+.logout,
+.preview-open {
     flex: none;
     margin-left: 6px;
     padding: 8px 14px;
@@ -160,6 +161,7 @@ button {
 }
 .tiles {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
 .tile {
@@ -1048,4 +1050,115 @@ textarea.in {
 .lab-out {
     margin-top: 20px;
     font-size: 12px;
+}
+.shelf-group h3 {
+    margin: 18px 0 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--soft);
+}
+.tile {
+    display: block;
+    padding: 6px 6px 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+.tile-in {
+    display: block;
+    position: relative;
+    height: 74px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--paper);
+}
+.paste {
+    margin-top: 12px;
+}
+.paste-box {
+    display: flex;
+    padding: 3px 3px 3px 14px;
+    background: #fff;
+    border: 1.5px solid var(--rule);
+    border-radius: 40px;
+}
+.paste-box:focus-within {
+    border-color: var(--madder);
+}
+.paste-box input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    outline: 0;
+}
+.paste-box button {
+    padding: 6px 13px;
+    border: 0;
+    border-radius: 30px;
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+}
+.paste-box button:disabled {
+    opacity: 0.45;
+}
+.paste small {
+    display: block;
+    margin: 6px 0 0 14px;
+    color: #8c1d2f;
+}
+.sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.preview {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--paper);
+}
+.preview .frame {
+    flex: 1;
+    min-height: 0;
+    margin: 0;
+}
+.preview-back {
+    flex: none;
+}
+@media (max-width: 1180px) {
+    .preview-open {
+        display: none;
+    }
+    .preview {
+        padding: 8px;
+    }
+    .preview .frame {
+        width: 100%;
+    }
+}
+.i-add {
+    display: none;
+    margin-left: auto;
+    margin-right: 6px;
+    padding: 6px 14px;
+    background: var(--ink);
+    color: #fff;
+    border: 0;
+    border-radius: 30px;
+    font-weight: 700;
+}
+@media (max-width: 1180px) {
+    .i-add {
+        display: block;
+    }
 }

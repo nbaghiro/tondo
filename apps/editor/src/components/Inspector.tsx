@@ -16,7 +16,7 @@ import { FieldView, SourceInput, Toggle } from "./Fields";
 import { Icon } from "./Icon";
 import { Thumbnail } from "./Thumbnail";
 
-const ASSETS = import.meta.env.BASE_URL;
+const ASSETS = "/photos/";
 const THUMB_CTX = { assetBase: ASSETS, editable: false };
 const TILE = 96;
 
@@ -154,7 +154,7 @@ function ShowOrHide(props: { editor: EditorState; block: Block }) {
     );
 }
 
-export function Inspector(props: { editor: EditorState; onClose: () => void }) {
+export function Inspector(props: { editor: EditorState; onClose: () => void; onAdd: () => void }) {
     const target = () => props.editor.selected() ?? "";
     const isHeader = () => target() === HEADER;
     const block = () => findBlock(props.editor.page(), target())?.block;
@@ -201,6 +201,15 @@ export function Inspector(props: { editor: EditorState; onClose: () => void }) {
         <>
             <header class="i-head">
                 <h2>{isHeader() ? "Header" : (definition()?.name ?? "")}</h2>
+                <button
+                    type="button"
+                    class="i-add"
+                    onClick={() => {
+                        props.onAdd();
+                    }}
+                >
+                    Add
+                </button>
                 <button
                     type="button"
                     class="icon-b"

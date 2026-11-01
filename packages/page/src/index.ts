@@ -16,6 +16,7 @@ export { readLink } from "./links";
 export type { LinkReading } from "./links";
 export {
     addBlock,
+    blockFromLink,
     duplicateBlock,
     findBlock,
     getField,

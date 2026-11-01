@@ -10,7 +10,7 @@ const panel = (page: Page) => page.locator(".side");
 
 async function add(page: Page, name: string, phone: boolean) {
     if (phone) await page.locator(".tabs .pill", { hasText: "Add" }).click();
-    await page.locator(".tile", { hasText: name }).first().click();
+    await page.locator(`.tile[aria-label="${name}"]`).click();
 }
 
 test("layouts are real thumbnails, and picking one changes the block", async ({ page }, info) => {

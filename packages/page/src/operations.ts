@@ -1,4 +1,5 @@
 import { blockDefinitions, blockSchemaUnion, leafSchemaUnion } from "./blocks";
+import { readLink } from "./links";
 import type { Block, BlockType, LeafBlock } from "./blocks";
 import { pageSchema } from "./schema";
 import type { Header, Page } from "./schema";
@@ -42,6 +43,35 @@ function withList(page: Page, place: Place | undefined, list: Block[]): Page {
                 : block,
         ),
     };
+}
+
+const SERVICE_BLOCKS: Readonly<Record<string, BlockType>> = {
+    YouTube: "video",
+    Vimeo: "video",
+    Spotify: "music",
+    "Apple Music": "music",
+    SoundCloud: "music",
+    Calendly: "booking",
+    "Cal.com": "booking",
+};
+
+/** The block a pasted link should become, already pointing at it. Null if it isn't a usable link. */
+export function blockFromLink(raw: string, id: string): Block | null {
+    const reading = readLink(raw);
+    if (reading.state !== "ok") return null;
+    const { url, title, service } = reading;
+    const type = (service ? SERVICE_BLOCKS[service] : undefined) ?? "button";
+    const made = newBlock(type, id);
+    if (made.type === "video") {
+        const [first] = made.items;
+        if (!first) return made;
+        return { ...made, items: [{ ...first, url, title: title || first.title }] };
+    }
+    if (made.type === "button") return { ...made, url, text: title || "Visit my site" };
+    if (made.type === "music" || made.type === "booking") {
+        return { ...made, url, title: title || made.title };
+    }
+    return made;
 }
 
 /** Finds a block anywhere on the page, and where it lives. */

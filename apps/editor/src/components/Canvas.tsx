@@ -1,3 +1,4 @@
+import { findBlock } from "@tondo/page";
 import type { Page } from "@tondo/page";
 import { fontsHref, renderBlock, renderCss, renderDocument, renderHeader } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, untrack } from "solid-js";
@@ -6,7 +7,7 @@ import { HEADER } from "../state/document";
 import type { EditorState } from "../state/document";
 import canvasCss from "../styles/canvas.css?inline";
 
-const CTX = { assetBase: import.meta.env.BASE_URL, editable: true };
+const CTX = { assetBase: "/photos/", editable: true };
 const EMPTY = `<div class="t-empty"><b>Your page is empty</b><span>Choose a block to start.</span></div>`;
 
 interface CanvasProps {
@@ -83,7 +84,7 @@ export function Canvas(props: CanvasProps) {
                 if (!node) return;
                 added.push(node);
                 drawn.set(block.id, html);
-            } else if (drawn.get(block.id) !== html && editing !== block.id) {
+            } else if (drawn.get(block.id) !== html && editingTop(page) !== block.id) {
                 const fresh = makeNode(d, html);
                 if (fresh) {
                     node.replaceWith(fresh);
@@ -113,6 +114,26 @@ export function Canvas(props: CanvasProps) {
             }
         }
         for (const node of added) node.classList.add("t-fresh");
+    }
+
+    // Text being edited inside a tab belongs to that tab's block, which mustn't redraw under it.
+    function editingTop(page: Page): string | null {
+        if (!editing) return null;
+        return findBlock(page, editing)?.place?.tabs ?? editing;
+    }
+
+    // The shown tab is the editor's choice, and redrawing a block would otherwise reset it.
+    function syncTabs(d: Document, page: Page) {
+        for (const block of page.blocks) {
+            if (block.type !== "tabs") continue;
+            const tab = props.editor.shownTab(block);
+            const position = block.tabs.findIndex((other) => other.id === tab);
+            const node = d.querySelector(`[data-block-id="${CSS.escape(block.id)}"]`);
+            const input = node?.querySelector<HTMLInputElement>(
+                `:scope .b-tabs > .t${String(position)}`,
+            );
+            if (input) input.checked = true;
+        }
     }
 
     function syncSelection(d: Document, selected: string | null) {
@@ -145,6 +166,7 @@ export function Canvas(props: CanvasProps) {
         if (reveal && "startViewTransition" in d) d.startViewTransition(apply);
         else apply();
         syncBlocks(d, page);
+        syncTabs(d, page);
         syncSelection(d, props.editor.selected());
         props.onLayout();
     }
@@ -183,7 +205,7 @@ export function Canvas(props: CanvasProps) {
                 el.removeAttribute("contenteditable");
                 editing = null;
                 // Whatever was refused while typing, such as text over a limit, gets redrawn here.
-                drawn.delete(target);
+                drawn.delete(findBlock(props.editor.page(), target)?.place?.tabs ?? target);
                 drawnHeader = target === HEADER ? "" : drawnHeader;
                 sync(d);
             },
@@ -207,6 +229,13 @@ export function Canvas(props: CanvasProps) {
                 return;
             }
             const id = owner.getAttribute("data-block-id") ?? HEADER;
+            const tabLabel = target?.closest(".b-tabbar label");
+            if (tabLabel) {
+                const position = [...(tabLabel.parentElement?.children ?? [])].indexOf(tabLabel);
+                props.editor.showTab(id, position);
+                props.editor.select(id);
+                return;
+            }
             const field = target?.closest("[data-field]");
             const touch = win.matchMedia("(pointer: coarse)").matches;
             if (id === props.editor.selected() && field instanceof win.HTMLElement && !touch) {
@@ -232,11 +261,12 @@ export function Canvas(props: CanvasProps) {
                 frame,
                 fromFrame: true,
                 label: "Move block",
+                list: owner?.parentElement?.closest(".b-panel"),
                 onStart: () => moving()?.classList.add("t-dragging"),
                 onEnd: (index) => {
                     moving()?.classList.remove("t-dragging");
                     if (index === null) return;
-                    const from = props.editor.page().blocks.findIndex((b) => b.id === id);
+                    const from = findBlock(props.editor.page(), id)?.index ?? 0;
                     props.editor.move(id, index > from ? index - 1 : index);
                 },
             });

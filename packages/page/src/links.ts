@@ -42,6 +42,8 @@ export type LinkReading =
           icon: string;
           /** A title to offer when the person hasn't written one. Empty if there's nothing useful. */
           title: string;
+          /** The recognised service, if any. */
+          service?: string;
       };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -96,5 +98,6 @@ export function readLink(raw: string): LinkReading {
         label: `Recognised ${name}`,
         icon,
         title: name === "your shop" ? "Visit my shop" : `Find me on ${name}`,
+        service: name,
     };
 }

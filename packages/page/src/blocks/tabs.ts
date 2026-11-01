@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { blockSchema, defineBlock, escapeHtml, wrapBlock } from "../define-block";
+import { list, text } from "../fields";
 import type { RenderContext } from "../define-block";
 import { leafDefinitions, leafSchemaUnion } from "./leaves";
 import type { LeafBlock } from "./leaves";
@@ -25,10 +26,18 @@ export const tabs = defineBlock({
             .max(4),
     }),
     name: "Tabs",
-    group: "words",
-    held: true,
+    group: "details",
     layouts: { pills: { label: "Pills" } },
-    fields: [],
+    fields: [
+        list("tabs", "Tabs", {
+            title: "label",
+            add: "Add a tab",
+            max: 4,
+            hint: "Click a tab on your page, then add blocks from the shelf. They go in that tab.",
+            fields: [text("label", "Name", { max: 16 })],
+            make: () => ({ label: "New tab", blocks: [] }),
+        }),
+    ],
     make: () => ({
         type: "tabs" as const,
         variant: "pills" as const,
@@ -56,7 +65,11 @@ export const tabs = defineBlock({
         const panels = block.tabs
             .map(
                 (tab, i) =>
-                    `<div class="b-panel p${String(i)}">${tab.blocks.map((inner) => drawLeaf(inner, ctx)).join("")}</div>`,
+                    `<div class="b-panel p${String(i)}" data-tab="${escapeHtml(tab.id)}">${
+                        tab.blocks.length || !ctx.editable
+                            ? tab.blocks.map((inner) => drawLeaf(inner, ctx)).join("")
+                            : '<div class="t-tab-empty">This tab is empty. Add a block from the shelf.</div>'
+                    }</div>`,
             )
             .join("");
         return `<div class="b-tabs">${inputs}<div class="b-tabbar">${labels}</div>${panels}</div>`;

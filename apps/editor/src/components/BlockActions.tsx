@@ -77,6 +77,9 @@ export function BlockActions(props: BlockActionsProps) {
                                 frame,
                                 fromFrame: false,
                                 label: blockDefinitions[block.type].name,
+                                list: blockNode(frame, selected)?.parentElement?.closest(
+                                    ".b-panel",
+                                ),
                                 onEnd: (to) => {
                                     if (to === null) return;
                                     const from = index();

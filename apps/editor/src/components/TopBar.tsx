@@ -3,7 +3,7 @@ import type { Account } from "../lib/account";
 import type { EditorState } from "../state/document";
 import { Icon } from "./Icon";
 
-export function TopBar(props: { editor: EditorState; account: Account }) {
+export function TopBar(props: { editor: EditorState; account: Account; onPreview: () => void }) {
     return (
         <header class="top">
             <span class="brand">Tondo</span>
@@ -32,6 +32,14 @@ export function TopBar(props: { editor: EditorState; account: Account }) {
                 }}
             >
                 <Icon name="redo" />
+            </button>
+            <button
+                class="preview-open"
+                onClick={() => {
+                    props.onPreview();
+                }}
+            >
+                Preview
             </button>
             <button class="logout" onClick={logOut}>
                 Log out

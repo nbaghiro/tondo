@@ -68,7 +68,7 @@ test.describe("in the editor", () => {
         await signUpToEditor(page);
         const tabs = page.locator(".tabs .pill", { hasText: "Add" });
         if (await tabs.isVisible()) await tabs.click();
-        await page.locator(".tile", { hasText: "Products" }).click();
+        await page.locator('.tile[aria-label="Products"]').click();
         const name = canvas(page).locator('[data-field="items.0.name"]');
         await expect(name).toHaveText("Tall ash vase");
         await name.click();

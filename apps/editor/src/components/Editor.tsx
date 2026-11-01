@@ -1,3 +1,4 @@
+import { findBlock } from "@tondo/page";
 import { fontsHref, looks, paint } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { Account } from "../lib/account";
@@ -7,6 +8,7 @@ import { Canvas } from "./Canvas";
 import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
 import { Looks } from "./Looks";
+import { Preview } from "./Preview";
 import { Shelf } from "./Shelf";
 import { TopBar } from "./TopBar";
 
@@ -21,6 +23,7 @@ export function Editor(props: { account: Account }) {
     const [layoutTick, setLayoutTick] = createSignal(0);
     const [sheet, setSheet] = createSignal<Sheet>(null);
     const [size, setSize] = createSignal<"half" | "full">("half");
+    const [previewing, setPreviewing] = createSignal(false);
 
     // Fonts for the page live in its iframe, and thumbnails need them out here too.
     createEffect(() => {
@@ -77,12 +80,24 @@ export function Editor(props: { account: Account }) {
             return;
         }
         if (e.key === "Escape") {
+            setPreviewing(false);
             if (target instanceof HTMLElement) target.blur();
             editor.select(null);
             return;
         }
         if (typing) return;
         const id = editor.selected();
+        if (id && id !== HEADER && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "d") {
+            e.preventDefault();
+            editor.duplicate(id);
+            return;
+        }
+        if (id && id !== HEADER && e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+            e.preventDefault();
+            const index = findBlock(editor.page(), id)?.index ?? 0;
+            editor.move(id, index + (e.key === "ArrowUp" ? -1 : 1));
+            return;
+        }
         if (id && id !== HEADER && (e.key === "Backspace" || e.key === "Delete")) {
             e.preventDefault();
             editor.remove(id);
@@ -113,7 +128,7 @@ export function Editor(props: { account: Account }) {
             data-size={size()}
         >
             <div class="backdrop" aria-hidden="true" ref={setBackdrop} />
-            <TopBar editor={editor} account={props.account} />
+            <TopBar editor={editor} account={props.account} onPreview={() => setPreviewing(true)} />
             <aside class="panel shelf" aria-label="Add to your page">
                 <button class="round sheet-close" aria-label="Close" onClick={() => setSheet(null)}>
                     <Icon name="close" />
@@ -150,7 +165,11 @@ export function Editor(props: { account: Account }) {
                         </div>
                     }
                 >
-                    <Inspector editor={editor} onClose={() => editor.select(null)} />
+                    <Inspector
+                        editor={editor}
+                        onClose={() => editor.select(null)}
+                        onAdd={() => setSheet("add")}
+                    />
                 </Show>
             </aside>
             <nav class="tabs" aria-label="Editor">
@@ -160,7 +179,13 @@ export function Editor(props: { account: Account }) {
                 <button class="pill" onClick={() => setSheet("look")}>
                     Look
                 </button>
+                <button class="pill" onClick={() => setPreviewing(true)}>
+                    Preview
+                </button>
             </nav>
+            <Show when={previewing()}>
+                <Preview page={editor.page()} onClose={() => setPreviewing(false)} />
+            </Show>
         </div>
     );
 }

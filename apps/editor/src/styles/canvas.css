@@ -132,3 +132,12 @@ html.look {
         clip-path: circle(150% at 50% 30%);
     }
 }
+.t-tab-empty {
+    margin-top: 12px;
+    padding: 22px 14px;
+    border: 1.5px dashed color-mix(in srgb, var(--fg) 30%, transparent);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--mut);
+}
