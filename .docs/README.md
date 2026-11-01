@@ -19,6 +19,6 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [marketing/index.html](marketing/index.html) | The design reference for the marketing page, now ported to `apps/marketing`, with 50 example pages. It's built by `.scratchpad/tools/build-marketing.cjs` and `more-pages.cjs` |
 | [marketing/examples.html](marketing/examples.html) | All 50 example pages, grouped by type, showing what the finished product should be able to do |
 | [design-brief.md](design-brief.md) | A brief to hand to a separate design agent |
-| [design-languages/index.html](design-languages/index.html) | Earlier studies and Wash variations |
+| [design-languages/3-wash.html](design-languages/3-wash.html) | The original Wash study |
 
 Everything here is a proposal until it has been built. The prices, features and people on the design pages are placeholders.
