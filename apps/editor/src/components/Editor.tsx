@@ -198,6 +198,13 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         editor.select(null);
         setSheet(null);
     };
+    // Blurring first commits a field that's still being typed in, while its panel is open.
+    const clickedOutside = () => {
+        if (!editor.selected() && !right()) return;
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        closeRight();
+    };
+    let stageDown = { x: 0, y: 0 };
     const openLook = () => {
         editor.select(null);
         setRight("look");
@@ -500,7 +507,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     </div>
                 </Show>
             </div>
-            <main class="stage">
+            <main
+                class="stage"
+                onPointerDown={(e) => {
+                    stageDown = { x: e.clientX, y: e.clientY };
+                }}
+                onClick={(e) => {
+                    const moved = Math.hypot(e.clientX - stageDown.x, e.clientY - stageDown.y) > 5;
+                    if (e.target === e.currentTarget && !moved) clickedOutside();
+                }}
+            >
                 <div class="wash" aria-hidden="true" ref={setWash} />
                 <TopBar
                     editor={editor}
@@ -525,6 +541,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                         onDragOver={(id, to) => {
                             setDragOrder({ id, to });
                         }}
+                        onOutside={clickedOutside}
                         onSocialIcons={() => {
                             editor.select(HEADER);
                             setSheet("section");

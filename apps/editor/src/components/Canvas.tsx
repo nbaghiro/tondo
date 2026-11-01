@@ -37,6 +37,8 @@ interface CanvasProps {
     onDragEnd: () => void;
     /** The header's icons were tapped, so the panel should open at them. */
     onSocialIcons: () => void;
+    /** A plain click on the page outside any section or the header. */
+    onOutside: () => void;
 }
 
 interface Drag {
@@ -449,6 +451,14 @@ export function Canvas(props: CanvasProps) {
         const draggable = (target: Element | null) =>
             target?.closest<HTMLElement>("section.t-s, .b-panel > .t-block") ?? null;
 
+        let downAt = { x: 0, y: 0 };
+        d.addEventListener(
+            "pointerdown",
+            (e) => {
+                downAt = { x: e.clientX, y: e.clientY };
+            },
+            true,
+        );
         d.addEventListener("click", (e) => {
             e.preventDefault();
             if (ignoreClick) return;
@@ -477,7 +487,9 @@ export function Canvas(props: CanvasProps) {
             const owner = target?.closest("[data-block-id]");
             const blockId = owner?.getAttribute("data-block-id");
             if (!blockId) {
-                props.editor.select(null);
+                // Selecting text or dragging across the page isn't a click on the page.
+                const moved = Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 5;
+                if (!moved && win.getSelection()?.isCollapsed !== false) props.onOutside();
                 return;
             }
             const tabLabel = target?.closest(".b-tabbar label");

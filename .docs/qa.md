@@ -88,6 +88,10 @@ In development the marketing site and published pages are on different ports. In
 - [ ] Header layouts in several looks, with and without a photo
 - [ ] A long name in looks with seals and frames, such as Bakehouse, Lume and Rovers. Long names may overflow
 
+## Selecting
+
+- [ ] Click the background around the phone, or empty page inside it. The selected section deselects and the right panel closes, and text you were typing is kept. Clicks in the panels and top bar, a drag, and selecting text don't close it. On a phone, tapping empty page above the sheet closes it
+
 ## Adding sections
 
 - [ ] Add a section has a search box that stays put while the list scrolls. It's focused on a computer and not on a phone. "cv", "newsletter" and a pasted Instagram link all find something, and Enter adds the top result

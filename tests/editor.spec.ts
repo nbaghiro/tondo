@@ -226,3 +226,78 @@ test("the add panel's search stays fixed and shows 12 sections at 1080 tall", as
     });
     expect(shown).toBeGreaterThanOrEqual(12);
 });
+
+test("clicking empty page closes the panel, keeps what was typed, and tools don't close it", async ({
+    page,
+}, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "about");
+    const open = panel(page);
+    await expect(open).toBeVisible();
+
+    await open.locator("h2").first().click();
+    await page.locator(".lside h2").click();
+    await expect(open).toBeVisible();
+
+    await titleField(page).fill("Kept");
+    const frame = await page.locator("iframe.canvas").boundingBox();
+    if (!frame) throw new Error("The canvas has no size.");
+    await page.mouse.click(frame.x + frame.width / 2, frame.y + frame.height - 20);
+    await expect(open).toHaveCount(0);
+    await expect(canvas(page).locator("#t-blocks h2")).toHaveText("Kept");
+});
+
+test("clicking the stage closes the panel, but a drag across it doesn't", async ({
+    page,
+}, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "about");
+    const open = panel(page);
+    const stage = await page.locator(".build .phone").boundingBox();
+    if (!stage) throw new Error("The phone has no size.");
+    const spot = { x: stage.x - 60, y: stage.y + 300 };
+
+    await page.mouse.move(spot.x, spot.y);
+    await page.mouse.down();
+    await page.mouse.move(spot.x - 60, spot.y + 40, { steps: 5 });
+    await page.mouse.up();
+    await expect(open).toBeVisible();
+
+    await page.mouse.click(spot.x, spot.y);
+    await expect(open).toHaveCount(0);
+
+    await addSection(page, "links");
+    await page.keyboard.press("Escape");
+    await expect(open).toHaveCount(0);
+});
+
+test("selecting text on the page doesn't close the panel", async ({ page }, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "about");
+    const open = panel(page);
+    const frame = await page.locator("iframe.canvas").boundingBox();
+    if (!frame) throw new Error("The canvas has no size.");
+    const y = frame.y + frame.height - 20;
+    await page.mouse.move(frame.x + 40, y);
+    await page.mouse.down();
+    await page.mouse.move(frame.x + 200, y, { steps: 5 });
+    await page.mouse.up();
+    await expect(open).toBeVisible();
+});
+
+test("tapping the page above the sheet closes it on a phone", async ({ page }, info) => {
+    test.skip(info.project.name !== "phone", "Uses the phone's sheet");
+    await addSection(page, "about");
+    const open = page.locator(".rside.open");
+    await expect(open).toBeVisible();
+    // The section sits at the top of the small canvas, so scroll past it to reach empty page.
+    const blank = canvas(page).locator("main.page");
+    await blank.evaluate((node) => {
+        node.style.paddingBottom = "600px";
+        node.ownerDocument.scrollingElement?.scrollTo(0, 99999);
+    });
+    const frame = await page.locator("iframe.canvas").boundingBox();
+    if (!frame) throw new Error("The canvas has no size.");
+    await page.touchscreen.tap(frame.x + frame.width / 2, frame.y + 60);
+    await expect(open).toHaveCount(0);
+});
