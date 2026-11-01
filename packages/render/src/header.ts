@@ -25,7 +25,7 @@ const wordmarkSize = (name: string, base: number) =>
 function wordmark(page: Page, ctx: RenderContext): string {
     const { name, wordmark: kind } = page.header;
     const base = { bubble: 56, poster: 62, script: 58, paint: 62, seal: 34 };
-    if (!kind) return "";
+    if (!kind || !name.trim()) return "";
     const words = escapeHtml(kind === "poster" ? name.toUpperCase() : name);
     const art = kind === "paint" && ctx.wordmarkArt ? ctx.wordmarkArt().replace(/"/g, "%22") : "";
     const backing = art ? `;background-image:url(&quot;${escapeHtml(art)}&quot;)` : "";
@@ -41,10 +41,16 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
     const { name, tagline, bio, photo, buttonText, buttonUrl } = page.header;
     const image = leavesOut(ctx, photo) ? "" : photoTag(ctx, photo);
     return {
-        art: paint(theme ? paintFor(theme) : (page.paint ?? look.palette), page.seed ?? look.seed, {
-            screen: theme ? theme.dark : look.screen,
-            ring: look.ring,
-        }),
+        art: page.style?.bg
+            ? ""
+            : paint(
+                  theme ? paintFor(theme) : (page.paint ?? look.palette),
+                  page.seed ?? look.seed,
+                  {
+                      screen: theme ? theme.dark : look.screen,
+                      ring: look.ring,
+                  },
+              ),
         image,
         avatar: image ? `<span class="p-av">${image}</span>` : "",
         initials: escapeHtml(
@@ -55,7 +61,11 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
                 .map((word) => word.charAt(0).toUpperCase())
                 .join(""),
         ),
-        name: wordmark(page, ctx) || editable(ctx, "h1", "name", name),
+        name: page.header.hideName
+            ? name.trim()
+                ? `<h1 class="t-vh">${escapeHtml(name)}</h1>`
+                : ""
+            : wordmark(page, ctx) || editable(ctx, "h1", "name", name),
         tagline: editable(ctx, "span", "tagline", tagline, "p-tag"),
         bio: editable(ctx, "p", "bio", bio),
         links: shownLinks.length
@@ -89,6 +99,30 @@ const LAYOUTS = {
     banner: (p: HeaderParts) =>
         `<div class="h-pic">${p.image}</div><header class="p-head">${p.avatar}${words(p)}</header>`,
 };
+
+const ART_MARK = "<!--art-->";
+
+/** What can change about the art at the top of this page, so a panel offers nothing dead. */
+export function headerArtChoices(page: Page): { paint: boolean; none: boolean } {
+    const { layout } = page.header;
+    if (layout === "full" || layout === "banner") return { paint: false, none: false };
+    const header = looks[page.look].header;
+    if (layout !== "look" || !header) return { paint: true, none: true };
+    const blank = {
+        art: ART_MARK,
+        image: "",
+        avatar: "",
+        initials: "",
+        name: "",
+        tagline: "",
+        bio: "",
+        links: "",
+        button: "",
+    };
+    // A look that draws its header without the painting has made the header itself its art.
+    const painted = header(blank).includes(ART_MARK);
+    return { paint: painted, none: painted };
+}
 
 export function renderHeader(page: Page, ctxIn: RenderContext): string {
     const look = looks[page.look];

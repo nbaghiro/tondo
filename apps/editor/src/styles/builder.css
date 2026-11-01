@@ -2350,6 +2350,40 @@ small.todo::before {
     }
 }
 
+.top-art .fd {
+    margin-top: 16px;
+}
+.paints {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+.paint-s {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.paint-s[aria-pressed="true"] {
+    box-shadow:
+        0 0 0 2px var(--paper),
+        0 0 0 4px var(--ink);
+}
+.paint-o {
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid var(--rule);
+    border-radius: 20px;
+    background: var(--paper);
+    cursor: pointer;
+}
+.paint-o[aria-pressed="true"] {
+    border-color: var(--ink);
+}
 .discard-open {
     width: 100%;
     margin-top: 8px;

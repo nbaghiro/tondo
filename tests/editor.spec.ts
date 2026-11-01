@@ -301,3 +301,26 @@ test("tapping the page above the sheet closes it on a phone", async ({ page }, i
     await page.touchscreen.tap(frame.x + frame.width / 2, frame.y + 60);
     await expect(open).toHaveCount(0);
 });
+
+test("the header's words can go, and the art changes from its own panel", async ({ page }) => {
+    await canvas(page).locator("#t-header").click();
+    const open = panel(page);
+
+    await open.getByLabel("Short line").fill("A line");
+    await open.getByRole("button", { name: "Clear Short line" }).click();
+    await expect(open.getByLabel("Short line")).toHaveValue("");
+
+    await open.getByRole("switch", { name: "Show my name" }).click();
+    const name = canvas(page).locator("#t-header h1");
+    await expect(name).toHaveClass(/t-vh/);
+    await expect(name).toHaveText("Maya Okafor");
+
+    await open.locator(".top-art summary").click();
+    await open.getByRole("button", { name: "Sea paint" }).click();
+    await expect(open.getByRole("button", { name: "Sea paint" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+    );
+    await open.locator("[data-bg=solid]").click();
+    await expect(open.locator("[data-repaint]")).toHaveCount(0);
+});

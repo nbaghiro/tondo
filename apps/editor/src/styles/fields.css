@@ -3,6 +3,38 @@
 .fd {
     margin-bottom: 12px;
 }
+.rside .fd {
+    margin-bottom: 16px;
+}
+.in-wrap {
+    position: relative;
+}
+.in-wrap.clearable .in {
+    padding-right: 34px;
+}
+.in-x {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    color: var(--soft);
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.in-x:hover {
+    color: var(--ink);
+    background: var(--band);
+}
+.in-x svg {
+    width: 14px;
+    height: 14px;
+}
 .fd:last-child {
     margin-bottom: 0;
 }

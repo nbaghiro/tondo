@@ -228,7 +228,7 @@ a {
 .t-sel [data-field]:empty {
     display: block;
     min-width: 3em;
-    opacity: 0.5;
+    opacity: 0.35;
 }
 .t-sel [data-field]:empty::before {
     content: "Add text";

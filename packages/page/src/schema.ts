@@ -76,6 +76,8 @@ export const headerSchema = z.strictObject({
     layout: z.enum(headerLayouts),
     wordmark: z.enum(wordmarks).optional(),
     name: z.string().max(80),
+    /** Keeps the name for the page title and screen readers, for a photo or logo that carries it. */
+    hideName: z.boolean().optional(),
     tagline: z.string().max(120).optional(),
     bio: z.string().max(280).optional(),
     photo: photoValue.optional(),

@@ -17,6 +17,8 @@ export interface TextField extends Common {
     placeholder?: string;
     /** Edited in place on the canvas as well as in the panel. */
     inline?: boolean;
+    /** Shows a small button that empties the field. */
+    clearable?: boolean;
 }
 export interface LinkField extends Common {
     kind: "link";

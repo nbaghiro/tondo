@@ -16,6 +16,7 @@ import { wireHtml } from "../lib/drawings";
 import { HEADER } from "../state/document";
 import type { EditorState } from "../state/document";
 import { askedItem, FieldView, SourceInput, Toggle } from "./Fields";
+import { TopArt } from "./LookPanel";
 import { Glyph } from "./Panels";
 
 const ASSETS = "/photos/";
@@ -433,7 +434,21 @@ export function HeaderPanel(props: { editor: EditorState; socialAsked: number })
                 </div>
             </div>
             <For each={shown(false)}>
-                {(field) => <FieldView assets={ASSETS} field={field} values={values} set={set} />}
+                {(field) => (
+                    <>
+                        <FieldView assets={ASSETS} field={field} values={values} set={set} />
+                        <Show when={field.key === "name"}>
+                            <Toggle
+                                label="Show my name"
+                                checked={!values()["hideName"]}
+                                hint="When it's off, your name is still the page title and screen readers still read it."
+                                onChange={(on) => {
+                                    set("hideName", on ? undefined : true);
+                                }}
+                            />
+                        </Show>
+                    </>
+                )}
             </For>
             <Show when={socialField}>
                 {(field) => (
@@ -442,38 +457,42 @@ export function HeaderPanel(props: { editor: EditorState; socialAsked: number })
                     </div>
                 )}
             </Show>
-            <div class="fd">
-                <span class="fd-l">
-                    <span>A logo from your name</span>
-                </span>
-                <div class="chips">
-                    <button
-                        type="button"
-                        class="chip"
-                        aria-pressed={!props.editor.page().header.wordmark}
-                        onClick={() => {
-                            set("wordmark", undefined);
-                        }}
-                    >
-                        Plain text
-                    </button>
-                    <For each={wordmarks}>
-                        {(id) => (
-                            <button
-                                type="button"
-                                class="chip"
-                                data-mark={id}
-                                aria-pressed={props.editor.page().header.wordmark === id}
-                                onClick={() => {
-                                    set("wordmark", id);
-                                }}
-                            >
-                                {WORDMARK_LABELS[id]}
-                            </button>
-                        )}
-                    </For>
+            <details class="more top-art">
+                <summary>Top of the page</summary>
+                <TopArt editor={props.editor} />
+                <div class="fd">
+                    <span class="fd-l">
+                        <span>A logo from your name</span>
+                    </span>
+                    <div class="chips">
+                        <button
+                            type="button"
+                            class="chip"
+                            aria-pressed={!props.editor.page().header.wordmark}
+                            onClick={() => {
+                                set("wordmark", undefined);
+                            }}
+                        >
+                            Plain text
+                        </button>
+                        <For each={wordmarks}>
+                            {(id) => (
+                                <button
+                                    type="button"
+                                    class="chip"
+                                    data-mark={id}
+                                    aria-pressed={props.editor.page().header.wordmark === id}
+                                    onClick={() => {
+                                        set("wordmark", id);
+                                    }}
+                                >
+                                    {WORDMARK_LABELS[id]}
+                                </button>
+                            )}
+                        </For>
+                    </div>
                 </div>
-            </div>
+            </details>
             <details class="more">
                 <summary>More options</summary>
                 <For each={shown(true)}>

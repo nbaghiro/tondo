@@ -60,34 +60,48 @@ function TextInput(props: FieldProps & { long: boolean }) {
                 extra={near() ? `${String(left())} left` : ""}
                 near={left() <= field().max * 0.05}
             />
-            <Show
-                when={props.long}
-                fallback={
-                    <input
+            <div class="in-wrap" classList={{ clearable: field().clearable }}>
+                <Show
+                    when={props.long}
+                    fallback={
+                        <input
+                            class="in"
+                            aria-label={props.field.label}
+                            maxLength={field().max}
+                            placeholder={field().placeholder}
+                            value={value()}
+                            onInput={(e) => {
+                                onInput(e.currentTarget.value);
+                            }}
+                        />
+                    }
+                >
+                    <textarea
                         class="in"
                         aria-label={props.field.label}
+                        rows="3"
                         maxLength={field().max}
-                        placeholder={field().placeholder}
                         value={value()}
                         onInput={(e) => {
                             onInput(e.currentTarget.value);
+                            e.currentTarget.style.height = "auto";
+                            e.currentTarget.style.height = `${String(e.currentTarget.scrollHeight + 2)}px`;
                         }}
                     />
-                }
-            >
-                <textarea
-                    class="in"
-                    aria-label={props.field.label}
-                    rows="3"
-                    maxLength={field().max}
-                    value={value()}
-                    onInput={(e) => {
-                        onInput(e.currentTarget.value);
-                        e.currentTarget.style.height = "auto";
-                        e.currentTarget.style.height = `${String(e.currentTarget.scrollHeight + 2)}px`;
-                    }}
-                />
-            </Show>
+                </Show>
+                <Show when={field().clearable && value()}>
+                    <button
+                        type="button"
+                        class="in-x"
+                        aria-label={`Clear ${props.field.label}`}
+                        onClick={() => {
+                            onInput("");
+                        }}
+                    >
+                        <Icon name="close" />
+                    </button>
+                </Show>
+            </div>
             <Show when={props.field.hint}>
                 <p class="fd-h">{props.field.hint}</p>
             </Show>

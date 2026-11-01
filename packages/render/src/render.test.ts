@@ -10,6 +10,7 @@ import {
 import type { LookName, Page } from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import {
+    headerArtChoices,
     photoStandIns,
     contrast as ratio,
     fontsHref,
@@ -418,5 +419,48 @@ describe("missing photos", () => {
         const page: Page = { ...seeded, header: { ...seeded.header, wordmark: "paint" } };
         expect(draw(page, false, true)).toContain("wm-paint");
         expect(draw(page, false, true)).toContain("feTurbulence");
+    });
+});
+
+describe("header choices", () => {
+    const body = (page: Page, editable = false) =>
+        renderBody(page, { assetBase: "/photos/", editable });
+
+    it("keeps a hidden name for screen readers and drops it when empty", () => {
+        const hidden: Page = { ...samplePage, header: { ...samplePage.header, hideName: true } };
+        expect(body(hidden)).toContain(`<h1 class="t-vh">${samplePage.header.name}</h1>`);
+        const empty: Page = { ...hidden, header: { ...hidden.header, name: "" } };
+        expect(body(empty)).not.toContain("<h1");
+    });
+
+    it("draws no name and no wordmark for every look when it's hidden", () => {
+        for (const look of lookNames) {
+            const page: Page = {
+                ...samplePage,
+                look,
+                header: {
+                    ...samplePage.header,
+                    layout: "look",
+                    wordmark: "seal",
+                    hideName: true,
+                },
+            };
+            expect(body(page)).not.toContain('class="wm ');
+        }
+    });
+
+    it("removes the painting when the art is None, and offers only what a page can use", () => {
+        const none: Page = { ...samplePage, look: "madder", style: { bg: "solid" } };
+        expect(body(none)).not.toContain("feTurbulence");
+        const banner: Page = {
+            ...samplePage,
+            header: { ...samplePage.header, layout: "banner" },
+        };
+        expect(headerArtChoices(banner)).toEqual({ paint: false, none: false });
+        const centred: Page = {
+            ...samplePage,
+            header: { ...samplePage.header, layout: "centred" },
+        };
+        expect(headerArtChoices(centred)).toEqual({ paint: true, none: true });
     });
 });

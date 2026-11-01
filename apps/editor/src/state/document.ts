@@ -349,6 +349,10 @@ export function createEditor(start: Start) {
             const { style: _style, seed: _seed, ...rest } = page();
             change(rest);
         },
+        setPaint(paint: string[] | undefined) {
+            const { paint: _old, ...rest } = page();
+            change(paint ? { ...rest, paint } : rest);
+        },
         repaint() {
             change({ ...page(), seed: 1 + Math.floor(Math.random() * 998) });
         },

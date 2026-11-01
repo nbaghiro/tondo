@@ -25,10 +25,20 @@ const LINK_TYPES = [
 ] as const;
 
 export const headerFields: readonly Field[] = [
-    text("name", "Name", { max: 80, inline: true }),
-    text("tagline", "Short line", { max: 120, inline: true }),
+    text("name", "Name", { max: 80, inline: true, clearable: true }),
+    text("tagline", "Short line", {
+        max: 120,
+        inline: true,
+        clearable: true,
+        hint: "Leave empty to hide",
+    }),
     photo("photo", "Photo", { optional: true }),
-    longText("bio", "About", { max: 280, inline: true }),
+    longText("bio", "About", {
+        max: 280,
+        inline: true,
+        clearable: true,
+        hint: "Leave empty to hide",
+    }),
     list("links", "Social icons", {
         title: "type",
         add: "Add an icon",

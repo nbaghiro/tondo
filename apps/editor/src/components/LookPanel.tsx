@@ -2,6 +2,7 @@ import { lookNames } from "@tondo/page";
 import type { LookName, Page, PageStyle } from "@tondo/page";
 import {
     fontChoices,
+    headerArtChoices,
     lookColours,
     lookVars,
     looks,
@@ -171,6 +172,125 @@ const swatchStyle = (bg: string | undefined, btn: string | undefined) => ({
     "--b": btn ?? "#000",
 });
 
+const PAINTS = [
+    ["Rose", ["#c8385f", "#e8876a", "#a42a55", "#f2b56b"]],
+    ["Sea", ["#2b5fb8", "#6c8fd6", "#8f7fd6", "#b9c6f2"]],
+    ["Garden", ["#4d9a7a", "#8fcfae", "#1f5c4a", "#d3c76a"]],
+    ["Sunset", ["#e0672f", "#f4a03c", "#c8441f", "#f7cf7a"]],
+    ["Violet", ["#7a45b8", "#b69cf0", "#e7a9d8", "#4e2a86"]],
+] as const;
+
+/** The art at the top of the page. It's the same data here and in the header's panel. */
+export function TopArt(props: { editor: EditorState }) {
+    const page = () => props.editor.page();
+    const style = (): PageStyle => page().style ?? {};
+    const look = () => page().look;
+    const choices = () => headerArtChoices(page());
+    const set = (patch: Partial<PageStyle>) => {
+        props.editor.setStyle(patch);
+    };
+    const options = () =>
+        [
+            ...(choices().none ? ([["solid", "None"]] as const) : []),
+            ["gradient", "Soft fade"],
+            ["photo", "A photo"],
+        ] as const;
+    const samePaint = (palette: readonly string[]) => page().paint?.join() === palette.join();
+    return (
+        <>
+            <div class="bgs">
+                <button
+                    type="button"
+                    class="bg-t"
+                    aria-pressed={!style().bg}
+                    onClick={() => {
+                        set({ bg: undefined });
+                    }}
+                >
+                    <i style={{ "background-image": `url(${TILES}${look()}.jpg)` }} />
+                    The look's art
+                </button>
+                <For each={options()}>
+                    {([id, label]) => (
+                        <button
+                            type="button"
+                            class="bg-t"
+                            data-bg={id}
+                            aria-pressed={style().bg === id}
+                            onClick={() => {
+                                set({ bg: id });
+                            }}
+                        >
+                            <i class={`bg-${id}`} />
+                            {label}
+                        </button>
+                    )}
+                </For>
+            </div>
+            <Show when={!style().bg && choices().paint}>
+                <button
+                    type="button"
+                    class="own-b wide"
+                    data-repaint
+                    onClick={() => {
+                        props.editor.repaint();
+                    }}
+                >
+                    <Glyph name="brush" />
+                    Paint it again
+                </button>
+                <Show when={!style().colour}>
+                    <div class="paints" role="group" aria-label="Paint colours">
+                        <button
+                            type="button"
+                            class="paint-o"
+                            aria-pressed={!page().paint}
+                            onClick={() => {
+                                props.editor.setPaint(undefined);
+                            }}
+                        >
+                            The look's
+                        </button>
+                        <For each={PAINTS}>
+                            {([name, palette]) => (
+                                <button
+                                    type="button"
+                                    class="paint-s"
+                                    aria-label={`${name} paint`}
+                                    title={`${name} paint`}
+                                    aria-pressed={samePaint(palette)}
+                                    style={{
+                                        background: `conic-gradient(${palette.join(",")})`,
+                                    }}
+                                    onClick={() => {
+                                        props.editor.setPaint([...palette]);
+                                    }}
+                                />
+                            )}
+                        </For>
+                    </div>
+                </Show>
+            </Show>
+            <Show when={style().bg === "photo"}>
+                <FieldView
+                    assets="/photos/"
+                    field={{
+                        kind: "photo",
+                        key: "bgPhoto",
+                        label: "Your background photo",
+                        optional: true,
+                    }}
+                    values={() => style()}
+                    set={(_key, value) => {
+                        set({ bgPhoto: value as PageStyle["bgPhoto"] });
+                        return true;
+                    }}
+                />
+            </Show>
+        </>
+    );
+}
+
 export function MakeItYours(props: { editor: EditorState }) {
     const [open, setOpen] = createSignal("colour");
     const [photoNote, setPhotoNote] = createSignal("");
@@ -219,9 +339,9 @@ export function MakeItYours(props: { editor: EditorState }) {
             : "The look's own";
     };
     const bgLabel = () =>
-        ({ solid: "Solid", gradient: "Soft fade", photo: "A photo" })[style().bg ?? "solid"] &&
+        ({ solid: "None", gradient: "Soft fade", photo: "A photo" })[style().bg ?? "solid"] &&
         style().bg
-            ? { solid: "Solid", gradient: "Soft fade", photo: "A photo" }[style().bg ?? "solid"]
+            ? { solid: "None", gradient: "Soft fade", photo: "A photo" }[style().bg ?? "solid"]
             : "The look's art";
     const changed = () => Object.keys(style()).length > 0;
     return (
@@ -461,67 +581,7 @@ export function MakeItYours(props: { editor: EditorState }) {
                 </div>
             </Group>
             <Group id="bg" open={open()} onOpen={setOpen} label="Background" value={bgLabel()}>
-                <div class="bgs">
-                    <button
-                        type="button"
-                        class="bg-t"
-                        aria-pressed={!style().bg}
-                        onClick={() => {
-                            set({ bg: undefined });
-                        }}
-                    >
-                        <i style={{ "background-image": `url(${TILES}${look()}.jpg)` }} />
-                        The look's art
-                    </button>
-                    <For
-                        each={
-                            [
-                                ["solid", "Solid"],
-                                ["gradient", "Soft fade"],
-                                ["photo", "A photo"],
-                            ] as const
-                        }
-                    >
-                        {([id, label]) => (
-                            <button
-                                type="button"
-                                class="bg-t"
-                                data-bg={id}
-                                aria-pressed={style().bg === id}
-                                onClick={() => {
-                                    set({ bg: id });
-                                }}
-                            >
-                                <i class={`bg-${id}`} />
-                                {label}
-                            </button>
-                        )}
-                    </For>
-                </div>
-                <Show when={!style().bg}>
-                    <button
-                        type="button"
-                        class="own-b wide"
-                        data-repaint
-                        onClick={() => {
-                            props.editor.repaint();
-                        }}
-                    >
-                        <Glyph name="brush" />
-                        Paint it again
-                    </button>
-                </Show>
-                <Show when={style().bg === "photo"}>
-                    <FieldView
-                        assets="/photos/"
-                        field={{ kind: "photo", key: "bgPhoto", label: "Your background photo" }}
-                        values={() => style()}
-                        set={(_key, value) => {
-                            set({ bgPhoto: value as PageStyle["bgPhoto"] });
-                            return true;
-                        }}
-                    />
-                </Show>
+                <TopArt editor={props.editor} />
             </Group>
             <Show when={changed()}>
                 <button
