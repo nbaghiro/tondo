@@ -13,7 +13,7 @@ describe("publishIssues", () => {
 
     it("asks for a name and a block", () => {
         const page = { ...starterPage(""), blocks: [] };
-        expect(publishIssues(page).map((issue) => issue.target)).toEqual(["header", "page"]);
+        expect(publishIssues(page).map((issue) => issue.target)).toEqual(["header", "add"]);
     });
 
     it("finds an empty link, including inside a tab", () => {
@@ -53,7 +53,7 @@ describe("sample content", () => {
     it("leaves out sections nobody has touched, and doesn't ask them to be fixed", () => {
         const page = { ...starterPage("June"), blocks: fresh("proof") };
         expect(liveContent(page).page.blocks).toEqual([]);
-        expect(publishIssues(page).map((issue) => issue.target)).toEqual(["page"]);
+        expect(publishIssues(page).map((issue) => issue.target)).toEqual(["add"]);
         expect(publishWarnings(page).length).toBeGreaterThan(0);
     });
 

@@ -113,7 +113,7 @@ test("a style change reaches the published page, with no script", async ({ page 
         .locator("body")
         .evaluate((body) => getComputedStyle(body).backgroundColor);
     await page.locator(".publish").click();
-    const anyway = page.getByRole("button", { name: "Publish anyway" });
+    const anyway = page.getByRole("button", { name: "Publish without these" });
     if (await anyway.isVisible()) await anyway.click();
     await expect(panel(page).locator("h2")).toHaveText("Your page is live");
 

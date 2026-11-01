@@ -35,7 +35,7 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
     await panel(page).getByRole("button", { name: "Close" }).click();
     await saved(page);
     await page.locator(".publish").click();
-    await page.getByRole("button", { name: "Publish anyway" }).click();
+    await page.getByRole("button", { name: "Publish without these" }).click();
     await expect(panel(page).locator("h2")).toHaveText("Your page is live");
     await expect(page.locator(".publish")).toHaveText("Published");
     await page.keyboard.press("Escape");

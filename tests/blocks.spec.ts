@@ -110,6 +110,45 @@ const LONG_NAMES = [
     "Wolfeschlegelsteinhausenbergerdorff",
 ];
 
+test.describe("a name of ordinary words", () => {
+    for (const look of lookNames) {
+        test(`doesn't break a word in ${look}`, async ({ page }, info) => {
+            test.skip(info.project.name !== "desktop");
+            await page.route(/fonts\.g/, (route) => route.abort());
+            await page.setViewportSize({ width: 390, height: 844 });
+            for (const name of ["Maya Okafor", "Alexandra Montgomery H", "Christopher Lindqvist"]) {
+                await page.setContent(
+                    renderDocument(
+                        {
+                            ...samplePage,
+                            look,
+                            header: { ...samplePage.header, layout: "look", name },
+                        },
+                        { title: "Name", assetBase: "/", editable: false },
+                    ),
+                    { waitUntil: "domcontentloaded" },
+                );
+                const broken = await page.evaluate(() => {
+                    const node = document.querySelector("#t-header h1")?.firstChild;
+                    if (!node?.textContent) return [];
+                    const out: string[] = [];
+                    for (const match of node.textContent.matchAll(/\S+/g)) {
+                        const range = document.createRange();
+                        range.setStart(node, match.index);
+                        range.setEnd(node, match.index + match[0].length);
+                        const tops = new Set(
+                            [...range.getClientRects()].map((rect) => Math.round(rect.top)),
+                        );
+                        if (tops.size > 1) out.push(match[0]);
+                    }
+                    return out;
+                });
+                expect(broken, `${look}: ${name}`).toEqual([]);
+            }
+        });
+    }
+});
+
 test.describe("a long name", () => {
     for (const look of lookNames) {
         test(`fits in ${look}`, async ({ page }, info) => {

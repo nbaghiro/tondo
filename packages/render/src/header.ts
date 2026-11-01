@@ -98,7 +98,9 @@ export function renderHeader(page: Page, ctxIn: RenderContext): string {
     if (layout === "look") {
         const own = look.header ? look.header(parts) : LAYOUTS.centred(parts);
         // A long name gets more room, since a look's own type is sized for a short one.
-        const long = page.header.name.length > 22 ? " h-long" : "";
+        const words = page.header.name.split(/\s+/);
+        const long =
+            page.header.name.length > 14 || words.some((word) => word.length > 8) ? " h-long" : "";
         return recolourHtml(`<div class="h-own${long}">${own}${parts.button}</div>`, page);
     }
     return `<div class="h-${layout}">${LAYOUTS[layout](parts)}${parts.button}</div>`;

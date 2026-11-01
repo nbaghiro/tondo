@@ -80,7 +80,11 @@ function LinkList(props: { editor: EditorState; section: () => Section }) {
             <div class="link-items">
                 <For each={props.section().blocks}>
                     {(block, index) => (
-                        <div class="item" classList={{ on: open() === block.id }}>
+                        <div
+                            class="item"
+                            data-ask={block.id}
+                            classList={{ on: open() === block.id }}
+                        >
                             <div class="item-h">
                                 <button
                                     type="button"

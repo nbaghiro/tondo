@@ -42,6 +42,8 @@ interface Start {
 
 const makeId = () => crypto.randomUUID();
 
+const isList = (block: Block) => block.type === "button" || block.type === "link-card";
+
 export function createEditor(start: Start) {
     const saver = createSaver(start);
     const backup = loadBackup(start.handle, start.updatedAt);
@@ -179,10 +181,14 @@ export function createEditor(start: Start) {
                 key === "media" && /spotify|music\.apple|soundcloud/i.test(reading.url)
                     ? "music"
                     : undefined;
-            const existing = sectionsOf(page().blocks).find(
-                (section) =>
-                    section.definition.key === key && (!styleId || section.style.id === styleId),
-            );
+            const existing = sectionsOf(page().blocks).find((section) => {
+                if (section.definition.key !== key) return false;
+                if (styleId && section.style.id !== styleId) return false;
+                // Video goes in a video section, and a second song or booking link gets its own.
+                if (key === "media" && !styleId) return section.style.type === "video";
+                const block = section.blocks[0];
+                return !(block && !isList(block) && "url" in block && block.url);
+            });
             const id = existing?.id ?? placeSection(key, undefined, styleId);
             if (!id) return false;
             const found = findSection(page(), id);

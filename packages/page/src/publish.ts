@@ -7,9 +7,9 @@ import type { Page } from "./schema";
 import { findSection } from "./sections";
 
 export interface PublishIssue {
-    /** The block to open, or "header" or "page". */
+    /** The block to open, or "header", or "add" for the list of sections to add. */
     target: string;
-    /** The list item to open, when one item is the problem. */
+    /** The list item to open, when one item is the problem, or a header field's key. */
     item?: string | undefined;
     message: string;
 }
@@ -79,22 +79,30 @@ const sectionName = (page: Page, id: string) =>
 export function publishIssues(page: Page): PublishIssue[] {
     const issues: PublishIssue[] = [];
     const { name, links, buttonText, buttonUrl } = page.header;
-    if (!name.trim()) issues.push({ target: "header", message: "Your page needs a name." });
+    if (!name.trim())
+        issues.push({ target: "header", item: "name", message: "Your page needs a name." });
     if (links.some((link) => !link.value)) {
         issues.push({
             target: "header",
+            item: links.find((link) => !link.value)?.id ?? "links",
             message: "Top of the page: fill in or remove the empty social icons.",
         });
     }
     if (buttonText && !buttonUrl) {
-        issues.push({ target: "header", message: "Top of the page: the button needs a link." });
+        issues.push({
+            target: "header",
+            item: "buttonUrl",
+            message: "Top of the page: the button needs a link.",
+        });
     }
     const visible = liveContent(page).page;
     const live = allBlocks(visible.blocks).filter((block) => !block.hidden);
-    if (!live.some((block) => block.type !== "tabs" && block.type !== "heading")) {
+    const hasHeader = [page.header.tagline, page.header.bio, buttonText].some(Boolean);
+    const hasOwnTop = hasHeader || Boolean(page.header.photo) || links.length > 0;
+    if (!hasOwnTop && !live.some((block) => block.type !== "heading")) {
         issues.push({
-            target: "page",
-            message: "Change a section to your own words, so there's something to show.",
+            target: "add",
+            message: "There's nothing to show yet. Add a section, or write a line about yourself.",
         });
     }
     for (const block of live) {
@@ -129,11 +137,14 @@ export function publishWarnings(page: Page): PublishIssue[] {
             target: block.id,
             message: `${sectionName(page, block.id)}: still shows a painting where your photo could go.`,
         }));
-    const left = leftOut.map((entry) => ({
-        target: entry.target,
-        item: entry.item,
-        message: `${entry.section}: "${entry.words}" is sample text, so it won't show.`,
-    }));
+    const seen = new Set<string>();
+    const left = leftOut.flatMap((entry) => {
+        const message = `${entry.section}: ${entry.note}`;
+        const key = `${entry.target}${message}`;
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [{ target: entry.target, item: entry.item, message }];
+    });
     return [...left, ...paintings];
 }
 

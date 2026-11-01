@@ -1,12 +1,16 @@
-import { allBlocks, blockDefinitions, blockTypes } from "./blocks";
+import { blockDefinitions, blockTypes } from "./blocks";
+import { isSampleTime } from "./blocks/parts";
 import type { Block } from "./blocks";
+import { isPlaceholder } from "./define-block";
+import type { Photo } from "./define-block";
 import type { Field } from "./fields";
 import type { Page } from "./schema";
 import { sectionDefinitions, sectionsOf } from "./sections";
 
 // A new section starts filled with words that show how it looks. Those words aren't the person's,
 // so a live page leaves them out until they've been changed. Nothing is stored to say what's been
-// touched: a block or list item is sample content while it still equals what it started as.
+// touched: each field is compared with what it could have started as. A field still showing sample
+// words is empty on the live page, and a field the person changed always stays.
 
 type Values = Readonly<Record<string, unknown>>;
 
@@ -21,43 +25,84 @@ const NOT_CONTENT = new Set([
     "showUntil",
     "highlight",
     "source",
-    // Sample dates are worked out from today, so they can't be compared.
-    "at",
+    "kind",
+    "count",
+    "popular",
+    "slots",
+    "progress",
 ]);
+
+interface Rule {
+    /** Plain wording that makes sense for anyone, so it stays once something else is theirs. */
+    keep?: readonly string[];
+    /** A row without one of these of their own means nothing to a visitor, so it's left out. */
+    needs?: readonly string[];
+    /** The same, when both halves are needed. */
+    needsAll?: readonly string[];
+    /** What to ask for when a row is left out for that reason. */
+    asks?: string;
+}
+
+/** What each block does with a part-finished row. Anything not listed just loses its sample fields. */
+const RULES: Readonly<Record<string, Rule>> = {
+    button: { keep: ["text"] },
+    "link-card": { keep: ["title"] },
+    booking: { keep: ["title", "sub", "cta"] },
+    music: { keep: ["title"] },
+    countdown: { keep: ["label"] },
+    events: { keep: ["cta"] },
+    services: { keep: ["cta"] },
+    "video.items": { keep: ["title"] },
+    "products.items": { needs: ["name", "photo"], asks: "its own name" },
+    "services.items": { needs: ["name"], asks: "its own name" },
+    "events.items": { needs: ["name", "at", "place"], asks: "a name, date or place" },
+    "quotes.items": { needs: ["text"], asks: "the words someone really said" },
+    "faq.items": { needsAll: ["question", "answer"], asks: "your own question and answer" },
+    "stats.items": { keep: ["label"], needs: ["number"], asks: "your own number" },
+    "team.items": { needs: ["name", "photo"], asks: "a real name or photo" },
+    "timeline.items": { needs: ["title"], asks: "its own title" },
+    "posts.items": { needs: ["title"], asks: "its own title" },
+    "location.hours": { keep: ["days"] },
+};
+
+/** Blocks that are their own starting point: a form's questions and a tip jar's amounts are real. */
+const WHOLE = new Set(["form", "tip"]);
+
+/** Dividers and photo layouts have no words to mistake for someone else's, so they always stay. */
+const PICTURES = new Set(["divider", "image", "gallery"]);
 
 const isList = (value: unknown): value is Values[] =>
     Array.isArray(value) && value.every((entry) => typeof entry === "object" && entry !== null);
+const isEmpty = (value: unknown) => value === "" || value === undefined || value === null;
+const isPhoto = (value: unknown): value is Photo =>
+    typeof value === "object" && value !== null && "file" in value && !("size" in value);
 
-const scalars = (values: Values) =>
-    Object.entries(values)
-        .filter(
-            ([key, value]) =>
-                !NOT_CONTENT.has(key) && !isList(value) && value !== "" && value !== undefined,
-        )
-        .sort(([a], [b]) => a.localeCompare(b));
+type Samples = Map<string, Set<string>>;
 
-const signature = (values: Values) => JSON.stringify(scalars(values));
-/** A photo or a spacer says nothing, so it can't be mistaken for someone else's words. */
-const hasWords = (values: Values) => scalars(values).some(([, value]) => typeof value === "string");
-
-interface Samples {
-    blocks: Set<string>;
-    items: Set<string>;
+function remember(into: Samples, path: string, value: unknown) {
+    if (isEmpty(value)) return;
+    const known = into.get(path) ?? new Set<string>();
+    known.add(JSON.stringify(value));
+    into.set(path, known);
 }
 
-function collectFromFields(fields: readonly Field[], into: Samples) {
-    for (const field of fields) {
-        if (field.kind !== "list") continue;
-        into.items.add(signature(field.make()));
-        collectFromFields(field.fields, into);
+function collect(into: Samples, seed: Values, prefix = "") {
+    for (const [key, value] of Object.entries(seed)) {
+        if (NOT_CONTENT.has(key)) continue;
+        if (isList(value)) {
+            for (const entry of value) collect(into, entry, `${prefix}${key}.`);
+        } else {
+            remember(into, `${prefix}${key}`, value);
+        }
     }
 }
 
-function collect(seed: Values, into: Samples) {
-    into.blocks.add(signature(seed));
-    for (const value of Object.values(seed)) {
-        if (!isList(value)) continue;
-        for (const entry of value) into.items.add(signature(entry));
+function collectFields(into: Samples, fields: readonly Field[], prefix = "") {
+    for (const field of fields) {
+        if (field.kind !== "list") continue;
+        const path = `${prefix}${field.key}.`;
+        collect(into, field.make(), path);
+        collectFields(into, field.fields, path);
     }
 }
 
@@ -67,86 +112,175 @@ function samples(): Map<string, Samples> {
     if (cached) return cached;
     const map = new Map<string, Samples>();
     const of = (type: string) => {
-        let found = map.get(type);
-        if (!found) {
-            found = { blocks: new Set(), items: new Set() };
-            map.set(type, found);
-        }
+        const found = map.get(type) ?? new Map<string, Set<string>>();
+        map.set(type, found);
         return found;
     };
     for (const type of blockTypes) {
         const definition = blockDefinitions[type];
-        collect(definition.make(), of(type));
-        collectFromFields(definition.fields, of(type));
+        collect(of(type), definition.make());
+        collectFields(of(type), definition.fields);
     }
     for (const definition of sectionDefinitions) {
         for (const style of definition.styles) {
-            for (const seed of definition.sample(style)) collect(seed, of(seed.type));
+            for (const seed of definition.sample(style)) collect(of(seed.type), seed);
         }
     }
     cached = map;
     return map;
 }
 
+/** Whether a value is the person's own, and not something the block started with. */
+function isOwn(known: Samples | undefined, path: string, key: string, value: unknown): boolean {
+    if (isEmpty(value)) return false;
+    if (key === "at") return typeof value === "string" && !isSampleTime(value);
+    if (isPhoto(value) && isPlaceholder(value)) return false;
+    return !known?.get(path)?.has(JSON.stringify(value));
+}
+
+/** One line for the publish list about what a block is leaving out. */
 export interface LeftOut {
     /** The block to open. */
     target: string;
-    /** The list item to open, when only part of the block was left out. */
+    /** The list item to open, when one item is the problem. */
     item?: string;
-    /** The section's name, then the words that were left out. */
+    /** The section's name. */
     section: string;
-    words: string;
+    /** What's left out, as the end of a sentence. */
+    note: string;
 }
 
-const firstWords = (values: Values): string => {
-    const found = scalars(values).find(
-        ([key, value]) => typeof value === "string" && key !== "url" && key !== "kind",
-    );
-    return typeof found?.[1] === "string" ? found[1] : "";
-};
+function labelOf(fields: readonly Field[], key: string): string {
+    const found = fields.find((field) => field.key === key);
+    return found?.label.toLowerCase() ?? key;
+}
 
-function trimBlock(block: Block, name: string, leftOut: LeftOut[]): Block | null {
+const plural = (count: number, one: string) => `${String(count)} ${one}${count === 1 ? "" : "s"}`;
+
+function trimRow(
+    known: Samples | undefined,
+    block: string,
+    key: string,
+    entry: Values,
+): { row: Values | null; own: boolean; asked: boolean; blanked: boolean } {
+    const prefix = `${key}.`;
+    const rule = RULES[`${block}.${key}`] ?? {};
+    const mine = (field: string) => isOwn(known, `${prefix}${field}`, field, entry[field]);
+    const fields = Object.keys(entry).filter((field) => !NOT_CONTENT.has(field));
+    const own = fields.some(mine);
+    const needed =
+        (!rule.needs || rule.needs.some(mine)) && (!rule.needsAll || rule.needsAll.every(mine));
+    if (!own || !needed) return { row: null, own, asked: own, blanked: false };
+    const next: Record<string, unknown> = { ...entry };
+    let blanked = false;
+    for (const field of fields) {
+        if (mine(field) || isEmpty(entry[field]) || isPhoto(entry[field])) continue;
+        if (rule.keep?.includes(field)) continue;
+        next[field] = "";
+        blanked = true;
+    }
+    return { row: next, own, asked: false, blanked };
+}
+
+function keepPictures(block: Block, known: Samples | undefined): Block {
+    const values: Values = block;
+    const next: Record<string, unknown> = { ...values };
+    for (const key of ["caption", "alt"]) {
+        if (typeof values[key] === "string" && !isOwn(known, key, key, values[key])) next[key] = "";
+    }
+    return next as Block;
+}
+
+function trimBlock(block: Block, section: string, leftOut: LeftOut[]): Block | null {
     const known = samples().get(block.type);
-    if (!known) return block;
-    // A form's starting questions and a tip jar's amounts are what most people would really use.
-    if (block.type === "form" || block.type === "tip") {
-        if (!known.blocks.has(signature(block))) return block;
-        leftOut.push({ target: block.id, section: name, words: firstWords(block) });
+    const definition = blockDefinitions[block.type];
+    const values: Values = block;
+    const fields = Object.keys(values).filter((key) => !NOT_CONTENT.has(key));
+    const say = (note: string, item?: string) => {
+        leftOut.push({ target: block.id, ...(item ? { item } : {}), section, note });
+    };
+    if (PICTURES.has(block.type)) return keepPictures(block, known);
+
+    const hasOwnList = (key: string) =>
+        (values[key] as Values[]).some((entry) =>
+            Object.keys(entry).some(
+                (field) =>
+                    !NOT_CONTENT.has(field) && isOwn(known, `${key}.${field}`, field, entry[field]),
+            ),
+        );
+    const scalarOwn = (key: string) => isOwn(known, key, key, values[key]);
+    if (WHOLE.has(block.type)) {
+        const own = fields.some((key) => (isList(values[key]) ? hasOwnList(key) : scalarOwn(key)));
+        if (!own) say("still has its sample words, so it won't show yet.");
+        return own ? block : null;
+    }
+
+    const rule = RULES[block.type] ?? {};
+    const next: Record<string, unknown> = { ...values };
+    let own = false;
+    let hadContent = false;
+    const blanks: string[] = [];
+    const asks: { note: string; item?: string | undefined }[] = [];
+    const notes: { note: string; item?: string | undefined }[] = [];
+    for (const key of fields) {
+        const value = values[key];
+        if (isEmpty(value)) continue;
+        if (isList(value)) {
+            const kept: Values[] = [];
+            let dropped = 0;
+            let thinned = 0;
+            let firstDropped: string | undefined;
+            for (const entry of value) {
+                hadContent = true;
+                const id = typeof entry["id"] === "string" ? entry["id"] : undefined;
+                const result = trimRow(known, block.type, key, entry);
+                if (result.row) {
+                    kept.push(result.row);
+                    own = true;
+                    if (result.blanked) thinned += 1;
+                    continue;
+                }
+                if (result.asked) {
+                    const ask = RULES[`${block.type}.${key}`]?.asks ?? "your own words";
+                    asks.push({ note: `one item won't show until it has ${ask}.`, item: id });
+                } else {
+                    dropped += 1;
+                    firstDropped ??= id;
+                }
+            }
+            next[key] = kept;
+            if (dropped) {
+                notes.push({
+                    note: `${plural(dropped, "sample item")} won't show.`,
+                    item: firstDropped,
+                });
+            }
+            if (thinned)
+                notes.push({ note: `sample words in ${plural(thinned, "item")} won't show.` });
+            continue;
+        }
+        hadContent = true;
+        if (scalarOwn(key)) {
+            own = true;
+        } else if (!isPhoto(value) && !rule.keep?.includes(key)) {
+            next[key] = "";
+            blanks.push(key);
+        }
+    }
+    for (const { note, item } of asks) say(note, item);
+    if (!own) {
+        if (hadContent && !asks.length) say("still has its sample words, so it won't show yet.");
         return null;
     }
-    let next: Values = block;
-    for (const [key, value] of Object.entries(block)) {
-        if (!isList(value) || key === "tabs" || !value.length) continue;
-        const kept = value.filter((entry) => {
-            // A row with nothing in it yet is the same as one still showing sample words.
-            const blank = !scalars(entry).length;
-            const sample = blank || (hasWords(entry) && known.items.has(signature(entry)));
-            if (!sample) return true;
-            leftOut.push({
-                target: block.id,
-                ...(typeof entry["id"] === "string" ? { item: entry["id"] } : {}),
-                section: name,
-                words: firstWords(entry),
-            });
-            return false;
-        });
-        if (kept.length !== value.length) next = { ...next, [key]: kept };
+    for (const { note, item } of notes) say(note, item);
+    if (blanks.length) {
+        const names = blanks.map((key) => labelOf(definition.fields, key)).join(", ");
+        say(`the sample ${names} won't show.`);
     }
-    const lists = Object.entries(block).filter(([key, value]) => key !== "tabs" && isList(value));
-    if (lists.length) {
-        const emptied = lists.every(([key]) => {
-            const value = next[key];
-            return isList(value) && !value.length;
-        });
-        return next !== block && emptied ? null : (next as Block);
-    }
-    if (hasWords(block) && known.blocks.has(signature(block))) {
-        leftOut.push({ target: block.id, section: name, words: firstWords(block) });
-        return null;
-    }
-    return block;
+    return next as Block;
 }
 
+/** A title on its own says nothing, so it only goes live with something under it. */
 function trimBlocks(blocks: readonly Block[], leftOut: LeftOut[]): Block[] {
     return sectionsOf(blocks).flatMap((section) => {
         const name = section.definition.name;
@@ -177,6 +311,5 @@ export function liveContent(page: Page): { page: Page; leftOut: LeftOut[] } {
     return { page: { ...page, blocks }, leftOut };
 }
 
-/** Whether a section still has nothing of the person's own in it. */
-export const isAllSample = (blocks: readonly Block[]): boolean =>
-    allBlocks(blocks).length > 0 && trimBlocks(blocks, []).length === 0;
+/** Whether a section's going to show on the live page as it stands. */
+export const goesLive = (blocks: readonly Block[]): boolean => trimBlocks(blocks, []).length > 0;

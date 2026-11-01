@@ -1003,7 +1003,7 @@ h2 {
     }
     .step-top {
         padding: 14px 18px;
-        padding-right: 112px;
+        padding-right: 136px;
     }
     .step-body {
         padding: 10px 18px 22px;
@@ -2003,11 +2003,11 @@ small.todo::before {
     font: 600 26px var(--font-display, Fraunces, serif);
 }
 .mark-s {
-    font-size: 30px;
+    font-size: var(--mark-size, 30px);
     line-height: 1.05;
     max-width: 100%;
     overflow: hidden;
-    white-space: nowrap;
+    text-align: center;
 }
 .mark-bubble {
     font-family: "Bagel Fat One", sans-serif;
@@ -2032,7 +2032,7 @@ small.todo::before {
 }
 .mark-seal {
     font-family: "Bagel Fat One", sans-serif;
-    font-size: 18px;
+    font-size: min(18px, var(--mark-size, 18px));
     color: #fff;
     background: var(--ink);
     padding: 0.7em 0.9em;

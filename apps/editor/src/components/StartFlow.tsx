@@ -46,12 +46,16 @@ function toHandle(name: string): string {
 }
 
 /** After sign-up: name, sections, a logo, a look and an address, with the page filling in beside it. */
+const MARK_ROOM = 300;
+
 export function StartFlow(props: {
     wanted: string;
     onDone: (handle: string, page: Page) => Promise<string | null>;
 }) {
     const [step, setStep] = createSignal(0);
     const [name, setName] = createSignal("");
+    // A longer name gets smaller type, so its logo always fits its tile.
+    const markSize = () => Math.max(12, Math.min(30, MARK_ROOM / Math.max(name().length, 1)));
     const [use, setUse] = createSignal<string | null>(null);
     const mainKeys = sectionDefinitions.filter((s) => !s.less).map((s) => s.key);
     const [order, setOrder] = createSignal<string[]>(mainKeys);
@@ -348,6 +352,7 @@ export function StartFlow(props: {
                                                         ? "mark-plain"
                                                         : `mark-s mark-${id}`
                                                 }
+                                                style={{ "--mark-size": `${String(markSize())}px` }}
                                             >
                                                 {id === "poster" ? name().toUpperCase() : name()}
                                             </span>

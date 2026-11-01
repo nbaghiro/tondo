@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { addSection, canvas, panel, signUpToEditor, signUpToStart, finishStart } from "./helpers";
+import {
+    addSection,
+    canvas,
+    finishStart,
+    openSections,
+    panel,
+    signUpToEditor,
+    signUpToStart,
+} from "./helpers";
 
 test("icons in the panels stay small", async ({ page }) => {
     await signUpToEditor(page);
@@ -62,7 +70,7 @@ test("publishing names what's wrong, opens it, and only then offers to publish",
     await expect(issue).toContainText("Shop");
     await expect(issue).toContainText('"Tall vase"');
     await expect(page.getByRole("button", { name: /Publish/ }).last()).not.toHaveText(
-        "Publish anyway",
+        "Publish without these",
     );
 
     await issue.locator("button").click();
@@ -72,9 +80,9 @@ test("publishing names what's wrong, opens it, and only then offers to publish",
     await link.fill("https://example.com/vase");
     await expect(page.locator(".pub-back")).toHaveText("Back to publishing");
     await page.locator(".pub-back").click();
-    await expect(page.getByRole("button", { name: "Publish anyway" })).toBeVisible();
-    await expect(page.locator(".pub-issues")).toContainText("sample text");
-    await page.getByRole("button", { name: "Publish anyway" }).click();
+    await expect(page.getByRole("button", { name: "Publish without these" })).toBeVisible();
+    await expect(page.locator(".pub-issues")).toContainText("sample");
+    await page.getByRole("button", { name: "Publish without these" }).click();
     await expect(panel(page).locator("h2")).toHaveText("Your page is live");
 });
 
@@ -95,4 +103,82 @@ test("the editor still shows sample words while they're being edited", async ({ 
     await signUpToEditor(page);
     await addSection(page, "proof");
     await expect(canvas(page).locator("#t-blocks")).toContainText(/\w+/);
+});
+
+test("a lone tab's content goes live without a tab bar, and the page loads", async ({
+    page,
+}, info) => {
+    test.skip(info.project.name === "phone", "The cause isn't device-specific.");
+    const handle = await signUpToEditor(page);
+    await addSection(page, "tabs");
+    await canvas(page).locator(".b-tabbar label").first().click();
+    await addSection(page, "about");
+    const text = panel(page).locator("textarea.in").first();
+    await text.fill("Words of my own in a tab");
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
+    await page.waitForTimeout(800);
+    const go = page.locator(".pub .go");
+    if (await go.isVisible()) await go.click();
+    await expect(page.locator(".pub-link")).toBeVisible({ timeout: 20_000 });
+    const res = await page.request.get(`/${handle}`);
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("Words of my own in a tab");
+    expect(html).not.toContain("b-tabbar");
+});
+
+test("every publish problem opens what needs fixing, in view", async ({ page }) => {
+    await signUpToEditor(page, ["links", "shop"]);
+    // An empty social icon.
+    await canvas(page).locator("#t-header").click();
+    await panel(page).locator('.social-row button:has-text("Add")').first().click();
+    await page.keyboard.press("Escape");
+    // A section with real words and no link.
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
+    const issues = page.locator(".pub-issues button");
+    await expect(issues.first()).toBeVisible();
+    await issues.filter({ hasText: "social icons" }).click();
+    await page.waitForTimeout(500);
+    await expect(panel(page).locator(".social-row .ls-i.open input").first()).toBeInViewport();
+});
+
+test("the publish list follows the page, and Publish is there as soon as nothing blocks", async ({
+    page,
+}) => {
+    await signUpToEditor(page);
+    await canvas(page).locator("#t-header").click();
+    await panel(page).locator('[data-ask="bio"] textarea').fill("A line of my own");
+    await panel(page).locator('.social-row button:has-text("Add")').first().click();
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
+    await page.locator(".pub-issues button").filter({ hasText: "social icons" }).click();
+    const row = panel(page).locator(".social-row .ls-i.open input").first();
+    await row.fill("https://instagram.com/june");
+    await page.locator(".pub-back").click();
+    await expect(page.locator(".pub .go")).toBeVisible();
+});
+
+test("a page with only its top can publish", async ({ page }) => {
+    await signUpToEditor(page);
+    await canvas(page).locator("#t-header").click();
+    await panel(page).locator('[data-ask="bio"] textarea').fill("Just a line about me");
+    await page.getByRole("button", { name: "Publish", exact: true }).click();
+    await expect(page.locator(".pub-link, .pub .go").first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".pub-issues")).toHaveCount(0);
+});
+
+test("a second media link is added, and doesn't replace the first", async ({ page }) => {
+    await signUpToEditor(page);
+    const paste = async (link: string) => {
+        await openSections(page);
+        await page.locator("#q").fill(link);
+        await page.locator("[data-route]").click();
+        await page.keyboard.press("Escape");
+    };
+    await paste("https://open.spotify.com/album/first");
+    await paste("https://www.youtube.com/watch?v=second");
+    await page.waitForTimeout(1500);
+    const draft = await page.evaluate(async () => (await fetch("/api/v1/me/page")).text());
+    expect(draft).toContain("open.spotify.com/album/first");
+    expect(draft).toContain("youtube.com/watch?v=second");
 });

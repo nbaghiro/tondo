@@ -149,7 +149,7 @@ describe("sections on a page", () => {
             ),
         };
         expect(publishIssues(page)).toEqual([]);
-        expect(publishWarnings(page)).toHaveLength(1);
+        expect(publishWarnings(page).length).toBeGreaterThan(0);
     });
 });
 

@@ -2,7 +2,7 @@ import type { PublishIssue } from "@tondo/page";
 import { For, Show } from "solid-js";
 
 export type PublishView =
-    | { state: "issues"; issues: PublishIssue[]; fromServer?: boolean }
+    | { state: "issues"; issues: PublishIssue[] }
     | { state: "warnings"; warnings: PublishIssue[] }
     | { state: "live"; url: string; stats: { views: number; clicks: number } | null }
     | { state: "failed"; message: string };
@@ -63,7 +63,7 @@ export function PublishPanel(props: {
                                 props.onPublishAnyway();
                             }}
                         >
-                            {view().warnings.length ? "Publish anyway" : "Publish"}
+                            {view().warnings.length ? "Publish without these" : "Publish"}
                         </button>
                     </>
                 )}

@@ -1,6 +1,8 @@
 import { blockDefinitions, blockSchemaUnion } from "./blocks";
+import { daysFromNow } from "./blocks/parts";
 import type { Block, BlockType } from "./blocks";
 import { blockProblem, hasPlaceholder } from "./publish";
+import { goesLive } from "./sample-content";
 import type { MakeId, Place } from "./operations";
 import type { Page } from "./schema";
 
@@ -35,7 +37,6 @@ export interface SectionDefinition {
 
 type BlockSeed = Record<string, unknown> & { type: BlockType; variant: string };
 
-const days = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 16);
 const painted = (n: number) => ({ file: `paint-${String(n)}` });
 const own = (style: SectionStyle): BlockSeed => ({
     ...blockDefinitions[style.type].make(),
@@ -326,7 +327,7 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
         ],
         sample: (style) =>
             style.type === "countdown"
-                ? [{ ...own(style), label: "Starting in", at: days(21) }]
+                ? [{ ...own(style), label: "Starting in", at: daysFromNow(21) }]
                 : [
                       like(style, {
                           cta: "Tickets",
@@ -339,7 +340,7 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
                                   name,
                                   place,
                                   label: "7:00 pm",
-                                  at: days(n),
+                                  at: daysFromNow(n),
                                   url: "",
                               }),
                           ),
@@ -1035,26 +1036,6 @@ export function addLinkToSection(
     ]);
 }
 
-const SAMPLE_WORDS = new Set([
-    "Say what you do, who it's for and why you enjoy it. Two or three lines is plenty.",
-    "First service",
-    "First event",
-    "How does it work?",
-    "A happy client",
-]);
-
-function usesSampleWords(block: Block): boolean {
-    if (block.type === "text") return SAMPLE_WORDS.has(block.text);
-    if (block.type === "services" || block.type === "events") {
-        return block.items.some((entry) => SAMPLE_WORDS.has(entry.name));
-    }
-    if (block.type === "faq") return block.items.some((entry) => SAMPLE_WORDS.has(entry.question));
-    if (block.type === "quotes")
-        return block.items.some((entry) => SAMPLE_WORDS.has(entry.by ?? ""));
-    return false;
-}
-
-/** What's left to do in a section, in plain words, or null if it's ready. */
 export function sectionStatus(section: Section): string | null {
     const problem = section.blocks.map(blockProblem).find(Boolean);
     if (section.blocks.some((block) => block.type !== "tabs" && hasPlaceholder(block))) {
@@ -1066,12 +1047,10 @@ export function sectionStatus(section: Section): string | null {
         if (section.definition.key === "bookings") return "Add your booking link";
         return "Add a link";
     }
-    if (section.blocks.some(usesSampleWords)) {
+    if (!goesLive(section.blocks)) {
         return section.definition.key === "about"
-            ? "Write a few words"
-            : section.definition.key === "proof"
-              ? "Add real words"
-              : "Add your details";
+            ? "Not going live yet: write a few words"
+            : "Not going live yet: add your own words";
     }
     return null;
 }

@@ -11,7 +11,7 @@ import { Canvas } from "./Canvas";
 import { LookTiles, MakeItYours } from "./LookPanel";
 import { AddList, Glyph, PagePanel } from "./Panels";
 import { Preview } from "./Preview";
-import { setAskedItem } from "./Fields";
+import { revealAsked, setAskedItem } from "./Fields";
 import { PublishPanel, publishTitle } from "./PublishPanel";
 import type { PublishView } from "./PublishPanel";
 import { HeaderPanel, SectionPanel } from "./SectionPanel";
@@ -123,7 +123,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 stats: await loadStats(),
             });
         } else {
-            setView(result.state === "issues" ? { ...result, fromServer: true } : result);
+            setView(result);
         }
         showPublish();
     };
@@ -147,7 +147,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     // The list follows the page, so it stays right while things get fixed.
     const shownView = (): PublishView | null => {
         const current = view();
-        if (current?.state !== "issues" || current.fromServer) return current;
+        if (current?.state !== "issues" && current?.state !== "warnings") return current;
         const issues = publishIssues(editor.page());
         return issues.length
             ? { state: "issues", issues }
@@ -524,8 +524,9 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                             view={current()}
                             onOpen={(issue) => {
                                 setRight(null);
-                                if (issue.target === "page") {
-                                    setSheet("page");
+                                if (issue.target === "add") {
+                                    setView(null);
+                                    openAdd();
                                     return;
                                 }
                                 setAskedItem(issue.item ?? issue.target);
@@ -535,6 +536,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                                         : (findSection(editor.page(), issue.target)?.section.id ??
                                               null),
                                 );
+                                revealAsked(issue.item, issue.target);
                             }}
                             onPublishAnyway={() => {
                                 runPublish().catch(() => {

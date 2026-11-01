@@ -661,7 +661,11 @@ function ListInput(props: FieldProps) {
                 </Show>
                 <For each={items()}>
                     {(item, index) => (
-                        <div class="ls-i" classList={{ open: openId() === item.id }}>
+                        <div
+                            class="ls-i"
+                            data-ask={item.id}
+                            classList={{ open: openId() === item.id }}
+                        >
                             <div class="ls-h">
                                 <span
                                     class="ls-g"
@@ -881,7 +885,36 @@ function FileInput(props: FieldProps) {
     );
 }
 
+/** Takes someone to what the publish list named: opens anything hiding it, then scrolls it into view. */
+export function revealAsked(item: string | undefined, block: string): void {
+    window.setTimeout(() => {
+        const asked = (id: string | undefined) =>
+            id ? document.querySelector<HTMLElement>(`[data-ask="${CSS.escape(id)}"]`) : null;
+        const found = asked(item) ?? asked(block) ?? asked("url");
+        if (!found) return;
+        for (let at = found.parentElement; at; at = at.parentElement) {
+            if (at instanceof HTMLDetailsElement) at.open = true;
+        }
+        const field =
+            found.querySelector<HTMLElement>('[data-ask="url"] input') ??
+            (found.matches("input, textarea")
+                ? found
+                : found.querySelector<HTMLElement>("input, textarea"));
+        (field ?? found).scrollIntoView({ block: "center" });
+        if (field && window.matchMedia("(pointer: fine)").matches)
+            field.focus({ preventScroll: true });
+    }, 160);
+}
+
 export function FieldView(props: FieldProps) {
+    return (
+        <div class="fd-wrap" data-ask={props.field.key}>
+            <FieldSwitch {...props} />
+        </div>
+    );
+}
+
+function FieldSwitch(props: FieldProps) {
     return (
         <Switch>
             <Match when={props.field.kind === "text"}>

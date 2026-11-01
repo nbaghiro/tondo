@@ -8,9 +8,15 @@ export const item = <const Shape extends z.ZodRawShape>(shape: Shape) =>
 /** A time on someone's own clock, such as 2026-11-14T10:00. A 10 am class stays at 10 am. */
 export const localTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
 
+// A sample date is worked out from today, so it can't be compared with anything. This minute marks
+// it instead: nobody plans an event for 18:01, and changing the date in the editor changes the time.
+const SAMPLE_MINUTE = "T18:01";
+
 export function daysFromNow(days: number): string {
-    return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 16);
+    return `${new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10)}${SAMPLE_MINUTE}`;
 }
+
+export const isSampleTime = (time: string): boolean => time.endsWith(SAMPLE_MINUTE);
 
 export const daysUntil = (time: string, now: Date): number =>
     Math.ceil((Date.parse(`${time}Z`) - now.getTime()) / 86_400_000);

@@ -76,6 +76,9 @@ In development the marketing site and published pages are on different ports. In
 ## Publishing
 
 - [ ] Publish with an empty button link. The panel lists it, and clicking the item opens that block
+- [ ] Change one field in a section, such as a review's name, and publish. Your words show, sample words beside them don't, and the panel says what was left out
+- [ ] Add a section and leave it untouched. Its row says "Not going live yet"
+- [ ] Publish a page with only your name and a line about you
 - [ ] Publish properly, then open the page in a private window
 - [ ] Links open the right places, and the counts show in the panel the next time you publish
 - [ ] Edit without publishing. The live page doesn't change, and the button says Publish
