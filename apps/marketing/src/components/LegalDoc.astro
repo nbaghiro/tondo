@@ -1,0 +1,25 @@
+---
+import "../styles/legal.css";
+
+interface Props {
+    effective: string;
+    sections: readonly (readonly [id: string, title: string])[];
+}
+
+const { effective, sections } = Astro.props;
+---
+
+<div class="legal">
+    <p class="legal-date">Effective {effective}</p>
+    <nav class="legal-index" aria-label="Sections">
+        <h2>On this page</h2>
+        <ol>
+            {sections.map(([id, title]) => (
+                <li>
+                    <a href={`#${id}`}>{title}</a>
+                </li>
+            ))}
+        </ol>
+    </nav>
+    <slot />
+</div>

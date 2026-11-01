@@ -1,10 +1,393 @@
 ---
+import LegalDoc from "../components/LegalDoc.astro";
 import InfoLayout from "../layouts/InfoLayout.astro";
+
+const sections = [
+    ["who-we-are", "Who we are"],
+    ["what-we-collect", "What we collect"],
+    ["visits", "Page visits and counts"],
+    ["cookies", "Cookies and browser storage"],
+    ["google-fonts", "Google Fonts"],
+    ["public", "What is public"],
+    ["why", "Why we use information"],
+    ["providers", "Who handles it for us"],
+    ["transfers", "International transfers"],
+    ["retention", "Retention and deletion"],
+    ["rights", "Your rights"],
+    ["children", "Age limit"],
+    ["security", "Security"],
+    ["changes", "Changes to this policy"],
+    ["contact", "Contact"],
+] as const;
 ---
 
-<InfoLayout title="Privacy policy" description="Tondo's privacy policy.">
-    <p>
-        Our privacy policy is being written, and it will be published here before Tondo opens to the
-        public.
-    </p>
+<InfoLayout
+    title="Privacy policy"
+    description="What Tondo collects, why, who handles it, how long it stays and the rights you have."
+>
+    <LegalDoc effective="November 1, 2026" sections={sections}>
+        <p>
+            This policy explains what happens to personal information when you visit tondo.page,
+            create an account, build a page or look at someone else's page. Tondo doesn't use
+            advertising pixels or analytics cookies, and it doesn't sell personal information.
+        </p>
+        <p>
+            Tondo is in early development and hasn't opened to the public. This policy describes the
+            service as it's built to run in production, and it says so where something is planned.
+        </p>
+
+        <h2 id="who-we-are">Who we are</h2>
+        <p>
+            Tondo is operated by GalleoApp, Inc., a Delaware corporation, referred to here as "we"
+            or "us". Our founder works from Vancouver, British Columbia. For the information
+            described in this policy, GalleoApp, Inc. is the organization responsible, which is
+            called the controller or business in some privacy laws.
+        </p>
+        <p>
+            The content of a Tondo page is chosen by the person who publishes it. If you've been
+            named or pictured on a page, you can ask that person to change it or{" "}
+            <a href="/report">report the page</a> to us.
+        </p>
+
+        <h2 id="what-we-collect">What we collect</h2>
+        <h3>Account information</h3>
+        <p>
+            Sign-in runs on Neon Auth, a service from our database provider, Neon. If you sign up
+            with an email address, Neon Auth keeps your email address, your sign-in records and your
+            password, and we use the part of your email before the @ as your starting name. Your
+            password passes through our server on its way to Neon Auth. We don't write it to our own
+            tables or to our logs.
+        </p>
+        <p>
+            If you continue with Google, Google tells Neon Auth who you are. That includes your
+            email address and name, and it can include your profile picture. We use your email
+            address and name to run your account.
+        </p>
+        <h3>Your page</h3>
+        <p>
+            We store the address you claim, such as tondo.page/maya, along with your draft and your
+            published page. A page holds whatever you add to it, such as your name, a description,
+            links and contact details. Don't add anything you wouldn't want to be public to a page
+            you plan to publish.
+        </p>
+        <h3>Photos</h3>
+        <p>
+            When you upload a photo, our server resizes it and converts it to a WebP file. The
+            conversion drops data embedded in the original, such as location data, and only the
+            converted file is stored. Each file is stored in a folder named after a hash of your
+            user ID.
+        </p>
+        <h3>Messages you send us</h3>
+        <p>
+            If you email us, report a page or send a copyright complaint, we keep your email address
+            and whatever you wrote, including the details of the page involved. The report link on a
+            page opens your own email app, with that page's address in the subject line. Our
+            application doesn't record that you pressed it.
+        </p>
+        <h3>Email we send you</h3>
+        <p>
+            We use your email address to send account messages, such as verification codes and
+            password reset codes. We don't send marketing email today, and there's no mailing list
+            in the product.
+        </p>
+
+        <h2 id="visits">Page visits and counts</h2>
+        <p>
+            Tondo counts views of each live page and clicks on its links, so its owner can see how
+            the page is doing. Our counts table holds only the page, the link, the day and a running
+            total. It doesn't store IP addresses, user agents, referrers, locations, cookies or
+            anything else that could tell one visitor from another. The owner sees totals, and can't
+            see who visited.
+        </p>
+        <p>
+            To leave crawlers and link previews out of the totals, our server reads the browser's
+            user agent as each request arrives, and doesn't keep it. A click on a counted link goes
+            through tondo.page, is added to the total and is then sent to its destination. The site
+            you land on sees your IP address as it would with any visit, and it usually sees that
+            you came from tondo.page.
+        </p>
+        <h3>IP addresses and rate limits</h3>
+        <p>
+            Your IP address reaches our server with every request. We use it to limit how many
+            requests one address can make, which protects the service against abuse. We use email
+            addresses the same way on sign-in, sign-up and code requests, to slow down password
+            guessing and to stop anyone flooding an inbox.
+        </p>
+        <p>
+            These limits are held in the server's memory and aren't written to our database. Each
+            count applies for a window of one minute or, for some sign-in actions, 15 minutes. An
+            expired entry stays in memory until the list fills up and it's pushed out, or until the
+            server restarts, which also happens at every deploy.
+        </p>
+        <h3>Logs</h3>
+        <p>
+            Our application doesn't write a log line for each visit. It writes error messages to the
+            logs that Render keeps. Our hosting and network providers may keep their own connection
+            and security logs, including IP addresses, under their own terms.
+        </p>
+
+        <h2 id="cookies">Cookies and browser storage</h2>
+        <p>
+            Tondo sets cookies only for signing in. These are first-party session cookies from Neon
+            Auth, set on our own domain and marked Secure. Someone who only visits a Tondo page
+            isn't given a cookie by us, and we use no tracking or advertising cookies. Live pages
+            tell the browser to run no scripts at all.
+        </p>
+        <p>The editor and sign-in pages also keep a few things in your browser:</p>
+        <ul>
+            <li>
+                <strong>A copy of unsaved work.</strong> The editor keeps a copy of your page in
+                local storage until the server has it, so a lost connection or a closed tab doesn't
+                lose your changes. The copy normally clears after a successful save.
+            </li>
+            <li>
+                <strong>A tab ID.</strong> A random ID in session storage keeps each tab's unsaved
+                work apart.
+            </li>
+            <li>
+                <strong>Your email address, briefly.</strong> During verification or a password
+                reset, session storage holds your email address and the address you asked for, for
+                that tab only.
+            </li>
+        </ul>
+        <p>
+            This data stays in your browser and isn't sent to anyone unless it's saved to your
+            account. Logging out or deleting your account doesn't clear an unsaved copy from local
+            storage. If you use a shared computer, clear this site's data in your browser settings.
+        </p>
+
+        <h2 id="google-fonts">Google Fonts</h2>
+        <p>
+            Our website, the editor and every live Tondo page load their typefaces from Google
+            Fonts. When a page opens, the visitor's browser connects to fonts.googleapis.com and
+            fonts.gstatic.com. That sends Google the visitor's IP address and browser details, along
+            with the fonts requested and usually the site they were requested from. This happens
+            before anyone can make a choice about it, and it applies to people who only visit a
+            page.
+        </p>
+        <p>
+            Google handles that information under its own terms and privacy policy, and we don't
+            receive it. If you block these requests in your browser, text appears in another
+            typeface.
+        </p>
+
+        <h2 id="public">What is public</h2>
+        <p>
+            When you publish, your page is available to anyone at its address, without signing in.
+            We don't ask search engines to skip live pages, so they can be indexed. Other people,
+            search engines and archives can copy what they find, and we can't recall those copies.
+        </p>
+        <p>
+            A draft isn't public, but your uploaded photos are served from an address that needs no
+            sign-in. The address is long and hard to guess, and anyone who has it can open the
+            photo, whether or not the photo is on a live page. Please don't upload a photo you need
+            to keep private.
+        </p>
+        <p>
+            Every live page has a "Report this page" link, which opens tondo.page/report. Anyone who
+            is signed in can also check whether an address is taken.
+        </p>
+
+        <h2 id="why">Why we use information</h2>
+        <p>
+            We use information to run your account and page, keep the service secure, handle
+            reports, answer you and meet legal duties. We don't build advertising profiles. Canadian
+            privacy law asks us to rely on your consent, which you give when you create an account
+            or send us a message, and you can withdraw it by deleting your account or contacting us,
+            subject to legal limits. Under the GDPR and UK GDPR, we rely on these lawful bases:
+        </p>
+        <ul>
+            <li>
+                <strong>Performing our contract with you:</strong> creating and signing in to your
+                account, storing your draft and photos, publishing your page, and sending account
+                codes.
+            </li>
+            <li>
+                <strong>Legitimate interests:</strong> rate limits and other security measures,
+                abuse reports and takedowns, page view and click totals, error logs, and loading
+                fonts so pages appear as designed. You can object to these as described below.
+            </li>
+            <li>
+                <strong>Legal obligations:</strong> answering lawful requests, and keeping records
+                the law requires.
+            </li>
+            <li>
+                <strong>Consent:</strong> where we ask for it. We don't rely on it for anything
+                today.
+            </li>
+        </ul>
+
+        <h2 id="providers">Who handles it for us</h2>
+        <p>
+            We share information with the following companies so they can run parts of the service:
+        </p>
+        <ul>
+            <li>
+                <strong>Neon</strong> hosts our Postgres database and Neon Auth, which handles
+                sign-in, passwords and sessions.
+            </li>
+            <li>
+                <strong>Render</strong> hosts the server that runs the website, editor and pages.
+            </li>
+            <li>
+                <strong>Cloudflare</strong> is planned to store uploaded photos in its R2 storage in
+                production. Photos are delivered through our server, so loading one doesn't connect
+                a visitor to Cloudflare.
+            </li>
+            <li>
+                <strong>Google</strong> provides Google sign-in if you choose it, and Google Fonts
+                for everyone.
+            </li>
+            <li>
+                <strong>Email delivery:</strong> Neon Auth sends account emails, through Neon's own
+                sender or an email provider we connect to it. We'll name any separate provider here
+                when we add one.
+            </li>
+        </ul>
+        <p>
+            We may also disclose information when the law requires it, to protect people or the
+            service from harm, or as part of a sale or reorganization of our business. We don't sell
+            personal information or share it for cross-context behavioural advertising.
+        </p>
+
+        <h2 id="transfers">International transfers</h2>
+        <p>
+            Tondo's database is set up in Neon's AWS us-east-2 region, and its server in Render's
+            Ohio region, both in the United States. Google and Cloudflare can process data in other
+            countries, and our founder can access it from Canada. If you use Tondo from elsewhere,
+            your information will leave your country, and it can be available to courts and
+            authorities in the countries where it's held.
+        </p>
+        <p>
+            Where the GDPR or UK GDPR requires a safeguard for a transfer, we rely on a mechanism
+            recognized by that law, such as standard contractual clauses in a provider's data
+            processing terms. You can ask us about these at{" "}
+            <a href="mailto:privacy@tondo.page">privacy@tondo.page</a>.
+        </p>
+
+        <h2 id="retention">Retention and deletion</h2>
+        <h3>Unpublishing</h3>
+        <p>
+            Unpublishing takes your page off its address straight away. Your draft, address, photos,
+            counts and account all stay, so you can publish again. Copies made by others, such as
+            search engine results, aren't affected.
+        </p>
+        <h3>Deleting your account</h3>
+        <p>
+            You can delete your account from the Account page. That removes your uploaded photos,
+            pages, counts and address from our live systems, and asks Neon Auth to delete your
+            sign-in record. If Neon Auth can't complete that step, we tell you, and you can email{" "}
+            <a href="mailto:privacy@tondo.page">privacy@tondo.page</a> to have it removed.
+        </p>
+        <p>Some things can remain after that:</p>
+        <ul>
+            <li>
+                <strong>Backups.</strong> Neon keeps a rolling restore history for a limited period,
+                and deleted data stays there until that period passes. Other providers may also take
+                a short time to clear deleted data from their systems.
+            </li>
+            <li>
+                <strong>Cached photos.</strong> Photos are sent with a one-year browser cache
+                setting, so a browser that has already loaded one may keep showing its copy.
+            </li>
+            <li>
+                <strong>Pages taken down for abuse.</strong> If your page was suspended, its address
+                and the suspension date stay on record, without your user ID, so that the address
+                stays out of use and the page can't return under a new account.
+            </li>
+            <li>
+                <strong>Messages.</strong> Reports, complaints and other emails are kept as
+                described below.
+            </li>
+            <li>
+                <strong>Browser copies.</strong> Any unsaved copy stays in that browser until
+                cleared.
+            </li>
+        </ul>
+        <h3>How long we keep things</h3>
+        <ul>
+            <li>
+                Account information, your page, your photos and your counts stay until you delete
+                them or your account. We don't currently delete inactive accounts automatically, and
+                counts don't expire on a schedule.
+            </li>
+            <li>Rate limit entries stay only in server memory, as described above.</li>
+            <li>
+                We keep emails, reports and complaints for as long as we need them to handle the
+                matter, keep a record of decisions about abuse, and meet legal duties.
+            </li>
+        </ul>
+
+        <h2 id="rights">Your rights</h2>
+        <p>
+            You can see and change most of your information in your account, and delete it there.
+            For anything else, email <a href="mailto:privacy@tondo.page">privacy@tondo.page</a>. We
+            may need to confirm your identity first, and we'll answer within the time the applicable
+            law allows. We won't treat you differently for exercising a right. The rights you have
+            depend on where you live.
+        </p>
+        <h3>Canada</h3>
+        <p>
+            Where PIPEDA or British Columbia's Personal Information Protection Act (PIPA) applies,
+            you can ask for access to your personal information and how it has been used, ask for
+            corrections, and withdraw consent, subject to legal limits. If you're not satisfied with
+            our answer, you can complain to the Office of the Privacy Commissioner of Canada or the
+            Office of the Information and Privacy Commissioner for British Columbia.
+        </p>
+        <h3>European Economic Area and United Kingdom</h3>
+        <p>
+            Under the GDPR and UK GDPR, you can ask for access, correction, deletion, restriction
+            and portability of your personal data. You can object to processing based on legitimate
+            interests, and withdraw consent where we rely on it. You can complain to your local data
+            protection authority, or in the UK to the Information Commissioner's Office.
+        </p>
+        <h3>California</h3>
+        <p>
+            Where the CCPA applies, you can ask to know what personal information we collect, use
+            and disclose, and ask us to correct or delete it. You can use an authorized agent, and
+            we won't discriminate against you for making a request. In the categories that law uses,
+            we handle identifiers (email address, IP address), account log-in details, internet
+            activity (requests to our server), and the content you add. We use log-in details only
+            to sign you in. We don't sell personal information or share it for cross-context
+            behavioural advertising. Since we don't do either, there's nothing for a Global Privacy
+            Control or Do Not Track signal to switch off, and those signals don't change how Tondo
+            behaves.
+        </p>
+
+        <h2 id="children">Age limit</h2>
+        <p>
+            You must be at least 18 to create a Tondo account. We don't knowingly collect personal
+            information from anyone younger. Sign-up doesn't verify age, so if you think someone
+            under 18 has given us information, please email{" "}
+            <a href="mailto:privacy@tondo.page">privacy@tondo.page</a> and we'll look into it and
+            remove it where appropriate.
+        </p>
+
+        <h2 id="security">Security</h2>
+        <p>
+            Tondo is served over HTTPS only. Each signed-in request acts only on your own page,
+            sign-in attempts are rate limited, and live pages run no scripts. Uploaded images are
+            checked and converted before they're stored. No service can promise complete security,
+            so please use a strong, unique password. If a breach affects you and the law requires us
+            to tell you, we will.
+        </p>
+
+        <h2 id="changes">Changes to this policy</h2>
+        <p>
+            We'll update this page when what we do changes, and change the effective date at the
+            top. If a change materially affects you, we'll also tell you by email or in the product
+            before it takes effect. Features such as forms, payments, connected accounts or optional
+            analytics aren't built. If we add them, we'll update this policy first.
+        </p>
+
+        <h2 id="contact">Contact</h2>
+        <p>
+            For privacy questions and requests, including to reach the person responsible for
+            privacy at GalleoApp, Inc., email{" "}
+            <a href="mailto:privacy@tondo.page">privacy@tondo.page</a>. To report a page, use{" "}
+            <a href="mailto:report@tondo.page">report@tondo.page</a>. For other legal matters, see
+            our <a href="/terms">terms of service</a> or email{" "}
+            <a href="mailto:legal@tondo.page">legal@tondo.page</a>.
+        </p>
+    </LegalDoc>
 </InfoLayout>

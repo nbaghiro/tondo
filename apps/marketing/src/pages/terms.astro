@@ -1,10 +1,319 @@
 ---
+import LegalDoc from "../components/LegalDoc.astro";
 import InfoLayout from "../layouts/InfoLayout.astro";
+
+const sections = [
+    ["agreement", "This agreement"],
+    ["eligibility", "Eligibility"],
+    ["accounts", "Your account"],
+    ["addresses", "Addresses"],
+    ["content", "Your content"],
+    ["acceptable-use", "Acceptable use"],
+    ["moderation", "Moderation and takedown"],
+    ["reports", "Reports and copyright"],
+    ["plans", "Free service and paid plans"],
+    ["ours", "Tondo's own materials"],
+    ["third-parties", "Third-party links and services"],
+    ["disclaimers", "Disclaimers"],
+    ["liability", "Limit of liability"],
+    ["indemnity", "Indemnity"],
+    ["ending", "Ending and deletion"],
+    ["changes", "Changes"],
+    ["law", "Governing law and disputes"],
+    ["general", "General terms"],
+    ["contact", "Contact"],
+] as const;
 ---
 
-<InfoLayout title="Terms of service" description="Tondo's terms of service.">
-    <p>
-        Our terms of service are being written, and they will be published here before Tondo opens
-        to the public.
-    </p>
+<InfoLayout
+    title="Terms of service"
+    description="The agreement between you and GalleoApp, Inc. for using Tondo, including its rules for pages and addresses."
+>
+    <LegalDoc effective="November 1, 2026" sections={sections}>
+        <h2 id="agreement">This agreement</h2>
+        <p>
+            These terms are an agreement between you and GalleoApp, Inc., a Delaware corporation
+            that operates Tondo at tondo.page ("we" or "us"). They apply when you create an account,
+            publish a page or otherwise use Tondo. By doing any of those, you agree to them. Please
+            read them with our <a href="/privacy">privacy policy</a>, which explains how we handle
+            personal information.
+        </p>
+        <p>
+            Tondo lets you claim an address and publish a page of links and other content there.
+            It's in early development, so features can change and some things shown on the site
+            aren't available yet.
+        </p>
+
+        <h2 id="eligibility">Eligibility</h2>
+        <p>
+            You must be at least 18 and legally able to enter this agreement. If you use Tondo for
+            an organization, you confirm that you have authority to bind it, and "you" includes that
+            organization. You can't use Tondo if we've previously removed you from it, or if the law
+            bars you from using it.
+        </p>
+
+        <h2 id="accounts">Your account</h2>
+        <p>
+            Give an email address you control, and keep your password and sign-in method secure. You
+            are responsible for what happens under your account. Tell us at{" "}
+            <a href="mailto:legal@tondo.page">legal@tondo.page</a> if you think someone else has got
+            into it. We may contact you at your account email about the service, your account or
+            these terms.
+        </p>
+
+        <h2 id="addresses">Addresses</h2>
+        <p>
+            Your address is the part after tondo.page/, such as tondo.page/maya. Choosing one gives
+            you permission to use it while your account is in good standing, and doesn't give you
+            ownership of it or any other right in it.
+        </p>
+        <ul>
+            <li>
+                <strong>Reserved addresses.</strong> Some addresses can't be claimed, including
+                words our site uses or could use, such as login, support and privacy, words that
+                could pass for Tondo, and addresses used by our example pages. We can add to this
+                list.
+            </li>
+            <li>
+                <strong>Changing or giving one up.</strong> If you change your address or delete
+                your account, the old address stops working and someone else can claim it straight
+                away. We don't redirect old addresses, and we can't control what a later owner does
+                with one.
+            </li>
+            <li>
+                <strong>Taking one back.</strong> We may remove, reassign or hold an address if it
+                infringes a trademark or other right, impersonates someone or misleads people,
+                breaks these terms, or is needed to meet a legal duty. We may also reclaim one that
+                appears inactive, such as one with no live page for a long period. We don't do this
+                automatically today, and we'll try to contact you at your account email first unless
+                the matter is urgent or the law prevents it.
+            </li>
+            <li>
+                <strong>Addresses of removed pages.</strong> An address taken down for abuse stays
+                out of use, including after the account is deleted.
+            </li>
+        </ul>
+
+        <h2 id="content">Your content</h2>
+        <p>
+            You keep ownership of the text, photos, links and other material you add to Tondo.
+            You're responsible for it, and you confirm that you have the rights and permissions
+            needed to use it there, including from anyone pictured or named.
+        </p>
+        <p>
+            You give us a worldwide, non-exclusive, royalty-free licence to host, store, copy,
+            convert, resize, display and distribute your content as needed to run, secure and
+            improve Tondo and show your page to anyone who visits it. Our service providers can use
+            this licence on our behalf. It lets us do what the service needs, and doesn't let us
+            sell your content.
+        </p>
+        <p>
+            The licence ends when you remove the content or delete your account, except for copies
+            in backups until they expire, copies we must keep by law, and records of abuse
+            decisions. We can't remove copies that others have made of a public page, such as search
+            engine results. A published page is public, so don't put anything on it that you need to
+            keep private.
+        </p>
+
+        <h2 id="acceptable-use">Acceptable use</h2>
+        <p>
+            You agree not to use Tondo to do any of the following, or to help anyone else do them:
+        </p>
+        <ul>
+            <li>
+                Phish, or collect passwords, payment details or other sensitive information through
+                deception, including by linking to a page that does.
+            </li>
+            <li>
+                Impersonate a person, company or organization, or suggest a connection with one that
+                you don't have. Commentary and parody are fine if they're clearly labelled as such.
+            </li>
+            <li>Commit or promote fraud, scams or deceptive offers.</li>
+            <li>
+                Link to or spread malware, or disguise where a link goes, including through chains
+                of redirects meant to avoid our checks.
+            </li>
+            <li>
+                Share material that sexualizes or exploits minors, or sexual images of anyone
+                without their consent.
+            </li>
+            <li>
+                Threaten, harass or incite violence or hatred against people, or publish someone's
+                private information without their permission.
+            </li>
+            <li>Infringe copyright, trademark, privacy or other rights.</li>
+            <li>Sell or promote anything illegal, or otherwise break the law.</li>
+            <li>Send spam, or use a page mainly as a destination for unsolicited messages.</li>
+            <li>
+                Interfere with Tondo, probe it for weaknesses without our permission, get around its
+                limits or suspensions, inflate view or click counts, or reach it by automated means
+                that place an unreasonable load on it.
+            </li>
+            <li>
+                Claim addresses in bulk, or in order to resell them or hold them from their rightful
+                users.
+            </li>
+        </ul>
+
+        <h2 id="moderation">Moderation and takedown</h2>
+        <p>
+            We don't review every page before it goes live, and we don't promise to find every
+            breach. We can check pages and links, act on reports, and refuse links to destinations
+            on a blocklist we keep. A blocked link can't be published, and one that's blocked later
+            stops working.
+        </p>
+        <p>
+            If we reasonably believe that a page, link or account breaks these terms, puts people at
+            risk or creates legal risk, we may remove content, block links, take a page down, or
+            suspend or close the account. A page that's taken down stops being shown at its address
+            and can't be published again, and its address can't be changed. You can still sign in
+            and delete your account.
+        </p>
+        <p>
+            We'll generally tell you what we did and why, unless doing so would create a risk, get
+            in the way of an investigation or break the law. We may act first and explain
+            afterwards. If you think we made a mistake, email{" "}
+            <a href="mailto:legal@tondo.page">legal@tondo.page</a> and we'll review it.
+        </p>
+
+        <h2 id="reports">Reports and copyright</h2>
+        <p>
+            To report a page that impersonates someone, deceives people or shares harmful material,
+            use the "Report this page" link at the bottom of the page, or email{" "}
+            <a href="mailto:report@tondo.page">report@tondo.page</a> with the page's address and
+            what's wrong with it. We can't promise a particular outcome or response time. Please
+            only send reports you believe are accurate and in good faith.
+        </p>
+        <p>
+            To complain about copyright infringement, email{" "}
+            <a href="mailto:legal@tondo.page">legal@tondo.page</a> with the following:
+        </p>
+        <ul>
+            <li>your name, contact details and your signature, which can be typed</li>
+            <li>the work you say is infringed</li>
+            <li>the address of the page and where the material appears on it</li>
+            <li>a statement that you believe in good faith that the use isn't authorized</li>
+            <li>
+                a statement that your notice is accurate and, under penalty of perjury, that you're
+                the rights holder or are authorized to act for them
+            </li>
+        </ul>
+        <p>
+            We may remove the material and send your notice to the page's owner. If your material
+            was removed and you believe that was a mistake, you can reply with your contact details,
+            the material concerned and a statement of why it should be restored, including that you
+            accept the jurisdiction of the appropriate court where the law requires it. We may close
+            the accounts of repeat infringers. A false notice can make you liable for damages.
+        </p>
+
+        <h2 id="plans">Free service and paid plans</h2>
+        <p>
+            Tondo is free to use right now, and we don't take payment for it. Free use can come with
+            limits, such as how many photos you can store, and we can change them.
+        </p>
+        <p>
+            We may offer paid plans in future. Plans and prices shown on the site today are
+            placeholders, and you can't buy them. Before you're ever charged, we'll show you the
+            price and billing terms and ask you to agree to them. We can also decide that a feature
+            needs a paid plan. If that affects something you already use, we'll tell you in advance.
+        </p>
+
+        <h2 id="ours">Tondo's own materials</h2>
+        <p>
+            The Tondo software, name, logo, looks, artwork and site content belong to us or our
+            licensors. You may use the looks and artwork as part of your Tondo page while using the
+            service. These terms give you no other right to copy or use them. If you send us
+            feedback, we may use it without owing you anything.
+        </p>
+
+        <h2 id="third-parties">Third-party links and services</h2>
+        <p>
+            Tondo pages link to sites and services we don't run, and we don't endorse or answer for
+            them. If you follow a link, that site's own terms and privacy policy apply. Tondo also
+            relies on services from other companies, such as Google sign-in and Google Fonts, and we
+            can't guarantee their availability.
+        </p>
+
+        <h2 id="disclaimers">Disclaimers</h2>
+        <p>
+            We provide Tondo "as is" and "as available". To the extent the law allows, we disclaim
+            all warranties, whether express or implied, including merchantability, fitness for a
+            particular purpose, title and non-infringement. We don't promise that Tondo will always
+            be available or free of errors, or that it will keep your content safe from every loss,
+            so keep your own copy of anything important. Content on pages belongs to the people who
+            published it, and we don't check that it's accurate.
+        </p>
+
+        <h2 id="liability">Limit of liability</h2>
+        <p>
+            To the extent the law allows, neither you nor we are liable under these terms for
+            indirect, incidental, special, consequential or punitive losses, or for lost profits,
+            revenue, data or goodwill. Our total liability arising out of Tondo or these terms is
+            limited to the greater of the fees you paid us for Tondo in the 12 months before the
+            event that gave rise to the claim, or US$100.
+        </p>
+        <p>
+            These limits don't apply to fraud, or to any liability the law doesn't allow us to
+            exclude or limit. Your rights as a consumer that can't be waived aren't affected.
+        </p>
+
+        <h2 id="indemnity">Indemnity</h2>
+        <p>
+            If someone makes a claim against us because of your content, your page or your breach of
+            these terms, you agree to cover our reasonable losses and costs from that claim,
+            including legal fees. We'll tell you about the claim where we can. This doesn't apply to
+            the extent the claim was caused by our own breach, or where the law where you live
+            doesn't allow it.
+        </p>
+
+        <h2 id="ending">Ending and deletion</h2>
+        <p>
+            You can stop at any time. Unpublishing takes your page offline and keeps your account.
+            Deleting your account from the Account page removes your page, your photos, your numbers
+            and your address, and it can't be undone. The{" "}
+            <a href="/privacy#retention">privacy policy</a> explains what can remain, including in
+            backups.
+        </p>
+        <p>
+            We may suspend or end your access if you break these terms, if the law requires it, or
+            to protect people or the service. We may also change or stop Tondo or any part of it. If
+            we're closing the service, we'll give you reasonable notice where we can, so you can
+            save what you need. Sections that by their nature should continue, including your
+            responsibility for your content, disclaimers, liability, indemnity and governing law,
+            continue after this agreement ends.
+        </p>
+
+        <h2 id="changes">Changes</h2>
+        <p>
+            We may update these terms as Tondo changes. We'll post the new version here with a new
+            effective date. If a change is material, we'll also tell you by email or in the product
+            before it takes effect. If you continue using Tondo after that, the new terms apply. If
+            you don't agree, you can delete your account before they take effect.
+        </p>
+
+        <h2 id="law">Governing law and disputes</h2>
+        <p>
+            Delaware law governs these terms, without regard to its conflict-of-laws rules, and
+            disputes are subject to the competent state and federal courts in Delaware. Mandatory
+            consumer protections and any right to bring a claim in a local court that can't lawfully
+            be excluded aren't affected. These terms don't require arbitration or waive class-action
+            rights.
+        </p>
+
+        <h2 id="general">General terms</h2>
+        <p>
+            These terms and our privacy policy are the whole agreement between us about Tondo. If
+            part of them can't be enforced, the rest still applies. If we don't enforce something
+            straight away, we can still enforce it later. You can't transfer this agreement without
+            our consent. We can transfer it as part of a merger, sale or reorganization.
+        </p>
+
+        <h2 id="contact">Contact</h2>
+        <p>
+            Send questions and legal notices to GalleoApp, Inc. at{" "}
+            <a href="mailto:legal@tondo.page">legal@tondo.page</a>. For privacy requests, email{" "}
+            <a href="mailto:privacy@tondo.page">privacy@tondo.page</a>. To report a page, email{" "}
+            <a href="mailto:report@tondo.page">report@tondo.page</a>.
+        </p>
+    </LegalDoc>
 </InfoLayout>
