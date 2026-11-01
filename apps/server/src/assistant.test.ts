@@ -139,6 +139,27 @@ describe("the loop", () => {
         expect(result.finished).toBe(true);
     });
 
+    it("asks again after a garbled call", async () => {
+        let call = 0;
+        const result = await runTurn(
+            input({
+                model: {
+                    id: "stand-in",
+                    generate: () => {
+                        call += 1;
+                        return Promise.resolve(
+                            call === 1
+                                ? reply([], "MALFORMED_FUNCTION_CALL")
+                                : reply([{ text: "Done" }]),
+                        );
+                    },
+                },
+            }),
+        );
+        expect(result.finished).toBe(true);
+        expect(result.reply).toBe("Done");
+    });
+
     it("treats a refusal as nothing done", async () => {
         const events: string[] = [];
         const result = await runTurn(

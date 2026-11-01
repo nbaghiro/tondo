@@ -179,6 +179,8 @@ export async function runTurn(input: TurnInput): Promise<TurnResult> {
         const calls = reply.parts.flatMap((part) => (part.functionCall ? [part.functionCall] : []));
         const text = plainReply(reply.parts);
         if (!calls.length) {
+            // Gemini sometimes garbles a call. Asking again usually works, within the turn's limit.
+            if (reply.finish.startsWith("MALFORMED")) continue;
             if (reply.finish && reply.finish !== "STOP") return stop("error", ERROR);
             result.reply = text;
             break;
