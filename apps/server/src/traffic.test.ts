@@ -1,11 +1,63 @@
 import { readdirSync } from "node:fs";
 import { isReservedHandle } from "@tondo/page";
 import { describe, expect, it, vi } from "vitest";
-import { blockedLinks } from "./limits";
+import { blockedIssues, blockedLinks, isBlockedLink } from "./limits";
 import { samplePage } from "@tondo/page";
-import { createCache, createCounter, createLimiter } from "./traffic";
+import { createCache, createCounter, createLimiter, pickIp } from "./traffic";
 
 describe("limits", () => {
+    it("only believes as many forwarded addresses as we have proxies", () => {
+        expect(pickIp("1.2.3.4", 0, "socket")).toBe("socket");
+        expect(pickIp("forged, 9.9.9.9", 1, "socket")).toBe("9.9.9.9");
+        expect(pickIp("forged, 9.9.9.9, 10.0.0.1", 2, "socket")).toBe("9.9.9.9");
+        expect(pickIp(undefined, 1, "socket")).toBe("socket");
+        expect(pickIp("9.9.9.9", 2, "socket")).toBe("socket");
+    });
+
+    it("doesn't forget someone being limited when a flood of new keys arrives", () => {
+        const allow = createLimiter(1, 60_000, 100);
+        allow("limited", 0);
+        expect(allow("limited", 1)).toBe(false);
+        for (let i = 0; i < 1000; i++) {
+            allow(`flood${String(i)}`, 2);
+            if (i % 50 === 0) expect(allow("limited", 2)).toBe(false);
+        }
+        expect(allow("limited", 3)).toBe(false);
+    });
+
+    it("recognises a blocked host however it's written", () => {
+        const blocked = ["evil.example", "xn--bcher-kva.example"];
+        for (const url of [
+            "https://evil.example/",
+            "http://EVIL.example/x",
+            "http://evil.example.:80/",
+            "https://sub.evil.example./x",
+            "https://bücher.example/",
+        ]) {
+            expect(isBlockedLink(url, blocked), url).toBe(true);
+        }
+        expect(isBlockedLink("https://notevil.example/", blocked)).toBe(false);
+    });
+
+    it("says which section a blocked link is in", () => {
+        const page = {
+            ...samplePage,
+            blocks: [
+                {
+                    id: "b1",
+                    type: "button" as const,
+                    variant: "filled" as const,
+                    text: "Go",
+                    url: "https://evil.example/",
+                },
+            ],
+        };
+        const [issue] = blockedIssues(page, ["evil.example"]);
+        expect(issue?.target).toBe("b1");
+        expect(issue?.message).toContain("evil.example");
+        expect(issue?.url).toBe("https://evil.example/");
+    });
+
     it("refuses over the limit, then lets people back after the window", () => {
         const allow = createLimiter(2, 1000);
         expect([allow("a", 0), allow("a", 1), allow("a", 2)]).toEqual([true, true, false]);

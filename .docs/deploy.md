@@ -16,6 +16,7 @@ One Hono server serves the marketing site, the editor at `/app`, public pages, a
 | `SITE_URL`, `EDITOR_URL` | Leave unset in production, where they default to the same origin | No |
 | `PUBLIC_ORIGIN` | The address used in share tags, such as `https://tondo.page`. Falls back to the request's own | No |
 | `BLOCKED_HOSTS` | Comma-separated hosts that can't be linked from a published page. This is the phishing hook, and there's no threat feed behind it yet | No |
+| `TRUSTED_PROXY_HOPS` | How many of our proxies add to `X-Forwarded-For`. 0 uses the connection's address. `render.yaml` sets 1 for Render, which hasn't been checked against a real deploy. Add 1 if Cloudflare goes in front. Too low lets people forge addresses, and too high counts everyone as one | In production |
 | `RATE_LIMIT_SCALE` | Multiplies every rate limit. Only the tests change it | No |
 | `COUNT_FLUSH_MS` | How often waiting view and click counts are written. Defaults to 5 seconds | No |
 

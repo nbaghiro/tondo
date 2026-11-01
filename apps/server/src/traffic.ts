@@ -1,25 +1,51 @@
+import { getConnInfo } from "@hono/node-server/conninfo";
 import type { Context, MiddlewareHandler } from "hono";
 
 // All of this is per process, which suits one server. With several, each limit applies per server
 // and a shared store such as Redis would be needed to make them exact.
 
-/** The visitor's address, as the proxy in front of us reports it. */
-export function clientIp(c: Context): string {
-    const forwarded = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
-    if (forwarded) return forwarded;
-    return c.req.header("x-real-ip") ?? "local";
+/**
+ * Which address to count a visitor under. Each proxy adds one entry on the right, so with N proxies
+ * of ours in front, the Nth entry from the right is the first one anyone outside couldn't forge.
+ */
+export function pickIp(forwarded: string | undefined, hops: number, socket: string): string {
+    if (hops <= 0) return socket;
+    const entries = (forwarded ?? "")
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+    return entries[entries.length - hops] ?? socket;
 }
 
-export function createLimiter(max: number, windowMs: number) {
+const proxyHops = () => Number(process.env["TRUSTED_PROXY_HOPS"] ?? 0);
+
+/** The visitor's address. It only believes as many forwarded entries as we have proxies. */
+export function clientIp(c: Context): string {
+    let socket = "local";
+    try {
+        socket = getConnInfo(c).remote.address ?? "local";
+    } catch {
+        // Tests call the app directly, so there's no connection to ask.
+    }
+    return pickIp(c.req.header("x-forwarded-for"), proxyHops(), socket);
+}
+
+/**
+ * Counts per key. When full it forgets whichever key has gone quiet longest, so a flood of new keys
+ * can't wipe the count of someone who's still being limited.
+ */
+export function createLimiter(max: number, windowMs: number, maxKeys = 50_000) {
     const seen = new Map<string, { count: number; resetAt: number }>();
     return (key: string, now = Date.now()): boolean => {
-        const entry = seen.get(key);
-        if (!entry || entry.resetAt < now) {
-            if (seen.size > 50_000) seen.clear();
-            seen.set(key, { count: 1, resetAt: now + windowMs });
-            return true;
-        }
+        const found = seen.get(key);
+        const entry = !found || found.resetAt < now ? { count: 0, resetAt: now + windowMs } : found;
         entry.count += 1;
+        seen.delete(key);
+        seen.set(key, entry);
+        if (seen.size > maxKeys) {
+            const quietest = seen.keys().next().value;
+            if (quietest !== undefined) seen.delete(quietest);
+        }
         return entry.count <= max;
     };
 }
