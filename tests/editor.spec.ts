@@ -118,3 +118,52 @@ test("on a phone, tapping a section opens the sheet with it still in view", asyn
     await expect(titleField(page)).toBeVisible();
     await expect(canvas(page).locator("#t-blocks h2")).toBeInViewport();
 });
+
+test("a short window keeps the phone's proportions, scrolls to all of it and drags true", async ({
+    page,
+}, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "links");
+    await addSection(page, "about");
+    await page.keyboard.press("Escape");
+
+    const measure = () =>
+        page.evaluate(() => {
+            const stage = document.querySelector<HTMLElement>(".build .stage");
+            const phone = document.querySelector(".build .phone")?.getBoundingClientRect();
+            const inner = document.querySelector(".build .phone iframe")?.getBoundingClientRect();
+            return {
+                spare: (stage?.scrollHeight ?? 0) - (stage?.clientHeight ?? 0),
+                ratio: (phone?.width ?? 0) / (phone?.height ?? 1),
+                inner: inner?.width ?? 0,
+            };
+        });
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    const tall = await measure();
+    expect(tall.spare).toBeLessThanOrEqual(0);
+    expect(tall.ratio).toBeCloseTo(414 / 868, 2);
+
+    await page.setViewportSize({ width: 1280, height: 620 });
+    const short = await measure();
+    expect(short.spare).toBeGreaterThan(0);
+    expect(short.ratio).toBeCloseTo(414 / 868, 2);
+    expect(short.inner).toBeGreaterThanOrEqual(319.5);
+
+    await page.locator(".build .stage").evaluate((stage) => {
+        stage.scrollTop = stage.scrollHeight;
+    });
+    const end = await page.locator(".build .phone").boundingBox();
+    expect((end?.y ?? 0) + (end?.height ?? 0)).toBeLessThanOrEqual(620);
+
+    const sections = canvas(page).locator("#t-blocks > section.t-s");
+    await sections.first().hover();
+    const grip = await sections.first().locator(".t-grip").boundingBox();
+    const to = await sections.last().boundingBox();
+    if (!grip || !to) throw new Error("The section has no size.");
+    await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(grip.x, to.y + to.height - 2, { steps: 12 });
+    await page.mouse.up();
+    await expect(page.locator("#rows .row").last()).toContainText("Links");
+});

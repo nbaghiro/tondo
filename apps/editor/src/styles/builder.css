@@ -2349,3 +2349,23 @@ small.todo::before {
 .discard-open:hover {
     color: var(--ink);
 }
+@media (min-width: 861px) {
+    /* Short windows shrink the phone evenly, down to a small real phone, then it runs off the bottom. */
+    .build .phone {
+        aspect-ratio: 414 / 868;
+        width: auto;
+        height: clamp(722px, 100%, 868px);
+        max-height: none;
+        max-width: 414px;
+    }
+}
+@media (min-width: 861px) {
+    .build .stage {
+        align-items: safe center;
+        overflow: hidden auto;
+    }
+    /* Fixed, so the painting can't add scroll of its own. */
+    .build .stage > .wash {
+        position: fixed;
+    }
+}
