@@ -13,6 +13,9 @@ interface TopBarProps {
     account: Account;
     onPreview: () => void;
     onPublish: () => void;
+    /** Left out when Help me isn't set up here. */
+    onHelp?: (() => void) | undefined;
+    helping: boolean;
     publishing: boolean;
     /** Taken down for breaking the rules. Pressing Publish explains why. */
     suspended: boolean;
@@ -100,6 +103,18 @@ export function TopBar(props: TopBarProps) {
                         </button>
                     </Show>
                 </span>
+                <Show when={props.onHelp}>
+                    <button
+                        class="helpme"
+                        aria-pressed={props.helping}
+                        onClick={() => {
+                            props.onHelp?.();
+                        }}
+                    >
+                        <Glyph name="spark" />
+                        Help me
+                    </button>
+                </Show>
                 <button
                     class="circle"
                     aria-label="Undo"
@@ -130,7 +145,11 @@ export function TopBar(props: TopBarProps) {
                 </button>
                 <button
                     class="pub-go publish"
-                    disabled={props.publishing || (!props.editor.changed() && !props.suspended)}
+                    disabled={
+                        props.publishing ||
+                        props.editor.locked() ||
+                        (!props.editor.changed() && !props.suspended)
+                    }
                     onClick={() => {
                         props.onPublish();
                     }}

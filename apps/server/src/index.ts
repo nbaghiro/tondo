@@ -1,7 +1,8 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { createAccountStore, createDb, createPageStore } from "@tondo/db";
+import { createAccountStore, createDb, createPageStore, createUsageStore } from "@tondo/db";
 import { createApp } from "./app";
+import { assistantFromEnv } from "./assistant-setup";
 import { mountSite } from "./site";
 import { createS3Storage, storageConfig } from "./storage";
 import { createCounter } from "./traffic";
@@ -23,6 +24,7 @@ const pages = createPageStore(db);
 const counter = createCounter(pages.count, Number(process.env["COUNT_FLUSH_MS"] ?? 5 * 1000));
 const limitScale = Number(process.env["RATE_LIMIT_SCALE"] ?? 1);
 const app = createApp({
+    assistant: assistantFromEnv(process.env, createUsageStore(db)),
     storage,
     count: counter.count,
     publicOrigin: process.env["PUBLIC_ORIGIN"] ?? (production ? "https://tondo.page" : undefined),

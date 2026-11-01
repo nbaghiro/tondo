@@ -7,6 +7,7 @@ import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
+import { loadAssistant } from "../lib/assistant-stream";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
 import { Phone } from "./Phone";
 
@@ -116,6 +117,8 @@ function Numbers(props: { stats: StatsResponse | null }) {
 
 export function HomePage(props: { account: Account }) {
     const [data, { refetch }] = createResource(() => props.account.handle, loadHome);
+    const [assistant] = createResource(loadAssistant);
+    const helpAvailable = () => assistant()?.available === true;
     const [busy, setBusy] = createSignal(false);
     const [confirmDiscard, setConfirmDiscard] = createSignal(false);
     const toast = createToast();
@@ -335,6 +338,27 @@ export function HomePage(props: { account: Account }) {
                                                 suspended: draft().suspended,
                                             })}
                                         />
+                                        <Show when={helpAvailable()}>
+                                            <a
+                                                class="card home-help"
+                                                href={appPath("/edit?panel=help")}
+                                                data-home-help
+                                            >
+                                                <span class="home-help-mark">
+                                                    <NavIcon name="spark" />
+                                                </span>
+                                                <span>
+                                                    <b>Help me</b>
+                                                    <small>
+                                                        Ask for a change to your draft. Nothing goes
+                                                        live until you publish.
+                                                    </small>
+                                                </span>
+                                                <span class="go">
+                                                    <NavIcon name="go" />
+                                                </span>
+                                            </a>
+                                        </Show>
                                         <Show when={draft().published}>
                                             <Numbers stats={loaded().stats} />
                                         </Show>

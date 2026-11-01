@@ -5,6 +5,8 @@ import { handleSchema, normaliseHandle } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
+import { mountAssistant } from "./assistant";
+import type { AssistantDeps } from "./assistant";
 import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { isBlockedLink } from "./limits";
@@ -28,6 +30,8 @@ export interface AppDeps {
     publicOrigin?: string | undefined;
     /** Multiplies the rate limits. Tests share one address, so they raise it. */
     scale?: Scale;
+    /** Help me. Without this, its button doesn't appear and everything else works. */
+    assistant?: Omit<AssistantDeps, "storage"> | null | undefined;
 }
 
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
@@ -51,6 +55,7 @@ export function createApp({
     count,
     publicOrigin,
     scale = (max) => max,
+    assistant = null,
 }: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
@@ -128,6 +133,12 @@ export function createApp({
         },
     });
     mountPhotos(app, storage ?? null, currentPerson, scale);
+    mountAssistant(
+        app,
+        assistant ? { ...assistant, storage: storage ?? null } : null,
+        currentPerson,
+        scale,
+    );
     if (photos) app.get("/photos/*", photos);
 
     const byIp = (c: Context) => clientIp(c);

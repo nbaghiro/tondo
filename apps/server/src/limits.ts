@@ -4,11 +4,21 @@ import type { Page, PublishIssue } from "@tondo/page";
 // Every plan limit is checked here, so paid plans only have to change this file.
 export interface Limits {
     photos: number;
+    /** Help me credits each month. */
+    credits: number;
 }
 
-const FREE: Limits = { photos: 200 };
+export type Plan = "free" | "pro";
 
-export const limitsFor = (_userId: string): Limits => FREE;
+const PLANS: Readonly<Record<Plan, Limits>> = {
+    free: { photos: 200, credits: 15 },
+    pro: { photos: 200, credits: 100 },
+};
+
+// Everyone is on Free until plans are built, with a local override for trying other limits.
+const planOf = (_userId: string): Plan => (process.env["TONDO_PLAN"] === "pro" ? "pro" : "free");
+
+export const limitsFor = (userId: string): Limits => PLANS[planOf(userId)];
 
 // A hook for a phishing check. Today it's a list set by the operator. A threat feed can replace it.
 const blockedHosts = (process.env["BLOCKED_HOSTS"] ?? "")

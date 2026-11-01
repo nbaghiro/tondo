@@ -1,0 +1,354 @@
+/* The Help me panel: a quiet conversation in the builder's right panel, or a sheet on a phone. */
+.helpme {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1.5px solid var(--rule);
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    flex: none;
+}
+.helpme:hover,
+.helpme[aria-pressed="true"] {
+    border-color: var(--ink);
+}
+.helpme .glyph {
+    display: inline-flex;
+    width: 16px;
+    height: 16px;
+    color: var(--madder);
+}
+.helpme svg {
+    width: 100%;
+    height: 100%;
+}
+.build.locked .phone {
+    pointer-events: none;
+}
+.build.locked .phone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.28);
+}
+.build .side.helpside .side-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+.help {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+}
+.help-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 6px 16px 14px;
+}
+.help p {
+    margin: 0;
+}
+.help-lead {
+    color: var(--ink);
+}
+.help-first {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.help-small {
+    color: var(--faint);
+    font-size: 13px;
+}
+.help-small a,
+.help figcaption a {
+    color: inherit;
+    text-decoration: underline;
+}
+.help-you {
+    align-self: flex-end;
+    max-width: 85%;
+    background: var(--band);
+    border-radius: 14px 14px 4px 14px;
+    padding: 8px 12px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.help-note {
+    color: var(--soft);
+    font-size: 13.5px;
+}
+.help-reply {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+.help-changes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--soft);
+    font-size: 13.5px;
+}
+.help-changes li {
+    padding-left: 14px;
+    position: relative;
+}
+.help-changes li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.58em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--madder);
+}
+.help-undo {
+    color: var(--madder);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 2px 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.help-card {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1.5px solid var(--rule);
+    border-radius: 16px;
+    padding: 12px;
+    background: #fff;
+}
+.help-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.help-chip {
+    border: 1.5px solid var(--rule);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fff;
+    text-align: left;
+}
+.help-chip:hover:not(:disabled) {
+    border-color: var(--ink);
+}
+.help-go {
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13.5px;
+    font-weight: 700;
+    background: var(--ink);
+    color: #fff;
+}
+.help-go:disabled,
+.help-chip:disabled {
+    opacity: 0.5;
+}
+.help-photos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.help-photos figure {
+    margin: 0;
+    min-width: 0;
+}
+.help-photos button {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--band);
+}
+.help-photos img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.help-photos button:hover {
+    box-shadow: 0 0 0 2px var(--ink);
+}
+.help-photos figcaption {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.25;
+    color: var(--faint);
+    overflow-wrap: anywhere;
+}
+.help-working {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--soft);
+    font-size: 13.5px;
+}
+.help-working i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--madder);
+    animation: help-pulse 1.1s ease-in-out infinite;
+}
+@keyframes help-pulse {
+    50% {
+        opacity: 0.25;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .help-working i {
+        animation: none;
+    }
+}
+.help-form {
+    flex: none;
+    padding: 8px 12px 10px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #fff;
+    border-radius: 0 0 20px 20px;
+}
+.help-context {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--band);
+    border-radius: 999px;
+    padding: 2px 4px 2px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--soft);
+}
+.help-context button {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    padding: 3px;
+    color: var(--soft);
+}
+.help-context svg {
+    width: 100%;
+    height: 100%;
+}
+.help-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    border: 1.5px solid var(--rule);
+    border-radius: 20px;
+    padding: 5px 5px 5px 13px;
+    background: #fff;
+}
+.help-box:focus-within {
+    border-color: var(--ink);
+}
+.help-box textarea {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 5px 0;
+    resize: none;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--ink);
+    background: none;
+    max-height: 120px;
+}
+.help-box textarea::placeholder {
+    color: var(--faint);
+}
+.help-send {
+    flex: none;
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    padding: 7px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+}
+.help-send:disabled {
+    background: var(--line);
+    color: var(--soft);
+}
+.help-send .glyph,
+.help-send svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.help-stop {
+    flex: none;
+    height: 32px;
+    padding: 0 13px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    background: var(--band);
+    color: var(--ink);
+}
+.help-credits {
+    font-size: 12px;
+    color: var(--faint);
+    padding: 0 6px;
+}
+@media (max-width: 860px) {
+    .helpme {
+        padding: 7px 10px;
+        font-size: 13.5px;
+    }
+    .help-form {
+        border-radius: 0;
+    }
+}
+.start-about {
+    display: block;
+    width: 100%;
+    border: 1.5px solid var(--rule);
+    border-radius: 14px;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fff;
+    resize: vertical;
+}
+.start-about:focus {
+    outline: 0;
+    border-color: var(--ink);
+}
+.start-building {
+    margin: 6px 0 0;
+    color: var(--soft);
+    font-size: 14px;
+}

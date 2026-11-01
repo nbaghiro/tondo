@@ -27,6 +27,7 @@ const SECTION_ICONS: Record<string, string> = {
     tabs: '<rect x="3.5" y="8" width="17" height="11.5" rx="2"/><path d="M3.5 8V6a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 10.5 6v2"/>',
     gap: '<path d="M4 12h16M8 7l4-3 4 3M8 17l4 3 4-3"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+    spark: '<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8z"/>',
     brush: '<path d="M14.5 4.5 19.5 9.5 11 18l-5 1 1-5z"/>',
     list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
     check: '<path d="m6 12.5 4 4 8-9" stroke-width="2.4"/>',

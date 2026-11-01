@@ -10,6 +10,7 @@ import {
     makeSection,
     moveBlock,
     moveSection,
+    pageHash,
     removeBlock,
     removeSection,
     resetStyle,
@@ -59,6 +60,8 @@ export function createEditor(start: Start) {
     const [version, setVersion] = createSignal(0);
     const [chosenTabs, setChosenTabs] = createSignal<Readonly<Record<string, string>>>({});
     const [notice, setNotice] = createSignal("");
+    // A Help me turn's working copy. While it's set the page is on show but can't be edited.
+    const [turn, setTurn] = createSignal<Page | null>(null);
     // What a section last held in another style, so trying a style and coming back loses nothing.
     const earlier = new Map<string, Block[]>();
     let justAdded = false;
@@ -70,6 +73,7 @@ export function createEditor(start: Start) {
         setVersion((v) => v + 1);
     };
     const change = (next: Page, group?: string) => {
+        if (turn()) return;
         const before = page();
         if (next === before) return;
         history.record(before, group);
@@ -80,6 +84,7 @@ export function createEditor(start: Start) {
         if (id && id !== HEADER && !findSection(next, id)) setSelected(null);
     };
     const travel = (step: (current: Page) => Page | null) => {
+        if (turn()) return;
         const next = step(page());
         if (!next) return;
         clearMissingSelection(next);
@@ -130,7 +135,26 @@ export function createEditor(start: Start) {
     if (backup) saver.change(backup);
 
     return {
-        page,
+        page: () => turn() ?? page(),
+        /** Locks the page for a Help me turn. */
+        beginTurn() {
+            setTurn(page());
+        },
+        locked: () => turn() !== null,
+        showTurn: setTurn,
+        /** One turn is one undo step. Returns the page it left, or null if nothing changed. */
+        endTurn(next: Page | null) {
+            setTurn(null);
+            if (!next || pageHash(next) === pageHash(page())) return null;
+            change(next);
+            clearMissingSelection(next);
+            return next;
+        },
+        /** The person's tap on a card in Help me. */
+        commitPage(next: Page) {
+            change(next);
+            clearMissingSelection(next);
+        },
         selected,
         saver,
         changed,

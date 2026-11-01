@@ -1,0 +1,37 @@
+/* Help me on Home: one quiet row under the checklist, drawn like the rows inside it. */
+.home-help {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 18px;
+    color: var(--ink);
+}
+.home-help:hover {
+    background: var(--hover);
+}
+.home-help-mark {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--madder);
+}
+.home-help-mark svg.i {
+    width: 18px;
+    height: 18px;
+}
+.home-help b {
+    display: block;
+    font-weight: 700;
+}
+.home-help small {
+    display: block;
+    color: var(--soft);
+    font-size: 13px;
+}
+.home-help .go {
+    margin-left: auto;
+    flex: none;
+    color: var(--faint);
+}

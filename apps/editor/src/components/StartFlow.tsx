@@ -13,6 +13,7 @@ import {
 import type { Block, LookName, Page } from "@tondo/page";
 import { looks, paint } from "@tondo/render";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show, untrack } from "solid-js";
+import { loadAssistant, streamTurn } from "../lib/assistant-stream";
 import { GRIP } from "../lib/drawings";
 import { LivePage } from "./LivePage";
 import { LookTiles } from "./LookPanel";
@@ -71,6 +72,15 @@ export function StartFlow(props: {
     const [free, setFree] = createSignal(false);
     const [busy, setBusy] = createSignal(false);
     const [peek, setPeek] = createSignal(false);
+    // Optional: with Help me set up, a line about the page builds it. The flow works the same without.
+    const [canBuild, setCanBuild] = createSignal(false);
+    const [about, setAbout] = createSignal("");
+    const [built, setBuilt] = createSignal<Page | null>(null);
+    const [building, setBuilding] = createSignal(false);
+    const [buildNote, setBuildNote] = createSignal("");
+    loadAssistant()
+        .then((status) => setCanBuild(Boolean(status?.available && status.creditsLeft >= 3)))
+        .catch(() => undefined);
     const blocksByKey = new Map<string, Block[]>();
 
     const blocksFor = (key: string) => {
@@ -83,6 +93,19 @@ export function StartFlow(props: {
     };
     const page = createMemo<Page>(() => {
         const wordmark = mark();
+        const ready = built();
+        if (ready) {
+            return {
+                ...ready,
+                look: look(),
+                header: {
+                    ...ready.header,
+                    ...(wordmark !== "plain"
+                        ? { wordmark: wordmark as (typeof wordmarks)[number] }
+                        : {}),
+                },
+            };
+        }
         let next: Page = {
             version: PAGE_VERSION,
             look: look(),
@@ -135,9 +158,50 @@ export function StartFlow(props: {
         clearTimeout(timer);
     });
 
+    const build = async () => {
+        setBuilding(true);
+        setBuildNote("");
+        await streamTurn(
+            {
+                page: page(),
+                message: `My name, or my business, is ${name().trim()}. ${about().trim()}`,
+                history: [],
+                selected: null,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
+            AbortSignal.timeout(180_000),
+            (event) => {
+                // Nothing here is theirs yet, so there's nothing to ask before replacing.
+                const made =
+                    event.type === "offer" && event.offer.type === "replace"
+                        ? event.offer.page
+                        : event.type === "page"
+                          ? event.page
+                          : null;
+                if (made) {
+                    setBuilt(made);
+                    setLook(made.look);
+                    setStep(3);
+                }
+                if (event.type === "stopped") setBuildNote(event.message);
+            },
+        );
+    };
     const next = () => {
         const current = step();
         if (current === 0 && !name().trim()) return;
+        if (current === 0 && about().trim() && !built() && !building()) {
+            build()
+                .catch(() => {
+                    setBuildNote("That didn't work, so pick your sections instead.");
+                })
+                .finally(() => {
+                    setBuilding(false);
+                    // Whatever happened, they can carry on by hand.
+                    if (!built()) setStep(1);
+                });
+            return;
+        }
         if (current === 3 && !handle()) setHandle(toHandle(name()));
         if (current < 4) {
             setStep(current + 1);
@@ -237,6 +301,30 @@ export function StartFlow(props: {
                                     if (e.key === "Enter") next();
                                 }}
                             />
+                            <Show when={canBuild()}>
+                                <div class="gapped">
+                                    <label class="lbl" for="start-about">
+                                        Tell us about it, or paste your links (optional)
+                                    </label>
+                                    <textarea
+                                        id="start-about"
+                                        class="start-about"
+                                        rows={2}
+                                        maxLength={2000}
+                                        placeholder="I'm a dog walker in Halifax"
+                                        value={about()}
+                                        onInput={(e) => setAbout(e.currentTarget.value)}
+                                    />
+                                    <Show when={building()}>
+                                        <p class="start-building" role="status">
+                                            Building your page
+                                        </p>
+                                    </Show>
+                                    <Show when={buildNote()}>
+                                        <p class="start-building">{buildNote()}</p>
+                                    </Show>
+                                </div>
+                            </Show>
                             <div class="gapped">
                                 <span class="lbl">What's it mostly for?</span>
                                 <div class="chips">
@@ -413,7 +501,7 @@ export function StartFlow(props: {
                             class="go"
                             data-next
                             disabled={
-                                (step() === 0 && !name().trim()) ||
+                                (step() === 0 && (!name().trim() || building())) ||
                                 (step() === 4 && (!free() || busy()))
                             }
                             onClick={next}

@@ -77,6 +77,21 @@ const sections = [
             converted file is stored. Each file is stored in a folder named after a hash of your
             user ID.
         </p>
+        <h3>Help me</h3>
+        <p>
+            Help me is an optional assistant in the builder. If you use it, we send your message,
+            the text of your draft page and anything you paste or ask it to read to Google, which
+            runs the AI model through its Gemini API. We don't send your email address or your
+            statistics. If you ask it to read your website, our server fetches that page and sends
+            its text to Google. If you ask for a generated image, your description goes to Google.
+            If you ask for a stock photo, your search words go to Pexels or Openverse, and the photo
+            you pick is copied to your account. If you don't use Help me, none of this happens.
+        </p>
+        <p>
+            Your conversation stays in that browser tab and is gone when you close it. We keep no
+            copy of it on our servers. We count how many credits you've used each month, and not
+            what you asked. Visitors to your page are never involved.
+        </p>
         <h3>Messages you send us</h3>
         <p>
             If you email us, report a page or send a copyright complaint, we keep your email address
@@ -199,8 +214,8 @@ const sections = [
         <ul>
             <li>
                 <strong>Performing our contract with you:</strong> creating and signing in to your
-                account, storing your draft and photos, publishing your page, and sending account
-                codes.
+                account, storing your draft and photos, publishing your page, sending account codes,
+                and carrying out what you ask Help me to do.
             </li>
             <li>
                 <strong>Legitimate interests:</strong> rate limits and other security measures,
@@ -239,6 +254,17 @@ const sections = [
                 for everyone.
             </li>
             <li>
+                <strong>Google's Gemini API</strong> runs Help me, if you use it. It receives your
+                messages, your draft's text, text from a website you ask it to read, and image
+                descriptions. Tondo uses the paid service, under which Google says it doesn't use
+                prompts or responses to improve its products, and logs them for a limited period to
+                detect and prevent policy violations and for legal reasons.
+            </li>
+            <li>
+                <strong>Pexels and Openverse</strong> receive your search words if you ask Help me
+                for a stock photo.
+            </li>
+            <li>
                 <strong>Email delivery:</strong> Neon Auth sends account emails, through Neon's own
                 sender or an email provider we connect to it. We'll name any separate provider here
                 when we add one.
@@ -254,9 +280,9 @@ const sections = [
         <p>
             Tondo's database is set up in Neon's AWS us-east-2 region, and its server in Render's
             Ohio region, both in the United States. Google and Cloudflare can process data in other
-            countries, and our founder can access it from Canada. If you use Tondo from elsewhere,
-            your information will leave your country, and it can be available to courts and
-            authorities in the countries where it's held.
+            countries, including what Help me sends to Google, and our founder can access it from
+            Canada. If you use Tondo from elsewhere, your information will leave your country, and
+            it can be available to courts and authorities in the countries where it's held.
         </p>
         <p>
             Where the GDPR or UK GDPR requires a safeguard for a transfer, we rely on a mechanism
@@ -315,6 +341,12 @@ const sections = [
             <li>
                 We keep emails, reports and complaints for as long as we need them to handle the
                 matter, keep a record of decisions about abuse, and meet legal duties.
+            </li>
+            <li>
+                Credit counts stay until you delete your account. What Help me sends to Google stays
+                with Google for the limited period described above, and we can't delete it there.
+                Generated images you didn't pick are removed when you close their card, and ones you
+                keep are stored like your other photos.
             </li>
         </ul>
 

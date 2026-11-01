@@ -54,6 +54,10 @@ export default defineConfig({
                 S3_SECRET_KEY: "test",
                 SITE_URL: server,
                 EDITOR_URL: "/app",
+                // The stand-in plays the model. Empty keys stop .env supplying real ones.
+                TONDO_FAKE_AI: "1",
+                GOOGLE_API_KEY: "",
+                PEXELS_API_KEY: "",
             },
         },
     ],

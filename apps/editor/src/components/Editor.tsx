@@ -9,8 +9,10 @@ import { pageUrl, toLogin } from "../lib/account";
 import type { Account } from "../lib/account";
 import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
 import type { Backup } from "../state/storage";
+import { createAssistant } from "../state/assistant";
 import { createEditor, HEADER } from "../state/document";
 import { Canvas } from "./Canvas";
+import { HelpPanel } from "./HelpPanel";
 import { LookTiles, MakeItYours } from "./LookPanel";
 import { AddList, Glyph, PagePanel, Rail } from "./Panels";
 import { Phone } from "./Phone";
@@ -22,8 +24,8 @@ import { HeaderPanel, SectionPanel } from "./SectionPanel";
 import { TopBar } from "./TopBar";
 
 type Left = "page" | "add";
-type Right = "look" | "publish" | null;
-type Sheet = "page" | "add" | "look" | "section" | "publish" | null;
+type Right = "look" | "publish" | "help" | null;
+type Sheet = "page" | "add" | "look" | "section" | "publish" | "help" | null;
 
 /** How far the sheet's grip has to move to count as a drag and not a tap. */
 const GRIP_DRAG = 24;
@@ -118,6 +120,12 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             onLoggedOut: toLogin,
         }),
     );
+    const assistant = createAssistant(
+        editor,
+        untrack(() => props.account.handle),
+    );
+    assistant.load();
+    const [helpStart, setHelpStart] = createSignal<string | undefined>();
     const [publishing, setPublishing] = createSignal(false);
     const [serverIssues, setServerIssues] = createSignal<PublishIssue[]>([]);
     const [view, setView] = createSignal<PublishView | null>(null);
@@ -229,6 +237,18 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         editor.select(null);
         setRight("look");
         setSheet("look");
+    };
+    // Whatever's selected is what "this" means, so it stays with the question as the panel opens.
+    const openHelp = () => {
+        if (right() === "help") {
+            closeRight();
+            return;
+        }
+        assistant.choose(editor.selected());
+        editor.select(null);
+        setView(null);
+        setRight("help");
+        setSheet("help");
     };
     const [railed, setRailed] = createSignal(readRailed());
     const minimise = (on: boolean) => {
@@ -418,7 +438,10 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         const section = asked.get("section");
         if (!panel && !section) return;
         history.replaceState(null, "", location.pathname);
-        if (panel === "publish") {
+        if (panel === "help") {
+            setHelpStart(asked.get("ask") ?? undefined);
+            openHelp();
+        } else if (panel === "publish") {
             openPublishList().catch(() => undefined);
         } else if (panel === "look") {
             openLook();
@@ -491,7 +514,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         <div
             class="build"
             data-sheet={sheet() ?? undefined}
-            classList={{ previewing: previewing() }}
+            classList={{ previewing: previewing(), locked: editor.locked() }}
         >
             <div class="recovers">
                 <Show when={stale()}>
@@ -553,6 +576,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     onPreview={() => setPreviewing(true)}
                     publishing={publishing()}
                     onPublish={startPublish}
+                    onHelp={assistant.status()?.available ? openHelp : undefined}
+                    helping={right() === "help"}
                     suspended={props.draft.suspended}
                 />
                 <Phone id="phone">
@@ -715,6 +740,24 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                             }}
                         />
                     </Show>
+                </Panel>
+            </Show>
+            <Show when={!editor.selected() && right() === "help"}>
+                <Panel
+                    title="Help me"
+                    class="rside helpside"
+                    open={sheet() === "help"}
+                    {...panelBits}
+                    tall={tall()}
+                    onClose={closeRight}
+                >
+                    <HelpPanel
+                        assistant={assistant}
+                        editor={editor}
+                        start={helpStart()}
+                        onClose={closeRight}
+                        onPublish={startPublish}
+                    />
                 </Panel>
             </Show>
             <Show when={!editor.selected() && right() === "publish" && shownView()}>

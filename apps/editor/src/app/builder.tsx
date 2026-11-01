@@ -7,6 +7,7 @@ import type { Account, LoadedAccount } from "../lib/account";
 import { claimAddress, loadDraft } from "../lib/api";
 import "../styles/fields.css";
 import "../styles/builder.css";
+import "../styles/help.css";
 
 export async function mountEditor(root: HTMLElement, account: Account): Promise<void> {
     const draft = await loadDraft();

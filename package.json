@@ -38,7 +38,8 @@
         "scratchpad": "tsx scripts/serve-scratchpad.ts",
         "ports:audit": "tsx scripts/audit-ports.ts",
         "check": "pnpm format:check && pnpm check:suppressions && pnpm check:boundaries && pnpm check:ports && pnpm check:naming && pnpm lint && pnpm typecheck && pnpm test",
-        "check:naming": "tsx scripts/check-naming.ts"
+        "check:naming": "tsx scripts/check-naming.ts",
+        "assistant:eval": "tsx --env-file-if-exists=.env scripts/assistant-eval.ts"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
