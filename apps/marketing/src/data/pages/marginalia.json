@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "shelf",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Order a book for collection"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Staff picks"
         },
         {
             "id": "b6",
             "type": "link-card",
             "variant": "large",
+            "section": "b5",
             "url": "",
             "title": "The Salt Path Home",
             "text": "Rhona says: read it on a train, and miss your stop.",
@@ -53,6 +56,7 @@
             "id": "b7",
             "type": "link-card",
             "variant": "small",
+            "section": "b7",
             "url": "",
             "title": "Letters from a Small Harbour",
             "text": "Paperback, £11",
@@ -64,12 +68,14 @@
             "id": "b8",
             "type": "heading",
             "variant": "plain",
+            "section": "b8",
             "text": "Evenings at the shop"
         },
         {
             "id": "b9",
             "type": "events",
             "variant": "list",
+            "section": "b8",
             "items": [
                 {
                     "id": "i10",
@@ -92,12 +98,14 @@
             "id": "b12",
             "type": "heading",
             "variant": "plain",
+            "section": "b12",
             "text": "From our letter"
         },
         {
             "id": "b13",
             "type": "posts",
             "variant": "list",
+            "section": "b12",
             "items": [
                 {
                     "id": "i14",
@@ -118,6 +126,7 @@
             "id": "b16",
             "type": "location",
             "variant": "hours",
+            "section": "b16",
             "address": "14 Candlemaker Row, Edinburgh",
             "hours": [
                 {

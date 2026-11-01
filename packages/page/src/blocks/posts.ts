@@ -57,11 +57,11 @@ export const posts = defineBlock({
             {
                 id: "a",
                 title: "What a failed firing teaches you",
-                date: "October 22",
+                date: "September 30",
                 text: "The kiln ran hot, and most of it survived.",
                 url: "",
             },
-            { id: "b", title: "Choosing a first clay", date: "October 8", url: "" },
+            { id: "b", title: "Choosing a first clay", date: "September 12", url: "" },
         ],
     }),
     css: `.b-posts>*{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.b-posts small{display:block;font-size:13px;color:var(--mut)}.b-posts b{display:block;font:var(--dw,500) 18px/1.25 var(--disp)}.b-posts span{display:block;font-size:14.5px;color:var(--mut);margin-top:2px}.b-posts-c{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.b-posts-c>*{display:block;padding:13px;${cardCss};color:var(--cardfg)!important}.b-posts-c small,.b-posts-c span{display:block;font-size:13px;opacity:.72}.b-posts-c b{display:block;margin:3px 0;font:var(--dw,500) 16px/1.2 var(--disp)}`,

@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "calm",
     "header": {
         "layout": "look",
@@ -27,6 +27,7 @@
             "id": "b3",
             "type": "button",
             "variant": "filled",
+            "section": "b3",
             "url": "",
             "text": "Book a free 15-minute call"
         },
@@ -34,12 +35,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "What to expect"
         },
         {
             "id": "b5",
             "type": "timeline",
             "variant": "line",
+            "section": "b4",
             "items": [
                 {
                     "id": "i6",
@@ -64,12 +67,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Fees"
         },
         {
             "id": "b10",
             "type": "services",
             "variant": "list",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -92,12 +97,14 @@
             "id": "b13",
             "type": "heading",
             "variant": "plain",
+            "section": "b13",
             "text": "Common questions"
         },
         {
             "id": "b14",
             "type": "faq",
             "variant": "accordion",
+            "section": "b13",
             "items": [
                 {
                     "id": "i15",
@@ -115,6 +122,7 @@
             "id": "b17",
             "type": "contact",
             "variant": "list",
+            "section": "b17",
             "items": [
                 {
                     "id": "i18",

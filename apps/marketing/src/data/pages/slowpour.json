@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "roast",
     "header": {
         "layout": "look",
@@ -31,18 +31,21 @@
             "id": "b4",
             "type": "ribbon",
             "variant": "moving",
+            "section": "b4",
             "text": "Roasted on Mondays, posted on Tuesdays"
         },
         {
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Beans this month"
         },
         {
             "id": "b6",
             "type": "products",
             "variant": "grid",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -68,12 +71,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Never run out"
         },
         {
             "id": "b10",
             "type": "services",
             "variant": "tiers",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -97,12 +102,14 @@
             "id": "b13",
             "type": "heading",
             "variant": "plain",
+            "section": "b13",
             "text": "Visit the roastery"
         },
         {
             "id": "b14",
             "type": "link-card",
             "variant": "large",
+            "section": "b13",
             "url": "",
             "title": "Coffee bar, Saturdays only",
             "text": "We pour whatever we roasted that week.",
@@ -115,6 +122,7 @@
             "id": "b15",
             "type": "location",
             "variant": "hours",
+            "section": "b15",
             "address": "9 Old Wharf Lane, Hobart",
             "hours": [
                 {

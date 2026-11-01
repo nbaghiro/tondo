@@ -1,5 +1,6 @@
 import { allBlocks, readPage } from "@tondo/page";
 import type { Block, Page } from "@tondo/page";
+import { renderDocument } from "@tondo/render";
 
 // The gallery's pages are drawn as of this date, so their countdowns and events don't run out.
 export const GALLERY_DATE = new Date("2026-10-31T00:00:00Z");
@@ -15,3 +16,13 @@ export function firstBlock(handle: string, type: Block["type"]): Block {
     if (!found) throw new Error(`${handle} has no ${type} block.`);
     return found;
 }
+
+/** Drawn as a person's live page is. It leaves out link counting and the report link. */
+export const exampleHtml = (page: Page): string =>
+    renderDocument(page, {
+        title: page.header.name,
+        assetBase: "/photos/",
+        editable: false,
+        live: true,
+        now: GALLERY_DATE,
+    });

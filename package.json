@@ -29,6 +29,8 @@
         "test:watch": "vitest",
         "e2e": "playwright test",
         "examples:images": "tsx scripts/build-example-images.ts",
+        "examples:migrate": "tsx scripts/migrate-examples.ts",
+        "examples:load": "tsx scripts/load-example.ts",
         "looks:images": "tsx scripts/build-look-tiles.ts",
         "check:boundaries": "tsx scripts/check-boundaries.ts",
         "check:suppressions": "tsx scripts/check-suppressions.ts",

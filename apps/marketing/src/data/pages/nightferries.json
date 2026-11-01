@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "riso",
     "header": {
         "layout": "look",
@@ -37,6 +37,7 @@
             "id": "b5",
             "type": "button",
             "variant": "filled",
+            "section": "b5",
             "url": "",
             "text": "Listen to Low Water"
         },
@@ -44,12 +45,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "On the road"
         },
         {
             "id": "b7",
             "type": "events",
             "variant": "list",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -79,12 +82,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "Merch"
         },
         {
             "id": "b12",
             "type": "products",
             "variant": "grid",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",
@@ -110,6 +115,7 @@
             "id": "b15",
             "type": "signup",
             "variant": "card",
+            "section": "b15",
             "title": "Be first in the queue",
             "sub": "Tickets a day early, and not much else.",
             "cta": "Join"

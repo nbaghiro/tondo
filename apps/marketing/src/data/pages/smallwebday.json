@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "conf",
     "header": {
         "layout": "look",
@@ -12,6 +12,7 @@
             "id": "b1",
             "type": "countdown",
             "variant": "inline",
+            "section": "b1",
             "at": "2027-03-12T10:00",
             "label": "until the doors open"
         },
@@ -19,6 +20,7 @@
             "id": "b2",
             "type": "button",
             "variant": "filled",
+            "section": "b2",
             "url": "",
             "text": "Buy a ticket for €85"
         },
@@ -26,18 +28,21 @@
             "id": "b3",
             "type": "ribbon",
             "variant": "moving",
+            "section": "b3",
             "text": "Only 40 tickets left"
         },
         {
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Schedule"
         },
         {
             "id": "b5",
             "type": "tabs",
             "variant": "pills",
+            "section": "b4",
             "tabs": [
                 {
                     "id": "t6",
@@ -47,6 +52,7 @@
                             "id": "b7",
                             "type": "events",
                             "variant": "schedule",
+                            "section": "b7",
                             "items": [
                                 {
                                     "id": "i8",
@@ -81,6 +87,7 @@
                             "id": "b12",
                             "type": "events",
                             "variant": "schedule",
+                            "section": "b12",
                             "items": [
                                 {
                                     "id": "i13",
@@ -113,12 +120,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "Speakers"
         },
         {
             "id": "b17",
             "type": "team",
             "variant": "list",
+            "section": "b16",
             "items": [
                 {
                     "id": "i18",
@@ -155,6 +164,7 @@
             "id": "b21",
             "type": "logos",
             "variant": "row",
+            "section": "b21",
             "label": "With thanks to",
             "items": [
                 {

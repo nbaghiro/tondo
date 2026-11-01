@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "tide",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "link-card",
             "variant": "large",
+            "section": "b4",
             "url": "",
             "title": "Help us remove 40 tonnes this year",
             "text": "Every dollar goes to boats, bags and disposal.",
@@ -39,6 +40,7 @@
             "id": "b5",
             "type": "tip",
             "variant": "amounts",
+            "section": "b5",
             "title": "Give to the project",
             "sub": "Monthly gifts help us plan the season.",
             "amounts": [
@@ -68,6 +70,7 @@
             "id": "b10",
             "type": "stats",
             "variant": "row",
+            "section": "b10",
             "items": [
                 {
                     "id": "i11",
@@ -90,12 +93,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "Join a cleanup"
         },
         {
             "id": "b15",
             "type": "events",
             "variant": "list",
+            "section": "b14",
             "items": [
                 {
                     "id": "i16",
@@ -118,12 +123,14 @@
             "id": "b18",
             "type": "heading",
             "variant": "plain",
+            "section": "b18",
             "text": "With support from"
         },
         {
             "id": "b19",
             "type": "logos",
             "variant": "row",
+            "section": "b18",
             "items": [
                 {
                     "id": "i20",

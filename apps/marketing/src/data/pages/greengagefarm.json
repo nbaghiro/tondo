@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "harvest",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "gallery",
             "variant": "grid",
+            "section": "b4",
             "photos": [
                 {
                     "file": "market5.jpg",
@@ -47,6 +48,7 @@
             "id": "b8",
             "type": "button",
             "variant": "filled",
+            "section": "b8",
             "url": "",
             "text": "Get a box this season"
         },
@@ -54,12 +56,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "In the box this week"
         },
         {
             "id": "b10",
             "type": "services",
             "variant": "menu",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -95,12 +99,14 @@
             "id": "b15",
             "type": "heading",
             "variant": "plain",
+            "section": "b15",
             "text": "Choose a size"
         },
         {
             "id": "b16",
             "type": "services",
             "variant": "tiers",
+            "section": "b15",
             "items": [
                 {
                     "id": "i17",
@@ -124,12 +130,14 @@
             "id": "b19",
             "type": "heading",
             "variant": "plain",
+            "section": "b19",
             "text": "Where to pick up"
         },
         {
             "id": "b20",
             "type": "events",
             "variant": "schedule",
+            "section": "b19",
             "items": [
                 {
                     "id": "i21",

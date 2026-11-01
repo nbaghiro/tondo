@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "noir",
     "header": {
         "layout": "look",
@@ -32,6 +32,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a shoot"
         },
@@ -39,6 +40,7 @@
             "id": "b5",
             "type": "button",
             "variant": "outline",
+            "section": "b5",
             "url": "",
             "text": "See the portfolio"
         },
@@ -46,12 +48,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "Recent rolls"
         },
         {
             "id": "b7",
             "type": "gallery",
             "variant": "grid",
+            "section": "b6",
             "photos": [
                 {
                     "file": "landscape1.jpg",
@@ -83,12 +87,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "Prints"
         },
         {
             "id": "b15",
             "type": "link-card",
             "variant": "small",
+            "section": "b14",
             "url": "",
             "title": "Lake, first snow",
             "text": "Archival print from $90",
@@ -100,6 +106,7 @@
             "id": "b16",
             "type": "link-card",
             "variant": "small",
+            "section": "b14",
             "url": "",
             "title": "Above the fog",
             "text": "Archival print from $90",
@@ -111,6 +118,7 @@
             "id": "b17",
             "type": "video",
             "variant": "card",
+            "section": "b17",
             "items": [
                 {
                     "id": "i18",

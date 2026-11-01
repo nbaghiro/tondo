@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "rave",
     "header": {
         "layout": "look",
@@ -36,6 +36,7 @@
             "id": "b5",
             "type": "countdown",
             "variant": "large",
+            "section": "b5",
             "at": "2026-11-20T10:00",
             "label": "Next show"
         },
@@ -43,6 +44,7 @@
             "id": "b6",
             "type": "button",
             "variant": "filled",
+            "section": "b6",
             "url": "",
             "text": "Get tickets"
         },
@@ -50,12 +52,14 @@
             "id": "b7",
             "type": "ribbon",
             "variant": "moving",
+            "section": "b7",
             "text": "New mix out Friday"
         },
         {
             "id": "b8",
             "type": "music",
             "variant": "full",
+            "section": "b8",
             "url": "",
             "title": "Night Bus",
             "sub": "Mix 12, 58 minutes",
@@ -79,12 +83,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "From the booth"
         },
         {
             "id": "b12",
             "type": "video",
             "variant": "vertical",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",
@@ -119,6 +125,7 @@
             "id": "b16",
             "type": "tip",
             "variant": "amounts",
+            "section": "b16",
             "title": "Buy me a record",
             "sub": "It goes straight into the crate.",
             "amounts": [

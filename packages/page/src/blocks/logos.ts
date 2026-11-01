@@ -35,8 +35,8 @@ export const logos = defineBlock({
         label: "As seen in",
         items: [
             { id: "a", name: "Northern Review" },
-            { id: "b", name: "Kettle" },
-            { id: "c", name: "Halden" },
+            { id: "b", name: "The Morning Post" },
+            { id: "c", name: "The Local" },
         ],
     }),
     css: `.b-logos{margin-top:22px;text-align:center}.b-logos small{color:var(--mut);font-size:13px}.b-logos div{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;margin-top:8px;font-size:17px;font-weight:700;opacity:.86}.b-logos img{height:26px;width:auto}`,

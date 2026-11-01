@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "sumi",
     "header": {
         "layout": "look",
@@ -32,12 +32,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Books"
         },
         {
             "id": "b5",
             "type": "link-card",
             "variant": "large",
+            "section": "b4",
             "url": "",
             "title": "The Quiet Room",
             "text": "My second book of essays, out in March.",
@@ -50,6 +52,7 @@
             "id": "b6",
             "type": "quotes",
             "variant": "large",
+            "section": "b6",
             "items": [
                 {
                     "id": "i7",
@@ -62,12 +65,14 @@
             "id": "b8",
             "type": "heading",
             "variant": "plain",
+            "section": "b8",
             "text": "Recent essays"
         },
         {
             "id": "b9",
             "type": "button",
             "variant": "outline",
+            "section": "b8",
             "url": "",
             "text": "On leaving a house in winter"
         },
@@ -75,6 +80,7 @@
             "id": "b10",
             "type": "button",
             "variant": "outline",
+            "section": "b8",
             "url": "",
             "text": "What the kettle knows"
         },
@@ -82,6 +88,7 @@
             "id": "b11",
             "type": "button",
             "variant": "outline",
+            "section": "b8",
             "url": "",
             "text": "Letters I didn't send"
         },
@@ -89,6 +96,7 @@
             "id": "b12",
             "type": "signup",
             "variant": "card",
+            "section": "b12",
             "title": "Monthly letter",
             "sub": "One essay, on the first Sunday of each month.",
             "cta": "Subscribe"

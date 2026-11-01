@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "sap",
     "header": {
         "layout": "look",
@@ -27,6 +27,7 @@
             "id": "b3",
             "type": "button",
             "variant": "filled",
+            "section": "b3",
             "url": "",
             "text": "Book a design call"
         },
@@ -34,12 +35,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Recent weddings"
         },
         {
             "id": "b5",
             "type": "products",
             "variant": "grid",
+            "section": "b4",
             "items": [
                 {
                     "id": "i6",

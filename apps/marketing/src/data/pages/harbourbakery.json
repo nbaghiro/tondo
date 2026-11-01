@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "bake",
     "header": {
         "layout": "look",
@@ -29,6 +29,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Order for pickup"
         },
@@ -36,18 +37,21 @@
             "id": "b5",
             "type": "ribbon",
             "variant": "moving",
+            "section": "b5",
             "text": "Sourdough on Fridays"
         },
         {
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "Today's bakes"
         },
         {
             "id": "b7",
             "type": "products",
             "variant": "grid",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -94,12 +98,14 @@
             "id": "b12",
             "type": "heading",
             "variant": "plain",
+            "section": "b12",
             "text": "Come by"
         },
         {
             "id": "b13",
             "type": "link-card",
             "variant": "large",
+            "section": "b12",
             "url": "",
             "title": "Coffee and a seat by the window",
             "text": "Dogs welcome outside.",
@@ -112,6 +118,7 @@
             "id": "b14",
             "type": "location",
             "variant": "hours",
+            "section": "b14",
             "address": "42 Water Street, Halifax",
             "hours": [
                 {

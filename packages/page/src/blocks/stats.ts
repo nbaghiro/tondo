@@ -26,9 +26,9 @@ export const stats = defineBlock({
         type: "stats" as const,
         variant: "row" as const,
         items: [
-            { id: "a", number: "240+", label: "Clients" },
-            { id: "b", number: "11", label: "Years" },
-            { id: "c", number: "4.9", label: "Rating" },
+            { id: "a", number: "120+", label: "Clients" },
+            { id: "b", number: "8", label: "Years" },
+            { id: "c", number: "4.8", label: "Rating" },
         ],
     }),
     css: `.b-stats{display:flex;margin-top:14px;border-block:1px solid var(--line)}.b-stats div{flex:1;min-width:0;text-align:center;padding:12px 4px}.b-stats div+div{border-left:1px solid var(--line)}.b-stats b{display:block;font:var(--dw,500) 25px/1.1 var(--disp)}.b-stats small{display:block;font-size:12.5px;color:var(--mut);margin-top:2px}`,

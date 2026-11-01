@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "rovers",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "events",
             "variant": "next",
+            "section": "b4",
             "items": [
                 {
                     "id": "i5",
@@ -43,6 +44,7 @@
             "id": "b6",
             "type": "button",
             "variant": "filled",
+            "section": "b6",
             "url": "",
             "text": "Join a team"
         },
@@ -50,12 +52,14 @@
             "id": "b7",
             "type": "heading",
             "variant": "plain",
+            "section": "b7",
             "text": "Fixtures"
         },
         {
             "id": "b8",
             "type": "events",
             "variant": "list",
+            "section": "b7",
             "items": [
                 {
                     "id": "i9",
@@ -85,12 +89,14 @@
             "id": "b12",
             "type": "heading",
             "variant": "plain",
+            "section": "b12",
             "text": "Last weekend"
         },
         {
             "id": "b13",
             "type": "stats",
             "variant": "row",
+            "section": "b12",
             "items": [
                 {
                     "id": "i14",
@@ -113,6 +119,7 @@
             "id": "b17",
             "type": "link-card",
             "variant": "large",
+            "section": "b17",
             "url": "",
             "title": "Training is free to try",
             "text": "Come along to two sessions before you sign up.",
@@ -124,12 +131,14 @@
             "id": "b18",
             "type": "heading",
             "variant": "plain",
+            "section": "b18",
             "text": "Parents"
         },
         {
             "id": "b19",
             "type": "faq",
             "variant": "accordion",
+            "section": "b18",
             "items": [
                 {
                     "id": "i20",

@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "ink",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Request a booking"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Artists"
         },
         {
             "id": "b6",
             "type": "tabs",
             "variant": "pills",
+            "section": "b5",
             "tabs": [
                 {
                     "id": "t7",
@@ -50,6 +53,7 @@
                             "id": "b8",
                             "type": "text",
                             "variant": "plain",
+                            "section": "b8",
                             "text": "Large colour pieces and Japanese-influenced work. From £140 an hour."
                         }
                     ]
@@ -62,6 +66,7 @@
                             "id": "b10",
                             "type": "text",
                             "variant": "plain",
+                            "section": "b10",
                             "text": "Fine line, botanical and small pieces. Minimum £80."
                         }
                     ]
@@ -74,6 +79,7 @@
                             "id": "b12",
                             "type": "text",
                             "variant": "plain",
+                            "section": "b12",
                             "text": "Sasha Ivanova joins us from Berlin, December 3 to 12."
                         }
                     ]
@@ -84,6 +90,7 @@
             "id": "b13",
             "type": "form",
             "variant": "card",
+            "section": "b13",
             "title": "Tell us your idea",
             "sub": "Include size and where on the body. We reply within five days.",
             "questions": [
@@ -110,12 +117,14 @@
             "id": "b17",
             "type": "heading",
             "variant": "plain",
+            "section": "b17",
             "text": "Before you book"
         },
         {
             "id": "b18",
             "type": "faq",
             "variant": "accordion",
+            "section": "b17",
             "items": [
                 {
                     "id": "i19",
@@ -138,6 +147,7 @@
             "id": "b22",
             "type": "location",
             "variant": "map",
+            "section": "b22",
             "address": "9 King Street, Glasgow",
             "note": "Buzz for the second floor"
         }

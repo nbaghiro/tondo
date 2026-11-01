@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "second",
     "header": {
         "layout": "look",
@@ -33,6 +33,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a chair"
         },
@@ -40,12 +41,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Services"
         },
         {
             "id": "b6",
             "type": "services",
             "variant": "list",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -82,12 +85,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "What people say"
         },
         {
             "id": "b12",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",
@@ -110,12 +115,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "Find us"
         },
         {
             "id": "b17",
             "type": "location",
             "variant": "map",
+            "section": "b16",
             "address": "212 Second Street SW",
             "note": "Open today until 7 pm"
         }

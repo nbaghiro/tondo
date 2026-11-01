@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "keys",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a free trial lesson"
         },
@@ -35,6 +36,7 @@
             "id": "b5",
             "type": "countdown",
             "variant": "large",
+            "section": "b5",
             "at": "2026-12-12T10:00",
             "label": "Winter recital"
         },
@@ -42,12 +44,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "Lessons"
         },
         {
             "id": "b7",
             "type": "services",
             "variant": "tiers",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -71,6 +75,7 @@
             "id": "b10",
             "type": "link-card",
             "variant": "large",
+            "section": "b10",
             "url": "",
             "title": "I've never played. Is it too late?",
             "text": "No. About a third of my students started as adults.",
@@ -82,12 +87,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "Questions"
         },
         {
             "id": "b12",
             "type": "faq",
             "variant": "accordion",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",

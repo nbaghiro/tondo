@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "crumb",
     "header": {
         "layout": "look",
@@ -32,6 +32,7 @@
             "id": "b4",
             "type": "stats",
             "variant": "row",
+            "section": "b4",
             "items": [
                 {
                     "id": "i5",
@@ -54,6 +55,7 @@
             "id": "b8",
             "type": "button",
             "variant": "filled",
+            "section": "b8",
             "url": "",
             "text": "Join the January class"
         },
@@ -61,12 +63,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "What you'll bake"
         },
         {
             "id": "b10",
             "type": "timeline",
             "variant": "line",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -92,12 +96,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "Choose how you learn"
         },
         {
             "id": "b15",
             "type": "services",
             "variant": "tiers",
+            "section": "b14",
             "items": [
                 {
                     "id": "i16",
@@ -121,6 +127,7 @@
             "id": "b18",
             "type": "video",
             "variant": "card",
+            "section": "b18",
             "items": [
                 {
                     "id": "i19",
@@ -137,6 +144,7 @@
             "id": "b20",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b20",
             "items": [
                 {
                     "id": "i21",

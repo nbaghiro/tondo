@@ -36,7 +36,7 @@ export const products = defineBlock({
             fields: [
                 photo("photo", "Photo"),
                 text("name", "Name", { max: 50 }),
-                text("price", "Price", { max: 24, placeholder: "From $48 CAD" }),
+                text("price", "Price", { max: 24, placeholder: "From $32 CAD" }),
                 link("url", "Where to buy it"),
             ],
             make: () => ({ name: "New product", url: "", photo: { file: "ceramic0.jpg" } }),
@@ -48,15 +48,15 @@ export const products = defineBlock({
         items: [
             {
                 id: "a",
-                name: "Tall ash vase",
-                price: "$145 CAD",
+                name: "Small ash bowl",
+                price: "$85 CAD",
                 url: "",
                 photo: { file: "ceramic7.jpg" },
             },
             {
                 id: "b",
-                name: "Made to order mugs",
-                price: "From $48 CAD",
+                name: "Made to order plates",
+                price: "From $32 CAD",
                 url: "",
                 photo: { file: "potter0.jpg" },
             },

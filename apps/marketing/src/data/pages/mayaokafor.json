@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "madder",
     "header": {
         "layout": "look",
@@ -38,6 +38,7 @@
             "id": "b5",
             "type": "link-card",
             "variant": "large",
+            "section": "b5",
             "url": "",
             "title": "The autumn studio sale",
             "text": "Seconds, test glazes and a few favourites, until November 22.",
@@ -52,12 +53,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "New work"
         },
         {
             "id": "b7",
             "type": "products",
             "variant": "grid",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -83,12 +86,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Workshops"
         },
         {
             "id": "b11",
             "type": "events",
             "variant": "list",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -118,6 +123,7 @@
             "id": "b15",
             "type": "signup",
             "variant": "card",
+            "section": "b15",
             "title": "Studio letter",
             "sub": "Kiln openings and sale dates, about once a month.",
             "cta": "Join"

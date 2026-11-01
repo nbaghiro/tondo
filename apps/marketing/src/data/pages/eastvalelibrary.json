@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "stacks",
     "header": {
         "layout": "look",
@@ -27,6 +27,7 @@
             "id": "b4",
             "type": "services",
             "variant": "list",
+            "section": "b4",
             "items": [
                 {
                     "id": "i5",
@@ -52,6 +53,7 @@
             "id": "b8",
             "type": "button",
             "variant": "filled",
+            "section": "b8",
             "url": "",
             "text": "Search the catalogue"
         },
@@ -59,6 +61,7 @@
             "id": "b9",
             "type": "button",
             "variant": "outline",
+            "section": "b9",
             "url": "",
             "text": "Get a library card"
         },
@@ -66,12 +69,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "This week"
         },
         {
             "id": "b11",
             "type": "events",
             "variant": "list",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -101,12 +106,14 @@
             "id": "b15",
             "type": "heading",
             "variant": "plain",
+            "section": "b15",
             "text": "Beyond books"
         },
         {
             "id": "b16",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b15",
             "photos": [
                 {
                     "file": "shelves4.jpg",
@@ -129,6 +136,7 @@
             "id": "b20",
             "type": "location",
             "variant": "hours",
+            "section": "b20",
             "address": "120 Mill Road, Eastvale",
             "hours": [
                 {

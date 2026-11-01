@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "sap",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b3",
             "type": "button",
             "variant": "filled",
+            "section": "b3",
             "url": "",
             "text": "Ask about your date"
         },
@@ -35,12 +36,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Favourite stems"
         },
         {
             "id": "b5",
             "type": "products",
             "variant": "grid",
+            "section": "b4",
             "items": [
                 {
                     "id": "i6",

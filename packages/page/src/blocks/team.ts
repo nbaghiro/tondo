@@ -47,17 +47,22 @@ export const team = defineBlock({
         items: [
             {
                 id: "a",
-                name: "June Aster",
-                role: "Founder",
+                name: "Joan Avery",
+                role: "Owner",
                 photo: { file: "woman24.jpg", x: 54, y: 30 },
             },
             {
                 id: "b",
-                name: "Rae Bell",
-                role: "Weddings",
+                name: "Ren Cole",
+                role: "Events",
                 photo: { file: "woman25.jpg", x: 85, y: 30 },
             },
-            { id: "c", name: "Ana Ruiz", role: "Studio", photo: { file: "woman22.jpg", y: 35 } },
+            {
+                id: "c",
+                name: "Ana Diaz",
+                role: "Front desk",
+                photo: { file: "woman22.jpg", y: 35 },
+            },
         ],
     }),
     css: `.b-team{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;text-align:center}.b-team span{display:block;aspect-ratio:1;border-radius:50%;overflow:hidden;margin-bottom:7px;background:var(--line)}.b-team b{display:block;font-size:14.5px;line-height:1.2}.b-team small{font-size:12.5px;color:var(--mut)}

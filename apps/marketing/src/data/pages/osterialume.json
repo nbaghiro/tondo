@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "lume",
     "header": {
         "layout": "look",
@@ -32,6 +32,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Reserve a table"
         },
@@ -39,6 +40,7 @@
             "id": "b5",
             "type": "tabs",
             "variant": "pills",
+            "section": "b5",
             "tabs": [
                 {
                     "id": "t6",
@@ -48,6 +50,7 @@
                             "id": "b7",
                             "type": "services",
                             "variant": "menu",
+                            "section": "b7",
                             "items": [
                                 {
                                     "id": "i8",
@@ -89,6 +92,7 @@
                             "id": "b13",
                             "type": "services",
                             "variant": "menu",
+                            "section": "b13",
                             "items": [
                                 {
                                     "id": "i14",
@@ -123,6 +127,7 @@
                             "id": "b18",
                             "type": "location",
                             "variant": "map",
+                            "section": "b18",
                             "address": "18 Fort Street, Victoria",
                             "note": "Five minutes from the harbour"
                         },
@@ -130,6 +135,7 @@
                             "id": "b19",
                             "type": "location",
                             "variant": "hours",
+                            "section": "b19",
                             "address": "Walk-ins welcome at the bar",
                             "hours": [
                                 {
@@ -152,12 +158,14 @@
             "id": "b22",
             "type": "heading",
             "variant": "plain",
+            "section": "b22",
             "text": "From the kitchen"
         },
         {
             "id": "b23",
             "type": "gallery",
             "variant": "grid",
+            "section": "b22",
             "photos": [
                 {
                     "file": "pasta9.jpg",

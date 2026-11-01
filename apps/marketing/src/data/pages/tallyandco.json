@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "ledger",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "services",
             "variant": "list",
+            "section": "b4",
             "items": [
                 {
                     "id": "i5",
@@ -53,6 +54,7 @@
             "id": "b8",
             "type": "countdown",
             "variant": "inline",
+            "section": "b8",
             "at": "2027-01-30T10:00",
             "label": "until the January tax deadline"
         },
@@ -60,6 +62,7 @@
             "id": "b9",
             "type": "button",
             "variant": "filled",
+            "section": "b9",
             "url": "",
             "text": "Book a free 20-minute call"
         },
@@ -67,12 +70,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Plans"
         },
         {
             "id": "b11",
             "type": "services",
             "variant": "tiers",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -96,12 +101,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "Get ready"
         },
         {
             "id": "b15",
             "type": "file",
             "variant": "card",
+            "section": "b14",
             "title": "Tax return checklist",
             "sub": "PDF, 1 page"
         },
@@ -109,6 +116,7 @@
             "id": "b16",
             "type": "file",
             "variant": "card",
+            "section": "b16",
             "title": "Allowable expenses, in plain English",
             "sub": "PDF, 4 pages"
         },
@@ -116,12 +124,14 @@
             "id": "b17",
             "type": "heading",
             "variant": "plain",
+            "section": "b17",
             "text": "Questions"
         },
         {
             "id": "b18",
             "type": "faq",
             "variant": "accordion",
+            "section": "b17",
             "items": [
                 {
                     "id": "i19",

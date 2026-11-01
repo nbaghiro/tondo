@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "brine",
     "header": {
         "layout": "look",
@@ -31,6 +31,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Check dates"
         },
@@ -38,12 +39,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Rooms"
         },
         {
             "id": "b6",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b5",
             "photos": [
                 {
                     "file": "house4.jpg",
@@ -66,12 +69,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Staying with us"
         },
         {
             "id": "b11",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -89,6 +94,7 @@
             "id": "b14",
             "type": "faq",
             "variant": "accordion",
+            "section": "b14",
             "items": [
                 {
                     "id": "i15",
@@ -111,6 +117,7 @@
             "id": "b18",
             "type": "location",
             "variant": "map",
+            "section": "b18",
             "address": "212 Shore Road, Ingonish",
             "note": "45 minutes from the highway"
         }

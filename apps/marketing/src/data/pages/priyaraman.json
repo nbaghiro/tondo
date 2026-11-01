@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "indigo",
     "header": {
         "layout": "look",
@@ -33,6 +33,7 @@
             "id": "b4",
             "type": "booking",
             "variant": "slots",
+            "section": "b4",
             "url": "",
             "title": "Book a free 20-minute call",
             "sub": "Next available: Tuesday, November 3",
@@ -50,12 +51,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Start here"
         },
         {
             "id": "b6",
             "type": "link-card",
             "variant": "large",
+            "section": "b5",
             "url": "",
             "title": "The two-week reset",
             "text": "A simple meal plan with shopping lists. PDF, 32 pages.",
@@ -68,6 +71,7 @@
             "id": "b7",
             "type": "link-card",
             "variant": "small",
+            "section": "b7",
             "url": "",
             "title": "Lunches that keep",
             "text": "12 recipes to make on Sunday",
@@ -79,6 +83,7 @@
             "id": "b8",
             "type": "link-card",
             "variant": "small",
+            "section": "b7",
             "url": "",
             "title": "Eating around your training",
             "text": "Free guide",
@@ -91,6 +96,7 @@
             "id": "b9",
             "type": "quotes",
             "variant": "large",
+            "section": "b9",
             "items": [
                 {
                     "id": "i10",
@@ -103,6 +109,7 @@
             "id": "b11",
             "type": "signup",
             "variant": "card",
+            "section": "b11",
             "title": "One recipe a week",
             "sub": "A short email every Sunday.",
             "cta": "Join"

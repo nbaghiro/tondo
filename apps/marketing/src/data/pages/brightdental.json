@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "smile",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a check-up"
         },
@@ -35,6 +36,7 @@
             "id": "b5",
             "type": "button",
             "variant": "outline",
+            "section": "b5",
             "url": "",
             "text": "Tooth pain today? Call us"
         },
@@ -42,12 +44,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "What we do"
         },
         {
             "id": "b7",
             "type": "services",
             "variant": "list",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -77,12 +81,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "Questions we hear"
         },
         {
             "id": "b12",
             "type": "faq",
             "variant": "accordion",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",
@@ -105,6 +111,7 @@
             "id": "b16",
             "type": "location",
             "variant": "hours",
+            "section": "b16",
             "address": "44 Bright Street, Ottawa",
             "hours": [
                 {

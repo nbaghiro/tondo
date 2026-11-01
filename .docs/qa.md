@@ -18,6 +18,14 @@ Start the servers (`pnpm services:up`, `pnpm db:migrate`, `pnpm dev`), then open
 10. **Two tabs.** Edit in both. The second gets the conflict bar with Use the latest, Keep mine and Download mine.
 11. **Report link.** A live free page has a small Report link at the bottom. It opens `/report`.
 
+## Trying an example page in the builder
+
+`pnpm examples:load <example> <handle>` copies an example page into the draft of a local account, so you can open it at `/edit` like any other page. For example, `pnpm examples:load lowtidesurf maya`. The example is the file's name in `apps/marketing/src/data/pages`, and the account must already have that address.
+
+It replaces that account's draft and leaves its live page alone. It refuses to run with `NODE_ENV=production` or against any database that isn't on this machine.
+
+A button or card with no link doesn't show on a live page, so these look the same as in the gallery until you give them one. Publishing asks for those links. Sections that show "Not available yet" use a block that isn't ready, and they stop a page publishing until they're removed.
+
 ## Starting up
 
 ```sh

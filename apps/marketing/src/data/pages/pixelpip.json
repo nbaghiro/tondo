@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "pixel",
     "header": {
         "layout": "look",
@@ -33,12 +33,14 @@
             "id": "b5",
             "type": "ribbon",
             "variant": "still",
+            "section": "b5",
             "text": "Live now. 1,204 people are watching"
         },
         {
             "id": "b6",
             "type": "button",
             "variant": "filled",
+            "section": "b6",
             "url": "",
             "text": "Watch the stream"
         },
@@ -46,6 +48,7 @@
             "id": "b7",
             "type": "stats",
             "variant": "row",
+            "section": "b7",
             "items": [
                 {
                     "id": "i8",
@@ -68,12 +71,14 @@
             "id": "b11",
             "type": "heading",
             "variant": "plain",
+            "section": "b11",
             "text": "Schedule"
         },
         {
             "id": "b12",
             "type": "events",
             "variant": "schedule",
+            "section": "b11",
             "items": [
                 {
                     "id": "i13",
@@ -102,12 +107,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "Best clips"
         },
         {
             "id": "b17",
             "type": "video",
             "variant": "vertical",
+            "section": "b16",
             "items": [
                 {
                     "id": "i18",
@@ -142,12 +149,14 @@
             "id": "b21",
             "type": "heading",
             "variant": "plain",
+            "section": "b21",
             "text": "Join the party"
         },
         {
             "id": "b22",
             "type": "services",
             "variant": "tiers",
+            "section": "b21",
             "items": [
                 {
                     "id": "i23",
@@ -171,6 +180,7 @@
             "id": "b25",
             "type": "tip",
             "variant": "amounts",
+            "section": "b25",
             "title": "Buy pip a snack",
             "sub": "It really does go on snacks.",
             "amounts": [

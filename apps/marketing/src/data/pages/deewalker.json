@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "volt",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "stats",
             "variant": "row",
+            "section": "b4",
             "items": [
                 {
                     "id": "i5",
@@ -50,12 +51,14 @@
             "id": "b8",
             "type": "heading",
             "variant": "plain",
+            "section": "b8",
             "text": "PLANS"
         },
         {
             "id": "b9",
             "type": "services",
             "variant": "tiers",
+            "section": "b8",
             "items": [
                 {
                     "id": "i10",
@@ -86,12 +89,14 @@
             "id": "b13",
             "type": "heading",
             "variant": "plain",
+            "section": "b13",
             "text": "RESULTS"
         },
         {
             "id": "b14",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b13",
             "items": [
                 {
                     "id": "i15",
@@ -109,12 +114,14 @@
             "id": "b17",
             "type": "heading",
             "variant": "plain",
+            "section": "b17",
             "text": "QUESTIONS"
         },
         {
             "id": "b18",
             "type": "faq",
             "variant": "accordion",
+            "section": "b17",
             "items": [
                 {
                     "id": "i19",

@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "nix",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book with Nix"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Menu"
         },
         {
             "id": "b6",
             "type": "services",
             "variant": "list",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -70,12 +73,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Recent sets"
         },
         {
             "id": "b11",
             "type": "link-card",
             "variant": "large",
+            "section": "b10",
             "url": "",
             "title": "This month's colours",
             "text": "Twelve new shades, from tomato to wine.",
@@ -87,12 +92,14 @@
             "id": "b12",
             "type": "heading",
             "variant": "plain",
+            "section": "b12",
             "text": "Before you book"
         },
         {
             "id": "b13",
             "type": "faq",
             "variant": "accordion",
+            "section": "b12",
             "items": [
                 {
                     "id": "i14",

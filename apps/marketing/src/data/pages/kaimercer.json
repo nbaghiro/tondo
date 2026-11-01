@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "lagoon",
     "header": {
         "layout": "look",
@@ -37,6 +37,7 @@
             "id": "b5",
             "type": "stats",
             "variant": "row",
+            "section": "b5",
             "items": [
                 {
                     "id": "i6",
@@ -59,6 +60,7 @@
             "id": "b9",
             "type": "gallery",
             "variant": "grid",
+            "section": "b9",
             "photos": [
                 {
                     "file": "beach2.jpg",
@@ -90,12 +92,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "On TikTok"
         },
         {
             "id": "b17",
             "type": "video",
             "variant": "vertical",
+            "section": "b16",
             "items": [
                 {
                     "id": "i18",
@@ -130,12 +134,14 @@
             "id": "b21",
             "type": "heading",
             "variant": "plain",
+            "section": "b21",
             "text": "Work with me"
         },
         {
             "id": "b22",
             "type": "logos",
             "variant": "row",
+            "section": "b21",
             "label": "Brands I've worked with",
             "items": [
                 {
@@ -160,6 +166,7 @@
             "id": "b27",
             "type": "file",
             "variant": "card",
+            "section": "b27",
             "title": "Media kit, autumn 2026",
             "sub": "PDF, 6 pages"
         },
@@ -167,6 +174,7 @@
             "id": "b28",
             "type": "button",
             "variant": "filled",
+            "section": "b28",
             "url": "",
             "text": "Enquire about a campaign"
         }

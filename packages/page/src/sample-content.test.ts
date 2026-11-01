@@ -125,7 +125,7 @@ describe("sample content, field by field", () => {
         edited = withField(edited, "url", "https://example.com/sale");
         const text = live([edited]);
         expect(text).toContain("Autumn sale");
-        for (const words of ["why it matters", "Take a look", '"New"']) {
+        for (const words of ["why it matters", "Take a look", '"Just in"']) {
             expect(text).not.toContain(words);
         }
     });

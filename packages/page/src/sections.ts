@@ -124,7 +124,7 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
                 text: "Tell people why it matters, in one line.",
                 cta: "Take a look",
                 url: "",
-                tag: "New",
+                tag: "Just in",
             }),
         ],
     },
@@ -251,8 +251,8 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
                 items: items(
                     [
                         ["First service", "30 minutes", "$40"],
-                        ["Second service", "1 hour", "$75"],
-                        ["Third service", "Half a day", "$180"],
+                        ["Second service", "An hour", "$75"],
+                        ["Third service", "Half a day", "$185"],
                     ],
                     ([name, detail, price], i) => ({
                         name,
@@ -532,7 +532,7 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
                           note: "Open today until 5 pm",
                           hours: items(
                               [
-                                  ["Mon to Fri", "9 am to 5 pm"],
+                                  ["Mon to Fri", "9 am to 6 pm"],
                                   ["Sat", "10 am to 2 pm"],
                               ],
                               ([d, time]) => ({ days: d, time }),
@@ -569,7 +569,7 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
             like(style, {
                 items: items(
                     [
-                        ["Your name", "Founder"],
+                        ["Your name", "Your role"],
                         ["Teammate", "Helps out"],
                         ["Teammate", "Helps out"],
                     ],
@@ -1036,7 +1036,12 @@ export function addLinkToSection(
     ]);
 }
 
+const isHeldBlock = (block: Block): boolean =>
+    blockDefinitions[block.type].held ||
+    Boolean(blockDefinitions[block.type].layouts[block.variant]?.held);
+
 export function sectionStatus(section: Section): string | null {
+    if (section.blocks.some(isHeldBlock)) return "Not available yet";
     const problem = section.blocks.map(blockProblem).find(Boolean);
     if (section.blocks.some((block) => block.type !== "tabs" && hasPlaceholder(block))) {
         return section.definition.key === "photos" ? "Add your photos" : "Add a photo";

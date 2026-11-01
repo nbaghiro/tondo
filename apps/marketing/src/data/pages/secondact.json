@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "atelier",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "countdown",
             "variant": "inline",
+            "section": "b4",
             "at": "2026-11-05T10:00",
             "label": "until the winter drop, Friday at noon"
         },
@@ -35,6 +36,7 @@
             "id": "b5",
             "type": "link-card",
             "variant": "large",
+            "section": "b5",
             "url": "",
             "title": "The black lace dress",
             "text": "1950s, cotton lace, small. One only.",
@@ -49,12 +51,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "Also in the shop"
         },
         {
             "id": "b7",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b6",
             "photos": [
                 {
                     "file": "clothes7.jpg",
@@ -86,6 +90,7 @@
             "id": "b12",
             "type": "quotes",
             "variant": "large",
+            "section": "b12",
             "items": [
                 {
                     "id": "i13",
@@ -98,6 +103,7 @@
             "id": "b14",
             "type": "signup",
             "variant": "card",
+            "section": "b14",
             "title": "First look at each drop",
             "sub": "A short email the day before.",
             "cta": "Join"

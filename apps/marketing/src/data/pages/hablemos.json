@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "postal",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a free trial lesson"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Lessons this week"
         },
         {
             "id": "b6",
             "type": "events",
             "variant": "schedule",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -70,12 +73,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Prices"
         },
         {
             "id": "b11",
             "type": "services",
             "variant": "list",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -105,6 +110,7 @@
             "id": "b15",
             "type": "file",
             "variant": "card",
+            "section": "b15",
             "title": "100 phrases for your first trip",
             "sub": "Free PDF, with audio"
         },
@@ -112,12 +118,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "From my students"
         },
         {
             "id": "b17",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b16",
             "items": [
                 {
                     "id": "i18",

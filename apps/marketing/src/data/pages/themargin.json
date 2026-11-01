@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "press",
     "header": {
         "layout": "look",
@@ -12,6 +12,7 @@
             "id": "b1",
             "type": "signup",
             "variant": "card",
+            "section": "b1",
             "title": "Read it on Sundays",
             "sub": "Free, and one click to leave.",
             "cta": "Subscribe"
@@ -20,6 +21,7 @@
             "id": "b2",
             "type": "stats",
             "variant": "row",
+            "section": "b2",
             "items": [
                 {
                     "id": "i3",
@@ -42,12 +44,14 @@
             "id": "b6",
             "type": "heading",
             "variant": "plain",
+            "section": "b6",
             "text": "Latest issues"
         },
         {
             "id": "b7",
             "type": "posts",
             "variant": "list",
+            "section": "b6",
             "items": [
                 {
                     "id": "i8",
@@ -76,6 +80,7 @@
             "id": "b11",
             "type": "quotes",
             "variant": "large",
+            "section": "b11",
             "items": [
                 {
                     "id": "i12",
@@ -88,6 +93,7 @@
             "id": "b13",
             "type": "button",
             "variant": "outline",
+            "section": "b13",
             "url": "",
             "text": "Read the archive"
         }

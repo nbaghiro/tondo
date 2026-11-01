@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "estate",
     "header": {
         "layout": "look",
@@ -16,6 +16,7 @@
             "id": "b1",
             "type": "stats",
             "variant": "row",
+            "section": "b1",
             "items": [
                 {
                     "id": "i2",
@@ -38,12 +39,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Open this weekend"
         },
         {
             "id": "b6",
             "type": "link-card",
             "variant": "large",
+            "section": "b5",
             "url": "",
             "title": "2840 Lonsdale Avenue",
             "text": "4 beds, 3 baths, ocean views. Open Saturday 2 to 4 pm.",
@@ -57,6 +60,7 @@
             "id": "b7",
             "type": "link-card",
             "variant": "small",
+            "section": "b7",
             "url": "",
             "title": "1104, 188 Keith Road",
             "text": "2 beds, 2 baths. $1,120,000",
@@ -68,6 +72,7 @@
             "id": "b8",
             "type": "link-card",
             "variant": "small",
+            "section": "b7",
             "url": "",
             "title": "37 Forbes Lane",
             "text": "3 beds, 2 baths. $1,685,000",
@@ -79,12 +84,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Talk to me"
         },
         {
             "id": "b10",
             "type": "contact",
             "variant": "list",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",

@@ -37,14 +37,14 @@ export const timeline = defineBlock({
         items: [
             {
                 id: "a",
-                date: "2021 to now",
-                title: "Independent",
+                date: "2022 to now",
+                title: "Freelance",
                 detail: "Small design systems",
             },
             {
                 id: "b",
-                date: "2016 to 2021",
-                title: "Design lead, Halden",
+                date: "2017 to 2022",
+                title: "Design lead, Northway",
                 detail: "Grew the team to nine",
             },
         ],

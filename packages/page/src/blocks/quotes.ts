@@ -34,7 +34,7 @@ export const quotes = defineBlock({
         variant: "large" as const,
         items: [
             { id: "a", text: "The only mug I reach for every morning.", by: "Dana, customer" },
-            { id: "b", text: "Quick, friendly and on time every visit.", by: "Mel, customer" },
+            { id: "b", text: "Friendly, careful and always on time.", by: "Mel, customer" },
         ],
     }),
     css: `.b-quote{margin:18px 0 0;font:var(--dw,500) 20px/1.32 var(--disp);text-align:var(--hal,left)}.b-quote small{display:block;font:500 13.5px var(--body);color:var(--mut);margin-top:9px}.b-quote-card{background:var(--card);color:var(--cardfg);border:var(--line-b,1px solid var(--line));border-radius:var(--r);padding:16px;margin-top:10px;font-size:18px;box-shadow:var(--sh,none)}.b-quote-card small{color:inherit;opacity:.72}

@@ -41,12 +41,12 @@ export const location = defineBlock({
     make: () => ({
         type: "location" as const,
         variant: "both" as const,
-        address: "42 Water Street, Halifax",
+        address: "18 Harbour Road, Halifax",
         note: "Open today until 3 pm",
         hours: [
-            { id: "a", days: "Tue to Fri", time: "7 am to 3 pm" },
-            { id: "b", days: "Sat and Sun", time: "8 am to 2 pm" },
-            { id: "c", days: "Mon", time: "Closed" },
+            { id: "a", days: "Tue to Fri", time: "7 am to 4 pm" },
+            { id: "b", days: "Sat and Sun", time: "8 am to 12 pm" },
+            { id: "c", days: "Mon", time: "Closed all day" },
         ],
     }),
     css: `.b-hours{background:var(--card);color:var(--cardfg);border-radius:var(--r);border:var(--line-b,1px solid var(--line));padding:15px;margin-top:10px;box-shadow:var(--sh,none)}.b-hours dl{margin:0}.b-hours dl div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}.b-hours dt{font-weight:600}.b-hours dd{margin:0}.b-hours a{display:flex;gap:7px;align-items:center;margin-top:11px;font-weight:600;font-size:14.5px}.b-hours .ic{width:20px;height:20px;flex:none}

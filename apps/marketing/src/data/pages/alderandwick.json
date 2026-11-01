@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "wax",
     "header": {
         "layout": "look",
@@ -32,6 +32,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Shop this season's scents"
         },
@@ -39,12 +40,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "This season"
         },
         {
             "id": "b6",
             "type": "products",
             "variant": "grid",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -71,12 +74,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Refills"
         },
         {
             "id": "b10",
             "type": "services",
             "variant": "tiers",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -100,6 +105,7 @@
             "id": "b13",
             "type": "stats",
             "variant": "row",
+            "section": "b13",
             "items": [
                 {
                     "id": "i14",

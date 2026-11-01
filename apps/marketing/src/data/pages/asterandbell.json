@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "sap",
     "header": {
         "layout": "look",
@@ -31,6 +31,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Plan your wedding flowers"
         },
@@ -38,12 +39,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Order this week"
         },
         {
             "id": "b6",
             "type": "products",
             "variant": "grid",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -70,18 +73,21 @@
             "id": "b9",
             "type": "ribbon",
             "variant": "moving",
+            "section": "b9",
             "text": "Same-day delivery in Portland before noon"
         },
         {
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Weddings and events"
         },
         {
             "id": "b11",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b10",
             "photos": [
                 {
                     "file": "bouquet8.jpg",
@@ -104,12 +110,14 @@
             "id": "b15",
             "type": "heading",
             "variant": "plain",
+            "section": "b15",
             "text": "Who you'll work with"
         },
         {
             "id": "b16",
             "type": "team",
             "variant": "circles",
+            "section": "b15",
             "items": [
                 {
                     "id": "i17",
@@ -141,6 +149,7 @@
             "id": "b20",
             "type": "signup",
             "variant": "card",
+            "section": "b20",
             "title": "Ask about a date",
             "sub": "We usually reply within two working days.",
             "cta": "Send"

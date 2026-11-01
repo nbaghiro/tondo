@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "scrap",
     "header": {
         "layout": "look",
@@ -31,6 +31,7 @@
             "id": "b4",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b4",
             "photos": [
                 {
                     "file": "coffee9.jpg",
@@ -53,6 +54,7 @@
             "id": "b8",
             "type": "button",
             "variant": "filled",
+            "section": "b8",
             "url": "",
             "text": "See my résumé"
         },
@@ -60,12 +62,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "What I'm up to"
         },
         {
             "id": "b10",
             "type": "timeline",
             "variant": "line",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -90,12 +94,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "Things I've made"
         },
         {
             "id": "b15",
             "type": "link-card",
             "variant": "small",
+            "section": "b14",
             "url": "",
             "title": "Notes for new nursing students",
             "text": "A free 20-page guide I wrote",
@@ -107,6 +113,7 @@
             "id": "b16",
             "type": "link-card",
             "variant": "small",
+            "section": "b14",
             "url": "",
             "title": "My blog about placements",
             "text": "Updated when I've slept",
@@ -118,12 +125,14 @@
             "id": "b17",
             "type": "heading",
             "variant": "plain",
+            "section": "b17",
             "text": "Say hello"
         },
         {
             "id": "b18",
             "type": "contact",
             "variant": "list",
+            "section": "b17",
             "items": [
                 {
                     "id": "i19",

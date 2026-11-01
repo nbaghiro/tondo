@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "comet",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Order ahead for pickup"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Where we'll be"
         },
         {
             "id": "b6",
             "type": "events",
             "variant": "schedule",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -69,12 +72,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "Menu"
         },
         {
             "id": "b11",
             "type": "link-card",
             "variant": "large",
+            "section": "b10",
             "url": "",
             "title": "Three tacos, one drink",
             "text": "Our usual order, for $14.",
@@ -87,6 +92,7 @@
             "id": "b12",
             "type": "services",
             "variant": "menu",
+            "section": "b12",
             "items": [
                 {
                     "id": "i13",
@@ -115,12 +121,14 @@
             "id": "b16",
             "type": "heading",
             "variant": "plain",
+            "section": "b16",
             "text": "Book the truck"
         },
         {
             "id": "b17",
             "type": "button",
             "variant": "outline",
+            "section": "b16",
             "url": "",
             "text": "Ask about your party"
         }

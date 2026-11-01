@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "surf",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a lesson"
         },
@@ -35,6 +36,7 @@
             "id": "b5",
             "type": "stats",
             "variant": "row",
+            "section": "b5",
             "items": [
                 {
                     "id": "i6",
@@ -57,12 +59,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Lessons"
         },
         {
             "id": "b10",
             "type": "services",
             "variant": "list",
+            "section": "b9",
             "items": [
                 {
                     "id": "i11",
@@ -92,12 +96,14 @@
             "id": "b14",
             "type": "heading",
             "variant": "plain",
+            "section": "b14",
             "text": "The beach this week"
         },
         {
             "id": "b15",
             "type": "gallery",
             "variant": "carousel",
+            "section": "b14",
             "photos": [
                 {
                     "file": "beach2.jpg",
@@ -120,6 +126,7 @@
             "id": "b19",
             "type": "quotes",
             "variant": "carousel",
+            "section": "b19",
             "items": [
                 {
                     "id": "i20",
@@ -137,12 +144,14 @@
             "id": "b22",
             "type": "heading",
             "variant": "plain",
+            "section": "b22",
             "text": "Before you come"
         },
         {
             "id": "b23",
             "type": "faq",
             "variant": "accordion",
+            "section": "b22",
             "items": [
                 {
                     "id": "i24",

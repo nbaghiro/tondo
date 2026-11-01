@@ -23,7 +23,7 @@ export const file = defineBlock({
         type: "file" as const,
         variant: "card" as const,
         title: "Care guide for your pots",
-        sub: "PDF, 4 pages",
+        sub: "PDF, 7 pages",
     }),
     css: `.b-file{display:flex;align-items:center;gap:12px;margin-top:10px;${cardCss};color:var(--cardfg)!important;padding:12px 14px}.b-file>span:nth-child(2){flex:1;min-width:0}.b-file b{display:block;line-height:1.2}.b-file small{font-size:13px;opacity:.72}.b-file .ic{flex:none;color:var(--acc)}`,
     render: (block, ctx) =>

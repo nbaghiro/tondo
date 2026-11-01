@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "counsel",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Book a 30-minute first meeting"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "What I can help with"
         },
         {
             "id": "b6",
             "type": "services",
             "variant": "list",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -66,12 +69,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "How we'd work"
         },
         {
             "id": "b11",
             "type": "timeline",
             "variant": "line",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -97,12 +102,14 @@
             "id": "b15",
             "type": "heading",
             "variant": "plain",
+            "section": "b15",
             "text": "Common questions"
         },
         {
             "id": "b16",
             "type": "faq",
             "variant": "accordion",
+            "section": "b15",
             "items": [
                 {
                     "id": "i17",

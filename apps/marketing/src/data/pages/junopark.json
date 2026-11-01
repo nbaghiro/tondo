@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "cutout",
     "header": {
         "layout": "look",
@@ -28,6 +28,7 @@
             "id": "b4",
             "type": "button",
             "variant": "filled",
+            "section": "b4",
             "url": "",
             "text": "Commissions open for February"
         },
@@ -35,12 +36,14 @@
             "id": "b5",
             "type": "heading",
             "variant": "plain",
+            "section": "b5",
             "text": "Prints"
         },
         {
             "id": "b6",
             "type": "products",
             "variant": "grid",
+            "section": "b5",
             "items": [
                 {
                     "id": "i7",
@@ -66,12 +69,14 @@
             "id": "b9",
             "type": "heading",
             "variant": "plain",
+            "section": "b9",
             "text": "Selected clients"
         },
         {
             "id": "b10",
             "type": "logos",
             "variant": "row",
+            "section": "b9",
             "label": "Books and packaging for",
             "items": [
                 {
@@ -92,6 +97,7 @@
             "id": "b14",
             "type": "form",
             "variant": "card",
+            "section": "b14",
             "title": "Tell me about your project",
             "sub": "I reply within a week.",
             "questions": [

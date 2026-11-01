@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "glass",
     "header": {
         "layout": "look",
@@ -28,12 +28,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Join us"
         },
         {
             "id": "b5",
             "type": "events",
             "variant": "schedule",
+            "section": "b4",
             "items": [
                 {
                     "id": "i6",
@@ -62,6 +64,7 @@
             "id": "b9",
             "type": "button",
             "variant": "filled",
+            "section": "b9",
             "url": "",
             "text": "Watch last Sunday's service"
         },
@@ -69,12 +72,14 @@
             "id": "b10",
             "type": "heading",
             "variant": "plain",
+            "section": "b10",
             "text": "This month"
         },
         {
             "id": "b11",
             "type": "events",
             "variant": "list",
+            "section": "b10",
             "items": [
                 {
                     "id": "i12",
@@ -97,6 +102,7 @@
             "id": "b14",
             "type": "tip",
             "variant": "amounts",
+            "section": "b14",
             "title": "Give to the parish",
             "sub": "This keeps the food bank and the building going.",
             "amounts": [
@@ -123,6 +129,7 @@
             "id": "b19",
             "type": "contact",
             "variant": "list",
+            "section": "b19",
             "items": [
                 {
                     "id": "i20",

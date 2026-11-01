@@ -47,13 +47,13 @@ export const music = defineBlock({
         type: "music" as const,
         variant: "full" as const,
         url: "",
-        title: "Slow Weather",
-        sub: "New album, 9 songs",
+        title: "Long Evenings",
+        sub: "New album, 8 songs",
         cover: { file: "concert3.jpg" },
         tracks: [
-            { id: "a", name: "Harbour Lights", length: "3:42" },
-            { id: "b", name: "Slow Weather", length: "4:18" },
-            { id: "c", name: "Call Me Back", length: "3:06" },
+            { id: "a", name: "Night Bus", length: "3:51" },
+            { id: "b", name: "Long Evenings", length: "4:02" },
+            { id: "c", name: "Ring Me Later", length: "3:15" },
         ],
     }),
     css: `.b-player{display:block;background:var(--pl,var(--card));color:var(--plfg,var(--cardfg))!important;border-radius:var(--r);padding:12px;margin-top:10px;border:var(--line-b,1px solid var(--line));box-shadow:var(--sh,none)}.b-pt{display:grid;grid-template-columns:110px 1fr;gap:13px;align-items:center}.b-cover{display:block;height:110px;border-radius:calc(var(--r) - 6px);overflow:hidden}.b-pm b{display:block;font:var(--dw,500) 20px/1.15 var(--disp)}.b-pm small{display:block;opacity:.75;font-size:13.5px}.b-ctl{display:flex;align-items:center;gap:13px;margin-top:9px}.b-ctl i{display:grid;place-items:center;width:40px;height:40px;background:var(--plfg,var(--cardfg));color:var(--pl,var(--card));border-radius:50%}.b-ctl .ic{width:20px;height:20px}.b-player ol{margin:11px 0 0;padding:0 0 0 22px;font-size:14.5px}.b-player li{padding:6px 0;border-top:1px solid var(--line)}.b-player li span{display:inline-block;width:calc(100% - 44px)}.b-player li small{opacity:.7}

@@ -52,6 +52,7 @@ const RULES: Readonly<Record<string, Rule>> = {
     countdown: { keep: ["label"] },
     events: { keep: ["cta"] },
     services: { keep: ["cta"] },
+    signup: { keep: ["cta"] },
     "video.items": { keep: ["title"] },
     "products.items": { needs: ["name", "photo"], asks: "its own name" },
     "services.items": { needs: ["name"], asks: "its own name" },

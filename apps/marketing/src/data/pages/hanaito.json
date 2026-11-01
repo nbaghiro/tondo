@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "look": "plaster",
     "header": {
         "layout": "look",
@@ -31,12 +31,14 @@
             "id": "b4",
             "type": "heading",
             "variant": "plain",
+            "section": "b4",
             "text": "Projects"
         },
         {
             "id": "b5",
             "type": "gallery",
             "variant": "mosaic",
+            "section": "b4",
             "photos": [
                 {
                     "file": "house5.jpg",
@@ -68,12 +70,14 @@
             "id": "b12",
             "type": "heading",
             "variant": "plain",
+            "section": "b12",
             "text": "How we work"
         },
         {
             "id": "b13",
             "type": "timeline",
             "variant": "line",
+            "section": "b12",
             "items": [
                 {
                     "id": "i14",
@@ -96,6 +100,7 @@
             "id": "b17",
             "type": "quotes",
             "variant": "large",
+            "section": "b17",
             "items": [
                 {
                     "id": "i18",
@@ -108,6 +113,7 @@
             "id": "b19",
             "type": "form",
             "variant": "card",
+            "section": "b19",
             "title": "Tell me about your home",
             "sub": "I take on six projects a year and reply within a week.",
             "questions": [
