@@ -188,6 +188,14 @@ body {
 .ex-row.is-moving {
     overflow-x: clip;
     overflow-y: visible;
+    touch-action: pan-y;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ex-row.is-dragging,
+.ex-row.is-dragging a {
+    cursor: grabbing;
 }
 .ex-track {
     display: flex;
@@ -224,22 +232,6 @@ body {
     display: block;
     width: 100%;
     height: auto;
-}
-.ex-steps {
-    display: none;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-.ex-step {
-    width: 46px;
-    height: 46px;
-    background: #fff;
-    border: 1.5px solid var(--line);
-    border-radius: 50%;
-    color: var(--ink);
-    font-size: 19px;
-    cursor: pointer;
 }
 .ex figcaption {
     margin-top: 13px;
@@ -461,9 +453,6 @@ body {
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .ex-steps {
-        display: flex;
-    }
     .ex-phone {
         transition: none;
     }
@@ -954,20 +943,5 @@ body {
     }
     .m .pv h2 {
         font-size: 28px;
-    }
-}
-.ex-controls {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-}
-.ex-pause {
-    width: auto;
-    padding: 6px 16px;
-    font-size: 14.5px;
-}
-@media (prefers-reduced-motion: reduce) {
-    .ex-controls {
-        display: none;
     }
 }

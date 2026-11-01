@@ -25,19 +25,6 @@ import PagePreview from "./PagePreview.astro";
             ))}
         </div>
     </div>
-    <div class="ex-controls">
-        <button type="button" class="ex-step ex-pause" data-pause aria-pressed="false">
-            Pause
-        </button>
-    </div>
-    <div class="ex-steps">
-        <button type="button" class="ex-step" data-step="-1" aria-label="Previous pages">
-            ←
-        </button>
-        <button type="button" class="ex-step" data-step="1" aria-label="Next pages">
-            →
-        </button>
-    </div>
     <PagePreview />
 </section>
 
@@ -45,6 +32,9 @@ import PagePreview from "./PagePreview.astro";
     const SPEED = 26;
     const HOVER_SPEED = 6;
     const EASE_MS = 450;
+    const RESUME_MS = 1200;
+    const DRAG_PX = 8;
+    const COAST_MS = 320;
 
     const row = document.querySelector<HTMLElement>("[data-strip]");
     const track = row?.querySelector<HTMLElement>(".ex-track");
@@ -69,9 +59,12 @@ import PagePreview from "./PagePreview.astro";
         let speed = still.matches ? 0 : SPEED;
         let hovering = false;
         let focused = false;
-        let paused = false;
         let visible = true;
+        let dragging = false;
         let last = 0;
+        // Manual movement: where a person last touched the strip, and the speed they let go at.
+        let touchedAt = -Infinity;
+        let coast = 0;
 
         const draw = () => {
             track.style.transform = `translate3d(${-x}px, 0, 0)`;
@@ -80,14 +73,24 @@ import PagePreview from "./PagePreview.astro";
             const width = setWidth();
             x = ((x % width) + width) % width;
         };
+        // Takes over from the automatic motion at once, and it eases back after a moment.
+        const moveBy = (px: number) => {
+            speed = 0;
+            coast = 0;
+            touchedAt = performance.now();
+            x += px;
+            wrap();
+            draw();
+        };
         const frame = (now: number) => {
             const ms = Math.min(now - last, 100);
             last = now;
             if (visible && !still.matches) {
-                const target = focused || paused ? 0 : hovering ? HOVER_SPEED : SPEED;
+                const busy = focused || dragging || now - touchedAt < RESUME_MS;
+                const target = busy ? 0 : hovering ? HOVER_SPEED : SPEED;
                 speed += (target - speed) * (1 - Math.exp(-ms / EASE_MS));
-                if (paused) speed = 0;
-                x += (speed * ms) / 1000;
+                coast *= Math.exp(-ms / COAST_MS);
+                x += ((speed + coast) * ms) / 1000;
                 wrap();
                 draw();
             }
@@ -97,15 +100,6 @@ import PagePreview from "./PagePreview.astro";
         requestAnimationFrame((now) => {
             last = now;
             frame(now);
-        });
-
-        document.querySelector("[data-pause]")?.addEventListener("click", (event) => {
-            paused = !paused;
-            const button = event.currentTarget;
-            if (button instanceof HTMLElement) {
-                button.textContent = paused ? "Play" : "Pause";
-                button.setAttribute("aria-pressed", String(paused));
-            }
         });
 
         new IntersectionObserver((entries) => {
@@ -137,14 +131,75 @@ import PagePreview from "./PagePreview.astro";
             focused = false;
         });
 
-        for (const button of document.querySelectorAll<HTMLButtonElement>("[data-step]")) {
-            button.addEventListener("click", () => {
-                const card = originals[0];
-                const step = card instanceof HTMLElement ? card.offsetWidth + 26 : 336;
-                x += step * Number(button.getAttribute("data-step"));
-                wrap();
-                draw();
-            });
-        }
+        // Touch keeps vertical page scrolling through touch-action: pan-y, so the browser cancels the
+        // pointer if the gesture turns out to be a scroll, and only sideways movement reaches us.
+        let pointer: number | null = null;
+        let startX = 0;
+        let lastX = 0;
+        let lastAt = 0;
+        let flick = 0;
+        let dragged = false;
+        row.addEventListener("pointerdown", (event) => {
+            if (event.button !== 0) return;
+            pointer = event.pointerId;
+            startX = lastX = event.clientX;
+            lastAt = event.timeStamp;
+            flick = 0;
+            dragged = false;
+        });
+        row.addEventListener("pointermove", (event) => {
+            if (event.pointerId !== pointer) return;
+            if (!dragging) {
+                if (Math.abs(event.clientX - startX) < DRAG_PX) return;
+                dragging = dragged = true;
+                row.classList.add("is-dragging");
+                row.setPointerCapture(event.pointerId);
+                lastX = event.clientX;
+                lastAt = event.timeStamp;
+            }
+            const moved = lastX - event.clientX;
+            const ms = event.timeStamp - lastAt;
+            if (ms > 0) flick = (moved / ms) * 1000;
+            lastX = event.clientX;
+            lastAt = event.timeStamp;
+            moveBy(moved);
+        });
+        const release = (event: PointerEvent) => {
+            if (event.pointerId !== pointer) return;
+            pointer = null;
+            if (!dragging) return;
+            dragging = false;
+            row.classList.remove("is-dragging");
+            touchedAt = performance.now();
+            // A hand held still before letting go shouldn't send the strip anywhere.
+            coast = !still.matches && event.timeStamp - lastAt < 80 ? flick : 0;
+        };
+        row.addEventListener("pointerup", release);
+        row.addEventListener("pointercancel", release);
+        // A drag ends with a click on the card under it, which must not open that page.
+        row.addEventListener(
+            "click",
+            (event) => {
+                if (!dragged) return;
+                dragged = false;
+                // Enter on a focused card is also a click, and has no pointer behind it.
+                if (event.detail === 0) return;
+                event.preventDefault();
+                event.stopPropagation();
+            },
+            true,
+        );
+        row.addEventListener("dragstart", (event) => {
+            event.preventDefault();
+        });
+        row.addEventListener(
+            "wheel",
+            (event) => {
+                if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+                event.preventDefault();
+                moveBy(event.deltaX);
+            },
+            { passive: false },
+        );
     }
 </script>
