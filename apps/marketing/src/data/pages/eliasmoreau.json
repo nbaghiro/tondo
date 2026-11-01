@@ -1,0 +1,105 @@
+{
+    "version": 1,
+    "look": "keys",
+    "header": {
+        "layout": "look",
+        "name": "Piano with Elias",
+        "tagline": "Lessons for children and adults, in Montreal and online",
+        "links": [
+            {
+                "id": "l1",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "phone",
+                "value": "tel:6045550100"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a free trial lesson"
+        },
+        {
+            "id": "b5",
+            "type": "countdown",
+            "variant": "large",
+            "at": "2026-12-12T10:00",
+            "label": "Winter recital"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Lessons"
+        },
+        {
+            "id": "b7",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "30 minutes",
+                    "price": "$38 a lesson",
+                    "url": "",
+                    "included": "Ages 6 to 10\nWeekly\nPractice plan"
+                },
+                {
+                    "id": "i9",
+                    "name": "45 minutes",
+                    "price": "$54 a lesson",
+                    "url": "",
+                    "included": "Teens and adults\nTheory included\nExam preparation",
+                    "popular": true
+                }
+            ],
+            "cta": "Try one"
+        },
+        {
+            "id": "b10",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "I've never played. Is it too late?",
+            "text": "No. About a third of my students started as adults.",
+            "photo": {
+                "file": "piano2.jpg"
+            }
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Questions"
+        },
+        {
+            "id": "b12",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i13",
+                    "question": "Do we need a piano at home?",
+                    "answer": "A weighted keyboard is fine to begin with."
+                },
+                {
+                    "id": "i14",
+                    "question": "What if we miss a lesson?",
+                    "answer": "Tell me a day ahead and we'll move it."
+                }
+            ]
+        }
+    ]
+}

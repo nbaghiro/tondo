@@ -1,0 +1,128 @@
+{
+    "version": 1,
+    "look": "fern",
+    "header": {
+        "layout": "look",
+        "name": "Understory",
+        "bio": "Houseplants for low light, delivered around Bristol by bike.",
+        "photo": {
+            "file": "plant2.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Shop all plants"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "In this week"
+        },
+        {
+            "id": "b6",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Croton Petra",
+            "text": "Medium, 30 cm. £24",
+            "photo": {
+                "file": "plant1.jpg"
+            }
+        },
+        {
+            "id": "b7",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Velvet philodendron",
+            "text": "Small, 20 cm. £18",
+            "photo": {
+                "file": "plant4.jpg"
+            }
+        },
+        {
+            "id": "b8",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "String of hearts",
+            "text": "Hanging pot. £22",
+            "photo": {
+                "file": "plant10.jpg"
+            }
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Free care guides"
+        },
+        {
+            "id": "b10",
+            "type": "file",
+            "variant": "card",
+            "title": "Keeping plants alive in low light",
+            "sub": "PDF, 12 pages"
+        },
+        {
+            "id": "b11",
+            "type": "file",
+            "variant": "card",
+            "title": "How much to water, by plant",
+            "sub": "PDF, 1 page"
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "From the journal"
+        },
+        {
+            "id": "b13",
+            "type": "posts",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i14",
+                    "title": "Five plants for a north-facing flat",
+                    "date": "October 22",
+                    "url": ""
+                },
+                {
+                    "id": "i15",
+                    "title": "Why your leaves are going yellow",
+                    "date": "October 8",
+                    "url": ""
+                },
+                {
+                    "id": "i16",
+                    "title": "Repotting, and when not to",
+                    "date": "September 19",
+                    "url": ""
+                }
+            ]
+        }
+    ]
+}

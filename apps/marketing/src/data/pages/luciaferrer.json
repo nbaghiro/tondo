@@ -1,0 +1,141 @@
+{
+    "version": 1,
+    "look": "scrap",
+    "header": {
+        "layout": "look",
+        "name": "Hi, I'm Lucía",
+        "bio": "Final-year nursing student in Valencia, looking for my first job from June. This is everything of mine in one place.",
+        "photo": {
+            "file": "coffee9.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "globe",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "coffee9.jpg",
+                    "id": "i5",
+                    "caption": "coffee"
+                },
+                {
+                    "file": "mountain8.jpg",
+                    "id": "i6",
+                    "caption": "weekend walks"
+                },
+                {
+                    "file": "laptop1.jpg",
+                    "id": "i7",
+                    "caption": "my desk"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "See my résumé"
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What I'm up to"
+        },
+        {
+            "id": "b10",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i11",
+                    "title": "Placement on a children's ward",
+                    "date": "Now",
+                    "detail": "At a Valencia hospital, until March"
+                },
+                {
+                    "id": "i12",
+                    "title": "Volunteer, summer health clinic",
+                    "date": "2025",
+                    "detail": "Vaccinations and first aid"
+                },
+                {
+                    "id": "i13",
+                    "title": "Started nursing school",
+                    "date": "2023"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Things I've made"
+        },
+        {
+            "id": "b15",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Notes for new nursing students",
+            "text": "A free 20-page guide I wrote",
+            "photo": {
+                "file": "book2.jpg"
+            }
+        },
+        {
+            "id": "b16",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "My blog about placements",
+            "text": "Updated when I've slept",
+            "photo": {
+                "file": "desk1.jpg"
+            }
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Say hello"
+        },
+        {
+            "id": "b18",
+            "type": "contact",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i19",
+                    "type": "mail",
+                    "value": "mailto:lucia@example.com"
+                },
+                {
+                    "id": "i20",
+                    "type": "chat",
+                    "value": "https://example.com"
+                }
+            ]
+        }
+    ]
+}

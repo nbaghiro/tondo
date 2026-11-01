@@ -1,0 +1,118 @@
+{
+    "version": 1,
+    "look": "riso",
+    "header": {
+        "layout": "look",
+        "name": "The Night Ferries",
+        "bio": "Four-piece from Dublin. New record, Low Water, out now.",
+        "photo": {
+            "file": "concert9.jpg",
+            "y": 40
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "spotify",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "apple",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l4",
+                "type": "instagram",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Listen to Low Water"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "On the road"
+        },
+        {
+            "id": "b7",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Dublin",
+                    "at": "2027-02-03T10:00",
+                    "place": "Whelan's Back Room",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "Glasgow",
+                    "at": "2027-02-06T10:00",
+                    "place": "The Lantern",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "name": "London",
+                    "at": "2027-02-09T10:00",
+                    "place": "Sea Wall",
+                    "url": ""
+                }
+            ],
+            "cta": "Tickets"
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Merch"
+        },
+        {
+            "id": "b12",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i13",
+                    "photo": {
+                        "file": "concert3.jpg"
+                    },
+                    "name": "Low Water on vinyl",
+                    "price": "€28",
+                    "url": ""
+                },
+                {
+                    "id": "i14",
+                    "photo": {
+                        "file": "concert0.jpg"
+                    },
+                    "name": "Tour poster, signed",
+                    "price": "€15",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "signup",
+            "variant": "card",
+            "title": "Be first in the queue",
+            "sub": "Tickets a day early, and not much else.",
+            "cta": "Join"
+        }
+    ]
+}

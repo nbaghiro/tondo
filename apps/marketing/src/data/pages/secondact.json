@@ -1,0 +1,106 @@
+{
+    "version": 1,
+    "look": "atelier",
+    "header": {
+        "layout": "look",
+        "name": "Second Act",
+        "tagline": "Dresses from 1890 to 1960, restored in Lisbon",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "countdown",
+            "variant": "inline",
+            "at": "2026-11-05T10:00",
+            "label": "until the winter drop, Friday at noon"
+        },
+        {
+            "id": "b5",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "The black lace dress",
+            "text": "1950s, cotton lace, small. One only.",
+            "photo": {
+                "file": "clothes10.jpg",
+                "y": 20
+            },
+            "cta": "Buy for €420",
+            "tag": "Piece of the week"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Also in the shop"
+        },
+        {
+            "id": "b7",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "clothes7.jpg",
+                    "y": 30,
+                    "id": "i8",
+                    "caption": "Silk bodice, 1890s"
+                },
+                {
+                    "file": "clothes8.jpg",
+                    "y": 30,
+                    "id": "i9",
+                    "caption": "Printed day dress"
+                },
+                {
+                    "file": "clothes11.jpg",
+                    "y": 30,
+                    "id": "i10",
+                    "caption": "Bias gown, 1930s"
+                },
+                {
+                    "file": "clothes9.jpg",
+                    "y": 30,
+                    "id": "i11",
+                    "caption": "Dark floral gown"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "quotes",
+            "variant": "large",
+            "items": [
+                {
+                    "id": "i13",
+                    "text": "Each dress is cleaned, mended and measured before it's listed.",
+                    "by": "How we work"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "signup",
+            "variant": "card",
+            "title": "First look at each drop",
+            "sub": "A short email the day before.",
+            "cta": "Join"
+        }
+    ]
+}

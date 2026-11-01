@@ -21,13 +21,7 @@ const { id, handle, name, role, look } = Astro.props;
 >
     <figure style="margin:0">
         <div class="ex-phone">
-            <img
-                src={`/examples/assets/shots/${id}.jpg`}
-                alt=""
-                width="390"
-                height="844"
-                loading="lazy"
-            />
+            <img src={`/shots/${id}.jpg`} alt="" width="390" height="844" loading="lazy" />
         </div>
         <figcaption>
             <b>{name}</b>

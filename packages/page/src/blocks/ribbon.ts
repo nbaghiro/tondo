@@ -3,11 +3,11 @@ import { blockSchema, defineBlock, editableText, escapeHtml } from "../define-bl
 import { text } from "../fields";
 
 export const ribbon = defineBlock({
-    schema: blockSchema("ribbon", ["moving", "still"], { text: z.string().max(40) }),
+    schema: blockSchema("ribbon", ["moving", "still"], { text: z.string().max(60) }),
     name: "Ribbon",
     group: "words",
     layouts: { moving: { label: "Moving" }, still: { label: "Still" } },
-    fields: [text("text", "Message", { max: 40 })],
+    fields: [text("text", "Message", { max: 60 })],
     make: () => ({
         type: "ribbon" as const,
         variant: "moving" as const,

@@ -956,3 +956,18 @@ body {
         font-size: 28px;
     }
 }
+.ex-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.ex-pause {
+    width: auto;
+    padding: 6px 16px;
+    font-size: 14.5px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .ex-controls {
+        display: none;
+    }
+}

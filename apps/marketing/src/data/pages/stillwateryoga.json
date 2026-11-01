@@ -1,0 +1,176 @@
+{
+    "version": 1,
+    "look": "lilac",
+    "header": {
+        "layout": "look",
+        "name": "Stillwater Yoga",
+        "tagline": "Slow classes with Nadia Rahimi, in Wellington",
+        "photo": {
+            "file": "yoga1.jpg",
+            "x": 60
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book your first class free"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "This week"
+        },
+        {
+            "id": "b6",
+            "type": "tabs",
+            "variant": "pills",
+            "tabs": [
+                {
+                    "id": "t7",
+                    "label": "Mon",
+                    "blocks": [
+                        {
+                            "id": "b8",
+                            "type": "events",
+                            "variant": "schedule",
+                            "items": [
+                                {
+                                    "id": "i9",
+                                    "name": "Morning stretch",
+                                    "label": "7:00 am",
+                                    "place": "45 min, all levels",
+                                    "url": ""
+                                },
+                                {
+                                    "id": "i10",
+                                    "name": "Slow flow",
+                                    "label": "6:00 pm",
+                                    "place": "60 min",
+                                    "url": ""
+                                }
+                            ],
+                            "cta": "Book"
+                        }
+                    ]
+                },
+                {
+                    "id": "t11",
+                    "label": "Wed",
+                    "blocks": [
+                        {
+                            "id": "b12",
+                            "type": "events",
+                            "variant": "schedule",
+                            "items": [
+                                {
+                                    "id": "i13",
+                                    "name": "Lunch break yoga",
+                                    "label": "12:15 pm",
+                                    "place": "30 min",
+                                    "url": ""
+                                },
+                                {
+                                    "id": "i14",
+                                    "name": "Yin and breath",
+                                    "label": "7:30 pm",
+                                    "place": "75 min",
+                                    "url": ""
+                                }
+                            ],
+                            "cta": "Book"
+                        }
+                    ]
+                },
+                {
+                    "id": "t15",
+                    "label": "Sat",
+                    "blocks": [
+                        {
+                            "id": "b16",
+                            "type": "events",
+                            "variant": "schedule",
+                            "items": [
+                                {
+                                    "id": "i17",
+                                    "name": "Beginners",
+                                    "label": "9:00 am",
+                                    "place": "60 min, four places left",
+                                    "url": ""
+                                }
+                            ],
+                            "cta": "Book"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Class passes"
+        },
+        {
+            "id": "b19",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i20",
+                    "name": "Single class",
+                    "detail": "Valid for a month",
+                    "price": "$24",
+                    "url": ""
+                },
+                {
+                    "id": "i21",
+                    "name": "Five classes",
+                    "detail": "Valid for three months",
+                    "price": "$100",
+                    "url": ""
+                },
+                {
+                    "id": "i22",
+                    "name": "Unlimited",
+                    "detail": "Per month",
+                    "price": "$145",
+                    "url": ""
+                }
+            ],
+            "cta": "Buy"
+        },
+        {
+            "id": "b23",
+            "type": "quotes",
+            "variant": "large",
+            "items": [
+                {
+                    "id": "i24",
+                    "text": "I came for my back and stayed for the quiet.",
+                    "by": "Tess, two years of Saturdays"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,149 @@
+{
+    "version": 1,
+    "look": "sap",
+    "header": {
+        "layout": "look",
+        "name": "Aster & Bell",
+        "tagline": "Seasonal floral studio in Portland",
+        "photo": {
+            "file": "florist7.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "globe",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Plan your wedding flowers"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Order this week"
+        },
+        {
+            "id": "b6",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "bouquet9.jpg"
+                    },
+                    "name": "Market bouquet",
+                    "price": "From $55",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "flowers0.jpg",
+                        "x": 30
+                    },
+                    "name": "Weekly subscription",
+                    "price": "From $40 a week",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "ribbon",
+            "variant": "moving",
+            "text": "Same-day delivery in Portland before noon"
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Weddings and events"
+        },
+        {
+            "id": "b11",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "bouquet8.jpg",
+                    "id": "i12",
+                    "caption": "Bridal bouquets"
+                },
+                {
+                    "file": "florist8.jpg",
+                    "id": "i13",
+                    "caption": "Small ceremonies"
+                },
+                {
+                    "file": "florist6.jpg",
+                    "id": "i14",
+                    "caption": "Single stems"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Who you'll work with"
+        },
+        {
+            "id": "b16",
+            "type": "team",
+            "variant": "circles",
+            "items": [
+                {
+                    "id": "i17",
+                    "photo": {
+                        "file": "face-24.jpg"
+                    },
+                    "name": "June Aster",
+                    "role": "Founder"
+                },
+                {
+                    "id": "i18",
+                    "photo": {
+                        "file": "face-25.jpg"
+                    },
+                    "name": "Rae Bell",
+                    "role": "Weddings"
+                },
+                {
+                    "id": "i19",
+                    "photo": {
+                        "file": "face-29.jpg"
+                    },
+                    "name": "Ana Ruiz",
+                    "role": "Studio"
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "signup",
+            "variant": "card",
+            "title": "Ask about a date",
+            "sub": "We usually reply within two working days.",
+            "cta": "Send"
+        }
+    ]
+}

@@ -1,0 +1,112 @@
+{
+    "version": 1,
+    "look": "estate",
+    "header": {
+        "layout": "look",
+        "name": "Clara Voss",
+        "tagline": "Residential real estate, North Vancouver",
+        "photo": {
+            "file": "home11.jpg",
+            "y": 60
+        },
+        "links": []
+    },
+    "blocks": [
+        {
+            "id": "b1",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i2",
+                    "number": "$148M",
+                    "label": "Sold since 2018"
+                },
+                {
+                    "id": "i3",
+                    "number": "11 days",
+                    "label": "Median to sell"
+                },
+                {
+                    "id": "i4",
+                    "number": "4.9",
+                    "label": "Client rating"
+                }
+            ]
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Open this weekend"
+        },
+        {
+            "id": "b6",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "2840 Lonsdale Avenue",
+            "text": "4 beds, 3 baths, ocean views. Open Saturday 2 to 4 pm.",
+            "photo": {
+                "file": "home10.jpg"
+            },
+            "cta": "See the listing",
+            "tag": "New"
+        },
+        {
+            "id": "b7",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "1104, 188 Keith Road",
+            "text": "2 beds, 2 baths. $1,120,000",
+            "photo": {
+                "file": "house4.jpg"
+            }
+        },
+        {
+            "id": "b8",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "37 Forbes Lane",
+            "text": "3 beds, 2 baths. $1,685,000",
+            "photo": {
+                "file": "house5.jpg"
+            }
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Talk to me"
+        },
+        {
+            "id": "b10",
+            "type": "contact",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i11",
+                    "type": "phone",
+                    "value": "tel:6045550142"
+                },
+                {
+                    "id": "i12",
+                    "type": "chat",
+                    "value": "https://example.com"
+                },
+                {
+                    "id": "i13",
+                    "type": "mail",
+                    "value": "mailto:clara@example.com"
+                },
+                {
+                    "id": "i14",
+                    "type": "globe",
+                    "value": "https://example.com"
+                }
+            ]
+        }
+    ]
+}

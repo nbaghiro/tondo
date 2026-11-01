@@ -33,6 +33,7 @@ export type { MakeId, Place } from "./operations";
 export { publishIssues } from "./publish";
 export type { PublishIssue } from "./publish";
 export { readPage, upgradePage } from "./upgrade";
+export { exampleHandles } from "./example-handles";
 export { isReservedHandle, isValidHandle, normaliseHandle } from "./handle";
 export { icon } from "./icons";
 export { everyLayoutPage, sampleHandle, samplePage, starterPage } from "./samples";

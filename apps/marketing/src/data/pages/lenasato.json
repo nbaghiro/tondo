@@ -1,0 +1,97 @@
+{
+    "version": 1,
+    "look": "sumi",
+    "header": {
+        "layout": "look",
+        "name": "Lena Sato",
+        "bio": "Essays about home, work and paying attention. Based in Kyoto.",
+        "photo": {
+            "file": "coach9.jpg",
+            "y": 12
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "globe",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Books"
+        },
+        {
+            "id": "b5",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "The Quiet Room",
+            "text": "My second book of essays, out in March.",
+            "photo": {
+                "file": "book7.jpg"
+            },
+            "cta": "Pre-order"
+        },
+        {
+            "id": "b6",
+            "type": "quotes",
+            "variant": "large",
+            "items": [
+                {
+                    "id": "i7",
+                    "text": "A careful, generous book that stays with you.",
+                    "by": "The Northern Review"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Recent essays"
+        },
+        {
+            "id": "b9",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "On leaving a house in winter"
+        },
+        {
+            "id": "b10",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "What the kettle knows"
+        },
+        {
+            "id": "b11",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "Letters I didn't send"
+        },
+        {
+            "id": "b12",
+            "type": "signup",
+            "variant": "card",
+            "title": "Monthly letter",
+            "sub": "One essay, on the first Sunday of each month.",
+            "cta": "Subscribe"
+        }
+    ]
+}

@@ -1,0 +1,139 @@
+{
+    "version": 1,
+    "look": "ledger",
+    "header": {
+        "layout": "look",
+        "name": "Tally and Co",
+        "bio": "Bookkeeping and tax for freelancers and small companies in Leeds.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            },
+            {
+                "id": "l3",
+                "type": "globe",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i5",
+                    "name": "Self assessment",
+                    "price": "£180",
+                    "url": ""
+                },
+                {
+                    "id": "i6",
+                    "name": "Monthly books",
+                    "price": "£95",
+                    "url": ""
+                },
+                {
+                    "id": "i7",
+                    "name": "Your first call",
+                    "price": "£0",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "countdown",
+            "variant": "inline",
+            "at": "2027-01-30T10:00",
+            "label": "until the January tax deadline"
+        },
+        {
+            "id": "b9",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a free 20-minute call"
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Plans"
+        },
+        {
+            "id": "b11",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i12",
+                    "name": "Sole trader",
+                    "price": "£45 a month",
+                    "url": "",
+                    "included": "Self assessment\nQuarterly check-in\nEmail any time"
+                },
+                {
+                    "id": "i13",
+                    "name": "Limited company",
+                    "price": "£140 a month",
+                    "url": "",
+                    "included": "Annual accounts\nVAT and payroll\nMonthly reports",
+                    "popular": true
+                }
+            ],
+            "cta": "Choose"
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Get ready"
+        },
+        {
+            "id": "b15",
+            "type": "file",
+            "variant": "card",
+            "title": "Tax return checklist",
+            "sub": "PDF, 1 page"
+        },
+        {
+            "id": "b16",
+            "type": "file",
+            "variant": "card",
+            "title": "Allowable expenses, in plain English",
+            "sub": "PDF, 4 pages"
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Questions"
+        },
+        {
+            "id": "b18",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i19",
+                    "question": "Can you take over from my old accountant?",
+                    "answer": "Yes. We'll handle the handover letter."
+                },
+                {
+                    "id": "i20",
+                    "question": "I'm behind on my returns.",
+                    "answer": "It's common, and we can sort it. Tell us on the first call."
+                }
+            ]
+        }
+    ]
+}

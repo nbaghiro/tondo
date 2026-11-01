@@ -25,6 +25,11 @@ import PagePreview from "./PagePreview.astro";
             ))}
         </div>
     </div>
+    <div class="ex-controls">
+        <button type="button" class="ex-step ex-pause" data-pause aria-pressed="false">
+            Pause
+        </button>
+    </div>
     <div class="ex-steps">
         <button type="button" class="ex-step" data-step="-1" aria-label="Previous pages">
             ←
@@ -64,6 +69,7 @@ import PagePreview from "./PagePreview.astro";
         let speed = still.matches ? 0 : SPEED;
         let hovering = false;
         let focused = false;
+        let paused = false;
         let visible = true;
         let last = 0;
 
@@ -78,8 +84,9 @@ import PagePreview from "./PagePreview.astro";
             const ms = Math.min(now - last, 100);
             last = now;
             if (visible && !still.matches) {
-                const target = focused ? 0 : hovering ? HOVER_SPEED : SPEED;
+                const target = focused || paused ? 0 : hovering ? HOVER_SPEED : SPEED;
                 speed += (target - speed) * (1 - Math.exp(-ms / EASE_MS));
+                if (paused) speed = 0;
                 x += (speed * ms) / 1000;
                 wrap();
                 draw();
@@ -90,6 +97,15 @@ import PagePreview from "./PagePreview.astro";
         requestAnimationFrame((now) => {
             last = now;
             frame(now);
+        });
+
+        document.querySelector("[data-pause]")?.addEventListener("click", (event) => {
+            paused = !paused;
+            const button = event.currentTarget;
+            if (button instanceof HTMLElement) {
+                button.textContent = paused ? "Play" : "Pause";
+                button.setAttribute("aria-pressed", String(paused));
+            }
         });
 
         new IntersectionObserver((entries) => {

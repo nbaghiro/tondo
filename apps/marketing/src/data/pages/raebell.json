@@ -1,0 +1,67 @@
+{
+    "version": 1,
+    "look": "sap",
+    "header": {
+        "layout": "look",
+        "name": "Rae Bell",
+        "tagline": "Weddings, Aster & Bell",
+        "photo": {
+            "file": "woman25.jpg",
+            "x": 85,
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b3",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Ask about your date"
+        },
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Favourite stems"
+        },
+        {
+            "id": "b5",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i6",
+                    "photo": {
+                        "file": "florist6.jpg"
+                    },
+                    "name": "Single stems",
+                    "price": "From $8",
+                    "url": ""
+                },
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "flowers0.jpg",
+                        "x": 30
+                    },
+                    "name": "This week",
+                    "price": "See what's in",
+                    "url": ""
+                }
+            ]
+        }
+    ]
+}

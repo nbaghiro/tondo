@@ -1,0 +1,120 @@
+{
+    "version": 1,
+    "look": "counsel",
+    "header": {
+        "layout": "look",
+        "name": "Separation is hard. The paperwork doesn't have to be.",
+        "bio": "I'm Adaeze Marsh. I help people in Manitoba with separation, custody and support, and I try to keep you out of court where that's safe.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a 30-minute first meeting"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What I can help with"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "Separation and divorce",
+                    "detail": "Agreements and court applications",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "name": "Children",
+                    "detail": "Parenting time and decision-making",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "Money",
+                    "detail": "Support and dividing property",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "How we'd work"
+        },
+        {
+            "id": "b11",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i12",
+                    "title": "We meet for 30 minutes, for $150",
+                    "date": "First",
+                    "detail": "You'll leave knowing your options and rough costs."
+                },
+                {
+                    "id": "i13",
+                    "title": "A written fee estimate",
+                    "date": "Then",
+                    "detail": "Fixed fees where the work allows it."
+                },
+                {
+                    "id": "i14",
+                    "title": "Updates every two weeks",
+                    "date": "After",
+                    "detail": "You won't have to chase me."
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Common questions"
+        },
+        {
+            "id": "b16",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i17",
+                    "question": "Is our first meeting confidential?",
+                    "answer": "Yes, whether or not you hire me."
+                },
+                {
+                    "id": "i18",
+                    "question": "Do you take Legal Aid certificates?",
+                    "answer": "Yes, for some matters. Ask when you book."
+                }
+            ]
+        }
+    ]
+}

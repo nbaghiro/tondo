@@ -1,0 +1,136 @@
+{
+    "version": 1,
+    "look": "shelf",
+    "header": {
+        "layout": "look",
+        "name": "Marginalia Books",
+        "tagline": "New and second-hand, Edinburgh since 1987",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Order a book for collection"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Staff picks"
+        },
+        {
+            "id": "b6",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "The Salt Path Home",
+            "text": "Rhona says: read it on a train, and miss your stop.",
+            "photo": {
+                "file": "book2.jpg"
+            },
+            "cta": "Reserve a copy"
+        },
+        {
+            "id": "b7",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Letters from a Small Harbour",
+            "text": "Paperback, £11",
+            "photo": {
+                "file": "book7.jpg"
+            }
+        },
+        {
+            "id": "b8",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Evenings at the shop"
+        },
+        {
+            "id": "b9",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i10",
+                    "name": "Poetry night",
+                    "at": "2026-11-12T10:00",
+                    "place": "Open mic, from 7 pm",
+                    "url": ""
+                },
+                {
+                    "id": "i11",
+                    "name": "Book club: winter novels",
+                    "at": "2026-11-26T10:00",
+                    "place": "Tea provided",
+                    "url": ""
+                }
+            ],
+            "cta": "Free"
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "From our letter"
+        },
+        {
+            "id": "b13",
+            "type": "posts",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i14",
+                    "title": "What we're reading this month",
+                    "date": "October 30",
+                    "text": "Eleven short reviews from the team.",
+                    "url": ""
+                },
+                {
+                    "id": "i15",
+                    "title": "How to sell us your books",
+                    "date": "October 2",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "location",
+            "variant": "hours",
+            "address": "14 Candlemaker Row, Edinburgh",
+            "hours": [
+                {
+                    "id": "i17",
+                    "days": "Mon to Sat",
+                    "time": "10 am to 6 pm"
+                },
+                {
+                    "id": "i18",
+                    "days": "Sunday",
+                    "time": "12 pm to 5 pm"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,147 @@
+{
+    "version": 1,
+    "look": "rovers",
+    "header": {
+        "layout": "look",
+        "name": "Riverside Rovers FC",
+        "tagline": "Youth football for ages 6 to 16, in Bristol",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "chat",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "events",
+            "variant": "next",
+            "items": [
+                {
+                    "id": "i5",
+                    "name": "Rovers v Ashton Town",
+                    "at": "2026-11-08T10:00",
+                    "place": "Next match, under 12s. Riverside Park",
+                    "url": ""
+                }
+            ],
+            "cta": "Details"
+        },
+        {
+            "id": "b6",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Join a team"
+        },
+        {
+            "id": "b7",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Fixtures"
+        },
+        {
+            "id": "b8",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i9",
+                    "name": "U12s v Ashton Town",
+                    "at": "2026-11-08T10:00",
+                    "place": "Home, 10 am",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "name": "U9s v Bedminster",
+                    "at": "2026-11-08T10:00",
+                    "place": "Away, 11:30 am",
+                    "url": ""
+                },
+                {
+                    "id": "i11",
+                    "name": "U14s v Clifton Colts",
+                    "at": "2026-11-15T10:00",
+                    "place": "Home, 2 pm",
+                    "url": ""
+                }
+            ],
+            "cta": "Map"
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Last weekend"
+        },
+        {
+            "id": "b13",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i14",
+                    "number": "3–1",
+                    "label": "U12s won"
+                },
+                {
+                    "id": "i15",
+                    "number": "2–2",
+                    "label": "U14s drew"
+                },
+                {
+                    "id": "i16",
+                    "number": "4–0",
+                    "label": "U9s won"
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Training is free to try",
+            "text": "Come along to two sessions before you sign up.",
+            "photo": {
+                "file": "pitch1.jpg"
+            }
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Parents"
+        },
+        {
+            "id": "b19",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i20",
+                    "question": "How much does it cost?",
+                    "answer": "£15 a month, with help available. Ask a coach in confidence."
+                },
+                {
+                    "id": "i21",
+                    "question": "Can I help out?",
+                    "answer": "Please do. We always need linesmen and bacon rolls."
+                }
+            ]
+        }
+    ]
+}

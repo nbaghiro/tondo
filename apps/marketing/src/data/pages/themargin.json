@@ -1,0 +1,95 @@
+{
+    "version": 1,
+    "look": "press",
+    "header": {
+        "layout": "look",
+        "name": "The Margin",
+        "bio": "A weekly letter about how small businesses make money, by Ben Adler.",
+        "links": []
+    },
+    "blocks": [
+        {
+            "id": "b1",
+            "type": "signup",
+            "variant": "card",
+            "title": "Read it on Sundays",
+            "sub": "Free, and one click to leave.",
+            "cta": "Subscribe"
+        },
+        {
+            "id": "b2",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i3",
+                    "number": "48,200",
+                    "label": "Readers"
+                },
+                {
+                    "id": "i4",
+                    "number": "212",
+                    "label": "Issues"
+                },
+                {
+                    "id": "i5",
+                    "number": "Sunday",
+                    "label": "Every week"
+                }
+            ]
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Latest issues"
+        },
+        {
+            "id": "b7",
+            "type": "posts",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i8",
+                    "title": "The $40 haircut, line by line",
+                    "date": "October 25",
+                    "text": "Rent, chairs, tips and what's left for the owner.",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "title": "Why every café sells merch now",
+                    "date": "October 18",
+                    "text": "It's mostly about margin on a slow Tuesday.",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "title": "Running a shop with no staff",
+                    "date": "October 11",
+                    "text": "Three owners explain what they gave up.",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "quotes",
+            "variant": "large",
+            "items": [
+                {
+                    "id": "i12",
+                    "text": "The only business letter I read to the end.",
+                    "by": "A reader in Leeds"
+                }
+            ]
+        },
+        {
+            "id": "b13",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "Read the archive"
+        }
+    ]
+}

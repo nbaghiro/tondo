@@ -1,19 +1,24 @@
 ---
 // Each example page opens at its own address, as a person's page would.
+import { readPage } from "@tondo/page";
+import { renderDocument } from "@tondo/render";
 import type { GetStaticPaths } from "astro";
+import { GALLERY_DATE } from "../lib/pages";
 
-const files = import.meta.glob<string>("../data/pages/*.html", {
-    query: "?raw",
-    import: "default",
-    eager: true,
-});
+const files = import.meta.glob<unknown>("../data/pages/*.json", { import: "default", eager: true });
 
 export const getStaticPaths = (() =>
-    Object.keys(import.meta.glob("../data/pages/*.html")).map((path) => ({
-        params: { handle: path.replace(/^.*\/|\.html$/g, "") },
+    Object.keys(import.meta.glob("../data/pages/*.json")).map((path) => ({
+        params: { handle: path.replace(/^.*\/|\.json$/g, "") },
     }))) satisfies GetStaticPaths;
 
-const html = files[`../data/pages/${Astro.params.handle}.html`] ?? "";
+const page = readPage(files[`../data/pages/${Astro.params.handle}.json`]);
+const html = renderDocument(page, {
+    title: page.header.name,
+    assetBase: "/photos/",
+    editable: false,
+    now: GALLERY_DATE,
+});
 ---
 
 <Fragment set:html={html} />

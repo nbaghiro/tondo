@@ -1,0 +1,122 @@
+{
+    "version": 1,
+    "look": "wax",
+    "header": {
+        "layout": "look",
+        "name": "Alder and Wick",
+        "tagline": "Hand-poured soy candles, Whitby",
+        "photo": {
+            "file": "candle8.jpg",
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Shop this season's scents"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "This season"
+        },
+        {
+            "id": "b6",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "candle5.jpg",
+                        "y": 60
+                    },
+                    "name": "Salt air and fig",
+                    "price": "£26, 40 hours",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "candle11.jpg"
+                    },
+                    "name": "Woodsmoke",
+                    "price": "£26, 40 hours",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Refills"
+        },
+        {
+            "id": "b10",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Refill",
+                    "price": "£14 per pour",
+                    "url": "",
+                    "included": "Send back your jar\nWe clean and refill it\nFree return label"
+                },
+                {
+                    "id": "i12",
+                    "name": "Every season",
+                    "price": "£48 a year",
+                    "url": "",
+                    "included": "Four new scents\nFirst pick of each batch\nSkip when you like",
+                    "popular": true
+                }
+            ],
+            "cta": "Start a refill"
+        },
+        {
+            "id": "b13",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i14",
+                    "number": "100%",
+                    "label": "Soy wax"
+                },
+                {
+                    "id": "i15",
+                    "number": "40 hrs",
+                    "label": "Burn time"
+                },
+                {
+                    "id": "i16",
+                    "number": "2,300",
+                    "label": "Jars refilled"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,118 @@
+{
+    "version": 1,
+    "look": "cutout",
+    "header": {
+        "layout": "look",
+        "name": "Juno Park",
+        "bio": "I make cut-paper illustrations for books, posters and packaging. Based in Busan.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "globe",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Commissions open for February"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Prints"
+        },
+        {
+            "id": "b6",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "drawn-juno-print1.webp"
+                    },
+                    "name": "Night garden",
+                    "price": "A3, $45",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "drawn-juno-print2.webp"
+                    },
+                    "name": "Big leaf",
+                    "price": "A3, $45",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Selected clients"
+        },
+        {
+            "id": "b10",
+            "type": "logos",
+            "variant": "row",
+            "label": "Books and packaging for",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Paper Whale"
+                },
+                {
+                    "id": "i12",
+                    "name": "maru tea"
+                },
+                {
+                    "id": "i13",
+                    "name": "Hanok Press"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "form",
+            "variant": "card",
+            "title": "Tell me about your project",
+            "sub": "I reply within a week.",
+            "questions": [
+                {
+                    "id": "i15",
+                    "label": "Your name",
+                    "kind": "text"
+                },
+                {
+                    "id": "i16",
+                    "label": "Email",
+                    "kind": "email"
+                },
+                {
+                    "id": "i17",
+                    "label": "Type of work",
+                    "kind": "choice",
+                    "options": "Book\nPoster\nPackaging\nSomething else"
+                }
+            ],
+            "cta": "Send"
+        }
+    ]
+}

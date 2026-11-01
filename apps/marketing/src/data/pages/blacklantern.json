@@ -1,0 +1,145 @@
+{
+    "version": 1,
+    "look": "ink",
+    "header": {
+        "layout": "look",
+        "name": "Black Lantern Tattoo",
+        "tagline": "Custom work in Glasgow. Books open for January",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Request a booking"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Artists"
+        },
+        {
+            "id": "b6",
+            "type": "tabs",
+            "variant": "pills",
+            "tabs": [
+                {
+                    "id": "t7",
+                    "label": "Ro",
+                    "blocks": [
+                        {
+                            "id": "b8",
+                            "type": "text",
+                            "variant": "plain",
+                            "text": "Large colour pieces and Japanese-influenced work. From £140 an hour."
+                        }
+                    ]
+                },
+                {
+                    "id": "t9",
+                    "label": "Finn",
+                    "blocks": [
+                        {
+                            "id": "b10",
+                            "type": "text",
+                            "variant": "plain",
+                            "text": "Fine line, botanical and small pieces. Minimum £80."
+                        }
+                    ]
+                },
+                {
+                    "id": "t11",
+                    "label": "Guest",
+                    "blocks": [
+                        {
+                            "id": "b12",
+                            "type": "text",
+                            "variant": "plain",
+                            "text": "Sasha Ivanova joins us from Berlin, December 3 to 12."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "b13",
+            "type": "form",
+            "variant": "card",
+            "title": "Tell us your idea",
+            "sub": "Include size and where on the body. We reply within five days.",
+            "questions": [
+                {
+                    "id": "i14",
+                    "label": "Your name",
+                    "kind": "text"
+                },
+                {
+                    "id": "i15",
+                    "label": "Email",
+                    "kind": "email"
+                },
+                {
+                    "id": "i16",
+                    "label": "Artist",
+                    "kind": "choice",
+                    "options": "Ro\nFinn\nWhoever suits it"
+                }
+            ],
+            "cta": "Send request"
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Before you book"
+        },
+        {
+            "id": "b18",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i19",
+                    "question": "Do I need to pay a deposit?",
+                    "answer": "Yes, £50. It comes off the final price."
+                },
+                {
+                    "id": "i20",
+                    "question": "How old do I need to be?",
+                    "answer": "18, with photo ID on the day."
+                },
+                {
+                    "id": "i21",
+                    "question": "Can I change the date?",
+                    "answer": "With 72 hours' notice, your deposit moves with you."
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "location",
+            "variant": "map",
+            "address": "9 King Street, Glasgow",
+            "note": "Buzz for the second floor"
+        }
+    ]
+}

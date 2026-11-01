@@ -1,0 +1,125 @@
+{
+    "version": 1,
+    "look": "rivet",
+    "header": {
+        "layout": "look",
+        "name": "Rivet Electric",
+        "bio": "Licensed electricians for homes and small shops in Hamilton. Fixed quotes before we start.",
+        "links": []
+    },
+    "blocks": [
+        {
+            "id": "b1",
+            "type": "button",
+            "variant": "filled",
+            "url": "tel:9055550137",
+            "text": "Call 905 555 0137, 7 am to 7 pm"
+        },
+        {
+            "id": "b2",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i3",
+                    "number": "22 yrs",
+                    "label": "In the trade"
+                },
+                {
+                    "id": "i4",
+                    "number": "4.9",
+                    "label": "Average rating"
+                },
+                {
+                    "id": "i5",
+                    "number": "1 yr",
+                    "label": "Work guaranteed"
+                }
+            ]
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Common jobs"
+        },
+        {
+            "id": "b7",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Panel upgrade",
+                    "detail": "100 to 200 amp",
+                    "price": "From $2,400",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "EV charger",
+                    "detail": "Supply and install",
+                    "price": "From $900",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "name": "Pot lights",
+                    "detail": "Per light",
+                    "price": "From $110",
+                    "url": ""
+                }
+            ],
+            "cta": "Quote"
+        },
+        {
+            "id": "b11",
+            "type": "form",
+            "variant": "card",
+            "title": "Get a free quote",
+            "sub": "Send the job and we'll reply the same working day.",
+            "questions": [
+                {
+                    "id": "i12",
+                    "label": "Your name",
+                    "kind": "text"
+                },
+                {
+                    "id": "i13",
+                    "label": "Phone or email",
+                    "kind": "email"
+                },
+                {
+                    "id": "i14",
+                    "label": "Type of job",
+                    "kind": "choice",
+                    "options": "Repair\nNew install\nRenovation\nNot sure"
+                }
+            ],
+            "cta": "Send request"
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What customers say"
+        },
+        {
+            "id": "b16",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i17",
+                    "text": "They found the fault in ten minutes and quoted the fix on the spot.",
+                    "by": "Dan, Google review"
+                },
+                {
+                    "id": "i18",
+                    "text": "Tidy, on time, and exactly the price we agreed.",
+                    "by": "Rochelle, Google review"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,174 @@
+{
+    "version": 1,
+    "look": "lagoon",
+    "header": {
+        "layout": "look",
+        "name": "Kai Mercer",
+        "tagline": "Long walks and small towns, filmed on a phone",
+        "photo": {
+            "file": "mountain0.jpg",
+            "x": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l4",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "412K",
+                    "label": "Instagram"
+                },
+                {
+                    "id": "i7",
+                    "number": "1.1M",
+                    "label": "TikTok"
+                },
+                {
+                    "id": "i8",
+                    "number": "38",
+                    "label": "Countries"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "gallery",
+            "variant": "grid",
+            "photos": [
+                {
+                    "file": "beach2.jpg",
+                    "id": "i10"
+                },
+                {
+                    "file": "mountain4.jpg",
+                    "id": "i11"
+                },
+                {
+                    "file": "beach11.jpg",
+                    "id": "i12"
+                },
+                {
+                    "file": "mountain6.jpg",
+                    "id": "i13"
+                },
+                {
+                    "file": "beach0.jpg",
+                    "id": "i14"
+                },
+                {
+                    "file": "mountain2.jpg",
+                    "id": "i15"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "text": "On TikTok"
+        },
+        {
+            "id": "b17",
+            "type": "video",
+            "variant": "vertical",
+            "items": [
+                {
+                    "id": "i18",
+                    "url": "",
+                    "title": "I walked until the road ran out",
+                    "meta": "2.1M views",
+                    "cover": {
+                        "file": "mountain5.jpg"
+                    }
+                },
+                {
+                    "id": "i19",
+                    "url": "",
+                    "title": "Free beach, no signs",
+                    "meta": "860K views",
+                    "cover": {
+                        "file": "beach10.jpg"
+                    }
+                },
+                {
+                    "id": "i20",
+                    "url": "",
+                    "title": "The last bus home",
+                    "meta": "412K views",
+                    "cover": {
+                        "file": "mountain8.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Work with me"
+        },
+        {
+            "id": "b22",
+            "type": "logos",
+            "variant": "row",
+            "label": "Brands I've worked with",
+            "items": [
+                {
+                    "id": "i23",
+                    "name": "Northbound"
+                },
+                {
+                    "id": "i24",
+                    "name": "wayfare"
+                },
+                {
+                    "id": "i25",
+                    "name": "SALT & PINE"
+                },
+                {
+                    "id": "i26",
+                    "name": "Kettle"
+                }
+            ]
+        },
+        {
+            "id": "b27",
+            "type": "file",
+            "variant": "card",
+            "title": "Media kit, autumn 2026",
+            "sub": "PDF, 6 pages"
+        },
+        {
+            "id": "b28",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Enquire about a campaign"
+        }
+    ]
+}

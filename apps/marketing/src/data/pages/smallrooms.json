@@ -1,0 +1,110 @@
+{
+    "version": 1,
+    "look": "signal",
+    "header": {
+        "layout": "look",
+        "name": "Small Rooms",
+        "bio": "Sam Ortiz talks with people who build things in small teams. New episodes on Tuesdays.",
+        "photo": {
+            "file": "man0.jpg",
+            "x": 48,
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "spotify",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "apple",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l4",
+                "type": "tiktok",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b5",
+            "type": "ribbon",
+            "variant": "moving",
+            "text": "Episode 84 is out now"
+        },
+        {
+            "id": "b6",
+            "type": "video",
+            "variant": "card",
+            "items": [
+                {
+                    "id": "i7",
+                    "url": "",
+                    "title": "Episode 84: Running a bakery with four people",
+                    "meta": "Watch, 52 min",
+                    "cover": {
+                        "file": "mic0.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Listen on Spotify"
+        },
+        {
+            "id": "b9",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Listen on Apple Podcasts"
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "More episodes"
+        },
+        {
+            "id": "b11",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "83: Why we stopped hiring",
+            "text": "48 min",
+            "photo": {
+                "file": "mic1.jpg"
+            }
+        },
+        {
+            "id": "b12",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "82: A record label in a garage",
+            "text": "61 min",
+            "photo": {
+                "file": "mic7.jpg"
+            }
+        },
+        {
+            "id": "b13",
+            "type": "signup",
+            "variant": "card",
+            "title": "The Tuesday note",
+            "sub": "Episode notes and links.",
+            "cta": "Join"
+        }
+    ]
+}

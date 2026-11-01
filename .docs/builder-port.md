@@ -278,6 +278,8 @@ Done. Works with local RustFS, and with R2 through environment variables. R2 its
 
 ### 9. Examples on the real renderer: **Review**
 
+Done. The documents are in `apps/marketing/src/data/pages`, and `pnpm examples:images` redraws the screenshots.
+
 - All 50 pages become saved page documents, written from the current ones.
 - The gallery, hero, preview and auth wall use the real renderer's output, replacing the static copies, the copied CSS and the generator in `.scratchpad`.
 - Screenshots are compared with today's for each page, and I list every page that visibly changed for you to judge. Some will, as explained under "How the 50 example pages map to blocks".

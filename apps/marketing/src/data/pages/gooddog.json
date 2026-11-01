@@ -1,0 +1,137 @@
+{
+    "version": 1,
+    "look": "biscuit",
+    "header": {
+        "layout": "look",
+        "name": "Good Dog Grooming",
+        "tagline": "Gentle, one dog at a time, in Hamilton",
+        "photo": {
+            "file": "dog6.jpg",
+            "y": 40
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "booking",
+            "variant": "slots",
+            "url": "",
+            "title": "Pick a time for Friday",
+            "sub": "Friday, November 6",
+            "cta": "Book this time",
+            "slots": [
+                "9:30 am",
+                "11:00 am",
+                "1:00 pm",
+                "2:30 pm",
+                "4:00 pm",
+                "5:30 pm"
+            ]
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What we do"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "Full groom",
+                    "detail": "Bath, cut and nails. 2 hours",
+                    "price": "$85",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "name": "Bath and tidy",
+                    "detail": "1 hour",
+                    "price": "$50",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "Nail trim",
+                    "detail": "15 min",
+                    "price": "$18",
+                    "url": ""
+                }
+            ],
+            "cta": "Book"
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Recent visitors"
+        },
+        {
+            "id": "b11",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "dog7.jpg",
+                    "y": 40,
+                    "id": "i12",
+                    "caption": "Bruno, after a long bath"
+                },
+                {
+                    "file": "dog3.jpg",
+                    "id": "i13",
+                    "caption": "Ink, very patient"
+                },
+                {
+                    "file": "dog10.jpg",
+                    "x": 60,
+                    "id": "i14",
+                    "caption": "Olive, ready to go"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Good to know"
+        },
+        {
+            "id": "b16",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i17",
+                    "question": "My dog is nervous. Can you help?",
+                    "answer": "Yes. We book one dog at a time and go at their pace. You can stay for the first visit."
+                },
+                {
+                    "id": "i18",
+                    "question": "Which vaccines do you need?",
+                    "answer": "Rabies and DHPP, up to date."
+                }
+            ]
+        }
+    ]
+}

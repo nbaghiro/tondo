@@ -1,0 +1,143 @@
+{
+    "version": 1,
+    "look": "tide",
+    "header": {
+        "layout": "look",
+        "name": "Clean River Project",
+        "tagline": "Volunteers looking after the Fraser since 2014",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Help us remove 40 tonnes this year",
+            "text": "Every dollar goes to boats, bags and disposal.",
+            "photo": {
+                "file": "beach11.jpg"
+            }
+        },
+        {
+            "id": "b5",
+            "type": "tip",
+            "variant": "amounts",
+            "title": "Give to the project",
+            "sub": "Monthly gifts help us plan the season.",
+            "amounts": [
+                {
+                    "id": "i6",
+                    "amount": "$10"
+                },
+                {
+                    "id": "i7",
+                    "amount": "$25"
+                },
+                {
+                    "id": "i8",
+                    "amount": "$50"
+                },
+                {
+                    "id": "i9",
+                    "amount": "$100"
+                }
+            ],
+            "cta": "Donate $25",
+            "raised": "$61,400",
+            "goal": "$90,000",
+            "progress": 68
+        },
+        {
+            "id": "b10",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i11",
+                    "number": "312",
+                    "label": "Tonnes removed"
+                },
+                {
+                    "id": "i12",
+                    "number": "4,800",
+                    "label": "Volunteers"
+                },
+                {
+                    "id": "i13",
+                    "number": "12",
+                    "label": "Years"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Join a cleanup"
+        },
+        {
+            "id": "b15",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i16",
+                    "name": "Steveston shore",
+                    "at": "2026-11-07T10:00",
+                    "place": "Gloves and bags provided",
+                    "url": ""
+                },
+                {
+                    "id": "i17",
+                    "name": "Barnston Island",
+                    "at": "2026-11-21T10:00",
+                    "place": "Boat crew needed",
+                    "url": ""
+                }
+            ],
+            "cta": "Join"
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "text": "With support from"
+        },
+        {
+            "id": "b19",
+            "type": "logos",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i20",
+                    "name": "Fraser Trust"
+                },
+                {
+                    "id": "i21",
+                    "name": "Tidewater Co-op"
+                },
+                {
+                    "id": "i22",
+                    "name": "BC Rowing"
+                }
+            ]
+        }
+    ]
+}

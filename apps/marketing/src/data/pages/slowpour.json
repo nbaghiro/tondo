@@ -1,0 +1,128 @@
+{
+    "version": 1,
+    "look": "roast",
+    "header": {
+        "layout": "look",
+        "name": "Slow Pour Coffee",
+        "tagline": "Small-batch roaster in Hobart",
+        "photo": {
+            "file": "coffee8.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "ribbon",
+            "variant": "moving",
+            "text": "Roasted on Mondays, posted on Tuesdays"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Beans this month"
+        },
+        {
+            "id": "b6",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "coffee2.jpg"
+                    },
+                    "name": "Huila, Colombia",
+                    "price": "Toffee and plum. $24",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "coffee9.jpg"
+                    },
+                    "name": "Guji, Ethiopia",
+                    "price": "Peach and jasmine. $26",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Never run out"
+        },
+        {
+            "id": "b10",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Solo",
+                    "price": "$22 a fortnight",
+                    "url": "",
+                    "included": "250 g of the current roast\nFree postage\nPause any time"
+                },
+                {
+                    "id": "i12",
+                    "name": "Household",
+                    "price": "$38 a fortnight",
+                    "url": "",
+                    "included": "500 g, two different roasts\nFree postage\nTasting notes",
+                    "popular": true
+                }
+            ],
+            "cta": "Subscribe"
+        },
+        {
+            "id": "b13",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Visit the roastery"
+        },
+        {
+            "id": "b14",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Coffee bar, Saturdays only",
+            "text": "We pour whatever we roasted that week.",
+            "photo": {
+                "file": "coffee11.jpg",
+                "y": 45
+            }
+        },
+        {
+            "id": "b15",
+            "type": "location",
+            "variant": "hours",
+            "address": "9 Old Wharf Lane, Hobart",
+            "hours": [
+                {
+                    "id": "i16",
+                    "days": "Saturday",
+                    "time": "8 am to 1 pm"
+                }
+            ]
+        }
+    ]
+}

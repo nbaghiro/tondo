@@ -1,0 +1,160 @@
+{
+    "version": 1,
+    "look": "surf",
+    "header": {
+        "layout": "look",
+        "name": "Low Tide Surf",
+        "tagline": "Learn to surf in Tofino, from age 8 up",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "phone",
+                "value": "tel:6045550100"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a lesson"
+        },
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "12 yrs",
+                    "label": "Teaching"
+                },
+                {
+                    "id": "i7",
+                    "number": "1 to 4",
+                    "label": "Instructor ratio"
+                },
+                {
+                    "id": "i8",
+                    "number": "All year",
+                    "label": "Wetsuits included"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Lessons"
+        },
+        {
+            "id": "b10",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "First wave",
+                    "detail": "2 hours, group",
+                    "price": "$95",
+                    "url": ""
+                },
+                {
+                    "id": "i12",
+                    "name": "Private lesson",
+                    "detail": "90 minutes",
+                    "price": "$180",
+                    "url": ""
+                },
+                {
+                    "id": "i13",
+                    "name": "Family morning",
+                    "detail": "Up to five people",
+                    "price": "$340",
+                    "url": ""
+                }
+            ],
+            "cta": "Book"
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "The beach this week"
+        },
+        {
+            "id": "b15",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "beach2.jpg",
+                    "id": "i16",
+                    "caption": "Cox Bay"
+                },
+                {
+                    "file": "beach10.jpg",
+                    "id": "i17",
+                    "caption": "Long Beach"
+                },
+                {
+                    "file": "beach8.jpg",
+                    "id": "i18",
+                    "caption": "Chesterman"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i20",
+                    "text": "My kids asked to go back the next morning.",
+                    "by": "Holly, Google review"
+                },
+                {
+                    "id": "i21",
+                    "text": "I stood up on my third try. They're very patient.",
+                    "by": "Marc, Google review"
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Before you come"
+        },
+        {
+            "id": "b23",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i24",
+                    "question": "Do I need to be a strong swimmer?",
+                    "answer": "You need to be comfortable in the water. We stay at waist depth for first lessons."
+                },
+                {
+                    "id": "i25",
+                    "question": "What if the weather turns?",
+                    "answer": "We move your lesson or refund it, and you'll hear from us by 7 am."
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,140 @@
+{
+    "version": 1,
+    "look": "plaster",
+    "header": {
+        "layout": "look",
+        "name": "Hana Ito Interiors",
+        "bio": "Calm, lived-in homes in Melbourne and on the coast.",
+        "photo": {
+            "file": "house4.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "globe",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Projects"
+        },
+        {
+            "id": "b5",
+            "type": "gallery",
+            "variant": "mosaic",
+            "photos": [
+                {
+                    "file": "house5.jpg",
+                    "id": "i6"
+                },
+                {
+                    "file": "house10.jpg",
+                    "id": "i7"
+                },
+                {
+                    "file": "house11.jpg",
+                    "id": "i8"
+                },
+                {
+                    "file": "home3.jpg",
+                    "id": "i9"
+                },
+                {
+                    "file": "house9.jpg",
+                    "id": "i10"
+                },
+                {
+                    "file": "plant5.jpg",
+                    "id": "i11"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "How we work"
+        },
+        {
+            "id": "b13",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i14",
+                    "title": "Visit and brief",
+                    "date": "Weeks 1 to 2"
+                },
+                {
+                    "id": "i15",
+                    "title": "Concept and costs",
+                    "date": "Weeks 3 to 6"
+                },
+                {
+                    "id": "i16",
+                    "title": "Build, furnish and finish",
+                    "date": "Weeks 7 to 20"
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "quotes",
+            "variant": "large",
+            "items": [
+                {
+                    "id": "i18",
+                    "text": "She found us two rooms we didn't know we had.",
+                    "by": "The Harlows, Brunswick"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "form",
+            "variant": "card",
+            "title": "Tell me about your home",
+            "sub": "I take on six projects a year and reply within a week.",
+            "questions": [
+                {
+                    "id": "i20",
+                    "label": "Your name",
+                    "kind": "text"
+                },
+                {
+                    "id": "i21",
+                    "label": "Email",
+                    "kind": "email"
+                },
+                {
+                    "id": "i22",
+                    "label": "Project",
+                    "kind": "choice",
+                    "options": "Whole home\nOne room\nAdvice only"
+                },
+                {
+                    "id": "i23",
+                    "label": "Budget",
+                    "kind": "choice",
+                    "options": "Under $50K\n$50K to $150K\nOver $150K"
+                }
+            ],
+            "cta": "Send enquiry"
+        }
+    ]
+}

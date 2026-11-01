@@ -1,0 +1,153 @@
+{
+    "version": 1,
+    "look": "bloom",
+    "header": {
+        "layout": "look",
+        "name": "Oskar Bloom",
+        "bio": "I design software for small teams, in Copenhagen. Two openings from January.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "globe",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "instagram",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Start a project"
+        },
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "14",
+                    "label": "Years"
+                },
+                {
+                    "id": "i7",
+                    "number": "60+",
+                    "label": "Products"
+                },
+                {
+                    "id": "i8",
+                    "number": "4 wks",
+                    "label": "Typical project"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Selected work"
+        },
+        {
+            "id": "b10",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Halden",
+            "text": "A banking app for small shops, redesigned around cash flow.",
+            "photo": {
+                "file": "drawn-oskar-screen1.webp"
+            }
+        },
+        {
+            "id": "b11",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Kiln",
+            "text": "Scheduling for shared pottery studios.",
+            "photo": {
+                "file": "drawn-oskar-screen2.webp"
+            }
+        },
+        {
+            "id": "b12",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Marlow Bank",
+            "text": "A support inbox that three people can run.",
+            "photo": {
+                "file": "drawn-oskar-screen3.webp"
+            }
+        },
+        {
+            "id": "b13",
+            "type": "logos",
+            "variant": "row",
+            "label": "Also worked with",
+            "items": [
+                {
+                    "id": "i14",
+                    "name": "Sora"
+                },
+                {
+                    "id": "i15",
+                    "name": "Fieldnote"
+                },
+                {
+                    "id": "i16",
+                    "name": "Northbound"
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Background"
+        },
+        {
+            "id": "b18",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i19",
+                    "title": "Independent",
+                    "date": "2021 to now",
+                    "detail": "Product design and small design systems"
+                },
+                {
+                    "id": "i20",
+                    "title": "Design lead, Halden",
+                    "date": "2016 to 2021",
+                    "detail": "Grew the team from one to nine"
+                },
+                {
+                    "id": "i21",
+                    "title": "Designer, Studio Arc",
+                    "date": "2012 to 2016"
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "file",
+            "variant": "card",
+            "title": "Résumé",
+            "sub": "PDF, 2 pages"
+        }
+    ]
+}

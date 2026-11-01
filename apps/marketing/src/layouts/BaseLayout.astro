@@ -1,8 +1,6 @@
 ---
 import "@tondo/brand/tokens.css";
-import "../styles/showcase.css";
 import "../styles/marketing.css";
-import fonts from "../data/fonts.json";
 
 interface Props {
     title: string;
@@ -24,7 +22,10 @@ const { title, description } = Astro.props;
         <meta name="description" content={description} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="stylesheet" href={fonts.href} />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,SOFT,wght@9..144,100,400;9..144,100,500;9..144,100,600&family=Mulish:wght@400;500;600;700&display=swap"
+        />
     </head>
     <body class="m">
         <slot />

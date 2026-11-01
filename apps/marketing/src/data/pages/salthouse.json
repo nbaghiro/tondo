@@ -1,0 +1,118 @@
+{
+    "version": 1,
+    "look": "brine",
+    "header": {
+        "layout": "look",
+        "name": "The Salt House",
+        "tagline": "Five rooms above the bay, Cape Breton",
+        "photo": {
+            "file": "beach2.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Check dates"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Rooms"
+        },
+        {
+            "id": "b6",
+            "type": "gallery",
+            "variant": "carousel",
+            "photos": [
+                {
+                    "file": "house4.jpg",
+                    "id": "i7",
+                    "caption": "The Loft, from $185"
+                },
+                {
+                    "file": "inn8.jpg",
+                    "id": "i8",
+                    "caption": "The Harbour Room, from $160"
+                },
+                {
+                    "file": "house10.jpg",
+                    "id": "i9",
+                    "caption": "The Sun Room, from $210"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Staying with us"
+        },
+        {
+            "id": "b11",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i12",
+                    "text": "We woke up to the sea and fresh bread. We've already rebooked.",
+                    "by": "Elin and Sam, October"
+                },
+                {
+                    "id": "i13",
+                    "text": "Quiet, clean and very kind hosts.",
+                    "by": "Marcus, September"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i15",
+                    "question": "Is breakfast included?",
+                    "answer": "Yes, from 8 to 10 am, with bread from the village."
+                },
+                {
+                    "id": "i16",
+                    "question": "Can we bring a dog?",
+                    "answer": "Yes, in the Loft and the Sun Room."
+                },
+                {
+                    "id": "i17",
+                    "question": "Are you open in winter?",
+                    "answer": "We're open from April to November."
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "location",
+            "variant": "map",
+            "address": "212 Shore Road, Ingonish",
+            "note": "45 minutes from the highway"
+        }
+    ]
+}

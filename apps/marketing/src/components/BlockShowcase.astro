@@ -1,8 +1,47 @@
 ---
-import showcase from "../data/showcase.json";
+import { blockDefinitions, drawBlock } from "@tondo/page";
+import type { LookName } from "@tondo/page";
+import { baseCss, fontsHref, looks } from "@tondo/render";
+import { examplePage, firstBlock, GALLERY_DATE } from "../lib/pages";
+
+const CTX = { assetBase: "/photos/", editable: false, now: GALLERY_DATE };
+
+const shown: {
+    caption: string;
+    look: LookName;
+    handle: string;
+    type: Parameters<typeof firstBlock>[1];
+}[] = [
+    { caption: "Music player", look: "shelf", handle: "noorhaddad", type: "music" },
+    { caption: "Products", look: "madder", handle: "mayaokafor", type: "products" },
+    { caption: "Booking", look: "atelier", handle: "priyaraman", type: "booking" },
+    { caption: "Events", look: "vellum", handle: "mayaokafor", type: "events" },
+    { caption: "Video", look: "roast", handle: "smallrooms", type: "video" },
+    { caption: "Gallery", look: "roast", handle: "theolindqvist", type: "gallery" },
+    { caption: "Team", look: "vellum", handle: "asterandbell", type: "team" },
+    { caption: "Hours and location", look: "bake", handle: "harbourbakery", type: "location" },
+    { caption: "Link cards", look: "atelier", handle: "lenasato", type: "link-card" },
+];
+const cards = shown.map(({ caption, look, handle, type }) => ({
+    caption,
+    look,
+    html: drawBlock(firstBlock(handle, type), CTX),
+}));
+const lookNames = [...new Set(shown.map((item) => item.look))];
+const types = [...new Set(shown.map((item) => item.type))];
+const css = [
+    baseCss,
+    ...types.map((type) => blockDefinitions[type].css),
+    ...lookNames.map((look) => looks[look].css),
+].join("\n");
+const fonts = lookNames.map((look) => fontsHref({ ...examplePage("mayaokafor"), look }));
 ---
 
 <section class="band">
+    {fonts.map((href) => (
+        <link rel="stylesheet" href={href} />
+    ))}
+    <style is:inline set:html={css}></style>
     <div class="wrap">
         <h2>More than a list of buttons</h2>
         <p class="sub">
@@ -10,10 +49,10 @@ import showcase from "../data/showcase.json";
             look.
         </p>
         <div class="bks">
-            {showcase.map((block) => (
+            {cards.map((card) => (
                 <div class="bk">
-                    <div class={`look ${block.look} bk-in`} set:html={block.html} />
-                    <p>{block.cap}</p>
+                    <div class={`look ${card.look} bk-in`} set:html={card.html} />
+                    <p>{card.caption}</p>
                 </div>
             ))}
         </div>

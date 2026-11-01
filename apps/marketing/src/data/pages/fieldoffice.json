@@ -1,0 +1,143 @@
+{
+    "version": 1,
+    "look": "office",
+    "header": {
+        "layout": "look",
+        "name": "Field Office",
+        "bio": "A six-person brand studio in Oslo. Everyone here has their own page, so you can reach the right person.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "globe",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Start a project with us"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "The team"
+        },
+        {
+            "id": "b6",
+            "type": "team",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "face-22.jpg"
+                    },
+                    "name": "Priya Lund",
+                    "role": "Studio lead, new business",
+                    "url": "https://example.com"
+                },
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "man0.jpg",
+                        "x": 48,
+                        "y": 30
+                    },
+                    "name": "Jonas Berg",
+                    "role": "Design director",
+                    "url": "https://example.com"
+                },
+                {
+                    "id": "i9",
+                    "photo": {
+                        "file": "face-25.jpg"
+                    },
+                    "name": "Rae Holm",
+                    "role": "Strategy",
+                    "url": "https://example.com"
+                },
+                {
+                    "id": "i10",
+                    "photo": {
+                        "file": "face-21.jpg"
+                    },
+                    "name": "Noor Dahl",
+                    "role": "Motion and film",
+                    "url": "https://example.com"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Recent work"
+        },
+        {
+            "id": "b12",
+            "type": "gallery",
+            "variant": "mosaic",
+            "photos": [
+                {
+                    "file": "laptop8.jpg",
+                    "id": "i13"
+                },
+                {
+                    "file": "desk1.jpg",
+                    "id": "i14"
+                },
+                {
+                    "file": "street2.jpg",
+                    "id": "i15"
+                },
+                {
+                    "file": "laptop1.jpg",
+                    "id": "i16"
+                },
+                {
+                    "file": "desk0.jpg",
+                    "id": "i17"
+                },
+                {
+                    "file": "laptop0.jpg",
+                    "id": "i18"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "logos",
+            "variant": "row",
+            "label": "Clients",
+            "items": [
+                {
+                    "id": "i20",
+                    "name": "Halden"
+                },
+                {
+                    "id": "i21",
+                    "name": "kiln"
+                },
+                {
+                    "id": "i22",
+                    "name": "Marlow Bank"
+                }
+            ]
+        }
+    ]
+}

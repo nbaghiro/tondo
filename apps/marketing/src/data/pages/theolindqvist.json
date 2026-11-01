@@ -1,0 +1,127 @@
+{
+    "version": 1,
+    "look": "noir",
+    "header": {
+        "layout": "look",
+        "name": "Theo Lindqvist",
+        "tagline": "Film photographer in Bergen and Los Angeles",
+        "photo": {
+            "file": "photog1.jpg",
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a shoot"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "See the portfolio"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Recent rolls"
+        },
+        {
+            "id": "b7",
+            "type": "gallery",
+            "variant": "grid",
+            "photos": [
+                {
+                    "file": "landscape1.jpg",
+                    "id": "i8"
+                },
+                {
+                    "file": "street2.jpg",
+                    "id": "i9"
+                },
+                {
+                    "file": "landscape8.jpg",
+                    "id": "i10"
+                },
+                {
+                    "file": "landscape3.jpg",
+                    "id": "i11"
+                },
+                {
+                    "file": "landscape0.jpg",
+                    "id": "i12"
+                },
+                {
+                    "file": "photog1.jpg",
+                    "id": "i13"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Prints"
+        },
+        {
+            "id": "b15",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Lake, first snow",
+            "text": "Archival print from $90",
+            "photo": {
+                "file": "landscape1.jpg"
+            }
+        },
+        {
+            "id": "b16",
+            "type": "link-card",
+            "variant": "small",
+            "url": "",
+            "title": "Above the fog",
+            "text": "Archival print from $90",
+            "photo": {
+                "file": "landscape8.jpg"
+            }
+        },
+        {
+            "id": "b17",
+            "type": "video",
+            "variant": "card",
+            "items": [
+                {
+                    "id": "i18",
+                    "url": "",
+                    "title": "Six days in the fjords, on one roll a day",
+                    "meta": "Short film, 12 min",
+                    "cover": {
+                        "file": "landscape0.jpg"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,154 @@
+{
+    "version": 1,
+    "look": "crumb",
+    "header": {
+        "layout": "look",
+        "name": "Crumb School",
+        "tagline": "Learn sourdough in six weeks, from a home oven",
+        "photo": {
+            "file": "chalk2.jpg",
+            "y": 85
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i5",
+                    "number": "3,400",
+                    "label": "Students"
+                },
+                {
+                    "id": "i6",
+                    "number": "6",
+                    "label": "Weeks"
+                },
+                {
+                    "id": "i7",
+                    "number": "24",
+                    "label": "Short videos"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Join the January class"
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What you'll bake"
+        },
+        {
+            "id": "b10",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i11",
+                    "title": "Your starter, and a first loaf",
+                    "date": "Weeks 1 to 2",
+                    "detail": "Feeding, timing and reading your dough."
+                },
+                {
+                    "id": "i12",
+                    "title": "Crust and crumb",
+                    "date": "Weeks 3 to 4",
+                    "detail": "Shaping, scoring and steam without special gear."
+                },
+                {
+                    "id": "i13",
+                    "title": "Rye, seeds and focaccia",
+                    "date": "Weeks 5 to 6",
+                    "detail": "Then a bake along with the group."
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Choose how you learn"
+        },
+        {
+            "id": "b15",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i16",
+                    "name": "Self-paced",
+                    "price": "$79 once",
+                    "url": "",
+                    "included": "All videos, for life\nRecipe book\nStudent forum"
+                },
+                {
+                    "id": "i17",
+                    "name": "With feedback",
+                    "price": "$169 once",
+                    "url": "",
+                    "included": "Everything in Self-paced\nSix live sessions\nI check your bakes",
+                    "popular": true
+                }
+            ],
+            "cta": "Enrol"
+        },
+        {
+            "id": "b18",
+            "type": "video",
+            "variant": "card",
+            "items": [
+                {
+                    "id": "i19",
+                    "url": "",
+                    "title": "Watch lesson one for free",
+                    "meta": "Making a starter, 9 min",
+                    "cover": {
+                        "file": "chalk1.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i21",
+                    "text": "My first good loaf came in week three.",
+                    "by": "Hanna, January class"
+                },
+                {
+                    "id": "i22",
+                    "text": "Clear, calm and no fancy equipment.",
+                    "by": "Rob, self-paced"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "look": "sap",
+    "header": {
+        "layout": "look",
+        "name": "June Aster",
+        "tagline": "Founder, Aster & Bell",
+        "photo": {
+            "file": "woman24.jpg",
+            "y": 35
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b3",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a design call"
+        },
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Recent weddings"
+        },
+        {
+            "id": "b5",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i6",
+                    "photo": {
+                        "file": "bouquet8.jpg"
+                    },
+                    "name": "Maya and Tom",
+                    "price": "September",
+                    "url": ""
+                },
+                {
+                    "id": "i7",
+                    "photo": {
+                        "file": "florist8.jpg"
+                    },
+                    "name": "Ana and Lee",
+                    "price": "August",
+                    "url": ""
+                }
+            ]
+        }
+    ]
+}

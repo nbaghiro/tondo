@@ -1,0 +1,155 @@
+{
+    "version": 1,
+    "look": "trail",
+    "header": {
+        "layout": "look",
+        "name": "North Shore Walkers",
+        "bio": "A free club for anyone who likes a long walk. We meet most Saturdays.",
+        "photo": {
+            "file": "mountain4.jpg",
+            "y": 60
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "chat",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "countdown",
+            "variant": "inline",
+            "at": "2026-11-06T10:00",
+            "label": "until Lynn Headwaters, Saturday at 9 am"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Join the group chat"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Coming up"
+        },
+        {
+            "id": "b7",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Lynn Headwaters",
+                    "at": "2026-11-07T10:00",
+                    "place": "9 km, easy",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "Quarry Rock",
+                    "at": "2026-11-14T10:00",
+                    "place": "4 km, with kids",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "name": "Capilano Canyon",
+                    "at": "2026-11-28T10:00",
+                    "place": "12 km, moderate",
+                    "url": ""
+                }
+            ],
+            "cta": "Going"
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Where we meet"
+        },
+        {
+            "id": "b12",
+            "type": "location",
+            "variant": "map",
+            "address": "Lynn Valley Road car park",
+            "note": "Look for the orange flag"
+        },
+        {
+            "id": "b13",
+            "type": "heading",
+            "variant": "plain",
+            "text": "New here?"
+        },
+        {
+            "id": "b14",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i15",
+                    "question": "Do I have to sign up?",
+                    "answer": "No. Turn up, or say hello in the chat first."
+                },
+                {
+                    "id": "i16",
+                    "question": "What should I bring?",
+                    "answer": "Good shoes, water and a layer for the rain."
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Your hosts"
+        },
+        {
+            "id": "b18",
+            "type": "team",
+            "variant": "circles",
+            "items": [
+                {
+                    "id": "i19",
+                    "photo": {
+                        "file": "face-29.jpg"
+                    },
+                    "name": "Ana Ruiz",
+                    "role": "Routes"
+                },
+                {
+                    "id": "i20",
+                    "photo": {
+                        "file": "mountain0.jpg",
+                        "x": 30
+                    },
+                    "name": "Will Tran",
+                    "role": "Safety"
+                },
+                {
+                    "id": "i21",
+                    "photo": {
+                        "file": "beach8.jpg"
+                    },
+                    "name": "The club",
+                    "role": "Say hello"
+                }
+            ]
+        }
+    ]
+}

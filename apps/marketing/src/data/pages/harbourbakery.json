@@ -1,0 +1,135 @@
+{
+    "version": 1,
+    "look": "bake",
+    "header": {
+        "layout": "look",
+        "name": "Harbour Bakery",
+        "tagline": "Neighbourhood bakery, Halifax",
+        "bio": "Baked before you're up",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Order for pickup"
+        },
+        {
+            "id": "b5",
+            "type": "ribbon",
+            "variant": "moving",
+            "text": "Sourdough on Fridays"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Today's bakes"
+        },
+        {
+            "id": "b7",
+            "type": "products",
+            "variant": "grid",
+            "items": [
+                {
+                    "id": "i8",
+                    "photo": {
+                        "file": "croissant1.jpg",
+                        "x": 65
+                    },
+                    "name": "Butter croissant",
+                    "price": "$4.75",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "photo": {
+                        "file": "bread0.jpg",
+                        "y": 60
+                    },
+                    "name": "Country sourdough",
+                    "price": "$9",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "photo": {
+                        "file": "croissant6.jpg"
+                    },
+                    "name": "Almond croissant",
+                    "price": "$5.50",
+                    "url": ""
+                },
+                {
+                    "id": "i11",
+                    "photo": {
+                        "file": "croissant5.jpg",
+                        "x": 40
+                    },
+                    "name": "Jam and butter",
+                    "price": "$6",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Come by"
+        },
+        {
+            "id": "b13",
+            "type": "link-card",
+            "variant": "large",
+            "url": "",
+            "title": "Coffee and a seat by the window",
+            "text": "Dogs welcome outside.",
+            "photo": {
+                "file": "cafe0.jpg",
+                "y": 60
+            }
+        },
+        {
+            "id": "b14",
+            "type": "location",
+            "variant": "hours",
+            "address": "42 Water Street, Halifax",
+            "hours": [
+                {
+                    "id": "i15",
+                    "days": "Tue to Fri",
+                    "time": "7 am to 3 pm"
+                },
+                {
+                    "id": "i16",
+                    "days": "Sat and Sun",
+                    "time": "8 am to 2 pm"
+                },
+                {
+                    "id": "i17",
+                    "days": "Mon",
+                    "time": "Closed"
+                }
+            ]
+        }
+    ]
+}

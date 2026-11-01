@@ -1,0 +1,114 @@
+{
+    "version": 1,
+    "look": "vellum",
+    "header": {
+        "layout": "look",
+        "name": "Ines & Tomas",
+        "tagline": "June 12, 2027, Prince Edward County",
+        "links": []
+    },
+    "blocks": [
+        {
+            "id": "b1",
+            "type": "countdown",
+            "variant": "large",
+            "at": "2027-06-11T10:00",
+            "label": "We're getting married in"
+        },
+        {
+            "id": "b2",
+            "type": "form",
+            "variant": "card",
+            "title": "Will you join us?",
+            "sub": "Please reply by April 1.",
+            "questions": [
+                {
+                    "id": "i3",
+                    "label": "Your names",
+                    "kind": "text"
+                },
+                {
+                    "id": "i4",
+                    "label": "Coming?",
+                    "kind": "choice",
+                    "options": "Yes, we'll be there\nSorry, we can't make it"
+                },
+                {
+                    "id": "i5",
+                    "label": "Dinner",
+                    "kind": "choice",
+                    "options": "Fish\nLamb\nVegetarian"
+                }
+            ],
+            "cta": "Send reply"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "text": "The day"
+        },
+        {
+            "id": "b7",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i8",
+                    "title": "Ceremony",
+                    "date": "3:30 pm",
+                    "detail": "In the orchard, weather permitting"
+                },
+                {
+                    "id": "i9",
+                    "title": "Drinks on the lawn",
+                    "date": "4:30 pm"
+                },
+                {
+                    "id": "i10",
+                    "title": "Dinner",
+                    "date": "6:30 pm",
+                    "detail": "In the barn"
+                },
+                {
+                    "id": "i11",
+                    "title": "Dancing",
+                    "date": "9:00 pm"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Getting there"
+        },
+        {
+            "id": "b13",
+            "type": "location",
+            "variant": "map",
+            "address": "Hillier Orchard Barn",
+            "note": "Parking on site, shuttle from Picton"
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Gifts and stays"
+        },
+        {
+            "id": "b15",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "See our registry"
+        },
+        {
+            "id": "b16",
+            "type": "button",
+            "variant": "outline",
+            "url": "",
+            "text": "Where to stay nearby"
+        }
+    ]
+}

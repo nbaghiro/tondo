@@ -1,4 +1,5 @@
 export { paint } from "./art";
+export { baseCss } from "./base-css";
 export {
     findLink,
     fontsHref,

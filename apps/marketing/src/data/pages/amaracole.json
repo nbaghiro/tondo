@@ -1,0 +1,132 @@
+{
+    "version": 1,
+    "look": "calm",
+    "header": {
+        "layout": "look",
+        "name": "I'm Amara. I help adults through anxiety, grief and big changes.",
+        "tagline": "Registered psychotherapist, online across Ontario",
+        "photo": {
+            "file": "plant5.jpg",
+            "y": 60
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b3",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a free 15-minute call"
+        },
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What to expect"
+        },
+        {
+            "id": "b5",
+            "type": "timeline",
+            "variant": "line",
+            "items": [
+                {
+                    "id": "i6",
+                    "title": "A short call",
+                    "date": "First",
+                    "detail": "We talk about what's bringing you here, and whether I'm a good fit."
+                },
+                {
+                    "id": "i7",
+                    "title": "Weekly or fortnightly sessions",
+                    "date": "Then",
+                    "detail": "50 minutes each, by video."
+                },
+                {
+                    "id": "i8",
+                    "title": "We decide together when to stop",
+                    "date": "Later"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Fees"
+        },
+        {
+            "id": "b10",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Individual session",
+                    "detail": "50 minutes",
+                    "price": "$165",
+                    "url": ""
+                },
+                {
+                    "id": "i12",
+                    "name": "Reduced fee",
+                    "detail": "A few places, ask me",
+                    "price": "$90",
+                    "url": ""
+                }
+            ],
+            "cta": "Book"
+        },
+        {
+            "id": "b13",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Common questions"
+        },
+        {
+            "id": "b14",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i15",
+                    "question": "Is this covered by insurance?",
+                    "answer": "Many extended health plans cover it. I'll give you a receipt to claim."
+                },
+                {
+                    "id": "i16",
+                    "question": "Is what I say private?",
+                    "answer": "Yes, with the legal limits I'll explain in our first session."
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "contact",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i18",
+                    "type": "mail",
+                    "value": "mailto:hello@example.com"
+                },
+                {
+                    "id": "i19",
+                    "type": "phone",
+                    "value": "tel:988"
+                }
+            ]
+        }
+    ]
+}

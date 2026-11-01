@@ -1,0 +1,145 @@
+{
+    "version": 1,
+    "look": "rave",
+    "header": {
+        "layout": "look",
+        "name": "Mika Sol",
+        "tagline": "House and disco, Montreal",
+        "photo": {
+            "file": "dj4.jpg"
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "spotify",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "tiktok",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l4",
+                "type": "youtube",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b5",
+            "type": "countdown",
+            "variant": "large",
+            "at": "2026-11-20T10:00",
+            "label": "Next show"
+        },
+        {
+            "id": "b6",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Get tickets"
+        },
+        {
+            "id": "b7",
+            "type": "ribbon",
+            "variant": "moving",
+            "text": "New mix out Friday"
+        },
+        {
+            "id": "b8",
+            "type": "music",
+            "variant": "full",
+            "url": "",
+            "title": "Night Bus",
+            "sub": "Mix 12, 58 minutes",
+            "cover": {
+                "file": "dj2.jpg"
+            },
+            "tracks": [
+                {
+                    "id": "i9",
+                    "name": "Part one",
+                    "length": "28:10"
+                },
+                {
+                    "id": "i10",
+                    "name": "Part two",
+                    "length": "30:02"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "From the booth"
+        },
+        {
+            "id": "b12",
+            "type": "video",
+            "variant": "vertical",
+            "items": [
+                {
+                    "id": "i13",
+                    "url": "",
+                    "title": "Closing set, Warehouse 9",
+                    "meta": "48K views",
+                    "cover": {
+                        "file": "dj10.jpg"
+                    }
+                },
+                {
+                    "id": "i14",
+                    "url": "",
+                    "title": "How I build a transition",
+                    "meta": "122K views",
+                    "cover": {
+                        "file": "dj0.jpg"
+                    }
+                },
+                {
+                    "id": "i15",
+                    "url": "",
+                    "title": "Last record of the night",
+                    "meta": "31K views",
+                    "cover": {
+                        "file": "dj9.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "tip",
+            "variant": "amounts",
+            "title": "Buy me a record",
+            "sub": "It goes straight into the crate.",
+            "amounts": [
+                {
+                    "id": "i17",
+                    "amount": "$3"
+                },
+                {
+                    "id": "i18",
+                    "amount": "$5"
+                },
+                {
+                    "id": "i19",
+                    "amount": "$10"
+                },
+                {
+                    "id": "i20",
+                    "amount": "$20"
+                }
+            ],
+            "cta": "Send $5"
+        }
+    ]
+}

@@ -1,0 +1,137 @@
+{
+    "version": 1,
+    "look": "volt",
+    "header": {
+        "layout": "look",
+        "name": "GET STRONG WITH DEE",
+        "bio": "Strength coaching for beginners over 35, in person in Leeds and online.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i5",
+                    "number": "240+",
+                    "label": "Clients"
+                },
+                {
+                    "id": "i6",
+                    "number": "11",
+                    "label": "Years coaching"
+                },
+                {
+                    "id": "i7",
+                    "number": "3",
+                    "label": "Sessions a week"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "heading",
+            "variant": "plain",
+            "text": "PLANS"
+        },
+        {
+            "id": "b9",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i10",
+                    "name": "Online",
+                    "price": "£59 a month",
+                    "url": "",
+                    "included": "Your own program\nForm checks by video\nMonthly review"
+                },
+                {
+                    "id": "i11",
+                    "name": "Hybrid",
+                    "price": "£149 a month",
+                    "url": "",
+                    "included": "Everything in Online\nTwo sessions in person\nWeekly review",
+                    "popular": true
+                },
+                {
+                    "id": "i12",
+                    "name": "One to one",
+                    "price": "£320 a month",
+                    "url": "",
+                    "included": "Three sessions a week\nFood guidance\nMessage me any time"
+                }
+            ],
+            "cta": "Start online"
+        },
+        {
+            "id": "b13",
+            "type": "heading",
+            "variant": "plain",
+            "text": "RESULTS"
+        },
+        {
+            "id": "b14",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i15",
+                    "text": "I lifted my own bodyweight at 52. I never thought I'd write that.",
+                    "by": "Karen, 8 months in"
+                },
+                {
+                    "id": "i16",
+                    "text": "My back stopped hurting, and I enjoy the gym now.",
+                    "by": "Paul, 1 year in"
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "text": "QUESTIONS"
+        },
+        {
+            "id": "b18",
+            "type": "faq",
+            "variant": "accordion",
+            "items": [
+                {
+                    "id": "i19",
+                    "question": "I've never lifted. Is this for me?",
+                    "answer": "Yes. Most people start with no experience, and the first month is about learning the movements."
+                },
+                {
+                    "id": "i20",
+                    "question": "Do I need a gym membership?",
+                    "answer": "For Online, yes, or a basic home setup. Hybrid sessions are at my studio."
+                },
+                {
+                    "id": "i21",
+                    "question": "Can I cancel?",
+                    "answer": "Any time, with a month's notice."
+                }
+            ]
+        }
+    ]
+}

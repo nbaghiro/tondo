@@ -1,0 +1,197 @@
+{
+    "version": 1,
+    "look": "pixel",
+    "header": {
+        "layout": "look",
+        "name": "pixelpip",
+        "bio": "Cozy games and very slow speedruns.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l3",
+                "type": "chat",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l4",
+                "type": "instagram",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b5",
+            "type": "ribbon",
+            "variant": "still",
+            "text": "Live now. 1,204 people are watching"
+        },
+        {
+            "id": "b6",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Watch the stream"
+        },
+        {
+            "id": "b7",
+            "type": "stats",
+            "variant": "row",
+            "items": [
+                {
+                    "id": "i8",
+                    "number": "186K",
+                    "label": "Followers"
+                },
+                {
+                    "id": "i9",
+                    "number": "4",
+                    "label": "Streams a week"
+                },
+                {
+                    "id": "i10",
+                    "number": "912",
+                    "label": "Members"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Schedule"
+        },
+        {
+            "id": "b12",
+            "type": "events",
+            "variant": "schedule",
+            "items": [
+                {
+                    "id": "i13",
+                    "name": "Farm game, year three",
+                    "label": "Tue 7 pm",
+                    "place": "Chill",
+                    "url": ""
+                },
+                {
+                    "id": "i14",
+                    "name": "Viewer picks",
+                    "label": "Thu 7 pm",
+                    "place": "You vote in the chat",
+                    "url": ""
+                },
+                {
+                    "id": "i15",
+                    "name": "Slow speedrun",
+                    "label": "Sun 2 pm",
+                    "place": "Long one",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Best clips"
+        },
+        {
+            "id": "b17",
+            "type": "video",
+            "variant": "vertical",
+            "items": [
+                {
+                    "id": "i18",
+                    "url": "",
+                    "title": "",
+                    "meta": "",
+                    "cover": {
+                        "file": "drawn-pip-clip1.webp"
+                    }
+                },
+                {
+                    "id": "i19",
+                    "url": "",
+                    "title": "",
+                    "meta": "",
+                    "cover": {
+                        "file": "drawn-pip-clip2.webp"
+                    }
+                },
+                {
+                    "id": "i20",
+                    "url": "",
+                    "title": "",
+                    "meta": "",
+                    "cover": {
+                        "file": "drawn-pip-clip3.webp"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Join the party"
+        },
+        {
+            "id": "b22",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i23",
+                    "name": "Member",
+                    "price": "$5 a month",
+                    "url": "",
+                    "included": "Emotes\nMembers' chat\nEarly videos"
+                },
+                {
+                    "id": "i24",
+                    "name": "Co-op",
+                    "price": "$12 a month",
+                    "url": "",
+                    "included": "Everything in Member\nMonthly game night\nName in the credits",
+                    "popular": true
+                }
+            ],
+            "cta": "Join"
+        },
+        {
+            "id": "b25",
+            "type": "tip",
+            "variant": "amounts",
+            "title": "Buy pip a snack",
+            "sub": "It really does go on snacks.",
+            "amounts": [
+                {
+                    "id": "i26",
+                    "amount": "$3"
+                },
+                {
+                    "id": "i27",
+                    "amount": "$5"
+                },
+                {
+                    "id": "i28",
+                    "amount": "$10"
+                },
+                {
+                    "id": "i29",
+                    "amount": "$25"
+                }
+            ],
+            "cta": "Send $5"
+        }
+    ]
+}

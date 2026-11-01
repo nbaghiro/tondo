@@ -50,7 +50,7 @@
             title.textContent = `@${handle}`;
             name.textContent = `${card.getAttribute("data-name") ?? ""}, ${role}`;
             visit.href = `/${handle}`;
-            phone.style.backgroundImage = `url(/examples/assets/shots/${card.getAttribute("data-shot") ?? ""}.jpg)`;
+            phone.style.backgroundImage = `url(/shots/${card.getAttribute("data-shot") ?? ""}.jpg)`;
             // A new frame each time, so moving between pages doesn't fill the back button's history.
             const frame = document.createElement("iframe");
             frame.src = `/${handle}`;

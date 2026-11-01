@@ -1,0 +1,158 @@
+{
+    "version": 1,
+    "look": "harvest",
+    "header": {
+        "layout": "look",
+        "name": "Greengage Farm",
+        "tagline": "Certified organic vegetables, Fraser Valley",
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "gallery",
+            "variant": "grid",
+            "photos": [
+                {
+                    "file": "market5.jpg",
+                    "id": "i5"
+                },
+                {
+                    "file": "market0.jpg",
+                    "id": "i6"
+                },
+                {
+                    "file": "market6.jpg",
+                    "id": "i7"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Get a box this season"
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "text": "In the box this week"
+        },
+        {
+            "id": "b10",
+            "type": "services",
+            "variant": "menu",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Tomatoes",
+                    "detail": "The last of the field",
+                    "price": "1 kg",
+                    "url": ""
+                },
+                {
+                    "id": "i12",
+                    "name": "Patty pan squash",
+                    "detail": "Roast them whole",
+                    "price": "4",
+                    "url": ""
+                },
+                {
+                    "id": "i13",
+                    "name": "Kale",
+                    "detail": "Very sweet after frost",
+                    "price": "1 bunch",
+                    "url": ""
+                },
+                {
+                    "id": "i14",
+                    "name": "Radishes",
+                    "detail": "With the tops on",
+                    "price": "1 bunch",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Choose a size"
+        },
+        {
+            "id": "b16",
+            "type": "services",
+            "variant": "tiers",
+            "items": [
+                {
+                    "id": "i17",
+                    "name": "Small",
+                    "price": "$28 a week",
+                    "url": "",
+                    "included": "Feeds one or two\n6 to 7 kinds\nPause any week"
+                },
+                {
+                    "id": "i18",
+                    "name": "Family",
+                    "price": "$44 a week",
+                    "url": "",
+                    "included": "Feeds four\n9 to 10 kinds\nEggs for $6 more",
+                    "popular": true
+                }
+            ],
+            "cta": "Join"
+        },
+        {
+            "id": "b19",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Where to pick up"
+        },
+        {
+            "id": "b20",
+            "type": "events",
+            "variant": "schedule",
+            "items": [
+                {
+                    "id": "i21",
+                    "name": "Commercial Drive",
+                    "label": "Tue",
+                    "place": "Outside Bloom Grocer, 3 to 7 pm",
+                    "url": ""
+                },
+                {
+                    "id": "i22",
+                    "name": "New Westminster",
+                    "label": "Thu",
+                    "place": "River Market, 3 to 7 pm",
+                    "url": ""
+                },
+                {
+                    "id": "i23",
+                    "name": "At the farm",
+                    "label": "Sat",
+                    "place": "9 am to noon",
+                    "url": ""
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,140 @@
+{
+    "version": 1,
+    "look": "glass",
+    "header": {
+        "layout": "look",
+        "name": "St Aidan's Parish",
+        "tagline": "Everyone is welcome here, in Halifax's North End",
+        "links": [
+            {
+                "id": "l1",
+                "type": "youtube",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Join us"
+        },
+        {
+            "id": "b5",
+            "type": "events",
+            "variant": "schedule",
+            "items": [
+                {
+                    "id": "i6",
+                    "name": "Quiet service",
+                    "label": "Sun 9 am",
+                    "place": "Said, 40 minutes",
+                    "url": ""
+                },
+                {
+                    "id": "i7",
+                    "name": "Family service",
+                    "label": "Sun 11 am",
+                    "place": "Choir and Sunday school",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "name": "Evening prayer",
+                    "label": "Wed 7 pm",
+                    "place": "Also streamed",
+                    "url": ""
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Watch last Sunday's service"
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "text": "This month"
+        },
+        {
+            "id": "b11",
+            "type": "events",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i12",
+                    "name": "Community supper",
+                    "at": "2026-11-14T10:00",
+                    "place": "All welcome, no charge",
+                    "url": ""
+                },
+                {
+                    "id": "i13",
+                    "name": "Advent carols",
+                    "at": "2026-12-06T10:00",
+                    "place": "With the North End choir",
+                    "url": ""
+                }
+            ],
+            "cta": "RSVP"
+        },
+        {
+            "id": "b14",
+            "type": "tip",
+            "variant": "amounts",
+            "title": "Give to the parish",
+            "sub": "This keeps the food bank and the building going.",
+            "amounts": [
+                {
+                    "id": "i15",
+                    "amount": "$10"
+                },
+                {
+                    "id": "i16",
+                    "amount": "$25"
+                },
+                {
+                    "id": "i17",
+                    "amount": "$50"
+                },
+                {
+                    "id": "i18",
+                    "amount": "$100"
+                }
+            ],
+            "cta": "Give $25"
+        },
+        {
+            "id": "b19",
+            "type": "contact",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i20",
+                    "type": "chat",
+                    "value": "https://example.com"
+                },
+                {
+                    "id": "i21",
+                    "type": "chat",
+                    "value": "https://example.com"
+                }
+            ]
+        }
+    ]
+}

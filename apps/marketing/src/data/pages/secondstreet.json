@@ -1,0 +1,123 @@
+{
+    "version": 1,
+    "look": "second",
+    "header": {
+        "layout": "look",
+        "name": "Second Street Barbers",
+        "bio": "Cuts and shaves in Calgary since 2011. Walk in, or book a chair below.",
+        "photo": {
+            "file": "barber8.jpg",
+            "x": 60,
+            "y": 40
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:6045550100"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "url": "",
+            "text": "Book a chair"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Services"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "list",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "Haircut",
+                    "detail": "30 min",
+                    "price": "$38",
+                    "url": ""
+                },
+                {
+                    "id": "i8",
+                    "name": "Skin fade",
+                    "detail": "45 min",
+                    "price": "$46",
+                    "url": ""
+                },
+                {
+                    "id": "i9",
+                    "name": "Beard trim",
+                    "detail": "20 min",
+                    "price": "$24",
+                    "url": ""
+                },
+                {
+                    "id": "i10",
+                    "name": "Hot towel shave",
+                    "detail": "40 min",
+                    "price": "$44",
+                    "url": ""
+                }
+            ],
+            "cta": "Book"
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "text": "What people say"
+        },
+        {
+            "id": "b12",
+            "type": "quotes",
+            "variant": "carousel",
+            "items": [
+                {
+                    "id": "i13",
+                    "text": "Best fade I've had in Calgary, and they remembered how I like it.",
+                    "by": "Andre, Google review"
+                },
+                {
+                    "id": "i14",
+                    "text": "Quick, friendly and on time every visit.",
+                    "by": "Mel, Google review"
+                },
+                {
+                    "id": "i15",
+                    "text": "Took my son for his first cut. They were very patient with him.",
+                    "by": "Priti, Google review"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "text": "Find us"
+        },
+        {
+            "id": "b17",
+            "type": "location",
+            "variant": "map",
+            "address": "212 Second Street SW",
+            "note": "Open today until 7 pm"
+        }
+    ]
+}
