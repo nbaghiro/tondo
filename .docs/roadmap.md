@@ -55,5 +55,5 @@ Made on 2026-10-31, and open to change:
 Still open:
 
 - **Domain and name:** the domain is `tondo.page`. No trademark search has been run. This should happen before more work goes into the name, because it's cheap now and costly later.
-- **Plans and prices:** the prices on the marketing page are placeholders.
+- **Plans and prices:** the owner chose the plans on 2026-11-01, and [plans-implementation.md](plans-implementation.md) tracks the build. Nothing can be bought yet.
 - **Hosting:** compare providers for custom domains and edge caching before step 4.

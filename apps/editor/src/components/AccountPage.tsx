@@ -1,8 +1,101 @@
-import { createSignal, Show } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
+import { PRICES } from "@tondo/page";
 import { logOut, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
-import { changePassword, deleteAccount } from "../lib/api";
+import {
+    changePassword,
+    deleteAccount,
+    loadBilling,
+    openPortal,
+    startCheckout,
+    syncBilling,
+} from "../lib/api";
+import { longDate } from "../lib/plan-copy";
+import { plan, refreshPlan } from "../state/plan";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
+
+function PlanSection() {
+    const [problem, setProblem] = createSignal("");
+    const [billing, { refetch }] = createResource(async () => {
+        if (new URLSearchParams(location.search).get("billing")) {
+            history.replaceState(null, "", location.pathname);
+            await syncBilling();
+            await refreshPlan();
+        }
+        return plan()?.billing ? loadBilling() : null;
+    });
+    const go = async (url: Promise<string | null>) => {
+        setProblem("");
+        const opened = await url;
+        if (opened) location.assign(opened);
+        else setProblem("We couldn't open the payment page. Please try again.");
+    };
+    const ended = () => {
+        const until = plan()?.endsAt;
+        return Boolean(until && new Date(until) <= new Date());
+    };
+    const free = () => plan()?.limits.mark === true;
+    const given = () => {
+        const until = plan()?.endsAt;
+        return until && !ended() && plan()?.plan !== "free" ? until : null;
+    };
+    const paid = () => billing()?.period;
+    const line = () => {
+        const until = given();
+        if (until) return `You have Pro for free until ${longDate(until)}.`;
+        if (free()) return ended() ? "Your plan has ended, and you're on Free." : "You're on Free.";
+        const current = billing();
+        if (!current?.period || !current.until) return "You're on Pro.";
+        const date = longDate(current.until);
+        return current.cancelling
+            ? `You're on Pro until ${date}, and it won't renew.`
+            : `You're on Pro, paid each ${current.period}. It renews on ${date}.`;
+    };
+    return (
+        <Show when={plan()?.billing}>
+            <SettingsSection title="Plan" lead="What you're on, and how it's billed.">
+                <p data-plan-summary>{line()}</p>
+                <Show when={billing()?.failing}>
+                    <p class="bad-note" role="alert" data-payment-failing>
+                        Your last payment didn't go through. Your plan and page are unchanged while
+                        we retry. Update your card in Manage billing.
+                    </p>
+                </Show>
+                <Show when={problem()}>
+                    <p class="bad-note" role="alert">
+                        {problem()}
+                    </p>
+                </Show>
+                <div class="acts">
+                    <Show when={paid()}>
+                        <button
+                            class="b"
+                            data-manage-billing
+                            onClick={() => {
+                                go(openPortal())
+                                    .then(refetch)
+                                    .catch(() => undefined);
+                            }}
+                        >
+                            Manage billing
+                        </button>
+                    </Show>
+                    <Show when={free() && !given()}>
+                        <button
+                            class="b"
+                            data-account-pro
+                            onClick={() => {
+                                go(startCheckout("account")).catch(() => undefined);
+                            }}
+                        >
+                            Get Pro, ${PRICES.pro.month} a month
+                        </button>
+                    </Show>
+                </div>
+            </SettingsSection>
+        </Show>
+    );
+}
 
 export function AccountPage(props: { account: Account }) {
     const [now, setNow] = createSignal("");
@@ -60,6 +153,7 @@ export function AccountPage(props: { account: Account }) {
             }
         >
             <PageHeader title="Account" lead="Your sign-in details." />
+            <PlanSection />
             <SettingsSection title="Email" lead="Where your codes and notices go.">
                 <label class="f">
                     Email
@@ -118,7 +212,11 @@ export function AccountPage(props: { account: Account }) {
             </SettingsSection>
             <SettingsSection
                 title="Delete account"
-                lead="This removes your page, your photos and your numbers. It can't be undone."
+                lead={
+                    plan()?.billing && !plan()?.limits.mark
+                        ? "This removes your page, your photos and your numbers, and can't be undone. This also cancels your plan straight away, with no further charges."
+                        : "This removes your page, your photos and your numbers. It can't be undone."
+                }
             >
                 <form
                     onSubmit={(e) => {

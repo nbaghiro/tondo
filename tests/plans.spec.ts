@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { lookNames, samplePage } from "@tondo/page";
 import { renderDocument } from "@tondo/render";
+import postgres from "postgres";
+import { PORTS } from "../scripts/ports";
 import { addSection, canvas, openLook, panel, setPlan, signUpToEditor } from "./helpers";
 
 // A page with something of its own on it, so publishing has nothing else to ask about.
@@ -258,4 +260,94 @@ test("the mark can be read on every look", async ({ page }) => {
         if (ratio < 4.5) low.push(`${look} ${ratio.toFixed(2)}`);
     }
     expect(low).toEqual([]);
+});
+
+const customerOf = async (handle: string) => {
+    const sql = postgres(`postgres://tondo:tondo@127.0.0.1:${String(PORTS.postgres)}/tondo_test`, {
+        max: 1,
+    });
+    const [row] = await sql<
+        { stripe_id: string | null }[]
+    >`select stripe_id from users where handle = ${handle}`;
+    await sql.end();
+    return row?.stripe_id ?? "";
+};
+const control = (action: string, customer: string) =>
+    fetch(
+        `http://127.0.0.1:${String(PORTS.testNeon)}/stripe-control/${action}?customer=${customer}`,
+    );
+
+const tryBakeAndPay = async (page: Page, button = "#pay") => {
+    const handle = await withWords(page, { plan: "free" });
+    await openLook(page);
+    await page.locator(".tile[data-look=bake]").click();
+    await page.keyboard.press("Escape");
+    await page.locator(".publish").click();
+    await page.locator("[data-get-pro]").click();
+    await page.locator(button).click();
+    await expect(page.locator("[data-paid-note]")).toContainText("You're on Pro.");
+    return handle;
+};
+
+test("paying at publish gives Pro and then the person publishes", async ({ page }) => {
+    const handle = await tryBakeAndPay(page);
+    await expect(page.locator(".pub .go").last()).toBeVisible();
+    await page.locator(".pub .go").last().click();
+    await expect(page.locator(".pub-address")).toContainText(handle);
+    const html = await (await page.request.get(`/${handle}`)).text();
+    expect(html).toContain('class="look bake"');
+    expect(html).not.toContain("Made with Tondo");
+});
+
+test("coming back from paying is enough, even with no event", async ({ page }) => {
+    await tryBakeAndPay(page, "#pay-quiet");
+    await expect(page.locator(".tile")).toHaveCount(0);
+});
+
+test("cancelling at the payment page loses nothing", async ({ page }) => {
+    await withWords(page, { plan: "free" });
+    await openLook(page);
+    await page.locator(".tile[data-look=bake]").click();
+    await page.keyboard.press("Escape");
+    await page.locator(".publish").click();
+    await page.locator("[data-get-pro]").click();
+    await page.locator("#cancel").click();
+    await expect(page.locator("[data-plan-panel]")).toContainText("Bakehouse");
+});
+
+test("failing, repeats and ending all arrive through the webhook", async ({ page }) => {
+    const handle = await tryBakeAndPay(page);
+    const customer = await customerOf(handle);
+
+    await control("fail", customer);
+    await page.goto("/app/account");
+    await expect(page.locator("[data-payment-failing]")).toBeVisible();
+    await expect(page.locator("[data-plan-summary]")).toContainText("You're on Pro");
+
+    await control("twice", customer);
+    await control("end", customer);
+    await page.goto("/app/account");
+    await expect(page.locator("[data-plan-summary]")).toContainText("Your plan has ended");
+});
+
+test("a bad signature is refused", async ({ page }) => {
+    const res = await page.request.post("/api/stripe/webhook", {
+        headers: { "stripe-signature": "t=1,v1=nope" },
+        data: "{}",
+    });
+    expect(res.status()).toBe(400);
+});
+
+test("deleting an account cancels its plan", async ({ page }) => {
+    const handle = await tryBakeAndPay(page);
+    const customer = await customerOf(handle);
+    await page.goto("/app/account");
+    await expect(page.locator(".fs", { hasText: "Delete account" })).toContainText(
+        "cancels your plan straight away",
+    );
+    await page.locator("input[name=confirm]").fill(handle);
+    await page.locator(".delete-account").click();
+    await expect(page.locator(".empty h2")).toHaveText("Your page is gone");
+    const left = (await (await control("look", customer)).json()) as { active: number };
+    expect(left.active).toBe(0);
 });

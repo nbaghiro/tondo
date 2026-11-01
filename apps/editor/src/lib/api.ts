@@ -1,5 +1,7 @@
 import { routes } from "@tondo/contract";
 import type {
+    BillingResponse,
+    CheckoutRequest,
     DeleteAccountResponse,
     DraftResponse,
     ErrorResponse,
@@ -171,6 +173,28 @@ export async function checkAddress(handle: string): Promise<HandleResponse | nul
 export async function loadPhotos(): Promise<string[]> {
     const res = await fetch(routes.photos).catch(() => null);
     return res?.ok ? ((await res.json()) as PhotosResponse).files : [];
+}
+
+/** Where to send someone to pay, or null if the payment page can't be opened. */
+export async function startCheckout(from: CheckoutRequest["from"]): Promise<string | null> {
+    const res = await send("POST", routes.billingCheckout, { period: "month", from }).catch(
+        () => null,
+    );
+    return res?.ok ? ((await res.json()) as { url: string }).url : null;
+}
+
+export async function openPortal(): Promise<string | null> {
+    const res = await send("POST", routes.billingPortal, {}).catch(() => null);
+    return res?.ok ? ((await res.json()) as { url: string }).url : null;
+}
+
+export const syncBilling = async (): Promise<void> => {
+    await send("POST", routes.billingSync, {}).catch(() => null);
+};
+
+export async function loadBilling(): Promise<BillingResponse | null> {
+    const res = await fetch(routes.billing).catch(() => null);
+    return res?.ok ? ((await res.json()) as BillingResponse) : null;
 }
 
 /** Returns what went wrong, or null if the photo's gone. */

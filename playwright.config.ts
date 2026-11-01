@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import { PORTS } from "./scripts/ports";
 import { TEST_DATABASE } from "./tests/setup-database";
+import { STRIPE_TEST_SECRET } from "./tests/test-code";
 
 const server = `http://localhost:${String(PORTS.testServer)}`;
 
@@ -49,6 +50,9 @@ export default defineConfig({
                 BLOCKED_HOSTS: "blocked.example",
                 COUNT_FLUSH_MS: "50",
                 PLANS_ON: "true",
+                STRIPE_KEY: "rk_test_stand_in",
+                STRIPE_WEBHOOK_SECRET: STRIPE_TEST_SECRET,
+                STRIPE_API_BASE: `http://127.0.0.1:${String(PORTS.testNeon)}`,
                 NEON_AUTH_COOKIE_SECRET: "a-test-secret-that-is-long-enough-to-use",
                 S3_ENDPOINT: `http://127.0.0.1:${String(PORTS.testNeon)}/s3`,
                 S3_ACCESS_KEY: "test",

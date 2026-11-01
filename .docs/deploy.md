@@ -92,6 +92,10 @@ Rate limits, the upload cap, the 15 second page cache and waiting counts all liv
 
 Rate limits read the client address from the left of `X-Forwarded-For`. This hasn't been checked behind Render or Cloudflare. Sign-in also limits per email, so a forged header doesn't get past that one.
 
+## Plans and Stripe
+
+`PLANS_ON` is `false` in `render.yaml`, so everyone behaves as Pro and nothing mentions plans. With it `true`, the server won't start unless `STRIPE_KEY` and `STRIPE_WEBHOOK_SECRET` are set and the `pro_month` and `pro_year` Prices in Stripe match the site, so a bad setup leaves the old deploy live. `STRIPE_TAX=true` is only for once a tax registration shows as collecting. The webhook address is `/api/stripe/webhook`. The full list of steps is in [plans-implementation.md](plans-implementation.md), and `pnpm --filter @tondo/db comp --all --months 12` has to run before switching plans on.
+
 ## Before launch
 
 - Create `report@tondo.page`. The report page sends mail there.

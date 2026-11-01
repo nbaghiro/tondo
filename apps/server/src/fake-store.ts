@@ -6,7 +6,9 @@ import type { Page, Plan } from "@tondo/page";
 export function createFakeStore(): AccountStore & {
     suspend: (userId: string) => void;
     plans: Map<string, { plan: Plan; endsAt: Date | null }>;
+    customers: Map<string, string>;
 } {
+    const customers = new Map<string, string>();
     const owners = new Map<string, string>();
     const plans = new Map<string, { plan: Plan; endsAt: Date | null }>();
     const suspended = new Set<string>();
@@ -14,6 +16,19 @@ export function createFakeStore(): AccountStore & {
         [...owners].find(([, owner]) => owner === userId)?.[0] ?? null;
     return {
         plans,
+        customers,
+        findStripeId: (userId) => Promise.resolve(customers.get(userId) ?? null),
+        setStripeId: (userId, stripeId) => {
+            if (!customers.has(userId)) customers.set(userId, stripeId);
+            return Promise.resolve(customers.get(userId) ?? null);
+        },
+        setPlan: (stripeId, { plan, endsAt, ifEmpty }) => {
+            const userId = [...customers].find(([, id]) => id === stripeId)?.[0];
+            if (!userId) return Promise.resolve(null);
+            const before = plans.get(userId)?.endsAt ?? null;
+            plans.set(userId, { plan, endsAt: ifEmpty ? (before ?? endsAt) : endsAt });
+            return Promise.resolve(userId);
+        },
         findPlan: (userId) => Promise.resolve(plans.get(userId) ?? { plan: "free", endsAt: null }),
         findHandle: (userId) => Promise.resolve(handleOf(userId)),
         handleTaken: (handle) => Promise.resolve(owners.has(handle)),

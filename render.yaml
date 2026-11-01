@@ -34,3 +34,9 @@ services:
             sync: false
           - key: S3_SECRET_KEY
             sync: false
+          - key: STRIPE_KEY # a restricted key
+            sync: false
+          - key: STRIPE_WEBHOOK_SECRET
+            sync: false
+          - key: STRIPE_TAX
+            sync: false

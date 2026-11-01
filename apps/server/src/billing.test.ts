@@ -1,0 +1,189 @@
+import { describe, expect, it } from "vitest";
+import { syncPlan } from "./billing";
+import { createFakeStore } from "./fake-store";
+import type { Payments, SubscriptionView } from "./stripe";
+import { Hono } from "hono";
+import { mountBilling } from "./billing";
+
+const sub = (over: Partial<SubscriptionView>): SubscriptionView => ({
+    status: "active",
+    endedAt: null,
+    lookupKey: "pro_month",
+    period: "month",
+    periodEnd: 2_000_000_000,
+    cancelling: false,
+    ...over,
+});
+
+function setup(list: SubscriptionView[] = []) {
+    const store = createFakeStore();
+    store.customers.set("june", "cus_1");
+    let current = list;
+    const calls: string[] = [];
+    let readEvent: Payments["readEvent"] = () => ({
+        kind: "sync",
+        customer: () => Promise.resolve("cus_1"),
+    });
+    const payments: Payments = {
+        createCustomer: () => Promise.resolve("cus_new"),
+        checkoutUrl: () => {
+            calls.push("checkout");
+            return Promise.resolve("https://pay.example/1");
+        },
+        portalUrl: () => Promise.resolve("https://pay.example/portal"),
+        subscriptions: () => Promise.resolve(current),
+        deleteCustomer: () => Promise.resolve(),
+        readEvent: (body, signature) => readEvent(body, signature),
+        checkPrices: () => Promise.resolve(),
+    };
+    const dropped: string[] = [];
+    const app = new Hono();
+    mountBilling(app, {
+        payments,
+        store,
+        currentPerson: (c) =>
+            Promise.resolve(
+                c.req.header("x-person")
+                    ? { id: c.req.header("x-person") ?? "", email: "j@example.com", name: "June" }
+                    : null,
+            ),
+        appUrl: () => "https://tondo.page/app",
+        scale: (max) => max,
+        onPlanChange: (userId) => {
+            dropped.push(userId);
+            return Promise.resolve();
+        },
+    });
+    const post = (path: string, body: unknown, person = "june") =>
+        app.request(path, {
+            method: "POST",
+            headers: { "content-type": "application/json", "x-person": person },
+            body: JSON.stringify(body),
+        });
+    return {
+        store,
+        payments,
+        app,
+        post,
+        calls,
+        dropped,
+        setList: (next: SubscriptionView[]) => {
+            current = next;
+        },
+        setRead: (next: Payments["readEvent"]) => {
+            readEvent = next;
+        },
+    };
+}
+
+describe("copying a plan from Stripe", () => {
+    const stateAfter = async (list: SubscriptionView[]) => {
+        const { store, payments } = setup(list);
+        await syncPlan(payments, store, "cus_1");
+        return store.plans.get("june");
+    };
+
+    it.each(["active", "trialing", "past_due"])("treats %s as paid", async (status) => {
+        expect(await stateAfter([sub({ status })])).toEqual({ plan: "pro", endsAt: null });
+    });
+
+    it("uses Stripe's own end date, so repeats can't move it", async () => {
+        const ended = sub({ status: "canceled", endedAt: 1_900_000_000 });
+        expect(await stateAfter([ended])).toEqual({
+            plan: "pro",
+            endsAt: new Date(1_900_000_000_000),
+        });
+    });
+
+    it("changes nothing for an unfinished checkout", async () => {
+        expect(await stateAfter([sub({ status: "incomplete" })])).toBeUndefined();
+    });
+
+    it("treats an unknown price as Pro", async () => {
+        expect((await stateAfter([sub({ lookupKey: "mistake" })]))?.plan).toBe("pro");
+    });
+
+    it("gives the same row for repeated and reversed events", async () => {
+        const { store, payments, setList } = setup([sub({})]);
+        await syncPlan(payments, store, "cus_1");
+        await syncPlan(payments, store, "cus_1");
+        setList([sub({ status: "canceled", endedAt: 1_900_000_000 })]);
+        await syncPlan(payments, store, "cus_1");
+        const once = store.plans.get("june");
+        await syncPlan(payments, store, "cus_1");
+        expect(store.plans.get("june")).toEqual(once);
+    });
+
+    it("keeps an end date already stored when a subscription is stopped", async () => {
+        const { store, payments } = setup([sub({ status: "unpaid" })]);
+        const earlier = new Date(1_800_000_000_000);
+        store.plans.set("june", { plan: "pro", endsAt: earlier });
+        await syncPlan(payments, store, "cus_1");
+        expect(store.plans.get("june")?.endsAt).toEqual(earlier);
+    });
+});
+
+describe("the webhook", () => {
+    it("refuses a bad signature", async () => {
+        const { app, setRead } = setup();
+        setRead(() => {
+            throw new Error("bad");
+        });
+        const res = await app.request("/api/stripe/webhook", { method: "POST", body: "{}" });
+        expect(res.status).toBe(400);
+    });
+
+    it("syncs and clears the cache", async () => {
+        const { app, store, dropped } = setup([sub({})]);
+        const res = await app.request("/api/stripe/webhook", { method: "POST", body: "{}" });
+        expect(res.status).toBe(200);
+        expect(store.plans.get("june")?.plan).toBe("pro");
+        expect(dropped).toEqual(["june"]);
+    });
+
+    it("answers 200 for a customer nobody has", async () => {
+        const { app, setRead, dropped } = setup([sub({})]);
+        setRead(() => ({ kind: "sync", customer: () => Promise.resolve("cus_gone") }));
+        const res = await app.request("/api/stripe/webhook", { method: "POST", body: "{}" });
+        expect(res.status).toBe(200);
+        expect(dropped).toEqual([]);
+    });
+
+    it("answers 500 when Stripe fails, so it's retried", async () => {
+        const { app, payments } = setup();
+        payments.subscriptions = () => Promise.reject(new Error("down"));
+        const res = await app.request("/api/stripe/webhook", { method: "POST", body: "{}" });
+        expect(res.status).toBe(500);
+    });
+});
+
+describe("checkout", () => {
+    const body = { period: "month", from: "edit" };
+
+    it("gives a payment page", async () => {
+        const { post } = setup();
+        const res = await post("/api/v1/me/billing/checkout", body);
+        expect(await res.json()).toEqual({ url: "https://pay.example/1" });
+    });
+
+    it("refuses when a paid subscription exists", async () => {
+        const { post, calls } = setup([sub({})]);
+        expect((await post("/api/v1/me/billing/checkout", body)).status).toBe(409);
+        expect(calls).toEqual([]);
+    });
+
+    it("refuses during free months, which paying would end", async () => {
+        const { post, store } = setup();
+        store.plans.set("june", { plan: "pro", endsAt: new Date(Date.now() + 86_400_000) });
+        expect((await post("/api/v1/me/billing/checkout", body)).status).toBe(409);
+    });
+
+    it("needs someone logged in, and JSON", async () => {
+        const { app } = setup();
+        const res = await app.request("/api/v1/me/billing/checkout", {
+            method: "POST",
+            body: "x",
+        });
+        expect(res.status).toBe(415);
+    });
+});

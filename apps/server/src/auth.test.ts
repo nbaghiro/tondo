@@ -4,6 +4,7 @@ import { createApp } from "./app";
 import type { AuthConfig } from "./auth";
 import { createFakePages, createFakeStore } from "./fake-store";
 import type { Storage } from "./storage";
+import type { Payments } from "./stripe";
 
 // This runs Neon's real toolkit, and replaces only the network call it makes to Neon.
 const neon = {
@@ -390,5 +391,55 @@ describe("the limits on sign-in", () => {
         });
         expect(res.status).toBe(403);
         expect(await store.findHandle(june.id)).toBe("june");
+    });
+});
+
+describe("deleting an account with a plan", () => {
+    const COOKIE = "__Secure-neon-auth.session_token=abc";
+    const payments = (deleteCustomer: Payments["deleteCustomer"]): Payments => ({
+        createCustomer: () => Promise.resolve("cus_1"),
+        checkoutUrl: () => Promise.resolve(""),
+        portalUrl: () => Promise.resolve(""),
+        subscriptions: () => Promise.resolve([]),
+        deleteCustomer,
+        readEvent: () => ({ kind: "ignore" }),
+        checkPrices: () => Promise.resolve(),
+    });
+    const remove = async (deleteCustomer: Payments["deleteCustomer"]) => {
+        fakeNeon(sessionFor);
+        const store = createFakeStore();
+        await store.claimHandle(session.user.id, "june", starterPage("June"));
+        store.customers.set(session.user.id, "cus_1");
+        const app = createApp({
+            pages: createFakePages().store,
+            payments: payments(deleteCustomer),
+            auth: { store, siteUrl: "http://site", editorUrl: "http://editor", neon },
+        });
+        const res = await app.request("/api/v1/me", {
+            method: "DELETE",
+            headers: { "content-type": "application/json", cookie: COOKIE },
+            body: JSON.stringify({ handle: "june" }),
+        });
+        return { res, store };
+    };
+
+    it("cancels first, then removes everything", async () => {
+        const seen: string[] = [];
+        const { res, store } = await remove((customer) => {
+            seen.push(customer);
+            return Promise.resolve();
+        });
+        expect(res.status).toBe(200);
+        expect(seen).toEqual(["cus_1"]);
+        expect(await store.findHandle(session.user.id)).toBeNull();
+    });
+
+    it("keeps everything if Stripe can't be reached", async () => {
+        const { res, store } = await remove(() => Promise.reject(new Error("down")));
+        expect(res.status).toBe(503);
+        expect(((await res.json()) as { error: string }).error).toContain(
+            "couldn't cancel your plan",
+        );
+        expect(await store.findHandle(session.user.id)).toBe("june");
     });
 });

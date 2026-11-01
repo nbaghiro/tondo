@@ -182,6 +182,16 @@ Nobody has tried any of this on real hardware or in another browser.
 - [ ] Scrolling and dragging by touch, including the phone sheet's grip and list items
 - [ ] A screen reader on the editor and on a published page
 
+## Plans: needs you, once plans are on
+
+These are off today. To try them locally, set `PLANS_ON=true` with a stand-in or sandbox for Stripe. Automated tests cover the flows, and these need a person. Open `?plans` on the dev editor to see every look with its mark and step-down.
+
+1. Both prompts on a phone: the first-time note and the publish panel.
+2. Whether Free feels complete on real content, with 6 sections and 12 looks.
+3. Each free look with other people's words, and whether the mark looks good on all 12.
+4. The 38 step-down pairs side by side. They were first chosen from the groups in `plans.md`, without looking at each pair.
+5. The real Stripe pass in `plans-implementation.md`, which hasn't been done.
+
 ## Known gaps
 
 These are expected, so they don't need reporting.

@@ -11,8 +11,13 @@ const rows = await db
     .update(users)
     .set({ suspendedAt: lift ? null : sql`now()` })
     .where(eq(users.handle, handle))
-    .returning({ handle: users.handle });
+    .returning({ handle: users.handle, stripeId: users.stripeId });
 await close();
+if (!lift && rows[0]?.stripeId) {
+    process.stdout.write(
+        "This account has a Stripe customer, and suspending doesn't cancel billing. Decide about that in the Dashboard.\n",
+    );
+}
 process.stdout.write(
     rows.length
         ? `${lift ? "Restored" : "Suspended"} tondo.page/${handle}. Allow 15 seconds for the cache.\n`

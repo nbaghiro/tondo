@@ -36,6 +36,8 @@ export interface AuthConfig {
     neon?: { baseUrl: string; cookieSecret: string } | undefined;
     /** Told when an address changes or goes away, so nothing old keeps being served. */
     onHandleChange?: (before: string | null, after: string | null) => void;
+    /** Ends a person's plan when they delete their account. It goes first, so nobody keeps paying. */
+    cancelBilling?: (userId: string) => Promise<void>;
     /** Removes a person's stored files when they delete their account. */
     removeFiles?: (userId: string) => Promise<void>;
     /** How long to wait for storage before saying so. */
@@ -308,7 +310,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         return c.json<MeResponse>(await meOf(person, handle));
     });
 
-    // Photos go first, because that can be tried again. If they can't be removed, the page and sign-in
+    // The plan goes first, then photos, because both can be tried again. If they can't be removed, the page and sign-in
     // stay too, so the person can still come back and finish. Once the page is gone, the sign-in is
     // always attempted, and the answer says exactly what went.
     app.delete(routes.me, smallBody, async (c) => {
@@ -336,6 +338,20 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
                 503,
             );
         };
+        try {
+            await config.cancelBilling?.(person.id);
+        } catch (error) {
+            process.stderr.write(`Couldn't cancel a plan: ${String(error)}\n`);
+            return c.json(
+                {
+                    error: "We couldn't cancel your plan, so your account is still here. Please try again.",
+                    photosRemoved: false,
+                    pageRemoved: false,
+                    signInRemoved: false,
+                },
+                503,
+            );
+        }
         try {
             await beforeDeadline(
                 config.removeFiles?.(person.id),

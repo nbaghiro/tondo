@@ -11,9 +11,11 @@ import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { isBlockedLink } from "./blocked";
 import { limitsOf } from "./limits";
+import { mountBilling } from "./billing";
 import { mountPages } from "./pages";
 import { folderFor, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
+import type { Payments } from "./stripe";
 import { clientIp, countsAsVisit, createCache, limit } from "./traffic";
 import type { Count, Scale } from "./traffic";
 
@@ -33,6 +35,8 @@ export interface AppDeps {
     scale?: Scale;
     /** Help me. Without this, its button doesn't appear and everything else works. */
     assistant?: Omit<AssistantDeps, "storage"> | null | undefined;
+    /** Stripe. Without this, the billing routes don't exist. */
+    payments?: Payments | null | undefined;
 }
 
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
@@ -57,6 +61,7 @@ export function createApp({
     publicOrigin,
     scale = (max) => max,
     assistant = null,
+    payments = null,
 }: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
@@ -120,6 +125,10 @@ export function createApp({
             if (before) cache.drop(before);
             if (after) cache.drop(after);
         },
+        cancelBilling: async (userId) => {
+            const customer = await auth.store.findStripeId(userId);
+            if (customer) await payments?.deleteCustomer(customer);
+        },
         removeFiles: async (userId) => {
             if (!storage) return;
             const files = await storage.list(folderFor(userId));
@@ -135,6 +144,23 @@ export function createApp({
             if (handle) cache.drop(handle);
         },
     });
+    if (payments) {
+        mountBilling(app, {
+            payments,
+            store: auth.store,
+            currentPerson,
+            scale,
+            onPlanChange: async (userId) => {
+                const handle = await pages.handleOf(userId);
+                if (handle) cache.drop(handle);
+            },
+            appUrl: (c) =>
+                new URL(
+                    auth.editorUrl,
+                    auth.siteUrl || (publicOrigin ?? new URL(c.req.url).origin),
+                ).href.replace(/\/$/, ""),
+        });
+    }
     mountPhotos(app, storage ?? null, currentPerson, { scale, pages, limitsOfPerson });
     mountAssistant(
         app,

@@ -23,7 +23,7 @@ export interface Limits {
 }
 
 const PAID: Limits = {
-    pages: 10,
+    pages: 5,
     sections: null,
     photos: 2000,
     credits: 100,

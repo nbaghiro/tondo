@@ -1,5 +1,5 @@
 import type { Page, Plan } from "@tondo/page";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, isNull, ne, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, usage, users } from "./schema";
 
@@ -16,6 +16,17 @@ export interface AccountStore {
     isSuspended: (userId: string) => Promise<boolean>;
     /** Someone with no row yet, such as a person in the start flow, is on Free. */
     findPlan: (userId: string) => Promise<{ plan: Plan; endsAt: Date | null }>;
+    findStripeId: (userId: string) => Promise<string | null>;
+    /** Keeps the first id saved, so two tabs can't leave two customers. Returns the id kept. */
+    setStripeId: (userId: string, stripeId: string) => Promise<string | null>;
+    /**
+     * Copies a plan from Stripe, and returns the person's id. Null if nobody has this customer. With
+     * `ifEmpty`, a stored end date stays.
+     */
+    setPlan: (
+        stripeId: string,
+        plan: { plan: Plan; endsAt: Date | null; ifEmpty?: boolean },
+    ) => Promise<string | null>;
     /** Removes the person's address, pages and counts. A suspended address stays out of use. */
     removeUser: (userId: string) => Promise<void>;
 }
@@ -78,6 +89,32 @@ export function createAccountStore(db: Db): AccountStore {
                 .from(users)
                 .where(eq(users.id, userId));
             return row ?? { plan: "free", endsAt: null };
+        },
+        findStripeId: async (userId) => {
+            const [row] = await db
+                .select({ stripeId: users.stripeId })
+                .from(users)
+                .where(eq(users.id, userId));
+            return row?.stripeId ?? null;
+        },
+        setStripeId: async (userId, stripeId) => {
+            await db
+                .update(users)
+                .set({ stripeId })
+                .where(and(eq(users.id, userId), isNull(users.stripeId)));
+            const [row] = await db
+                .select({ stripeId: users.stripeId })
+                .from(users)
+                .where(eq(users.id, userId));
+            return row?.stripeId ?? null;
+        },
+        setPlan: async (stripeId, { plan, endsAt, ifEmpty }) => {
+            const [row] = await db
+                .update(users)
+                .set({ plan, endsAt: ifEmpty ? sql`coalesce(${users.endsAt}, ${endsAt})` : endsAt })
+                .where(eq(users.stripeId, stripeId))
+                .returning({ id: users.id });
+            return row?.id ?? null;
         },
         removeUser: async (userId) => {
             await db.transaction(async (tx) => {

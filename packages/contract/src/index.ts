@@ -27,6 +27,11 @@ export const routes = {
     stats: "/api/v1/me/stats",
     photos: "/api/v1/me/photos",
     photo: (file: string) => `/api/v1/me/photos/${encodeURIComponent(file)}`,
+    billing: "/api/v1/me/billing",
+    billingCheckout: "/api/v1/me/billing/checkout",
+    billingPortal: "/api/v1/me/billing/portal",
+    billingSync: "/api/v1/me/billing/sync",
+    stripeWebhook: "/api/stripe/webhook",
     assistant: "/api/v1/me/assistant",
     assistantTurn: "/api/v1/me/assistant/turn",
     assistantImage: "/api/v1/me/assistant/image",
@@ -65,6 +70,24 @@ export const meResponse = z.strictObject({
     /** Whether plans are switched on here. While it's false, nothing mentions them. */
     billing: z.boolean(),
 });
+
+export const checkoutRequest = z.strictObject({
+    period: z.enum(["month", "year"]),
+    /** Where to come back to, inside the app. */
+    from: z.enum(["edit", "account"]),
+});
+export const billingUrlResponse = z.strictObject({ url: z.string() });
+export const billingResponse = z.strictObject({
+    period: z.enum(["month", "year"]).nullable(),
+    /** The end of the period that's paid for, as an ISO date. */
+    until: z.string().nullable(),
+    cancelling: z.boolean(),
+    /** The last payment didn't go through, and Stripe is retrying. */
+    failing: z.boolean(),
+});
+export type BillingUrlResponse = z.infer<typeof billingUrlResponse>;
+export type CheckoutRequest = z.infer<typeof checkoutRequest>;
+export type BillingResponse = z.infer<typeof billingResponse>;
 
 export const liveResponse = z.strictObject({ page: pageSchema });
 export const draftResponse = z.strictObject({

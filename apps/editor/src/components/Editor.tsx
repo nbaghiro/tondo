@@ -14,7 +14,15 @@ import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { JSX } from "solid-js";
-import { loadDraft, loadLive, loadPublishChecks, loadStats, publish } from "../lib/api";
+import {
+    loadDraft,
+    loadLive,
+    loadPublishChecks,
+    loadStats,
+    publish,
+    startCheckout,
+    syncBilling,
+} from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
 import { changesFrom, noteFor } from "../lib/plan-copy";
 import { plan, refreshPlan } from "../state/plan";
@@ -42,6 +50,8 @@ type Sheet = "page" | "add" | "look" | "section" | "publish" | "help" | null;
 /** How far the sheet's grip has to move to count as a drag and not a tap. */
 const GRIP_DRAG = 24;
 const NOTICE_MS = 3200;
+const PAID_TRIES = 15;
+const PAID_WAIT_MS = 2000;
 
 function Panel(props: {
     title: string;
@@ -167,6 +177,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
 
     // Says once per visit that something needs Pro. What the page already had when it opened was seen.
     const [planNote, setPlanNote] = createSignal("");
+    const [paidNote, setPaidNote] = createSignal("");
     const usesNow = () =>
         plan()?.billing ? triedUses(editor.page(), limits(), livePage(), lookLabel) : [];
     const mentioned = new Set(untrack(usesNow).map((use) => `${use.code}${use.label}`));
@@ -182,6 +193,34 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         });
     });
 
+    const goToCheckout = async () => {
+        setCheckoutProblem("");
+        await editor.saver.flush();
+        const url = await startCheckout("edit");
+        if (url) location.assign(url);
+        else {
+            setCheckoutProblem(
+                "We couldn't open the payment page. Please try again, or publish with free choices for now.",
+            );
+            setView(listView());
+        }
+    };
+    // Back from paying. The return runs the same sync as the webhook, so a late one strands nobody.
+    const returnFromPaying = async () => {
+        for (let tries = 0; tries < PAID_TRIES; tries++) {
+            await syncBilling();
+            await refreshPlan();
+            if (plan()?.limits.design) {
+                setPaidNote("You're on Pro. Your page is ready to publish.");
+                await openPublishList();
+                return;
+            }
+            await new Promise((done) => setTimeout(done, PAID_WAIT_MS));
+        }
+        setPaidNote(
+            "Your payment went through and your plan is still updating. Keep working, and it'll appear here shortly.",
+        );
+    };
     const showPublish = () => {
         editor.select(null);
         setRight("publish");
@@ -500,6 +539,11 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     // Home links straight to the thing to fix. A link only ever opens the panel, never publishes.
     const openAsked = () => {
         const asked = new URLSearchParams(location.search);
+        if (asked.get("paid")) {
+            history.replaceState(null, "", location.pathname);
+            returnFromPaying().catch(() => undefined);
+            return;
+        }
         const panel = asked.get("panel");
         const section = asked.get("section");
         if (!panel && !section) return;
@@ -859,9 +903,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                             }}
                             onFreeChoices={() => setFreePreview(true)}
                             onGetPro={() => {
-                                setCheckoutProblem(
-                                    "We couldn't open the payment page. Please try again, or publish with free choices for now.",
-                                );
+                                goToCheckout().catch(() => undefined);
                             }}
                             onPublishAnyway={() => {
                                 runPublish().catch(() => {
@@ -931,6 +973,11 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             <Show when={editor.notice()}>
                 <div class="toast on" role="status">
                     {editor.notice()}
+                </div>
+            </Show>
+            <Show when={paidNote()}>
+                <div class="toast on" role="status" data-paid-note>
+                    {paidNote()}
                 </div>
             </Show>
             <Show when={planNote()}>

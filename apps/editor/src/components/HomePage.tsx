@@ -14,7 +14,7 @@ import { looks, paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
-import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
+import { loadBilling, loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { loadAssistant } from "../lib/assistant-stream";
 import { longDate } from "../lib/plan-copy";
 import { plan } from "../state/plan";
@@ -142,6 +142,9 @@ function Numbers(props: { stats: StatsResponse | null }) {
 export function HomePage(props: { account: Account }) {
     const [data, { refetch }] = createResource(() => props.account.handle, loadHome);
     const [assistant] = createResource(loadAssistant);
+    const [billing] = createResource(() =>
+        plan()?.billing && plan()?.plan !== "free" ? loadBilling() : null,
+    );
     const helpAvailable = () => assistant()?.available === true;
     const [busy, setBusy] = createSignal(false);
     const [confirmDiscard, setConfirmDiscard] = createSignal(false);
@@ -328,6 +331,13 @@ export function HomePage(props: { account: Account }) {
                                                 Part of your page couldn't be read, so it's off your
                                                 live page. It's kept safe. Email support and we'll
                                                 get it back for you.
+                                            </p>
+                                        </Show>
+                                        <Show when={billing()?.failing}>
+                                            <p class="notice bad" role="alert" data-payment-failing>
+                                                Your last payment didn't go through. Your plan and
+                                                page are unchanged while we retry. Update your card
+                                                in Manage billing.
                                             </p>
                                         </Show>
                                         <Show when={planNotice(loaded().live)}>

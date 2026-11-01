@@ -4,7 +4,9 @@ import { createAccountStore, createDb, createPageStore, createUsageStore } from 
 import { createApp } from "./app";
 import { assistantFromEnv } from "./assistant-setup";
 import { mountSite } from "./site";
+import { plansOn } from "./limits";
 import { createS3Storage, storageConfig } from "./storage";
+import { paymentsFromEnv } from "./stripe";
 import { createCounter } from "./traffic";
 
 const { db, close } = createDb();
@@ -23,7 +25,23 @@ if (storage && !production) {
 const pages = createPageStore(db);
 const counter = createCounter(pages.count, Number(process.env["COUNT_FLUSH_MS"] ?? 5 * 1000));
 const limitScale = Number(process.env["RATE_LIMIT_SCALE"] ?? 1);
+// Gates with no way to pay would be a dead end, so this stops the deploy and the old one stays live.
+const payments = paymentsFromEnv(process.env);
+if (plansOn()) {
+    if (!payments) {
+        process.stderr.write(
+            "PLANS_ON is true, and the Stripe key or webhook secret is missing.\n",
+        );
+        process.exit(1);
+    }
+    await payments.checkPrices().catch((error: unknown) => {
+        process.stderr.write(`Stripe's Prices aren't ready: ${String(error)}\n`);
+        process.exit(1);
+    });
+}
+process.stdout.write(`Plans are ${plansOn() ? "on" : "off"}.\n`);
 const app = createApp({
+    payments,
     assistant: assistantFromEnv(process.env, createUsageStore(db)),
     storage,
     count: counter.count,
