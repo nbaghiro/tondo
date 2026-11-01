@@ -4,3 +4,5 @@ export { createPageStore, seedUser, summarise } from "./pages";
 export type { Draft, LivePage, PageStats, PageStore } from "./pages";
 export { createAccountStore } from "./accounts";
 export type { AccountStore } from "./accounts";
+export { createUsageStore, monthOf } from "./usage";
+export type { UsageStore } from "./usage";

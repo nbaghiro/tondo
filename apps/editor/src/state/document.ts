@@ -1,4 +1,5 @@
 import {
+    addFromLink,
     addLinkToSection,
     addSection,
     duplicateSection,
@@ -9,14 +10,18 @@ import {
     makeSection,
     moveBlock,
     moveSection,
-    readLink,
     removeBlock,
     removeSection,
-    routeLink,
+    resetStyle,
     sectionDefinition,
     sectionsOf,
     setBlockField,
     setHeaderField,
+    setLook,
+    setPageText,
+    setPaint,
+    setSeed,
+    setStyle,
     setSectionBigTitle,
     setSectionShared,
     setSectionStyle,
@@ -42,8 +47,6 @@ interface Start {
 }
 
 const makeId = () => crypto.randomUUID();
-
-const isList = (block: Block) => block.type === "button" || block.type === "link-card";
 
 export function createEditor(start: Start) {
     const saver = createSaver(start);
@@ -187,83 +190,14 @@ export function createEditor(start: Start) {
         addSection: placeSection,
         /** Puts a pasted link where it belongs. False if it isn't a usable link. */
         addFromLink(raw: string) {
-            const reading = readLink(raw);
-            if (reading.state !== "ok") return false;
-            const { key } = routeLink(reading.url);
-            const definition = sectionDefinition(key);
-            if (!definition) return false;
-            const styleId =
-                key === "media" && /spotify|music\.apple|soundcloud/i.test(reading.url)
-                    ? "music"
-                    : undefined;
-            const existing = sectionsOf(page().blocks).find((section) => {
-                if (section.definition.key !== key) return false;
-                if (styleId && section.style.id !== styleId) return false;
-                // Video goes in a video section, and a second song or booking link gets its own.
-                if (key === "media" && !styleId) return section.style.type === "video";
-                const block = section.blocks[0];
-                return !(block && !isList(block) && "url" in block && block.url);
-            });
-            const id = existing?.id ?? placeSection(key, undefined, styleId);
-            if (!id) return false;
-            const found = findSection(page(), id);
-            if (!found) return false;
-            const first = found.section.blocks[0];
-            const title = reading.title;
-            if (key === "links") {
-                const blank = found.section.blocks.find(
-                    (block) =>
-                        (block.type === "button" || block.type === "link-card") && !block.url,
-                );
-                if (blank) {
-                    let next = setBlockField(page(), blank.id, "url", reading.url);
-                    next = setBlockField(
-                        next,
-                        blank.id,
-                        blank.type === "button" ? "text" : "title",
-                        title,
-                    );
-                    change(next);
-                } else {
-                    change(addLinkToSection(page(), id, makeId, reading.url, title));
-                }
-            } else if (first?.type === "contact") {
-                const known = first.items.find(
-                    (entry) => !entry.value && entry.type === reading.icon,
-                );
-                const blank = known ?? first.items.find((entry) => !entry.value);
-                const items = blank
-                    ? first.items.map((entry) =>
-                          entry.id === blank.id
-                              ? { ...entry, value: reading.url, type: reading.icon }
-                              : entry,
-                      )
-                    : [...first.items, { id: makeId(), type: reading.icon, value: reading.url }];
-                change(setBlockField(page(), first.id, "items", items));
-            } else if (first?.type === "video") {
-                const blank = first.items.find((entry) => !entry.url);
-                const items = blank
-                    ? first.items.map((entry) =>
-                          entry.id === blank.id
-                              ? { ...entry, url: reading.url, ...(existing ? {} : { title }) }
-                              : entry,
-                      )
-                    : [
-                          ...first.items,
-                          { id: makeId(), title: title || "New video", url: reading.url },
-                      ];
-                change(setBlockField(page(), first.id, "items", items));
-            } else if (first) {
-                const linked = setBlockField(page(), first.id, "url", reading.url);
-                // A section made just now holds sample words, so the link names it.
-                change(
-                    !existing && "title" in first
-                        ? setBlockField(linked, first.id, "title", title)
-                        : linked,
-                );
-            }
-            setSelected(id);
-            say(`Added to ${definition.name}`);
+            const added = addFromLink(page(), raw, makeId, (_current, blocks) =>
+                where(blocks.some((block) => block.type === "tabs")),
+            );
+            if (!added) return false;
+            change(added.page);
+            if (added.made) justAdded = true;
+            setSelected(added.section);
+            say(`Added to ${added.name}`);
             return true;
         },
         moveSection(id: string, to: number) {
@@ -325,36 +259,27 @@ export function createEditor(start: Start) {
             return next !== current || value === getField(current, target, key);
         },
         setPageText(key: "title" | "description", value: string) {
-            const { [key]: _old, ...rest } = page();
-            change(value ? { ...rest, [key]: value } : rest, `page:${key}`);
+            change(setPageText(page(), key, value), `page:${key}`);
         },
-        /** A person's own colour stays with them. Everything else belongs to the new look. */
         setLook(look: LookName) {
-            const { paint: _paint, seed: _seed, style, ...rest } = page();
-            const colour = style?.colour;
-            const kept = colour && (colour.mode === "brand" || colour.mode === "photo");
-            const hadStyle = style && Object.keys(style).length > 0;
-            change(kept ? { ...rest, look, style: { colour } } : { ...rest, look });
-            if (hadStyle) say(kept ? "Changed the look and kept your colour" : "Changed the look");
+            const { style } = page();
+            const next = setLook(page(), look);
+            change(next);
+            if (style && Object.keys(style).length > 0) {
+                say(next.style ? "Changed the look and kept your colour" : "Changed the look");
+            }
         },
         setStyle(patch: Partial<PageStyle>, group?: string) {
-            const { style, ...rest } = page();
-            const merged = { ...style, ...patch };
-            const clean = Object.fromEntries(
-                Object.entries(merged).filter(([, value]) => value !== undefined),
-            ) as PageStyle;
-            change(Object.keys(clean).length ? { ...rest, style: clean } : rest, group);
+            change(setStyle(page(), patch), group);
         },
         resetStyle() {
-            const { style: _style, seed: _seed, ...rest } = page();
-            change(rest);
+            change(resetStyle(page()));
         },
         setPaint(paint: string[] | undefined) {
-            const { paint: _old, ...rest } = page();
-            change(paint ? { ...rest, paint } : rest);
+            change(setPaint(page(), paint));
         },
         repaint() {
-            change({ ...page(), seed: 1 + Math.floor(Math.random() * 998) });
+            change(setSeed(page(), 1 + Math.floor(Math.random() * 998)));
         },
     };
 }

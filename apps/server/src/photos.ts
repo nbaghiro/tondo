@@ -26,6 +26,7 @@ function isAllowedImage(bytes: Uint8Array): boolean {
 }
 
 const MAX_CONVERTING = 3;
+let converting = 0;
 
 const hostOf = (origin: string) => {
     try {
@@ -38,6 +39,35 @@ const hostOf = (origin: string) => {
 const sha = (value: Uint8Array | string) => createHash("sha256").update(value).digest("hex");
 export const folderFor = (userId: string) => `uploads/${sha(userId).slice(0, 16)}/`;
 
+export const isBusy = () => converting >= MAX_CONVERTING;
+
+/**
+ * Converts and keeps one image, from an upload or a picked result. Null if it can't be read.
+ * Converting drops anything else in the file, such as location data or hidden content.
+ */
+export async function storePhoto(
+    storage: Storage,
+    userId: string,
+    input: Uint8Array,
+): Promise<string | null> {
+    if (!isAllowedImage(input)) return null;
+    // Converting takes a lot of memory, so only a few run at once.
+    converting += 1;
+    const output = await sharp(input, { failOn: "error", limitInputPixels: MAX_INPUT_PIXELS })
+        .rotate()
+        .resize({ width: MAX_SIDE, height: MAX_SIDE, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer()
+        .catch(() => null)
+        .finally(() => {
+            converting -= 1;
+        });
+    if (!output) return null;
+    const file = `${folderFor(userId)}${sha(output).slice(0, 32)}.webp`;
+    await storage.put(file, output, "image/webp");
+    return file;
+}
+
 export function mountPhotos(
     app: Hono,
     storage: Storage | null,
@@ -48,7 +78,6 @@ export function mountPhotos(
         c.json<ErrorResponse>({ error }, status);
     const NOT_SET_UP = "Photo uploads aren't set up here yet.";
     const allowUpload = createLimiter(scale(30), 60_000);
-    let converting = 0;
 
     // Everything stored here went through the conversion below, so it's always this one type.
     app.get("/photos/uploads/:folder/:file", async (c) => {
@@ -103,33 +132,11 @@ export function mountPhotos(
                 return fail(c, 413, "You've reached the limit for photos.");
             }
 
-            // Converting takes a lot of memory, so only a few run at once.
-            if (converting >= MAX_CONVERTING) {
+            if (isBusy()) {
                 return fail(c, 503, "We're busy with other photos. Try again in a moment.");
             }
-            converting += 1;
-            // Converting drops anything else in the file, such as location data or hidden content.
-            const output = await sharp(input, {
-                failOn: "error",
-                limitInputPixels: MAX_INPUT_PIXELS,
-            })
-                .rotate()
-                .resize({
-                    width: MAX_SIDE,
-                    height: MAX_SIDE,
-                    fit: "inside",
-                    withoutEnlargement: true,
-                })
-                .webp({ quality: 82 })
-                .toBuffer()
-                .catch(() => null)
-                .finally(() => {
-                    converting -= 1;
-                });
-            if (!output) return fail(c, 415, refused);
-
-            const file = `${folder}${sha(output).slice(0, 32)}.webp`;
-            await storage.put(file, output, "image/webp");
+            const file = await storePhoto(storage, person.id, input);
+            if (!file) return fail(c, 415, refused);
             return c.json({ file }, 201);
         },
     );

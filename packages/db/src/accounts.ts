@@ -1,7 +1,7 @@
 import type { Page } from "@tondo/page";
 import { and, eq, ne } from "drizzle-orm";
 import type { Db } from "./client";
-import { pages, users } from "./schema";
+import { pages, usage, users } from "./schema";
 
 /** The parts of an account Tondo keeps. People themselves live in Neon Auth. */
 export interface AccountStore {
@@ -72,6 +72,7 @@ export function createAccountStore(db: Db): AccountStore {
         },
         removeUser: async (userId) => {
             await db.transaction(async (tx) => {
+                await tx.delete(usage).where(eq(usage.userId, userId));
                 const [gone] = await tx
                     .delete(users)
                     .where(eq(users.id, userId))

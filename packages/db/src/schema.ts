@@ -50,3 +50,15 @@ export const stats = pgTable(
     },
     (table) => [primaryKey({ columns: [table.pageId, table.target, table.day] })],
 );
+
+// Help me credits spent, per person per month. It has no key to users because a person using the
+// start flow hasn't got a row there yet. Numbers only: nothing about what was asked.
+export const usage = pgTable(
+    "usage",
+    {
+        userId: text("user_id").notNull(),
+        month: text("month").notNull(),
+        credits: integer("credits").notNull().default(0),
+    },
+    (table) => [primaryKey({ columns: [table.userId, table.month] })],
+);
