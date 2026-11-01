@@ -304,7 +304,7 @@ export function MakeItYours(props: { editor: EditorState }) {
                     <label
                         class="own-b"
                         aria-pressed={colour()?.mode === "brand"}
-                        style={{ "--c": colour()?.mode === "brand" ? colour()?.brand : "#5b6cff" }}
+                        style={{ "--c": colour()?.mode === "brand" ? colour()?.brand : "#a42a55" }}
                     >
                         <i />
                         My colour
@@ -312,7 +312,7 @@ export function MakeItYours(props: { editor: EditorState }) {
                             id="mycol"
                             type="color"
                             aria-label="Pick your colour"
-                            value={colour()?.brand ?? "#5b6cff"}
+                            value={colour()?.brand ?? "#a42a55"}
                             onInput={(e) => {
                                 set(
                                     { colour: { mode: "brand", brand: e.currentTarget.value } },

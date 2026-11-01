@@ -41,10 +41,11 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Done | Fuller gallery with smaller gaps and no labels | 12px gaps, and names stay available to screen readers |
 | For review | Builder port step 3: one slice with the real inspector | Five blocks in four looks, in `apps/editor`. See `builder-port.md` |
 | Waiting on Naib | Builder port steps 4 and 5: all blocks and all looks | Built, and stopped at the step 5 review |
-| Waiting on Naib | Choose the site's design language | Naib likes the Hybrid and prefers a white background to Madder's warm pink. Move it to the real site after the port |
+| Done | Choose the site's design language | Naib chose Porcelain |
 | Done | Finish the builder port, ready for full QA | Steps 6 to 10. See `qa.md` |
 
 The site changes are in `apps/marketing`.
 | Done | Move the approved builder into the real app | `apps/editor`, `packages/page/src/sections.ts`, `packages/render/src/style.ts`. See `builder-v2-port.md` |
 | Done | Rename Find me to Socials and contact, findable by instagram, social, socials, icons and contact | `packages/page/src/sections.ts` |
 | Done | Give the header's links their own Social icons row, opened by tapping the icons | `SectionPanel.tsx`, `Canvas.tsx` |
+| Done | Make Porcelain the default for the marketing site and the whole app | `packages/brand/styles/tokens.css` is the source. See `design-language.md`. Example pages keep their own looks |

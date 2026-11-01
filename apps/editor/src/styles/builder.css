@@ -2,14 +2,10 @@
 * {
     box-sizing: border-box;
     scrollbar-width: thin;
-    scrollbar-color: rgba(34, 38, 63, 0.2) transparent;
+    scrollbar-color: rgba(59, 18, 34, 0.2) transparent;
 }
 :root {
-    --paper: #f6f7fb;
-    --ink: #22263f;
-    --soft: #5d6380;
-    --faint: #8b90a8;
-    --rule: #e6e8f1;
+    --rule: var(--line);
     --white: #fff;
     --amber: #a8631a;
 }
@@ -42,7 +38,7 @@ button {
     padding: 0;
 }
 :focus-visible {
-    outline: 2.5px solid #4f5bd5;
+    outline: 2.5px solid var(--madder);
     outline-offset: 2px;
 }
 .sr {
@@ -84,7 +80,7 @@ h2 {
         background 0.12s;
 }
 .go:hover {
-    background: #111428;
+    background: #2a0e19;
 }
 .go:active {
     transform: scale(0.985);
@@ -102,7 +98,7 @@ h2 {
 }
 .ghost-b:hover {
     color: var(--ink);
-    background: #eceef6;
+    background: #efebec;
 }
 
 /* Phone */
@@ -140,8 +136,8 @@ h2 {
     border-radius: 26px;
     background: #fff;
     box-shadow:
-        0 0 0 1px rgba(34, 38, 63, 0.1),
-        0 24px 60px rgba(50, 56, 110, 0.16);
+        0 0 0 1px rgba(59, 18, 34, 0.1),
+        0 24px 60px rgba(59, 18, 34, 0.16);
     overflow: hidden;
     flex: none;
 }
@@ -177,7 +173,7 @@ h2 {
     flex: 1;
     height: 4px;
     border-radius: 9px;
-    background: #eceef6;
+    background: #efebec;
     overflow: hidden;
 }
 .bar i {
@@ -277,7 +273,7 @@ h2 {
     background: #fff;
 }
 .chip:hover {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .chip[aria-pressed="true"] {
     background: var(--ink);
@@ -305,7 +301,7 @@ h2 {
         background 0.12s;
 }
 .check:hover {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .check.on {
     border-color: var(--ink);
@@ -313,7 +309,7 @@ h2 {
 .grip {
     display: grid;
     place-items: center;
-    color: #b5b8cb;
+    color: #bdb3b7;
     cursor: grab;
     touch-action: none;
     height: 32px;
@@ -331,7 +327,7 @@ h2 {
     width: 40px;
     height: 40px;
     border-radius: 11px;
-    background: var(--paper);
+    background: var(--band);
     color: var(--ink);
 }
 .check b,
@@ -350,7 +346,7 @@ h2 {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1.5px solid #cfd2e0;
+    border: 1.5px solid #d8d1d3;
     display: grid;
     place-items: center;
     color: #fff;
@@ -383,7 +379,7 @@ h2 {
     position: relative;
 }
 .mark-t:hover {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .mark-t[aria-pressed="true"] {
     border-color: var(--ink);
@@ -463,7 +459,7 @@ h2 {
     background-size: cover;
     background-position: top;
     color: var(--fg);
-    box-shadow: 0 0 0 1px rgba(34, 38, 63, 0.09);
+    box-shadow: 0 0 0 1px rgba(59, 18, 34, 0.09);
     transition:
         transform 0.14s,
         box-shadow 0.14s;
@@ -472,8 +468,8 @@ h2 {
 .tile:hover {
     transform: translateY(-2px);
     box-shadow:
-        0 0 0 1px rgba(34, 38, 63, 0.14),
-        0 10px 22px rgba(50, 56, 110, 0.16);
+        0 0 0 1px rgba(59, 18, 34, 0.14),
+        0 10px 22px rgba(59, 18, 34, 0.16);
 }
 .tile[aria-pressed="true"] {
     box-shadow:
@@ -533,7 +529,7 @@ h2 {
         700 11.5px Mulish,
         sans-serif;
     color: #fff;
-    background: linear-gradient(transparent, rgba(20, 22, 40, 0.6));
+    background: linear-gradient(transparent, rgba(59, 18, 34, 0.6));
     opacity: 0;
     transition: opacity 0.12s;
 }
@@ -582,7 +578,7 @@ h2 {
     flex: none;
 }
 .back:hover {
-    background: var(--paper);
+    background: var(--band);
 }
 .side-body {
     flex: 1;
@@ -608,7 +604,7 @@ h2 {
     padding: 11px 12px 11px 40px;
     border: 1.5px solid var(--rule);
     border-radius: 12px;
-    background: var(--paper);
+    background: var(--band);
     outline: 0;
 }
 .find input:focus {
@@ -628,7 +624,7 @@ h2 {
     background: #fff;
 }
 .style-entry:hover {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .style-entry .look-mini {
     width: 38px;
@@ -637,7 +633,7 @@ h2 {
     background-size: cover;
     background-position: top;
     flex: none;
-    box-shadow: 0 0 0 1px rgba(34, 38, 63, 0.09);
+    box-shadow: 0 0 0 1px rgba(59, 18, 34, 0.09);
 }
 .style-entry b {
     display: block;
@@ -674,7 +670,7 @@ h2 {
     border: 1.5px solid transparent;
 }
 .row:hover {
-    background: var(--paper);
+    background: var(--band);
 }
 .row.sel {
     border-color: var(--ink);
@@ -709,7 +705,7 @@ h2 {
 .grip2 {
     display: grid;
     place-items: center;
-    color: #c2c5d5;
+    color: #c7bfc2;
     cursor: grab;
     touch-action: none;
     height: 36px;
@@ -736,7 +732,7 @@ h2 {
     color: var(--soft);
 }
 .tb:hover {
-    background: #e7e9f2;
+    background: var(--line);
     color: var(--ink);
 }
 .tb svg {
@@ -753,7 +749,7 @@ h2 {
     width: 100%;
     padding: 10px;
     margin-top: 8px;
-    border: 1.5px dashed #cfd2e0;
+    border: 1.5px dashed #d8d1d3;
     border-radius: 11px;
     color: var(--soft);
     font-weight: 700;
@@ -774,7 +770,7 @@ h2 {
     text-align: left;
 }
 .add-pick:hover {
-    background: var(--paper);
+    background: var(--band);
 }
 .add-pick b {
     display: block;
@@ -797,7 +793,7 @@ h2 {
 }
 .hint-box {
     padding: 11px 13px;
-    background: var(--paper);
+    background: var(--band);
     border-radius: 11px;
     font-size: 14px;
     color: var(--soft);
@@ -826,12 +822,12 @@ h2 {
     width: 100%;
     height: auto;
     border-radius: 10px;
-    background: var(--paper);
+    background: var(--band);
     margin-bottom: 5px;
     box-shadow: 0 0 0 1.5px transparent;
 }
 .st:hover svg {
-    background: #eceef6;
+    background: #efebec;
 }
 .st[aria-pressed="true"] {
     color: var(--ink);
@@ -925,7 +921,7 @@ h2 {
     padding: 9px 20px;
 }
 .pub-go:hover {
-    background: #111428;
+    background: #2a0e19;
 }
 .saved {
     font-size: 13px;
@@ -989,7 +985,7 @@ h2 {
         background: #fff;
         box-shadow:
             0 0 0 1px var(--rule),
-            0 6px 18px rgba(50, 56, 110, 0.16);
+            0 6px 18px rgba(59, 18, 34, 0.16);
         border-radius: 30px;
         padding: 8px 14px;
         font-weight: 700;
@@ -1064,7 +1060,7 @@ h2 {
         z-index: 5;
         border: 0;
         border-radius: 18px 18px 0 0;
-        box-shadow: 0 -10px 34px rgba(30, 34, 70, 0.2);
+        box-shadow: 0 -10px 34px rgba(59, 18, 34, 0.2);
         transform: translateY(110%);
         transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
         visibility: hidden;
@@ -1145,7 +1141,7 @@ h2 {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s;
-    background: linear-gradient(rgba(34, 38, 63, 0.12), transparent);
+    background: linear-gradient(rgba(59, 18, 34, 0.12), transparent);
 }
 .phone.scrolled::before {
     opacity: 1;
@@ -1166,11 +1162,11 @@ small.todo::before {
     vertical-align: 1px;
 }
 .row.sel {
-    background: var(--paper);
+    background: var(--band);
 }
 .dragging {
     opacity: 1;
-    box-shadow: 0 10px 26px rgba(50, 56, 110, 0.22);
+    box-shadow: 0 10px 26px rgba(59, 18, 34, 0.22);
     background: #fff;
     position: relative;
     z-index: 3;
@@ -1192,7 +1188,7 @@ small.todo::before {
     font-weight: 700;
     font-size: 14px;
     pointer-events: none;
-    box-shadow: 0 10px 26px rgba(30, 34, 70, 0.3);
+    box-shadow: 0 10px 26px rgba(59, 18, 34, 0.3);
 }
 .add-pick[data-add] {
     touch-action: pan-y;
@@ -1212,7 +1208,7 @@ small.todo::before {
 .tab-seg {
     display: flex;
     padding: 3px;
-    background: var(--paper);
+    background: var(--band);
     border-radius: 10px;
     flex: none;
 }
@@ -1227,7 +1223,7 @@ small.todo::before {
 .tab-seg button[aria-selected="true"] {
     background: #fff;
     color: var(--ink);
-    box-shadow: 0 1px 4px rgba(34, 38, 63, 0.14);
+    box-shadow: 0 1px 4px rgba(59, 18, 34, 0.14);
 }
 .mg {
     border: 1.5px solid var(--rule);
@@ -1236,7 +1232,7 @@ small.todo::before {
     background: #fff;
 }
 .mg.on {
-    border-color: #cfd2e0;
+    border-color: #d8d1d3;
 }
 .mg-h {
     display: grid;
@@ -1280,7 +1276,7 @@ small.todo::before {
     border-radius: 50%;
     overflow: hidden;
     background: var(--a) center/cover;
-    box-shadow: inset 0 0 0 1px rgba(34, 38, 63, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(59, 18, 34, 0.14);
 }
 .col-sw i {
     position: absolute;
@@ -1321,7 +1317,7 @@ small.todo::before {
     white-space: nowrap;
 }
 .own-b:hover {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .own-b[aria-pressed="true"] {
     border-color: var(--ink);
@@ -1390,7 +1386,7 @@ small.todo::before {
 .ft:hover,
 .sh:hover,
 .bg-t:hover i {
-    border-color: #c6c9da;
+    border-color: #cfc7ca;
 }
 .ft[aria-pressed="true"],
 .sh[aria-pressed="true"] {
@@ -1431,7 +1427,7 @@ small.todo::before {
     box-shadow: inset 0 0 0 1.5px var(--ink);
 }
 .sh i.f-soft {
-    background: #d9dbe8;
+    background: #e0dadc;
 }
 .bgs {
     display: grid;
@@ -1471,11 +1467,11 @@ small.todo::before {
 }
 .reset:hover {
     color: var(--ink);
-    background: var(--paper);
+    background: var(--band);
 }
 .look-mini-c {
     position: relative;
-    box-shadow: inset 0 0 0 1px rgba(34, 38, 63, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(59, 18, 34, 0.14);
 }
 .look-mini-c i {
     position: absolute;
@@ -1516,13 +1512,13 @@ small.todo::before {
 .phone {
     width: 414px;
     border-radius: 50px;
-    background: #14162a;
+    background: #2a0e19;
     padding: 12px;
     box-shadow:
         0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-        0 2px 4px rgba(34, 38, 63, 0.2),
-        0 34px 80px rgba(44, 50, 100, 0.26),
-        0 10px 26px rgba(44, 50, 100, 0.14);
+        0 2px 4px rgba(59, 18, 34, 0.2),
+        0 34px 80px rgba(59, 18, 34, 0.26),
+        0 10px 26px rgba(59, 18, 34, 0.14);
 }
 .phone iframe {
     border-radius: 38px;
@@ -1537,7 +1533,7 @@ small.todo::before {
 .build {
     position: relative;
     display: block;
-    background: radial-gradient(1100px 700px at 50% 45%, #fff, #f4f5fa 70%);
+    background: var(--paper);
 }
 .build #left {
     display: contents;
@@ -1562,9 +1558,9 @@ small.todo::before {
     border: 0;
     border-radius: 20px;
     box-shadow:
-        0 0 0 1px rgba(34, 38, 63, 0.06),
-        0 18px 46px rgba(44, 50, 100, 0.13),
-        0 3px 8px rgba(44, 50, 100, 0.05);
+        0 0 0 1px rgba(59, 18, 34, 0.06),
+        0 18px 46px rgba(59, 18, 34, 0.13),
+        0 3px 8px rgba(59, 18, 34, 0.05);
 }
 .build .lside {
     left: 18px;
@@ -1614,8 +1610,8 @@ small.todo::before {
     backdrop-filter: blur(18px);
     border-radius: 16px;
     box-shadow:
-        0 0 0 1px rgba(34, 38, 63, 0.06),
-        0 10px 28px rgba(44, 50, 100, 0.12);
+        0 0 0 1px rgba(59, 18, 34, 0.06),
+        0 10px 28px rgba(59, 18, 34, 0.12);
 }
 .tl {
     padding: 0 8px 0 12px;
@@ -1645,7 +1641,7 @@ small.todo::before {
 .topbar .url {
     margin: 0;
     padding: 6px 12px;
-    background: var(--paper);
+    background: var(--band);
     box-shadow: none;
     border-radius: 10px;
     font-size: 14px;
@@ -1664,7 +1660,7 @@ small.todo::before {
     background: none;
 }
 .topbar .circle:hover:not(:disabled) {
-    background: var(--paper);
+    background: var(--band);
 }
 .topbar .circle:disabled {
     opacity: 0.32;
@@ -1676,7 +1672,7 @@ small.todo::before {
     font-size: 14.5px;
 }
 .prev:hover {
-    background: var(--paper);
+    background: var(--band);
 }
 .topbar .pub-go {
     padding: 9px 18px;
@@ -1754,7 +1750,7 @@ small.todo::before {
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
         border-radius: 18px 18px 0 0;
-        box-shadow: 0 -10px 34px rgba(30, 34, 70, 0.2);
+        box-shadow: 0 -10px 34px rgba(59, 18, 34, 0.2);
         transform: translateY(110%);
         transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
         animation: none;
@@ -1838,7 +1834,7 @@ small.todo::before {
     font-size: 12px;
     font-weight: 700;
     color: var(--soft);
-    background: var(--paper);
+    background: var(--band);
     padding: 3px 8px;
     border-radius: 20px;
 }
@@ -1874,7 +1870,7 @@ small.todo::before {
     height: auto;
     display: block;
     border-radius: 10px;
-    background: var(--paper);
+    background: var(--band);
     margin-bottom: 5px;
 }
 .row-t {
@@ -1901,10 +1897,10 @@ small.todo::before {
     margin-top: 2px;
 }
 .grip2 {
-    color: #c2c5d5;
+    color: #c7bfc2;
 }
 .grip {
-    color: #b5b8cb;
+    color: #bdb3b7;
 }
 .todo-note {
     color: var(--soft);
@@ -1991,7 +1987,7 @@ small.todo::before {
     font-weight: 700;
     font-size: 14px;
     pointer-events: none;
-    box-shadow: 0 10px 26px rgba(30, 34, 70, 0.3);
+    box-shadow: 0 10px 26px rgba(59, 18, 34, 0.3);
 }
 .mark-plain {
     font: 600 26px var(--font-display, Fraunces, serif);
@@ -2041,7 +2037,7 @@ small.todo::before {
     align-items: center;
     gap: 14px;
     padding: 18px;
-    background: rgba(246, 247, 251, 0.96);
+    background: rgba(255, 255, 255, 0.96);
 }
 .preview-back {
     width: auto;
@@ -2093,13 +2089,13 @@ small.todo::before {
     cursor: default;
 }
 .bg-solid {
-    background: var(--paper);
+    background: var(--band);
 }
 .bg-gradient {
-    background: linear-gradient(#c6cdf2, var(--paper) 70%);
+    background: linear-gradient(#f0d0d6, var(--band) 70%);
 }
 .bg-photo {
-    background: #d9dbe6;
+    background: #e0dadc;
 }
 .logout {
     color: var(--soft);
@@ -2129,7 +2125,7 @@ small.todo::before {
         height: 4px;
         margin-left: -20px;
         border-radius: 4px;
-        background: #d5d7e3;
+        background: #dcd6d8;
     }
     .build .side .side-top {
         padding-top: 0;

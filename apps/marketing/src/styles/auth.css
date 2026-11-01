@@ -73,7 +73,7 @@
 }
 .auth-google {
     background: #fff;
-    border: 1.5px solid #e5c9be;
+    border: 1.5px solid var(--line);
 }
 .auth-google:hover {
     border-color: var(--ink);
@@ -104,7 +104,7 @@
 .auth-or::after {
     content: "";
     flex: 1;
-    border-top: 1px solid #efd9d0;
+    border-top: 1px solid var(--line);
 }
 .auth-field {
     display: block;
@@ -118,7 +118,7 @@
     margin-top: 6px;
     padding: 12px 15px;
     background: #fff;
-    border: 1.5px solid #e5c9be;
+    border: 1.5px solid var(--line);
     border-radius: 14px;
     font: 400 16px var(--font-body);
     color: inherit;
@@ -140,7 +140,7 @@
     margin-top: 6px;
     padding-left: 15px;
     background: #fff;
-    border: 1.5px solid #e5c9be;
+    border: 1.5px solid var(--line);
     border-radius: 14px;
     font-weight: 600;
 }
@@ -156,7 +156,7 @@
 .auth-error {
     margin: 16px 0 0;
     padding: 10px 14px;
-    background: #fbe7e7;
+    background: var(--band);
     border-radius: 12px;
     color: #8c1d2f;
     font-size: 14.5px;
@@ -179,7 +179,7 @@
     top: 0;
     height: 100vh;
     overflow: hidden;
-    background: linear-gradient(150deg, #f8e4dc, #eec3bd 55%, #d9a6b5);
+    background: var(--band);
 }
 .auth-strip {
     position: absolute;

@@ -235,7 +235,7 @@ body {
     width: 46px;
     height: 46px;
     background: #fff;
-    border: 1.5px solid #efd9d0;
+    border: 1.5px solid var(--line);
     border-radius: 50%;
     color: var(--ink);
     font-size: 19px;
@@ -292,7 +292,7 @@ body {
     color: var(--soft);
 }
 .band {
-    background: var(--blush);
+    background: var(--band);
 }
 .art {
     display: grid;
@@ -321,7 +321,7 @@ body {
 }
 .sw button[aria-pressed="true"] {
     border-color: var(--ink);
-    box-shadow: inset 0 0 0 3px var(--blush);
+    box-shadow: inset 0 0 0 3px var(--band);
 }
 .teamg {
     display: grid;
@@ -354,7 +354,7 @@ body {
 }
 .plan {
     background: #fff;
-    border: 1px solid #efd9d0;
+    border: 1px solid var(--line);
     border-radius: 28px;
     padding: 30px;
 }
@@ -545,7 +545,7 @@ body {
     flex-direction: column;
     justify-content: center;
     gap: 12px;
-    background: var(--blush);
+    background: var(--band);
     border-radius: 24px;
     font-size: 15.5px;
 }
@@ -580,7 +580,7 @@ body {
     background: #4d7a2a;
 }
 .demo-paste {
-    border: 1.5px solid #e5c9be;
+    border: 1.5px solid var(--line);
     color: var(--soft);
     font-weight: 500;
 }
@@ -624,7 +624,7 @@ body {
 }
 .demo-look.on {
     box-shadow:
-        0 0 0 2px var(--blush),
+        0 0 0 2px var(--band),
         0 0 0 4px var(--ink);
 }
 .demo-look b {
@@ -656,7 +656,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 58px 12px 16px;
-    background: #fdf6f2;
+    background: var(--paper);
     border-radius: 14px;
     box-shadow: 0 14px 30px rgba(59, 18, 34, 0.14);
     text-align: center;
@@ -679,7 +679,7 @@ body {
     width: 76px;
     height: 76px;
     margin-bottom: 10px;
-    border: 3px solid #fdf6f2;
+    border: 3px solid var(--paper);
     border-radius: 50%;
     object-fit: cover;
 }
@@ -709,7 +709,7 @@ body {
     height: 34px;
     margin-top: 6px;
     background: #fff;
-    border: 1px solid #efd9d0;
+    border: 1px solid var(--line);
     border-radius: 11px;
 }
 @media (max-width: 760px) {
@@ -740,7 +740,7 @@ body {
 }
 .foot {
     padding: 60px 0 28px;
-    border-top: 1px solid #efd9d0;
+    border-top: 1px solid var(--line);
     font-size: 16px;
 }
 .foot-top {
@@ -780,7 +780,7 @@ body {
 .foot-note {
     margin: 44px 0 0;
     padding-top: 18px;
-    border-top: 1px solid #efd9d0;
+    border-top: 1px solid var(--line);
     font-size: 14.5px;
     color: var(--soft);
 }
@@ -889,7 +889,7 @@ body {
     height: 44px;
     padding: 0;
     background: #fff;
-    border: 1px solid #efd9d0;
+    border: 1px solid var(--line);
     border-radius: 50%;
     color: var(--ink);
     font-size: 18px;

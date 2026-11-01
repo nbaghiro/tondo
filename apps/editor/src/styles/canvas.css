@@ -12,11 +12,11 @@ html.look {
 }
 .t-s:hover,
 .t-block:hover > .t-s {
-    outline-color: color-mix(in srgb, var(--sel, #22263f) 30%, transparent);
+    outline-color: color-mix(in srgb, var(--sel, #3b1222) 30%, transparent);
 }
 .t-sel,
 .t-sel:hover {
-    outline-color: var(--sel, #22263f);
+    outline-color: var(--sel, #3b1222);
 }
 .t-s:not(.t-head) {
     margin: 0 -18px;
@@ -44,7 +44,7 @@ a {
     display: flex;
     gap: 1px;
     padding: 3px;
-    background: #22263f;
+    background: #3b1222;
     color: #fff;
     border-radius: 11px;
     box-shadow: 0 6px 18px rgba(20, 22, 50, 0.32);
@@ -100,7 +100,7 @@ a {
     display: none;
     place-items: center;
     background: #fff;
-    color: #22263f;
+    color: #3b1222;
     border: 0;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(20, 22, 50, 0.28);
@@ -126,11 +126,11 @@ a {
     gap: 5px;
     padding: 4px 12px 4px 8px;
     background: #fff;
-    color: #22263f;
+    color: #3b1222;
     border: 0;
     border-radius: 20px;
     box-shadow:
-        0 0 0 1px rgba(34, 38, 63, 0.12),
+        0 0 0 1px rgba(59, 18, 34, 0.12),
         0 4px 12px rgba(20, 22, 50, 0.2);
     font:
         700 12.5px Mulish,
@@ -163,7 +163,7 @@ a {
     z-index: 20;
     background: var(--bg);
     box-shadow: 0 16px 36px rgba(20, 22, 50, 0.3);
-    outline: 2px solid var(--sel, #22263f) !important;
+    outline: 2px solid var(--sel, #3b1222) !important;
     outline-offset: -2px;
     border-radius: 6px;
 }
@@ -174,7 +174,7 @@ a {
     height: 4px;
     margin-top: -2px;
     border-radius: 4px;
-    background: var(--sel, #22263f);
+    background: var(--sel, #3b1222);
     box-shadow: 0 0 0 2px var(--bg);
     z-index: 19;
     pointer-events: none;
@@ -185,7 +185,7 @@ a {
 }
 @keyframes tf {
     from {
-        background: color-mix(in srgb, var(--sel, #22263f) 16%, transparent);
+        background: color-mix(in srgb, var(--sel, #3b1222) 16%, transparent);
     }
 }
 .t-hold {

@@ -1,10 +1,11 @@
 // Tondo's own colours. Coral and sienna are for paint only: they lack contrast as text on paper.
 export const colours = {
-    paper: "#FDF8F5",
+    paper: "#FFFFFF",
     ink: "#3B1222",
-    soft: "#6F4A55",
+    soft: "#6E505B",
     madder: "#A42A55",
     coral: "#E8876A",
     sienna: "#F2B56B",
-    blush: "#F8E4DC",
+    band: "#FAF6F7",
+    line: "#E7E3E4",
 } as const;

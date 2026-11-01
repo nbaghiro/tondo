@@ -19,7 +19,7 @@ The largest lesson is about content. These pages look real because they use phot
 
 ## Brand decisions
 
-Tondo's brand comes from the Wash direction with the Madder palette.
+Tondo's brand comes from the Wash direction with the Madder palette, on a pure white page. Naib chose this colourway, Porcelain, for the marketing site, sign-in screens, editor and start flow. It's today's site with the pink background removed. `packages/brand/styles/tokens.css` is the source of truth, and example pages keep their own looks.
 
 **Idea.** A round watercolour painting is the signature, and everything else stays quiet around it.
 
@@ -27,14 +27,15 @@ Tondo's brand comes from the Wash direction with the Madder palette.
 
 | Name | Hex | Use |
 |---|---|---|
-| Paper | `#FDF8F5` | Page background |
+| Paper | `#FFFFFF` | Page background |
 | Plum ink | `#3B1222` | Text and primary buttons |
 | Madder | `#A42A55` | Accent and links |
 | Coral | `#E8876A` | Paint only |
 | Sienna | `#F2B56B` | Paint only |
-| Blush | `#F8E4DC` | Quiet panels |
+| Band | `#FAF6F7` | Quiet panels and bands |
+| Line | `#E7E3E4` | Borders and rules |
 
-Coral and sienna appear in paint and not in text, because they don't have enough contrast on paper.
+Coral and sienna appear in paint and not in text, because they don't have enough contrast on paper. Colour comes from the paint and the example pages, not from the page background.
 
 **Type.** Fraunces at a soft, medium weight sets headlines. Mulish sets everything else. Headlines use sentence case.
 
