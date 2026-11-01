@@ -1,4 +1,4 @@
-// Serves the editor experiment and the design pages, which aren't apps yet. Run with pnpm scratchpad.
+// Serves throwaway experiments and design pages. Nothing in the apps depends on this. Run with pnpm scratchpad.
 
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";

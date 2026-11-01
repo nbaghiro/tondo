@@ -88,4 +88,4 @@ The sample pages use the following blocks, which are also the working list for t
 
 - Sample pages are fictional and are labelled as examples on the marketing page.
 - Nothing claims real customers, user counts or ratings.
-- Demo photos come from Openverse with CC0 or public domain marks, and are listed in `marketing/assets/CREDITS.md`. Check each one again before any public launch, including whether a photo of a person suits its use.
+- Demo photos come from Openverse with CC0 or public domain marks, and are listed in `packages/brand/photos/CREDITS.md`. Check each one again before any public launch, including whether a photo of a person suits its use.

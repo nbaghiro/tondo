@@ -1,50 +1,56 @@
 # Roadmap
 
-This is the plan as of 2026-10-31. The design work and a first editor experiment exist. The monorepo is set up. `apps/editor` has the real iframe canvas with three blocks and two looks, and the rest still lives in `.scratchpad/editor/`.
+This is where things stand on 2026-10-31. The builder is in the real app, and the next job is the checklist in [qa.md](qa.md), followed by design rework.
 
-The marketing page in `marketing/index.html` is the approved design direction. It sets the standard for the product, and it also shows more than the first release should build, so this plan says which parts come first.
+## Built
 
-## Order of work
+- **Marketing site** in `apps/marketing`, with a gallery of 50 example pages drawn by the real renderer.
+- **Accounts** through Neon Auth: email and password with verification and reset codes, and Google.
+- **Editor** in `apps/editor`: all available blocks, 50 looks, the inspector, tabs, preview, phone layout, photo uploads and server saving.
+- **Publishing:** checks before going live, public pages and click counts.
 
-### 1. Editor scratchpad
+[builder-port.md](builder-port.md) records how this was built.
 
-Started. A throwaway editor is in `.scratchpad/editor/`, with no server or accounts, and it saves to the browser's local storage. It hasn't been tried by anyone else yet. Ease of use is half of the product's goal and it's the part that hasn't been tested, so it comes before any infrastructure.
+## Order of work from here
 
-It covers one flow: start from an empty page, paste a few links, add a photo and a product, pick a look, reorder the blocks and see the result on a phone-sized preview.
+### 1. QA and design rework
 
-It's finished when someone who hasn't seen it can make a page they'd share, without help, on a phone and on a laptop. We should watch at least a few people try it, because that result decides the editor's shape.
+Walk through [qa.md](qa.md) and rework what needs it. We should also watch a few people try it without help, because that decides the editor's shape.
 
-### 2. Shared page packages
+### 2. Onboarding
 
-In progress. `heading`, `button` and `link-card`, and the Madder and Dusk looks, are moved. Next, move the remaining blocks and looks out of `.scratchpad/editor/render.js` into `packages/page` and `render`. The editor preview and the example pages then use the same renderer, so the editor can't drift from the published result.
+What a new person sees first, starter pages and a real name instead of the first part of their email.
 
-### 3. Art
+### 3. Email and collecting
 
-Turn the paintings into proper recipes in `packages/art`, drawn in a real palette and rasterised at publish time. The marketing page's colour picker only shifts hue with a CSS filter, so the redraw it describes needs building here. Three strong recipes are enough for the first release.
+Your own email provider, then sign-ups and forms with storage in `contacts`, and file delivery.
 
-### 4. Server and publishing
+### 4. Deploy
 
-Build handles, sign-in, drafts and published versions, public pages, click counts and share images. The marketing site is already in `apps/marketing`, on 2026-10-31. Its 32 example pages and block showcase are static copies from `.scratchpad/tools/build-marketing.cjs`, and they should move to the real renderer as the builder port brings the blocks and looks across.
+Render, production Neon settings, your own Google client, R2, and real legal and support pages. See [deploy.md](deploy.md).
 
-### 5. Private release
+### 5. Art
+
+Turn the paintings into recipes that redraw in a chosen palette and are rasterised at publish, with share images made from the same art.
+
+### 6. Private release
 
 Invite a small group, with real pages replacing the fictional ones as people agree to it. Replace the demo photos and check any that stay.
 
-### 6. After the private release
+### 7. After the private release
 
-Teams, custom domains and then paid plans. Teams are part of the product's positioning, but the shared look depends on single pages working well first.
+Connected accounts, teams, custom domains and paid plans, following [features.md](features.md).
 
 ## Blocks
 
-The full list, its phases and the integrations are in [block-system.md](block-system.md). It replaces the shorter list that was here.
+[builder-port.md](builder-port.md) has the final list. [block-system.md](block-system.md) has the integrations and later phases.
 
 ## Decisions
 
 Made on 2026-10-31, and open to change:
 
-- **Design direction:** the marketing page as it stands, using Wash with the Madder palette.
+- **Design direction:** the example pages in the gallery are the standard.
 - **Payments:** Tondo won't take payments in the first release. Product blocks link out, which keeps the first release free of checkout, tax and payout work. Payments follow connected accounts.
-- **Editor first:** the scratchpad comes before the monorepo.
 
 Still open:
 

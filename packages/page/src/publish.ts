@@ -50,7 +50,7 @@ export function publishIssues(page: Page): PublishIssue[] {
         issues.push({ target: "header", message: "Your header's button needs a link." });
     }
     const live = allBlocks(page.blocks).filter((block) => !block.hidden);
-    if (!live.length) {
+    if (!live.some((block) => block.type !== "tabs")) {
         issues.push({ target: "page", message: "Add at least one block to your page." });
     }
     for (const block of live) {

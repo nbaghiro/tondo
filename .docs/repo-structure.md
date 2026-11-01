@@ -10,14 +10,15 @@ tondo/
 ├── .scratchpad/           Throwaway experiments, ignored by git
 ├── apps/
 │   ├── editor/            SolidJS and Vite, with the page on a same-origin iframe canvas
-│   ├── marketing/         Astro, static output
+│   ├── marketing/         Astro, static output, with the example pages as saved documents in src/data/pages
 │   └── server/            Hono: API, public pages, the Neon Auth proxy, and the built apps in production
+├── tests/                 Playwright tests, with local stand-ins for Neon Auth and object storage
 ├── packages/
 │   ├── page/              Page schema, handle rules, link safety, and one file per block in src/blocks
 │   ├── render/            Page to HTML and CSS, art, and one file per look in src/looks
 │   ├── contract/          API routes and response schemas
 │   ├── db/                Drizzle schema, migrations, queries and seed data
-│   └── brand/             Tondo's own colours and CSS tokens, and the demo photos
+│   └── brand/             Tondo's own colours and CSS tokens, and every demo photo
 ├── scripts/               Boundary, suppression and port checks, with tests
 ├── boundaries.json        What each workspace may import
 ├── docker-compose.yml     Postgres and object storage
@@ -45,9 +46,9 @@ Each block is one file that calls `defineBlock`, holding its schema, starting co
 | `render` | `page` | none | no |
 | `contract` | `page` | `zod` | no |
 | `db` | `page` | `drizzle-orm`, `postgres` | yes |
-| `apps/server` | `page`, `render`, `contract`, `db` | `hono`, `@hono/node-server` | yes |
+| `apps/server` | `page`, `render`, `contract`, `db` | `hono`, `@hono/node-server`, `@neon/auth`, `sharp`, `aws4fetch` | yes |
 | `apps/editor` | `page`, `render`, `contract`, `brand` | `solid-js` | no |
-| `apps/marketing` | `page`, `render`, `brand` | `astro` | no |
+| `apps/marketing` | `page`, `render`, `brand`, `contract` | `astro` | no |
 
 ## What enforces the rules
 
@@ -61,7 +62,7 @@ Each block is one file that calls `defineBlock`, holding its schema, starting co
 | `pnpm check:naming` | File and folder names that break the naming rules, and CSS outside `styles/` |
 | `scripts/guards.test.ts` | A guard that has stopped reporting. Each guard is shown violations and has to catch them |
 
-The pre-commit hook and CI both run all of these. CI also builds every app, validates the compose file, and runs migrations and a page request against a real Postgres. TypeScript stays on 6.0 because `typescript-eslint` doesn't support 7 yet.
+The pre-commit hook and CI both run all of these. CI also runs the Playwright tests with `pnpm e2e`. CI also builds every app, validates the compose file, and runs migrations and a page request against a real Postgres. TypeScript stays on 6.0 because `typescript-eslint` doesn't support 7 yet.
 
 ## Local ports
 
@@ -76,7 +77,7 @@ Tondo uses 8100 to 8107 and keeps up to 8109 in reserve, so it can run alongside
 | 8104 | Drizzle Studio |
 | 8105 | Object storage S3 API (Docker) |
 | 8106 | Object storage console (Docker) |
-| 8107 | Scratchpad server for the editor experiment and design pages (`pnpm scratchpad`) |
+| 8107 | Scratchpad server for throwaway experiments (`pnpm scratchpad`). Nothing depends on it |
 
 ## Getting started
 
@@ -88,7 +89,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-Then open the editor at `http://127.0.0.1:8100`, the example page at `http://127.0.0.1:8101/maya` and the marketing site at `http://127.0.0.1:8103`.
+Then open the editor at `http://127.0.0.1:8100`, the example page at `http://127.0.0.1:8101/sample` and the marketing site at `http://127.0.0.1:8103`.
 
 ## Browser tests
 

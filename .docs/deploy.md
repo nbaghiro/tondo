@@ -72,3 +72,7 @@ Set `NEON_AUTH_BASE_URL` to the `dev` branch's Auth URL, and `NEON_AUTH_COOKIE_S
 - **Cost:** included in every plan, up to 60,000 monthly active users on Free and 1 million on Launch and Scale, as of 2026-10-31.
 - **Limits:** no multi-factor sign-in yet, and no custom plugins or server hooks.
 - **Leaving:** Neon documents no route away from it. People are stored in `neon_auth` tables we can query, on Better Auth's table design, so moving to self-hosted Better Auth looks possible, but that's untested.
+
+## Trying it on a phone
+
+`pnpm --filter @tondo/editor dev --host` and the same for marketing expose the dev servers on your network, which is only sensible on a network you trust. A phone needs the same address for each app, and Neon's cookies are marked Secure, so sign-in on a phone is most reliable once deployed on HTTPS.

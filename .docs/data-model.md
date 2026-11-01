@@ -27,18 +27,19 @@ Finalised on 2026-10-31, and applied to local Docker. The rules are as few table
 
 Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 
-**2 tables exist:**
+**3 tables exist:**
 
 | Table | Columns | What it's for |
 |---|---|---|
 | `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address |
 | `pages` | id, user_id, slug, draft, published, updated_at | The page being edited and its live copy, each one JSONB document. The empty slug is the main page |
 
+| `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
+
 **Tables that arrive with their feature:**
 
 | Table | Columns | Arrives with |
 |---|---|---|
-| `stats` | page_id, target, day, count | Click counting, builder port step 7 |
 | `contacts` | id, user_id, email, entries, unsubscribed_at, created_at | Sign-ups and forms |
 | `connections` | id, user_id, provider, credentials, items, fetched_at | Connected accounts |
 
@@ -55,7 +56,7 @@ Tables only needed for much later features are `links` (standalone QR codes and 
 | A person's name and email | Neon Auth's session |
 | Page title and icons | The page document and its links |
 | Click totals | Summed from `stats` |
-| A link's destination | The live page, through `/l/:page/:item` |
+| A link's destination | The live page, through `/l/:handle/:id`. The id is a hash of the address, so `stats` counts per address, not per block |
 | Photo list and storage use | Listing storage |
 
 ### Trade-offs
@@ -118,16 +119,10 @@ Tables only needed for much later features are `links` (standalone QR codes and 
 - **Two tabs or two teammates:** each save sends the `updated_at` it started from. If someone else saved first, the server refuses and the editor says so, instead of quietly overwriting their work.
 - **Undo** stays in the browser and isn't stored.
 - **Publishing:** check the document with the strict rules and the plan limits, then copy the draft to `published`.
-- **Clicks:** links on a published page go through `/l/:page/:item`, which reads the live page, adds one to `stats` and forwards. The published version is cached, so this stays quick.
-- **Unused photos:** a cleanup job compares stored files with the ones the workspace's pages mention.
+- **Clicks:** links on a published page go through `/l/:handle/:id`, which reads the live page, adds one to `stats` and forwards. Nothing is cached yet, so each click reads the page from the database.
+- **Unused photos:** nothing removes them yet. A cleanup job would compare stored files with the ones a person's pages mention.
 
-## Changes this makes to the builder plan
-
-- **Step 2 gains three things:** the version number, photos as `{ file, x, y, zoom }`, and moving block operations from `apps/editor/src/state/document.ts` into `packages/page`. That move is decision 7 in `features.md`: the editor, API and importers all change pages the same way.
-- **Step 7 gains:** `stats`, the save check and the `/l/` redirect.
-- **Step 8:** uploads go straight to storage, with no new table.
-
-## Limits of this proposal
+## Limits
 
 - I haven't measured save or read speed, and the "small document" claim is an estimate until real pages exist.
 - Whole-document saves would need rethinking if real-time co-editing is ever wanted.

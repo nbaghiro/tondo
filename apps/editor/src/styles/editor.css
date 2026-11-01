@@ -1272,7 +1272,9 @@ textarea.in {
         box-shadow: 0 8px 20px rgb(59 18 34 / 16%);
     }
     .pub {
+        left: 12px;
         right: 12px;
+        width: auto;
     }
 }
 .picker-h {

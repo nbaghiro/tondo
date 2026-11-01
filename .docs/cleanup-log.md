@@ -42,5 +42,6 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | For review | Builder port step 3: one slice with the real inspector | Five blocks in four looks, in `apps/editor`. See `builder-port.md` |
 | Waiting on Naib | Builder port steps 4 and 5: all blocks and all looks | Built, and stopped at the step 5 review |
 | Waiting on Naib | Choose the site's design language | Naib likes the Hybrid and prefers a white background to Madder's warm pink. Move it to the real site after the port |
+| Done | Finish the builder port, ready for full QA | Steps 6 to 10. See `qa.md` |
 
-The site changes are in `apps/marketing`. `.docs/marketing/index.html` is now an older reference and doesn't have the rebuilt sections.
+The site changes are in `apps/marketing`. 

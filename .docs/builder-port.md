@@ -1,6 +1,6 @@
 # Builder port
 
-This is the final plan for moving the full builder into `apps/editor`, written on 2026-10-31. It replaces the block list in [block-system.md](block-system.md) and the field reference in [inspector-design.md](inspector-design.md) wherever they differ. Nothing here is built yet, and the demo at `.scratchpad/inspector` still shows the longer set.
+This is the plan the full builder in `apps/editor` was built from, written on 2026-10-31. It replaces the block list in [block-system.md](block-system.md) and the field reference in [inspector-design.md](inspector-design.md) wherever they differ. It's now built, and [qa.md](qa.md) is what comes next.
 
 The goal is that someone can build any page in the gallery in the real editor, and publish it.
 
@@ -286,9 +286,39 @@ Done. The documents are in `apps/marketing/src/data/pages`, and `pnpm examples:i
 
 ### 10. Clean up
 
+Done, apart from real phones and Safari, which are in [qa.md](qa.md). `.docs/marketing` is gone, and nothing in the repo uses `.scratchpad`, whose demos may no longer load.
+
 - Remove `.scratchpad/editor`, `.scratchpad/inspector`, the copied CSS and the old demo copies in `.docs/marketing`.
 - Update the docs and run on a real phone and in Safari, which needs you for the phone.
 - Move `/maya` and `/noor` to full names, normalise address case, and add a pause control to the filmstrip, since these came up in the marketing work.
+
+## What changed from the plan
+
+- **Click counts** are per link address and not per block, because the id is a hash of the address. The destination is found in the live page, so `/l/` can't send anyone elsewhere.
+- **Page settings** are a title and description on the page document, in the look panel.
+- **Reset password** and the phone's Add button in the panel were added.
+- **The `file` block** still doesn't store a file, because that needs delivery work that belongs with sign-ups.
+
+## Pages that visibly changed on the real renderer
+
+Compared with the earlier static pages, on a first screen at phone width. These changed noticeably:
+
+| Page | What changed |
+|---|---|
+| Lucía Ferrer | The snapshots are now a gallery below the header, so they appear twice in part |
+| Small Rooms | Bigger heading and the name on one line |
+| Tally and Co | Prices moved from the ledger header into a service list |
+| Riverside Rovers | Crest shows initials, and the next match is now an events block |
+| Get Strong With Dee, Black Lantern | Spacing and heading size |
+| Adaeze Marsh | Topics are now a service list |
+| pixelpip | "Live now" is a ribbon, and clips are vertical videos |
+| Eastvale Library | Card details moved into a service list |
+| Rivet Electric | The call panel is now a button |
+| Kai Mercer | The feed's Instagram heading is gone |
+| Small Web Day, Greengage Farm, Harbour Bakery, Hablemos | Fixed details moved or dropped. Hablemos' stamp shows an initial and Harbour's main line is now the About text |
+| Every page | "Made with Tondo" at the foot is gone, and the Tondo mark isn't built yet |
+
+About 20 more changed slightly, and the rest match.
 
 ## Decisions before starting
 
