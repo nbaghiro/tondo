@@ -1,0 +1,21 @@
+---
+import type { LookName } from "@tondo/page";
+import { lookStyle } from "../lib/look-style";
+
+interface Props {
+    name: LookName;
+}
+
+// Drawn as the editor's look gallery draws them: the look's picture, type and buttons.
+
+const { name } = Astro.props;
+---
+
+<span class="tl" style={`${lookStyle(name)};background-image:url(/photos/looks/${name}.jpg)`}>
+    <span class="tl-in">
+        <i></i>
+        <strong>Aa</strong>
+        <em>Button</em>
+        <em>Button</em>
+    </span>
+</span>

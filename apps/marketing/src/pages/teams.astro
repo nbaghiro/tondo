@@ -1,0 +1,460 @@
+---
+import type { LookName } from "@tondo/page";
+import { baseCss, fontsHref, looks, paint } from "@tondo/render";
+import { blockDefinitions, drawBlock } from "@tondo/page";
+import AppSide from "../components/AppSide.astro";
+import Art from "../components/Art.astro";
+import Faq from "../components/Faq.astro";
+import Footer from "../components/Footer.astro";
+import LookTile from "../components/LookTile.astro";
+import Nav from "../components/Nav.astro";
+import Status from "../components/Status.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { lookStyle } from "../lib/look-style";
+import { examplePage, firstBlock, GALLERY_DATE } from "../lib/pages";
+import "../styles/plans.css";
+
+const INTEREST = "mailto:hello@tondo.page?subject=Tondo%20for%20teams";
+
+// The studio's real Team section, with its two people who have their own example pages. Blocks only
+// accept full addresses, so these become local ones once drawn.
+const SITE = "https://tondo.page/";
+const pages: Record<string, string> = {
+    "June Aster": `${SITE}juneaster`,
+    "Rae Bell": `${SITE}raebell`,
+};
+const team = firstBlock("asterandbell", "team");
+const teamHtml =
+    team.type === "team"
+        ? drawBlock(
+              {
+                  ...team,
+                  variant: "list",
+                  items: team.items
+                      .filter((person) => person.name in pages)
+                      .map((person) => ({ ...person, url: pages[person.name] ?? "" })),
+              },
+              { assetBase: "/photos/", editable: false, now: GALLERY_DATE },
+          ).replaceAll(SITE, "/")
+        : "";
+
+const demoLooks: { name: LookName; label: string }[] = (
+    ["sap", "madder", "dusk", "indigo", "bake", "signal"] as const
+).map((name) => ({ name, label: looks[name].label }));
+
+const demoPages = [
+    {
+        name: "Aster & Bell",
+        role: "Seasonal floral studio",
+        photo: "florist7",
+        cta: "Plan your wedding flowers",
+        shots: ["bouquet9", "flowers0"],
+        seed: 120,
+    },
+    {
+        name: "June Aster",
+        role: "Founder",
+        photo: "woman24",
+        cta: "Book a design call",
+        shots: ["bouquet8", "florist8"],
+        seed: 140,
+    },
+    {
+        name: "Rae Bell",
+        role: "Weddings",
+        photo: "woman25",
+        cta: "Ask about your date",
+        shots: ["florist6", "flowers0"],
+        seed: 160,
+    },
+];
+
+const members = [
+    { name: "June Aster", address: "tondo.page/juneaster", photo: "face-24", role: "Owner" },
+    { name: "Rae Bell", address: "tondo.page/raebell", photo: "face-25", role: "Editor" },
+    { name: "Ana Ruiz", address: "tondo.page/anaruiz", photo: "face-29", role: "Member" },
+];
+
+const roles = [
+    { name: "Owner", text: "Manages the people on the team, the team's look and the plan." },
+    { name: "Editor", text: "Can edit any page on the team, but can't change the plan." },
+    { name: "Member", text: "Edits their own page. The team's look stays as it is." },
+];
+
+const uses = [
+    {
+        title: "Studios",
+        shot: "fieldoffice",
+        example: "Field Office, a design agency",
+        text: "A page for each designer or artist with their own work, and one for the studio that lists them.",
+    },
+    {
+        title: "Shops",
+        shot: "second",
+        example: "Second Street Barbers",
+        text: "A page for each person behind the counter, with their own booking link, in the shop's look.",
+    },
+    {
+        title: "Clinics",
+        shot: "bright",
+        example: "Bright Street Dental",
+        text: "A page for each practitioner with their services and hours, and the clinic's page leading to them.",
+    },
+    {
+        title: "Clubs",
+        shot: "rovers",
+        example: "Riverside Rovers, a youth football club",
+        text: "A page for each coach or squad, kept consistent by whoever looks after the club's page.",
+    },
+];
+
+const today = [
+    "Each person signs up and claims their own address.",
+    "Everyone can pick the same look from the 50 available, one page at a time.",
+    "The Team section lists people on any page, with a photo, role and a link to their page.",
+    "Each person sees their own page's views and link clicks.",
+];
+const coming = [
+    "One account that holds a page for each person.",
+    "A team look that reaches every page when it changes.",
+    "Owner, editor and member roles.",
+    "Invitation links, so people can sign in to the page made for them.",
+    "Duplicating a page to start the next person's.",
+];
+
+const faq = [
+    {
+        q: "When will teams be available?",
+        a: "We don't have a date yet. Teams come after a private release of the product for individuals. If you email hello@tondo.page, we'll let you know when they're ready.",
+    },
+    {
+        q: "Can my team use Tondo before then?",
+        a: "Yes, as separate accounts. Each person can make a page for free, choose the same look and link to each other with the Team section. The look is set on each page, so changing it means changing every page by hand.",
+    },
+    {
+        q: "What will teams cost?",
+        a: "We're planning on $4 a person, but that's a placeholder and it may change. Teams can't be bought today, and everything that's available now is free.",
+    },
+    {
+        q: "Could pages we make today join a team later?",
+        a: "That's what we intend, because every page is already saved separately with its own address. We haven't built it, so we can't promise how it will work.",
+    },
+    {
+        q: "Are these real businesses?",
+        a: "No. Aster & Bell and the other pages here are fictional examples we designed, and the pages are built with the same blocks and looks that anyone on Tondo can use.",
+    },
+];
+
+const css = [baseCss, blockDefinitions.team.css, looks.sap.css].join("\n");
+const fonts = demoLooks.map((look) =>
+    fontsHref({ ...examplePage("asterandbell"), look: look.name }),
+);
+const heroPhones = [
+    { shot: "june", handle: "juneaster", name: "June Aster", cls: "thp-left" },
+    { shot: "aster", handle: "asterandbell", name: "Aster & Bell", cls: "thp-mid" },
+    { shot: "rae", handle: "raebell", name: "Rae Bell", cls: "thp-right" },
+];
+---
+
+<BaseLayout
+    title="Teams | Tondo"
+    description="Teams are coming to Tondo: a page for each person, with one shared look, for studios, shops, clinics and clubs."
+>
+    {fonts.map((href) => (
+        <link rel="stylesheet" href={href} />
+    ))}
+    <style is:inline set:html={css}></style>
+    <div class="wrap logo-wide">
+        <Nav />
+        <header class="t-hero">
+            <div class="t-hero-text">
+                <Status label="Coming" />
+                <h1>A page for each person, with one look for the team</h1>
+                <p class="sub">
+                    Teams are coming to Tondo. They're for studios, shops, clinics and clubs, where
+                    each person needs their own page and the pages should look like they belong
+                    together.
+                </p>
+                <div class="pl-actions">
+                    <a class="mbtn" href={INTEREST} data-interest>
+                        Register your interest
+                    </a>
+                    <a class="pl-link" href="/signup">
+                        Start a page of your own
+                    </a>
+                </div>
+                <p class="note">
+                    Teams aren't available yet and we don't have a date. Registering sends us an
+                    email, and we'll tell you when they're ready.
+                </p>
+            </div>
+            <div class="t-stage">
+                <div class="t-stage-paint">
+                    <Art seed={23} />
+                </div>
+                <div class="t-stage-ring" set:html={paint(["#a42a55"], 31, { ring: 7 })} />
+                {heroPhones.map((phone) => (
+                    <a class={`t-phone ${phone.cls}`} href={`/${phone.handle}`}>
+                        <img
+                            src={`/shots/${phone.shot}.jpg`}
+                            alt={`${phone.name}'s example page`}
+                            width="390"
+                            height="844"
+                        />
+                        <span>/{phone.handle}</span>
+                    </a>
+                ))}
+            </div>
+        </header>
+    </div>
+
+    <section class="pl-sec">
+        <div class="wrap logo-wide t-tree">
+            <div class="t-tree-text">
+                <Status now />
+                <h2>A team page that leads to everyone</h2>
+                <p class="sub">
+                    Aster & Bell is a fictional floral studio. The studio has a page, and June and
+                    Rae each have their own. The studio's page lists them, and each name opens that
+                    person's page.
+                </p>
+                <p class="pl-body">
+                    You can build this now with the Team section. It takes a photo, a name, a role
+                    and a link for each person. What's coming is the shared account that keeps those
+                    pages together.
+                </p>
+            </div>
+            <div class="t-tree-art">
+                <div class="t-tree-block">
+                    <p>The Team section on Aster & Bell's page</p>
+                    <div class="look sap t-block" set:html={teamHtml} />
+                </div>
+                <a class="t-mini t-mini-a" href="/juneaster">
+                    <img src="/shots/june.jpg" alt="June Aster's example page" loading="lazy" />
+                    <span>June's page</span>
+                </a>
+                <a class="t-mini t-mini-b" href="/raebell">
+                    <img src="/shots/rae.jpg" alt="Rae Bell's example page" loading="lazy" />
+                    <span>Rae's page</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="band pl-sec" id="look">
+        <div class="wrap logo-wide">
+            <div class="pl-head">
+                <Status />
+                <h2>Change the look once, and every page follows</h2>
+                <p class="sub">
+                    On a team, the look will belong to the team and not to each page. Everyone keeps
+                    their own words, photos and links. Pick a look below to see the idea on Aster &
+                    Bell's three pages.
+                </p>
+            </div>
+            <div class="lk">
+                <div class="lk-panel">
+                    <h3>Team look</h3>
+                    <div
+                        class="lk-tiles"
+                        role="group"
+                        aria-label="Choose a look for all three pages"
+                    >
+                        {demoLooks.map((look, i) => (
+                            <button
+                                type="button"
+                                aria-pressed={i === 0 ? "true" : "false"}
+                                data-look={look.name}
+                                data-style={lookStyle(look.name)}
+                                data-label={look.label}
+                            >
+                                <LookTile name={look.name} />
+                                <small>{look.label}</small>
+                            </button>
+                        ))}
+                    </div>
+                    <p class="lk-now" aria-live="polite">
+                        All three pages use <b data-look-now>{demoLooks[0]?.label}</b>.
+                    </p>
+                </div>
+                <div class="lk-pages" data-look-pages style={lookStyle("sap")}>
+                    {demoPages.map((person) => (
+                        <div class="ml">
+                            {demoLooks.map((look, i) => (
+                                <div
+                                    class="ml-art"
+                                    data-art={look.name}
+                                    hidden={i !== 0}
+                                    set:html={paint(looks[look.name].palette, person.seed + i)}
+                                />
+                            ))}
+                            <img
+                                class="ml-photo"
+                                src={`/photos/${person.photo}.jpg`}
+                                alt=""
+                                loading="lazy"
+                            />
+                            <b>{person.name}</b>
+                            <small>{person.role}</small>
+                            <span class="ml-btn">{person.cta}</span>
+                            <div class="ml-grid">
+                                {person.shots.map((shot) => (
+                                    <span>
+                                        <img src={`/photos/${shot}.jpg`} alt="" loading="lazy" />
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <p class="note lk-note">
+                This demonstration only runs on this page. Today each page has its own look, so a
+                team would set the same look on each page by hand.
+            </p>
+        </div>
+    </section>
+
+    <section class="pl-sec">
+        <div class="wrap logo-wide t-roles">
+            <div class="win" aria-label="A sketch of the planned team screen" role="img">
+                <AppSide active="team" team />
+                <div class="win-main">
+                    <div class="win-head">
+                        <div>
+                            <b>Team</b>
+                            <small>Aster & Bell, three people</small>
+                        </div>
+                        <span class="win-btn">Invite someone</span>
+                    </div>
+                    {members.map((person) => (
+                        <div class="win-row">
+                            <img src={`/photos/${person.photo}.jpg`} alt="" loading="lazy" />
+                            <span>
+                                <b>{person.name}</b>
+                                <small>{person.address}</small>
+                            </span>
+                            <em>{person.role}</em>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <div>
+                <Status />
+                <h2>Who can change what</h2>
+                <p class="sub">
+                    We're planning three roles, so a team can share the work without anyone changing
+                    a look by accident. The screen here is a sketch, and this may change once we've
+                    tried it with real teams.
+                </p>
+                <dl class="t-rolelist">
+                    {roles.map((role) => (
+                        <div>
+                            <dt>{role.name}</dt>
+                            <dd>{role.text}</dd>
+                        </div>
+                    ))}
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <section class="pl-sec t-uses-sec">
+        <div class="wrap logo-wide">
+            <div class="pl-head">
+                <h2>Studios, shops, clinics and clubs</h2>
+                <p class="sub">
+                    These are fictional example pages, each made with what Tondo can do today. The
+                    words beside them say what a team would add.
+                </p>
+            </div>
+            <div class="t-uses">
+                {uses.map((use) => (
+                    <div class="t-use">
+                        <div class="t-use-shot">
+                            <img
+                                src={`/shots/${use.shot}.jpg`}
+                                alt={`${use.example}, an example page`}
+                                loading="lazy"
+                                width="390"
+                                height="844"
+                            />
+                        </div>
+                        <h3>{use.title}</h3>
+                        <p>{use.text}</p>
+                        <small>Example: {use.example}</small>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <section class="band pl-sec">
+        <div class="wrap logo-wide">
+            <div class="pl-head">
+                <h2>What works today, and what's coming</h2>
+            </div>
+            <div class="t-split">
+                <div>
+                    <Status now />
+                    <ul>
+                        {today.map((line) => (
+                            <li>{line}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div>
+                    <Status />
+                    <ul>
+                        {coming.map((line) => (
+                            <li>{line}</li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <Faq items={faq} />
+
+    <section class="pl-cta">
+        <div class="pl-cta-paint">
+            <Art seed={66} />
+        </div>
+        <div class="wrap logo-wide">
+            <h2>Tell us about your team</h2>
+            <p class="sub">
+                Email hello@tondo.page with what your team does and how many people need a page. It
+                helps us decide what to build first, and we'll tell you when teams are ready.
+            </p>
+            <div class="pl-actions">
+                <a class="mbtn" href={INTEREST}>
+                    Register your interest
+                </a>
+                <a class="pl-link" href="/signup">
+                    Start a page of your own
+                </a>
+            </div>
+        </div>
+    </section>
+    <Footer />
+</BaseLayout>
+
+<script>
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-look][data-style]")];
+    const pages = document.querySelector<HTMLElement>("[data-look-pages]");
+    const now = document.querySelector("[data-look-now]");
+    for (const button of buttons) {
+        button.addEventListener("click", () => {
+            const look = button.getAttribute("data-look");
+            for (const other of buttons) {
+                other.setAttribute("aria-pressed", String(other === button));
+            }
+            pages?.setAttribute("style", button.getAttribute("data-style") ?? "");
+            for (const art of pages?.querySelectorAll<HTMLElement>("[data-art]") ?? []) {
+                art.hidden = art.getAttribute("data-art") !== look;
+            }
+            if (now) now.textContent = button.getAttribute("data-label");
+        });
+    }
+</script>

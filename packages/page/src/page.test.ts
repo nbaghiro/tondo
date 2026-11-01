@@ -133,6 +133,12 @@ describe("review fixes", () => {
         expect(readPage(bad).blocks.length).toBe(samplePage.blocks.length);
     });
 
+    it("reserves the addresses of the site's own pages", () => {
+        for (const handle of ["teams", "pricing", "gallery"]) {
+            expect(isReservedHandle(handle), handle).toBe(true);
+        }
+    });
+
     it("reserves addresses that could pass for Tondo", () => {
         for (const handle of [
             "no-reply",

@@ -1,3 +1,8 @@
+---
+import "../styles/plans.css";
+import Status from "./Status.astro";
+---
+
 <section id="teams">
     <div class="wrap teamg">
         <div class="teamimg">
@@ -6,11 +11,16 @@
             <img src="/shots/rae.jpg" alt="Rae Bell's page" loading="lazy" />
         </div>
         <div>
+            <Status />
             <h2>One look for the whole team</h2>
             <p class="sub">
-                Give everyone their own page and keep them consistent. Change the team's look once
-                and it reaches every page. Owners decide who can edit what.
+                We're building teams, so everyone can have their own page and keep them consistent.
+                Change the team's look once and it will reach every page, and owners will decide who
+                can edit what.
             </p>
+            <a class="pl-more" href="/teams">
+                See more about teams
+            </a>
         </div>
     </div>
 </section>

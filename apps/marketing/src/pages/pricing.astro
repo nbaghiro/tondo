@@ -1,0 +1,373 @@
+---
+import { paint } from "@tondo/render";
+import AppSide from "../components/AppSide.astro";
+import Art from "../components/Art.astro";
+import ClaimForm from "../components/ClaimForm.astro";
+import Faq from "../components/Faq.astro";
+import Footer from "../components/Footer.astro";
+import LookTile from "../components/LookTile.astro";
+import Nav from "../components/Nav.astro";
+import Status from "../components/Status.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/plans.css";
+
+type Cell = "yes" | "coming" | "no";
+
+// Every "yes" here has to work today. Check .docs/features.md and the editor before adding one.
+const groups: { name: string; rows: { label: string; note?: string; cells: Cell[] }[] }[] = [
+    {
+        name: "Your page",
+        rows: [
+            { label: "An address at tondo.page", cells: ["yes", "yes", "yes"] },
+            { label: "One page, with tabs", cells: ["yes", "yes", "yes"] },
+            { label: "Publishing and a preview before you do", cells: ["yes", "yes", "yes"] },
+            {
+                label: "Links, photos, video, music, events, questions and more",
+                cells: ["yes", "yes", "yes"],
+            },
+            {
+                label: "Products and services that link to your own shop",
+                cells: ["yes", "yes", "yes"],
+            },
+            { label: "A button that links to your booking page", cells: ["yes", "yes", "yes"] },
+            { label: "Email sign-ups and forms", cells: ["coming", "coming", "coming"] },
+            { label: "File downloads", cells: ["coming", "coming", "coming"] },
+            { label: "Embeds and a calendar on the page", cells: ["coming", "coming", "coming"] },
+            {
+                label: "Feeds from Instagram and other accounts",
+                cells: ["coming", "coming", "coming"],
+            },
+        ],
+    },
+    {
+        name: "Design",
+        rows: [
+            { label: "All 50 looks", cells: ["yes", "yes", "yes"] },
+            { label: "Your own colours, fonts and button shapes", cells: ["yes", "yes", "yes"] },
+            { label: "A background painted for your page", cells: ["yes", "yes", "yes"] },
+            { label: "Up to 200 uploaded photos", cells: ["yes", "yes", "yes"] },
+            {
+                label: "Remove Tondo branding",
+                note: "Pages carry no Tondo mark today, only a small link for reporting a page.",
+                cells: ["no", "coming", "coming"],
+            },
+            { label: "Your own favicon and footer logo", cells: ["no", "coming", "coming"] },
+            { label: "Upload your own fonts", cells: ["no", "coming", "coming"] },
+        ],
+    },
+    {
+        name: "Address and sharing",
+        rows: [
+            {
+                label: "Page title and description for search and chats",
+                cells: ["yes", "yes", "yes"],
+            },
+            { label: "A QR code for your page", cells: ["coming", "coming", "coming"] },
+            { label: "Custom domain", cells: ["no", "coming", "coming"] },
+            { label: "Short links and redirects", cells: ["no", "coming", "coming"] },
+        ],
+    },
+    {
+        name: "Statistics",
+        rows: [
+            { label: "Page views and link clicks", cells: ["yes", "yes", "yes"] },
+            { label: "The last 7, 30 or 90 days", cells: ["yes", "yes", "yes"] },
+            { label: "All-time and custom date ranges", cells: ["no", "coming", "coming"] },
+            { label: "Traffic sources", cells: ["no", "coming", "coming"] },
+            { label: "Export to a spreadsheet", cells: ["no", "coming", "coming"] },
+        ],
+    },
+    {
+        name: "Selling",
+        rows: [
+            { label: "Checkout on your page", cells: ["coming", "coming", "coming"] },
+            { label: "Tips", cells: ["coming", "coming", "coming"] },
+        ],
+    },
+    {
+        name: "Teams",
+        rows: [
+            { label: "A Team section that lists people", cells: ["yes", "yes", "yes"] },
+            { label: "A page for each person, on one account", cells: ["no", "no", "coming"] },
+            { label: "Shared looks", cells: ["no", "no", "coming"] },
+            { label: "Roles and permissions", cells: ["no", "no", "coming"] },
+            { label: "Invitation links", cells: ["no", "no", "coming"] },
+            { label: "Duplicate a page", cells: ["no", "no", "coming"] },
+        ],
+    },
+];
+
+const heads = [
+    { name: "Free", price: "$0", note: "Available today" },
+    { name: "Pro", price: "$6 a month", note: "Planned" },
+    { name: "Team", price: "$4 a person", note: "Planned" },
+];
+const said: Record<Cell, string> = {
+    yes: "Works today",
+    coming: "Coming",
+    no: "Not planned for this plan",
+};
+const saidPaid: Record<Cell, string> = { ...said, yes: "Works today, and would be included" };
+
+const tiles = ["madder", "noir", "sap", "dusk", "signal", "bake"] as const;
+const clicks = [
+    ["Book a workshop", 86],
+    ["Autumn sale", 62],
+    ["New vases", 41],
+    ["Instagram", 24],
+] as const;
+
+const faq = [
+    {
+        q: "What does Tondo cost today?",
+        a: "Nothing. Everything that's available now is free, and we don't ask for a card. Paid plans don't exist yet, and the prices on this page are what we're planning, so they may change before anyone can buy them.",
+    },
+    {
+        q: "What's free forever?",
+        a: "We plan to keep a free plan with one page and one address, but we haven't settled exactly what it will include, so we're not promising a list. The Free column shows what's free today. If that's going to change, we intend to say so before it does.",
+    },
+    {
+        q: "How do I cancel?",
+        a: "There's nothing to cancel today, because nobody is paying. You can delete your account at any time from the Account page, which removes your page. When paid plans arrive, we plan to let you cancel from the same place.",
+    },
+    {
+        q: "What happens if I downgrade?",
+        a: "You can't today, because there's nothing to downgrade from. Our plan is that your page stays online at its tondo.page address on the Free plan, and only the paid features switch off. We'll confirm this before paid plans launch.",
+    },
+    {
+        q: "Which plan will each coming feature be on?",
+        a: "The table shows our current thinking. Paid plans haven't been built, so a feature might land on a different plan from the one shown here.",
+    },
+    {
+        q: "When will Pro and Team be available?",
+        a: "We don't have a date. Custom domains, teams and paid plans come after a private release. To hear about teams, email hello@tondo.page.",
+    },
+];
+---
+
+<BaseLayout
+    title="Pricing | Tondo"
+    description="Everything available in Tondo today is free. Pro and Team are planned, with prices that may change."
+>
+    <div class="wrap logo-wide">
+        <Nav />
+        <header class="r-hero">
+            <h1>Everything in Tondo is free today</h1>
+            <p class="sub">
+                Paid plans aren't available yet. The prices below are what we're planning, and they
+                may change before anyone can buy them.
+            </p>
+            <div class="r-discs">
+                <div class="r-plan">
+                    <div class="r-art">
+                        <div class="r-disc r-disc-free">
+                            <Art seed={3} />
+                            <img
+                                src="/shots/maya.jpg"
+                                alt="Maya Okafor's example page"
+                                width="390"
+                                height="844"
+                            />
+                        </div>
+                    </div>
+                    <h2>Free</h2>
+                    <strong>$0</strong>
+                    <Status now label="Available today" />
+                    <p>Your page, all 50 looks and your statistics.</p>
+                    <a class="mbtn" href="/signup">
+                        Get started
+                    </a>
+                </div>
+                <div class="r-plan">
+                    <div class="r-art">
+                        <div class="r-disc" set:html={paint(["#a42a55"], 37, { ring: 6 })} />
+                        <div class="r-inside" aria-hidden="true">
+                            <span class="r-domain">yourname.com</span>
+                        </div>
+                    </div>
+                    <h2>Pro</h2>
+                    <strong>$6 a month</strong>
+                    <Status label="Planned" />
+                    <p>Your own domain, deeper statistics and no Tondo branding.</p>
+                </div>
+                <div class="r-plan">
+                    <div class="r-art">
+                        <div class="r-disc" set:html={paint(["#a42a55"], 41, { ring: 6 })} />
+                        <div class="r-inside r-faces" aria-hidden="true">
+                            <img src="/photos/face-24.jpg" alt="" />
+                            <img src="/photos/face-25.jpg" alt="" />
+                            <img src="/photos/face-29.jpg" alt="" />
+                        </div>
+                    </div>
+                    <h2>Team</h2>
+                    <strong>$4 a person</strong>
+                    <Status label="Planned" />
+                    <p>A page for each person, shared looks and roles.</p>
+                    <a class="pl-link" href="/teams">
+                        About teams
+                    </a>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <section class="band pl-sec r-today">
+        <div class="wrap logo-wide r-today-in">
+            <div class="r-today-text">
+                <Status now />
+                <h2>What you get for free now</h2>
+                <p class="sub">
+                    One address and one page, built in the full editor. Choose from 50 looks, add
+                    the sections you need and see how many people visit and what they open.
+                </p>
+                <div class="r-tiles" aria-hidden="true">
+                    {tiles.map((name) => (
+                        <LookTile name={name} />
+                    ))}
+                </div>
+            </div>
+            <div class="r-desk">
+                <div
+                    class="win"
+                    role="img"
+                    aria-label="The Analytics screen in Tondo, with views and top links, drawn without figures"
+                >
+                    <AppSide active="analytics" />
+                    <div class="win-main">
+                        <div class="win-head">
+                            <div>
+                                <b>Analytics</b>
+                                <small>How many people visit your page and what they open.</small>
+                            </div>
+                        </div>
+                        <div class="win-seg">
+                            <span>7 days</span>
+                            <span class="on">30 days</span>
+                            <span>90 days</span>
+                        </div>
+                        <svg class="win-chart" viewBox="0 0 400 110" preserveAspectRatio="none">
+                            <path
+                                d="M0 92C40 88 60 70 95 74S150 50 190 58 250 26 290 36 360 16 400 20V110H0Z"
+                                fill="#faf6f7"
+                            />
+                            <path
+                                d="M0 92C40 88 60 70 95 74S150 50 190 58 250 26 290 36 360 16 400 20"
+                                fill="none"
+                                stroke="#a42a55"
+                                stroke-width="2.5"
+                                vector-effect="non-scaling-stroke"
+                            />
+                        </svg>
+                        <b class="win-label">Top links</b>
+                        {clicks.map(([label, width]) => (
+                            <div class="win-bar">
+                                <span>{label}</span>
+                                <i style={`width:${width}%`} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <img
+                    class="r-desk-phone"
+                    src="/shots/noor.jpg"
+                    alt=""
+                    loading="lazy"
+                    width="390"
+                    height="844"
+                />
+            </div>
+        </div>
+    </section>
+
+    <section class="pl-sec" id="compare">
+        <div class="wrap logo-wide">
+            <div class="pl-head">
+                <h2>Compare the plans</h2>
+                <p class="sub">Only Free exists today. Pro and Team show what we're planning.</p>
+            </div>
+            <ul class="r-legend">
+                <li>
+                    <i class="r-yes" aria-hidden="true"></i> Works today, for free
+                </li>
+                <li>
+                    <span class="st">Coming</span> Planned and not built yet
+                </li>
+                <li>
+                    <i class="r-no" aria-hidden="true"></i> Not planned for this plan
+                </li>
+            </ul>
+            <table class="r-table">
+                <caption class="r-vh">
+                    Features of the Free plan and the planned Pro and Team plans
+                </caption>
+                <thead>
+                    <tr>
+                        <td></td>
+                        {heads.map((head) => (
+                            <th scope="col">
+                                <b>{head.name}</b>
+                                <span>{head.price}</span>
+                                <small>{head.note}</small>
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                {groups.map((group) => (
+                    <tbody>
+                        <tr class="r-group">
+                            <th scope="colgroup" colspan="4">
+                                {group.name}
+                            </th>
+                        </tr>
+                        {group.rows.map((row) => (
+                            <tr>
+                                <th scope="row">
+                                    {row.label}
+                                    {row.note ? <small>{row.note}</small> : null}
+                                </th>
+                                {row.cells.map((cell, i) => (
+                                    <td>
+                                        {cell === "coming" ? (
+                                            <span class="st">Coming</span>
+                                        ) : (
+                                            <>
+                                                <i
+                                                    class:list={[
+                                                        cell === "yes" ? "r-yes" : "r-no",
+                                                        { "r-later": i > 0 },
+                                                    ]}
+                                                    aria-hidden="true"
+                                                />
+                                                <span class="r-vh">
+                                                    {(i === 0 ? said : saidPaid)[cell]}
+                                                </span>
+                                            </>
+                                        )}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                ))}
+            </table>
+            <p class="note r-tablenote">
+                Prices are in US dollars and are placeholders. A tick under Pro or Team means the
+                feature works today and we'd expect those plans to include it.
+            </p>
+        </div>
+    </section>
+
+    <Faq items={faq} />
+
+    <section class="pl-cta">
+        <div class="pl-cta-paint">
+            <Art seed={66} />
+        </div>
+        <div class="wrap logo-wide">
+            <h2>Claim your link</h2>
+            <p class="sub">It's free today, and you won't need a card.</p>
+            <ClaimForm id="claim-pricing" />
+        </div>
+    </section>
+    <Footer />
+</BaseLayout>

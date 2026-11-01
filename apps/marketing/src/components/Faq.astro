@@ -1,0 +1,21 @@
+---
+interface Props {
+    items: readonly { q: string; a: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="pl-sec pl-faq">
+    <div class="wrap logo-wide pl-faq-in">
+        <h2>Questions</h2>
+        <div>
+            {items.map((item) => (
+                <details>
+                    <summary>{item.q}</summary>
+                    <p>{item.a}</p>
+                </details>
+            ))}
+        </div>
+    </div>
+</section>

@@ -1,14 +1,24 @@
 ---
+import "../styles/plans.css";
+import Status from "./Status.astro";
+
 const plans = [
-    { name: "Free", price: "$0", features: ["One page", "All block types", "A set of core looks"] },
+    {
+        name: "Free",
+        price: "$0",
+        now: true,
+        features: ["One page and one address", "All 50 looks", "Views and link clicks"],
+    },
     {
         name: "Pro",
         price: "$6 a month",
-        features: ["Custom domain", "Click analytics", "No Tondo mark"],
+        now: false,
+        features: ["Custom domain", "Deeper statistics", "No Tondo branding"],
     },
     {
         name: "Team",
         price: "$4 a person",
+        now: false,
         features: ["A page for each person", "Shared looks", "Roles and permissions"],
     },
 ];
@@ -16,12 +26,19 @@ const plans = [
 
 <section class="band" id="pricing">
     <div class="wrap">
-        <h2>Free to start</h2>
+        <h2>Free today, with paid plans to come</h2>
+        <p class="sub">
+            Everything available now is free. Pro and Team aren't built yet, and their prices may
+            change.
+        </p>
         <div class="plans">
             {plans.map((plan) => (
                 <div class="plan">
                     <h3>{plan.name}</h3>
                     <strong>{plan.price}</strong>
+                    <div class="plan-coming">
+                        <Status now={plan.now} label={plan.now ? "Available today" : "Planned"} />
+                    </div>
                     <ul>
                         {plan.features.map((feature) => (
                             <li>{feature}</li>
@@ -30,5 +47,8 @@ const plans = [
                 </div>
             ))}
         </div>
+        <a class="pl-more" href="/pricing">
+            See all features and planned prices
+        </a>
     </div>
 </section>
