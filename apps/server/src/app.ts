@@ -1,15 +1,17 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
-import type { PageStore } from "@tondo/db";
+import type { LivePage, PageStore } from "@tondo/db";
 import { handleSchema, normaliseHandle } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono";
-import { mountAuth } from "./auth";
+import type { Context, MiddlewareHandler } from "hono";
+import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { mountPages } from "./pages";
-import { mountPhotos } from "./photos";
+import { folderFor, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
+import { clientIp, countsAsVisit, createCache, limit } from "./traffic";
+import type { Count, Scale } from "./traffic";
 
 export interface AppDeps {
     pages: PageStore;
@@ -19,6 +21,12 @@ export interface AppDeps {
     /** Serves the built marketing site and editor, in production. */
     mountSite?: ((app: Hono) => void) | undefined;
     auth: AuthConfig;
+    /** Adds up counts. Without this, each one is written straight away. */
+    count?: Count;
+    /** This site's address as visitors see it, for link previews. */
+    publicOrigin?: string | undefined;
+    /** Multiplies the rate limits. Tests share one address, so they raise it. */
+    scale?: Scale;
 }
 
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
@@ -31,22 +39,54 @@ const PAGE_HEADERS = {
     "Cache-Control": "no-cache",
 };
 
-// A count that fails to save shouldn't stop anyone reaching a page.
-const counted = (work: Promise<void>) => {
-    work.catch((error: unknown) => {
-        process.stderr.write(`Couldn't save a count: ${String(error)}\n`);
-    });
-};
+const PAGE_CACHE_MS = 15_000;
 
-export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) {
+export function createApp({
+    pages,
+    photos,
+    storage,
+    mountSite,
+    auth,
+    count,
+    publicOrigin,
+    scale = (max) => max,
+}: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
+    const cache = createCache<LivePage | null>(PAGE_CACHE_MS);
+    // A count that fails to save shouldn't stop anyone reaching a page.
+    const add: Count =
+        count ??
+        ((pageId, target) => {
+            pages.count(pageId, target).catch((error: unknown) => {
+                process.stderr.write(`Couldn't save a count: ${String(error)}\n`);
+            });
+        });
     const live = (raw: string) => {
         const handle = normaliseHandle(raw);
         return handleSchema.safeParse(handle).success
-            ? pages.findLive(handle)
+            ? cache.get(handle, () => pages.findLive(handle))
             : Promise.resolve(null);
     };
+
+    // A sandboxed frame or a data: page sends this, and neither should be able to act for someone.
+    app.use("/api/*", async (c, next) => {
+        if (c.req.method !== "GET" && c.req.header("origin") === "null") {
+            return c.json<ErrorResponse>({ error: "This request isn't allowed." }, 403);
+        }
+        return next();
+    });
+    app.onError((error, c) => {
+        if (error instanceof AuthUnavailable) {
+            process.stderr.write(`Sign-in is unreachable: ${error.message}\n`);
+            return c.json<ErrorResponse>(
+                { error: "We can't check your sign-in right now. Your work is safe." },
+                503,
+            );
+        }
+        process.stderr.write(`Request failed: ${String(error)}\n`);
+        return c.json<ErrorResponse>({ error: "Something went wrong on our side." }, 500);
+    });
 
     // Addresses are lowercase, whatever someone types or a phone capitalises.
     app.use(async (c, next) => {
@@ -60,29 +100,51 @@ export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) 
 
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
-    const currentPerson = mountAuth(app, auth);
-    mountPages(app, pages, currentPerson);
-    mountPhotos(app, storage ?? null, currentPerson);
+    const currentPerson = mountAuth(app, {
+        ...auth,
+        scale,
+        onHandleChange: (before, after) => {
+            if (before) cache.drop(before);
+            if (after) cache.drop(after);
+        },
+        removeFiles: async (userId) => {
+            if (!storage) return;
+            const files = await storage.list(folderFor(userId));
+            await Promise.all(files.map((file) => storage.remove(file)));
+        },
+    });
+    // Publishing has to show straight away, so it clears this person's page from the cache.
+    mountPages(app, pages, currentPerson, {
+        scale,
+        onPublishChange: async (userId) => {
+            const handle = await pages.handleOf(userId);
+            if (handle) cache.drop(handle);
+        },
+    });
+    mountPhotos(app, storage ?? null, currentPerson, scale);
     if (photos) app.get("/photos/*", photos);
 
+    const byIp = (c: Context) => clientIp(c);
+
     // The destination comes from the live page, so this can't be used to send people elsewhere.
-    app.get("/l/:handle/:target", async (c) => {
+    app.get("/l/:handle/:target", limit(scale(120), byIp), async (c) => {
         const found = await live(c.req.param("handle"));
         const target = c.req.param("target");
         const url = found ? findLink(found.page, target) : null;
         if (!found || !url) return c.text(notFound.error, 404);
-        counted(pages.count(found.id, target));
+        if (countsAsVisit(c)) add(found.id, target);
         c.header("Cache-Control", "no-store");
         return c.redirect(url, 302);
     });
 
     mountSite?.(app);
 
-    app.get("/:handle", async (c) => {
-        const handle = c.req.param("handle");
+    app.get("/:handle", limit(scale(300), byIp), async (c) => {
+        const handle = normaliseHandle(c.req.param("handle"));
         const found = await live(handle);
         if (!found) return c.text(notFound.error, 404);
-        counted(pages.count(found.id, ""));
+        if (countsAsVisit(c)) add(found.id, "");
+        const origin = publicOrigin ?? new URL(c.req.url).origin;
         return c.html(
             renderDocument(found.page, {
                 title: found.page.header.name,
@@ -90,6 +152,7 @@ export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) 
                 editable: false,
                 live: true,
                 trackAs: handle,
+                shareUrl: `${origin}/${handle}`,
                 onDrawError: (type, error) => {
                     process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);
                 },

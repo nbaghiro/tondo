@@ -1,5 +1,5 @@
 import type { Page } from "@tondo/page";
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, users } from "./schema";
 
@@ -10,6 +10,10 @@ export interface AccountStore {
     handleTaken: (handle: string) => Promise<boolean>;
     /** False if the address is taken. Someone who already has an address keeps it. */
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
+    /** False if the address is taken. */
+    changeHandle: (userId: string, handle: string) => Promise<boolean>;
+    /** Removes the person's address, pages and counts. */
+    removeUser: (userId: string) => Promise<void>;
 }
 
 export function createAccountStore(db: Db): AccountStore {
@@ -42,6 +46,23 @@ export function createAccountStore(db: Db): AccountStore {
                 await tx.insert(pages).values({ userId, draft: page });
                 return true;
             });
+        },
+        changeHandle: async (userId, handle) => {
+            const taken = await db
+                .select({ id: users.id })
+                .from(users)
+                .where(and(eq(users.handle, handle), ne(users.id, userId)));
+            if (taken.length) return false;
+            const rows = await db
+                .update(users)
+                .set({ handle })
+                .where(eq(users.id, userId))
+                .returning({ id: users.id })
+                .catch(() => []);
+            return rows.length > 0;
+        },
+        removeUser: async (userId) => {
+            await db.delete(users).where(eq(users.id, userId));
         },
     };
 }

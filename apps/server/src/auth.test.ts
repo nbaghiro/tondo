@@ -124,6 +124,12 @@ describe("who's logged in", () => {
         expect((await setup().request("/api/v1/me")).status).toBe(401);
     });
 
+    it("says the service is down when Neon is, rather than logging people out", async () => {
+        fakeNeon(() => new Response("down", { status: 502 }));
+        const res = await setup().request("/api/v1/me", { headers: { cookie: SESSION } });
+        expect(res.status).toBe(503);
+    });
+
     it("reads the person from Neon's session, with their address from our tables", async () => {
         fakeNeon(sessionFor);
         const app = setup();
@@ -213,5 +219,22 @@ describe("coming back from Google", () => {
         const app = setup();
         await app.request("/api/v1/me/handle", postJson({ handle: "june" }, SESSION));
         expect((await back(app)).headers.get("location")).toBe("http://editor");
+    });
+});
+
+describe("the limits on sign-in", () => {
+    it("slows down repeated sends for one email", async () => {
+        fakeNeon(() => Response.json({}));
+        const app = setup();
+        const statuses: number[] = [];
+        for (let tries = 0; tries < 40; tries++) {
+            const res = await app.request(
+                "/api/auth/sign-in/email",
+                postJson({ email: "june@example.com", password: "x" }),
+            );
+            statuses.push(res.status);
+        }
+        expect(statuses[0]).toBe(200);
+        expect(statuses).toContain(429);
     });
 });

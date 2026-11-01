@@ -72,7 +72,7 @@ export const headerLayouts = ["look", "centred", "left", "full", "arch", "banner
 
 export const wordmarks = ["bubble", "poster", "script", "paint", "seal"] as const;
 
-const headerSchema = z.strictObject({
+export const headerSchema = z.strictObject({
     layout: z.enum(headerLayouts),
     wordmark: z.enum(wordmarks).optional(),
     name: z.string().max(80),
@@ -135,8 +135,12 @@ export const pageSchema = z.strictObject({
     /** Which painting. Leaving this out uses the look's own. */
     seed: z.number().int().min(1).optional(),
     style: pageStyleSchema.optional(),
+    /** The owner's time zone, so an event at 10 am is at 10 am where they are. */
+    timeZone: z.string().max(60).optional(),
     header: headerSchema,
     blocks: z.array(blockSchemaUnion).max(200),
+    /** Blocks that couldn't be read. Kept so nothing is lost, and never shown to visitors. */
+    unreadable: z.array(z.unknown()).max(200).optional(),
 });
 
 export type Page = z.output<typeof pageSchema>;

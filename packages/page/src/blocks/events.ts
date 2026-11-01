@@ -99,7 +99,7 @@ export const events = defineBlock({
                     ctx.editable ||
                     block.variant === "schedule" ||
                     !entry.at ||
-                    daysUntil(entry.at, now) >= 0,
+                    daysUntil(entry.at, now, ctx.timeZone) >= 0,
             );
         const first = showing[0];
         if (!first) return "";

@@ -5,6 +5,7 @@ export interface Storage {
     put: (key: string, bytes: Uint8Array, type: string) => Promise<void>;
     get: (key: string) => Promise<Uint8Array | null>;
     list: (prefix: string) => Promise<string[]>;
+    remove: (key: string) => Promise<void>;
 }
 
 export interface StorageConfig {
@@ -59,6 +60,12 @@ export function createS3Storage(
             if (!res.ok) throw new Error(`Storage refused a read: ${String(res.status)}`);
             return new Uint8Array(await res.arrayBuffer());
         },
+        remove: async (key) => {
+            const res = await client.fetch(`${base}/${key}`, { method: "DELETE" });
+            if (!res.ok && res.status !== 404) {
+                throw new Error(`Storage refused a delete: ${String(res.status)}`);
+            }
+        },
         list: async (prefix) => {
             const params = new URLSearchParams({ "list-type": "2", prefix });
             const res = await client.fetch(`${base}?${params.toString()}`);
@@ -80,6 +87,10 @@ export function createMemoryStorage(): Storage {
             return Promise.resolve();
         },
         get: (key) => Promise.resolve(files.get(key) ?? null),
+        remove: (key) => {
+            files.delete(key);
+            return Promise.resolve();
+        },
         list: (prefix) =>
             Promise.resolve([...files.keys()].filter((key) => key.startsWith(prefix))),
     };

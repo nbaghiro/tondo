@@ -31,7 +31,7 @@ export const countdown = defineBlock({
 .b-countline{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px 14px;background:var(--acc);color:var(--ribfg,#fff);border-radius:var(--r)}.b-countline b{white-space:nowrap;font-size:17px}.b-countline span{font-size:14px;line-height:1.25}`,
     render: (block, ctx) => {
         if (!block.at) return "";
-        const days = daysUntil(block.at, ctx.now ?? new Date());
+        const days = daysUntil(block.at, ctx.now ?? new Date(), ctx.timeZone);
         if (days <= 0) {
             return block.done
                 ? `<div class="b-countline"><b>${escapeHtml(block.done)}</b></div>`

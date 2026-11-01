@@ -13,6 +13,7 @@ export const routes = {
     sendCode: "/api/auth/email-otp/send-verification-otp",
     requestReset: "/api/auth/email-otp/request-password-reset",
     resetPassword: "/api/auth/email-otp/reset-password",
+    changePassword: "/api/auth/change-password",
     /** Where Google sends people back to, carrying the address they chose. */
     authReturn: "/api/v1/auth/return",
     me: "/api/v1/me",
@@ -20,6 +21,7 @@ export const routes = {
     handleCheck: (value: string) => `/api/v1/handles/${encodeURIComponent(value)}`,
     draft: "/api/v1/me/page",
     publish: "/api/v1/me/page/publish",
+    unpublish: "/api/v1/me/page/unpublish",
     stats: "/api/v1/me/stats",
     photos: "/api/v1/me/photos",
 } as const;
@@ -44,8 +46,20 @@ export const draftResponse = z.strictObject({
     published: z.boolean(),
     changed: z.boolean(),
 });
-export const saveRequest = z.strictObject({ page: pageSchema, updatedAt: z.string().max(40) });
-export const publishRequest = z.strictObject({ updatedAt: z.string().max(40) });
+// Always the text the server sent back. Anything else is refused before it reaches the database.
+const stamp = z
+    .string()
+    .max(40)
+    .regex(/^\d[\d\-:.+ TZ]*$/);
+export const saveRequest = z.strictObject({
+    page: pageSchema,
+    updatedAt: stamp,
+    /** A save whose answer never arrived. If it did land, this retry isn't a conflict. */
+    previous: z.string().max(40).optional(),
+});
+export const publishRequest = z.strictObject({ updatedAt: stamp });
+export const changeHandleRequest = z.strictObject({ handle });
+export const deleteAccountRequest = z.strictObject({ handle });
 export const issuesResponse = z.strictObject({
     error: z.string(),
     issues: z.array(
@@ -56,9 +70,16 @@ export const issuesResponse = z.strictObject({
         }),
     ),
 });
-export const statsResponse = z.strictObject({ views: z.number(), clicks: z.number() });
+export const statsResponse = z.strictObject({
+    views: z.number(),
+    clicks: z.number(),
+    days: z.array(z.strictObject({ day: z.string(), views: z.number(), clicks: z.number() })),
+    links: z.array(z.strictObject({ url: z.string(), clicks: z.number() })),
+});
 export const photosResponse = z.strictObject({ files: z.array(z.string()) });
 
+export const deleteAccountResponse = z.strictObject({ signInRemoved: z.boolean() });
+export type DeleteAccountResponse = z.infer<typeof deleteAccountResponse>;
 export type DraftResponse = z.infer<typeof draftResponse>;
 export type SaveRequest = z.infer<typeof saveRequest>;
 export type IssuesResponse = z.infer<typeof issuesResponse>;

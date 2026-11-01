@@ -18,8 +18,29 @@ export function daysFromNow(days: number): string {
 
 export const isSampleTime = (time: string): boolean => time.endsWith(SAMPLE_MINUTE);
 
-export const daysUntil = (time: string, now: Date): number =>
-    Math.ceil((Date.parse(`${time}Z`) - now.getTime()) / 86_400_000);
+// The wall clock in a time zone, written the same way as a saved local time.
+function wallClock(now: Date, timeZone: string | undefined): string {
+    if (!timeZone) return now.toISOString().slice(0, 16);
+    try {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+            timeZone,
+            hourCycle: "h23",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).formatToParts(now);
+        const part = (type: string) => parts.find((entry) => entry.type === type)?.value ?? "00";
+        return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}`;
+    } catch {
+        return now.toISOString().slice(0, 16);
+    }
+}
+
+/** Whole days until a local time, read on the page owner's clock. Past times are zero or below. */
+export const daysUntil = (time: string, now: Date, timeZone?: string): number =>
+    Math.ceil((Date.parse(`${time}Z`) - Date.parse(`${wallClock(now, timeZone)}Z`)) / 86_400_000);
 
 const MONTHS = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(" ");
 

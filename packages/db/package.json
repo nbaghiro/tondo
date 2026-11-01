@@ -10,6 +10,7 @@
         "generate": "drizzle-kit generate",
         "migrate": "tsx --env-file-if-exists=../../.env src/migrate.ts",
         "seed": "tsx --env-file-if-exists=../../.env src/seed.ts",
+        "suspend": "tsx --env-file-if-exists=../../.env src/suspend.ts",
         "studio": "drizzle-kit studio --host 127.0.0.1 --port 8104",
         "typecheck": "tsc --noEmit"
     },

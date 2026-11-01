@@ -6,6 +6,8 @@ import { bodyLimit } from "hono/body-limit";
 import sharp from "sharp";
 import type { CurrentPerson } from "./auth";
 import { limitsFor } from "./limits";
+import { createLimiter } from "./traffic";
+import type { Scale } from "./traffic";
 import type { Storage } from "./storage";
 
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -23,17 +25,30 @@ function isAllowedImage(bytes: Uint8Array): boolean {
     return jpeg || png || webp;
 }
 
+const MAX_CONVERTING = 3;
+
+const hostOf = (origin: string) => {
+    try {
+        return new URL(origin).host;
+    } catch {
+        return null;
+    }
+};
+
 const sha = (value: Uint8Array | string) => createHash("sha256").update(value).digest("hex");
-const folderFor = (userId: string) => `uploads/${sha(userId).slice(0, 16)}/`;
+export const folderFor = (userId: string) => `uploads/${sha(userId).slice(0, 16)}/`;
 
 export function mountPhotos(
     app: Hono,
     storage: Storage | null,
     currentPerson: CurrentPerson,
+    scale: Scale,
 ): void {
-    const fail = (c: Context, status: 400 | 401 | 403 | 413 | 415 | 503, error: string) =>
+    const fail = (c: Context, status: 400 | 401 | 403 | 413 | 415 | 429 | 503, error: string) =>
         c.json<ErrorResponse>({ error }, status);
     const NOT_SET_UP = "Photo uploads aren't set up here yet.";
+    const allowUpload = createLimiter(scale(30), 60_000);
+    let converting = 0;
 
     // Everything stored here went through the conversion below, so it's always this one type.
     app.get("/photos/uploads/:folder/:file", async (c) => {
@@ -65,12 +80,15 @@ export function mountPhotos(
         async (c) => {
             // Uploads are forms, which other sites can send, so this checks where it came from.
             const origin = c.req.header("origin");
-            if (origin && new URL(origin).host !== c.req.header("host")) {
+            if (origin && hostOf(origin) !== c.req.header("host")) {
                 return fail(c, 403, "This upload came from another site.");
             }
             const person = await currentPerson(c);
             if (!person) return fail(c, 401, "You're not logged in.");
             if (!storage) return fail(c, 503, NOT_SET_UP);
+            if (!allowUpload(person.id)) {
+                return fail(c, 429, "That's a lot of photos at once. Wait a little and try again.");
+            }
 
             const form = await c.req.parseBody().catch(() => null);
             const photo = form?.["photo"];
@@ -85,6 +103,11 @@ export function mountPhotos(
                 return fail(c, 413, "You've reached the limit for photos.");
             }
 
+            // Converting takes a lot of memory, so only a few run at once.
+            if (converting >= MAX_CONVERTING) {
+                return fail(c, 503, "We're busy with other photos. Try again in a moment.");
+            }
+            converting += 1;
             // Converting drops anything else in the file, such as location data or hidden content.
             const output = await sharp(input, {
                 failOn: "error",
@@ -99,7 +122,10 @@ export function mountPhotos(
                 })
                 .webp({ quality: 82 })
                 .toBuffer()
-                .catch(() => null);
+                .catch(() => null)
+                .finally(() => {
+                    converting -= 1;
+                });
             if (!output) return fail(c, 415, refused);
 
             const file = `${folder}${sha(output).slice(0, 32)}.webp`;

@@ -1,3 +1,4 @@
+import { summarise } from "@tondo/db";
 import type { AccountStore, Draft, PageStore } from "@tondo/db";
 import type { Page } from "@tondo/page";
 
@@ -14,6 +15,19 @@ export function createFakeStore(): AccountStore {
             if (owner && owner !== userId) return Promise.resolve(false);
             if (!handleOf(userId)) owners.set(handle, userId);
             return Promise.resolve(handleOf(userId) === handle);
+        },
+        changeHandle: (userId, handle) => {
+            const owner = owners.get(handle);
+            if (owner && owner !== userId) return Promise.resolve(false);
+            const before = handleOf(userId);
+            if (before) owners.delete(before);
+            owners.set(handle, userId);
+            return Promise.resolve(true);
+        },
+        removeUser: (userId) => {
+            const before = handleOf(userId);
+            if (before) owners.delete(before);
+            return Promise.resolve();
         },
     };
 }
@@ -47,6 +61,7 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
                 row?.[1].published ? { id: row[0], page: row[1].published } : null,
             );
         },
+        handleOf: (userId) => Promise.resolve(rows.get(userId)?.handle ?? null),
         findDraft: (userId) => {
             const row = rows.get(userId);
             return Promise.resolve(row ? toDraft(row) : null);
@@ -68,11 +83,23 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             counts.push({ pageId, target });
             return Promise.resolve();
         },
-        statsFor: (userId) =>
-            Promise.resolve({
-                views: counts.filter((c) => c.pageId === userId && !c.target).length,
-                clicks: counts.filter((c) => c.pageId === userId && c.target).length,
-            }),
+        unpublish: (userId) => {
+            const row = rows.get(userId);
+            if (row) row.published = null;
+            return Promise.resolve();
+        },
+        findOwnLive: (userId) => Promise.resolve(rows.get(userId)?.published ?? null),
+        statsFor: (userId, days) => {
+            const today = new Date().toISOString().slice(0, 10);
+            return Promise.resolve(
+                summarise(
+                    counts
+                        .filter((c) => c.pageId === userId)
+                        .map(({ target }) => ({ target, day: today, count: 1 })),
+                    days,
+                ),
+            );
+        },
     };
     const addUser = (userId: string, handle: string, page: Page) => {
         rows.set(userId, { handle, draft: page, published: null, updatedAt: 1 });

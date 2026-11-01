@@ -16,6 +16,8 @@ import {
 export const users = pgTable("users", {
     id: text("id").primaryKey(),
     handle: text("handle").notNull().unique(),
+    /** Set when a page is taken down for abuse. It stops being served, and the account stays. */
+    suspendedAt: timestamp("suspended_at", { withTimezone: true }),
 });
 
 // A user has a main page, with an empty slug, and can gain sub-pages. Editing changes the draft, and

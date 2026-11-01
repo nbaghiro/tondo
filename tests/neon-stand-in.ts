@@ -55,6 +55,9 @@ function standInStorage(method: string, url: string, bytes: Buffer, res: ServerR
     if (method === "PUT") {
         files.set(key, bytes);
         res.writeHead(200).end();
+    } else if (method === "DELETE") {
+        files.delete(key);
+        res.writeHead(204).end();
     } else if (!key) {
         const prefix = searchParams.get("prefix") ?? "";
         const keys = [...files.keys()].filter((name) => name.startsWith(prefix));
@@ -145,6 +148,25 @@ const server = createServer((req, res) => {
                           }
                         : null,
                 );
+                return;
+            }
+            case "change-password": {
+                const token = tokenIn(req.headers.cookie);
+                const found = token ? sessions.get(token) : undefined;
+                if (!found || found.password !== body["currentPassword"]) {
+                    send(res, 400, { code: "INVALID_PASSWORD", message: "Wrong password." });
+                    return;
+                }
+                found.password = body["newPassword"] ?? "";
+                send(res, 200, { token: null, user: publicUser(found) });
+                return;
+            }
+            case "delete-user": {
+                const token = tokenIn(req.headers.cookie);
+                const found = token ? sessions.get(token) : undefined;
+                if (found) people.delete(found.email);
+                if (token) sessions.delete(token);
+                send(res, 200, { success: true }, `${COOKIE}=; Path=/; Max-Age=0`);
                 return;
             }
             case "sign-out": {

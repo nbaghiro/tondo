@@ -61,7 +61,7 @@ export {
 } from "./sections";
 export type { FoundSection, Section, SectionDefinition, SectionStyle } from "./sections";
 export type { PublishIssue } from "./publish";
-export { readPage, upgradePage } from "./upgrade";
+export { readPage, upgradePage, pageHash } from "./upgrade";
 export { exampleHandles } from "./example-handles";
 export { isReservedHandle, isValidHandle, normaliseHandle } from "./handle";
 export { icon } from "./icons";
@@ -80,3 +80,5 @@ export type { Header, LookName, Page, PageStyle } from "./schema";
 export { isSafeUrl } from "./urls";
 export { liveContent } from "./sample-content";
 export type { LeftOut } from "./sample-content";
+export { setupChecklist } from "./checklist";
+export type { ChecklistItem } from "./checklist";

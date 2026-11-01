@@ -175,3 +175,52 @@ describe("publishing and links", () => {
         expect((await app.request(`/l/june/${linkId(button.url)}`)).status).toBe(404);
     });
 });
+
+describe("keeping a page under control", () => {
+    const publish = async (call: ReturnType<typeof setup>["call"]) => {
+        await call("june", "PUT", "/api/v1/me/page", { page: withButton, updatedAt: "1" });
+        await call("june", "POST", "/api/v1/me/page/publish", { updatedAt: "2" });
+    };
+
+    it("takes a page down, and its address stops working", async () => {
+        const { app, call } = setup();
+        await publish(call);
+        expect((await app.request("/june")).status).toBe(200);
+        expect((await call("june", "POST", "/api/v1/me/page/unpublish")).status).toBe(204);
+        expect((await app.request("/june")).status).toBe(404);
+    });
+
+    it("refuses a made-up timestamp, and a request from nowhere", async () => {
+        const { call, app } = setup();
+        const bad = await call("june", "POST", "/api/v1/me/page/publish", { updatedAt: "soon" });
+        expect(bad.status).toBe(400);
+        const res = await app.request("/api/v1/me/page/unpublish", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                origin: "null",
+                cookie: cookieFor("june"),
+            },
+        });
+        expect(res.status).toBe(403);
+    });
+
+    it("counts a real visit, but not a HEAD or a bot", async () => {
+        const { app, call, pages } = setup();
+        await publish(call);
+        await app.request("/june", { method: "HEAD" });
+        await app.request("/june", { headers: { "user-agent": "Googlebot/2.1" } });
+        expect(pages.counts).toEqual([]);
+        await app.request("/june", { headers: { "user-agent": "Mozilla/5.0" } });
+        expect(pages.counts).toHaveLength(1);
+    });
+
+    it("gives a live page its share tags and a report link", async () => {
+        const { app, call } = setup();
+        await publish(call);
+        const html = await (await app.request("/june")).text();
+        expect(html).toContain('property="og:title"');
+        expect(html).toContain("twitter:card");
+        expect(html).toContain("/report?page=june");
+    });
+});

@@ -45,6 +45,8 @@ export default defineConfig({
                 PORT: String(PORTS.testServer),
                 DATABASE_URL: TEST_DATABASE,
                 NEON_AUTH_BASE_URL: `http://127.0.0.1:${String(PORTS.testNeon)}/auth`,
+                RATE_LIMIT_SCALE: "1000",
+                COUNT_FLUSH_MS: "50",
                 NEON_AUTH_COOKIE_SECRET: "a-test-secret-that-is-long-enough-to-use",
                 S3_ENDPOINT: `http://127.0.0.1:${String(PORTS.testNeon)}/s3`,
                 S3_ACCESS_KEY: "test",

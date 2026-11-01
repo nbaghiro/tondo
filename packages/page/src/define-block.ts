@@ -10,6 +10,8 @@ export interface RenderContext {
     /** Told when a block couldn't be drawn and was left out. */
     onDrawError?: (type: string, error: unknown) => void;
     now?: Date | undefined;
+    /** The page owner's time zone, for dates. */
+    timeZone?: string | undefined;
     /** Draws a painted placeholder photo. The renderer fills this in, since it knows the page. */
     placeholder?: ((n: number) => string) | undefined;
 }
