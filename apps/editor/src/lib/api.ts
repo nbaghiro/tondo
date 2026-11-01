@@ -16,6 +16,14 @@ const send = (method: string, path: string, body: object) =>
         body: JSON.stringify(body),
     });
 
+/** Claims an address with the page the start flow built. Returns what went wrong, if anything. */
+export async function claimAddress(handle: string, page: Page): Promise<string | null> {
+    const res = await send("POST", routes.claim, { handle, page });
+    if (res.ok) return null;
+    const body = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    return body.error ?? "That didn't work. Please try again.";
+}
+
 export async function loadDraft(): Promise<DraftResponse> {
     const res = await fetch(routes.draft);
     if (!res.ok) throw new Error("The page couldn't be loaded.");

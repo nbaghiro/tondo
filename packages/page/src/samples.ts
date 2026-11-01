@@ -1,12 +1,13 @@
 import { blockDefinitions, blockTypes } from "./blocks";
 import type { Block } from "./blocks";
+import { PAGE_VERSION } from "./schema";
 import type { Page } from "./schema";
 
 // Fictional, used for seed data and previews.
 export const sampleHandle = "sample";
 
 export const samplePage: Page = {
-    version: 1,
+    version: PAGE_VERSION,
     look: "madder",
     header: {
         layout: "look",
@@ -70,7 +71,7 @@ export const samplePage: Page = {
 /** What a new person starts with. */
 export function starterPage(name: string): Page {
     return {
-        version: 1,
+        version: PAGE_VERSION,
         look: "madder",
         header: { layout: "look", name, links: [] },
         blocks: [],

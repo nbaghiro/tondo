@@ -194,17 +194,17 @@ describe("coming back from Google", () => {
         expect(res.headers.getSetCookie().join()).toContain("session_token");
     });
 
-    it("claims the chosen address and opens the editor", async () => {
+    it("carries the chosen address to the start flow, without claiming it", async () => {
         fakeNeon(sessionFor);
         const res = await back(setup(), "?handle=june");
-        expect(res.headers.get("location")).toBe("http://editor");
+        expect(res.headers.get("location")).toBe("http://editor?handle=june");
     });
 
-    it("asks for an address when none was chosen, or it was taken", async () => {
+    it("drops an address that can't be used", async () => {
         fakeNeon(sessionFor);
-        expect((await back(setup())).headers.get("location")).toBe("http://site/claim");
+        expect((await back(setup())).headers.get("location")).toBe("http://editor");
         expect((await back(setup(), "?handle=login")).headers.get("location")).toBe(
-            "http://site/claim",
+            "http://editor",
         );
     });
 

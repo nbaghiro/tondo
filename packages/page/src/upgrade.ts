@@ -43,10 +43,31 @@ function fromUnversioned(raw: Loose): Loose {
     };
 }
 
+const isLinkBlock = (block: Loose) =>
+    block["type"] === "button" ||
+    (block["type"] === "link-card" &&
+        (block["variant"] === "small" || block["variant"] === "icon"));
+
+// Version 1 had no sections. A heading joins what follows it, and links in a row become one section.
+function fromOne(raw: Loose): Loose {
+    const blocks = Array.isArray(raw["blocks"]) ? raw["blocks"].filter(isObject) : [];
+    let section = "";
+    const grouped = blocks.map((block, i) => {
+        const before = blocks[i - 1];
+        const id = typeof block["id"] === "string" ? block["id"] : `b${String(i)}`;
+        const joins =
+            before?.["type"] === "heading" || (before && isLinkBlock(before) && isLinkBlock(block));
+        if (!joins) section = id;
+        return { ...block, section };
+    });
+    return { ...raw, version: 2, blocks: grouped };
+}
+
 /** Brings a saved document up to the current version, so a changed block needs no database work. */
 export function upgradePage(raw: unknown): unknown {
     if (!isObject(raw)) return raw;
-    return raw["version"] === undefined ? fromUnversioned(raw) : raw;
+    const one = raw["version"] === undefined ? fromUnversioned(raw) : raw;
+    return one["version"] === 1 ? fromOne(one) : one;
 }
 
 export function readPage(raw: unknown): Page {

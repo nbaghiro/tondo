@@ -8,6 +8,8 @@ export interface RenderContext {
     /** Adds the attributes the editor needs. Published pages leave them out. */
     editable: boolean;
     now?: Date | undefined;
+    /** Draws a painted placeholder photo. The renderer fills this in, since it knows the page. */
+    placeholder?: ((n: number) => string) | undefined;
 }
 
 export type BlockGroup = "words" | "actions" | "media" | "selling" | "collecting" | "details";
@@ -64,10 +66,19 @@ export function photoStyle(photo: Photo): string {
     return rules.join(";");
 }
 
+const PLACEHOLDER = /^paint-(\d+)$/;
+
+/** A new section's painted stand-in, so an unfilled page already looks designed. */
+export const isPlaceholder = (photo: Photo | undefined): boolean =>
+    photo !== undefined && PLACEHOLDER.test(photo.file);
+
 export function photoTag(ctx: RenderContext, photo: Photo | undefined, alt = ""): string {
     if (!photo) return "";
     const style = photoStyle(photo);
-    return `<img src="${escapeHtml(ctx.assetBase + photo.file)}" alt="${escapeHtml(alt)}" loading="lazy"${style ? ` style="${style}"` : ""}>`;
+    const painted = PLACEHOLDER.exec(photo.file)?.[1];
+    const src =
+        painted && ctx.placeholder ? ctx.placeholder(Number(painted)) : ctx.assetBase + photo.file;
+    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"${style ? ` style="${style}"` : ""}>`;
 }
 
 /** An empty link is allowed while a page is a draft. Publishing is what requires one. */
@@ -86,6 +97,9 @@ const shared = {
     showFrom: z.iso.datetime().optional(),
     showUntil: z.iso.datetime().optional(),
     highlight: z.boolean().optional(),
+    /** Blocks next to each other with the same id move and go together as one section. */
+    section: z.string().min(1).optional(),
+    tint: z.boolean().optional(),
 };
 
 /** The schema every block shares: identity, its layout, and the controls every block has. */
@@ -109,6 +123,8 @@ export interface Shared {
     showFrom?: string | undefined;
     showUntil?: string | undefined;
     highlight?: boolean | undefined;
+    section?: string | undefined;
+    tint?: boolean | undefined;
 }
 
 export function isShowing(block: Shared, now: Date): boolean {

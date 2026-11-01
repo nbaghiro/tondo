@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
-import { canvas, signUpToEditor } from "./helpers";
+import { addSection, canvas, panel, signUpToEditor } from "./helpers";
 
 const desktopOnly = (name: string) => {
     test.skip(name === "phone", "Uses a mouse");
@@ -10,18 +9,15 @@ test.beforeEach(async ({ page }) => {
     await signUpToEditor(page);
 });
 
-async function openShelf(page: Page, phone: boolean) {
-    if (phone) await page.locator(".tabs .pill", { hasText: "Add" }).click();
-}
+const titleField = (page: Parameters<typeof panel>[0]) =>
+    panel(page).getByLabel("Title above it (optional)");
 
-test("adds a block, edits it in the panel, and undoes", async ({ page }, info) => {
+test("adds a section, edits it in the panel, and undoes", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await openShelf(page, false);
-    await page.locator('.tile[aria-label="Heading"]').click();
+    await addSection(page, "about");
     const heading = canvas(page).locator("#t-blocks h2");
     await expect(heading).toHaveCount(1);
-    const field = page.locator(".side input").first();
-    await field.fill("Workshops");
+    await titleField(page).fill("Workshops");
     await expect(heading).toHaveText("Workshops");
     await page.locator('[aria-label="Undo"]').click();
     await expect(heading).not.toHaveText("Workshops");
@@ -29,58 +25,96 @@ test("adds a block, edits it in the panel, and undoes", async ({ page }, info) =
 
 test("edits text in place, and the panel follows", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator('.tile[aria-label="Heading"]').click();
+    await addSection(page, "about");
     const heading = canvas(page).locator("#t-blocks h2");
-    await expect(heading).toHaveClass(/./);
     await heading.click();
+    await page.keyboard.press("ControlOrMeta+a");
     await page.keyboard.type("Typed here");
-    await expect(page.locator(".side input").first()).toHaveValue("Typed here");
+    await expect(titleField(page)).toHaveValue("Typed here");
     await page.keyboard.press("Enter");
     await expect(heading).toHaveText("Typed here");
 });
 
-test("moves blocks by dragging on the canvas", async ({ page }, info) => {
+test("moves a whole section by dragging its handle on the page", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator('.tile[aria-label="Heading"]').click();
-    await page.locator('.tile[aria-label="Button"]').click();
+    await addSection(page, "links");
+    await addSection(page, "about");
     await page.keyboard.press("Escape");
-    const blocks = canvas(page).locator("#t-blocks > .t-block");
-    await expect(blocks).toHaveCount(2);
-    await expect(blocks.first().locator("h2")).toHaveCount(1);
-    const from = await blocks.first().boundingBox();
-    const to = await blocks.last().boundingBox();
-    if (!from || !to) throw new Error("The blocks have no size.");
-    await page.mouse.move(from.x + 40, from.y + from.height / 2);
+    const sections = canvas(page).locator("#t-blocks > section.t-s");
+    await expect(sections).toHaveCount(2);
+    await expect(sections.first().locator(".b-btn")).toHaveCount(3);
+    await sections.first().hover();
+    const grip = await sections.first().locator(".t-grip").boundingBox();
+    const to = await sections.last().boundingBox();
+    if (!grip || !to) throw new Error("The section has no size.");
+    await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
     await page.mouse.down();
-    await page.mouse.move(to.x + 40, to.y + to.height - 2, { steps: 12 });
+    await page.mouse.move(grip.x, to.y + to.height - 2, { steps: 12 });
     await page.mouse.up();
-    await expect(blocks.last().locator("h2")).toHaveCount(1);
+    await expect(sections.last().locator(".b-btn")).toHaveCount(3);
+    await expect(page.locator("#rows .row").last()).toContainText("Links");
 });
 
-test("the delete key removes the selected block", async ({ page }, info) => {
+test("moves a section by dragging its row in the list", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator('.tile[aria-label="Heading"]').click();
+    await addSection(page, "links");
+    await addSection(page, "about");
+    const rows = page.locator("#rows .row");
+    await expect(rows.first()).toContainText("Links");
+    const from = await rows.first().locator(".grip2").boundingBox();
+    const to = await rows.last().boundingBox();
+    if (!from || !to) throw new Error("The row has no size.");
+    await page.mouse.move(from.x + 4, from.y + 4);
+    await page.mouse.down();
+    await page.mouse.move(from.x + 4, to.y + to.height - 2, { steps: 8 });
+    await page.mouse.up();
+    await expect(rows.first()).toContainText("About");
+    await expect(
+        canvas(page).locator("#t-blocks > section.t-s").last().locator(".b-btn"),
+    ).toHaveCount(3);
+});
+
+test("drags a new section from the list to a spot on the page", async ({ page }, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "links");
+    await addSection(page, "about");
     await page.keyboard.press("Escape");
-    const heading = canvas(page).locator("#t-blocks h2");
-    await heading.click();
+    await page.locator(".add-row").click();
+    const pick = await page.locator("[data-add=photos]").boundingBox();
+    const box = await canvas(page).locator("#t-blocks > section.t-s").first().boundingBox();
+    if (!pick || !box) throw new Error("Nothing to drag.");
+    await page.mouse.move(pick.x + 20, pick.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(box.x + 40, box.y + 2, { steps: 10 });
+    await page.mouse.up();
+    await expect(
+        canvas(page).locator("#t-blocks > section.t-s").first().locator(".b-gal"),
+    ).toHaveCount(1);
+});
+
+test("the delete key removes the selected section", async ({ page }, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "about");
+    await page.keyboard.press("Escape");
+    await page.locator("#rows .row").first().click();
     await page.keyboard.press("Delete");
-    await expect(heading).toHaveCount(0);
+    await expect(canvas(page).locator("#t-blocks h2")).toHaveCount(0);
 });
 
 test("the draft survives a reload", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await page.locator('.tile[aria-label="Heading"]').click();
-    await page.locator(".side input").first().fill("Still here");
+    await addSection(page, "about");
+    await titleField(page).fill("Still here");
+    await expect(page.locator(".status")).toHaveText("Saved");
     await page.reload();
     await expect(canvas(page).locator("#t-blocks h2")).toHaveText("Still here");
 });
 
-test("on a phone, tapping a block opens the sheet with the block still in view", async ({
+test("on a phone, tapping a section opens the sheet with it still in view", async ({
     page,
 }, info) => {
     test.skip(info.project.name !== "phone", "Phone only");
-    await openShelf(page, true);
-    await page.locator('.tile[aria-label="Heading"]').tap();
-    await expect(page.locator(".side input").first()).toBeVisible();
+    await addSection(page, "about");
+    await expect(titleField(page)).toBeVisible();
     await expect(canvas(page).locator("#t-blocks h2")).toBeInViewport();
 });

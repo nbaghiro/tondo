@@ -9,7 +9,7 @@ tondo/
 ├── .github/workflows/     CI
 ├── .scratchpad/           Throwaway experiments, ignored by git
 ├── apps/
-│   ├── editor/            SolidJS and Vite, with the page on a same-origin iframe canvas
+│   ├── editor/            SolidJS and Vite: start flow, floating builder, and the page on a same-origin iframe canvas
 │   ├── marketing/         Astro, static output, with the example pages as saved documents in src/data/pages
 │   └── server/            Hono: API, public pages, the Neon Auth proxy, and the built apps in production
 ├── tests/                 Playwright tests, with local stand-ins for Neon Auth and object storage

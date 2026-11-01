@@ -28,7 +28,9 @@ In development the marketing site and published pages are on different ports. In
 
 - [ ] Sign up from the home page's claim box, with an email you can read. The address you typed should carry through
 - [ ] The code arrives, a wrong code is refused, "Send a new code" works
-- [ ] Sign up without an address, and choose one on `/claim`. A taken or reserved address is refused
+- [ ] After the code, the start flow opens: name, sections, logo, look, address. The page fills in beside each step. A taken or reserved address is refused
+- [ ] Sign up without an address from the marketing box. The last step suggests one from the name
+- [ ] Log out and back in. You go straight to the editor, not the start flow
 - [ ] Log out, then log in. A wrong password is refused
 - [ ] Forgot password: the code arrives, the new password works and the old one doesn't. **Needs you: never tried with a real code**
 - [ ] An unverified account that logs in is sent to `/verify`
@@ -36,17 +38,21 @@ In development the marketing site and published pages are on different ports. In
 
 ## Building a page
 
-- [ ] Add one of each block from the shelf, and try every layout tile
-- [ ] Paste a YouTube, Spotify, Calendly, shop, email and phone link into the shelf's paste box. Each should become a suitable block
+- [ ] Add one of each section from the Add list, and try every style tile. Anything marked Soon can't be chosen
+- [ ] Paste a YouTube, Spotify, Calendly, shop, email and phone link into the box at the top of the list. Each should become a suitable section
 - [ ] Edit text on the page, and in the panel. Each follows the other
-- [ ] Drag blocks on the page, and drag from the shelf. Undo and redo
+- [ ] Drag a section by its handle on the page, by its row in the list, and from the Add list to a spot on the page. Undo and redo
+- [ ] Hold a section on a phone to move it. A plain swipe should still scroll
 - [ ] Keyboard: Delete removes, Cmd+D copies, Alt+Up and Down move, Escape deselects
-- [ ] Show or hide: hide a block, schedule one, and highlight up to two
-- [ ] Tabs: add tabs, click the second tab, add blocks to it, rename and add a tab, drag inside a tab
+- [ ] Links: add, reorder and remove links inside one section
+- [ ] Under More options: rarer layouts, hide a section, schedule one, and highlight up to two
+- [ ] Tabs: add tabs, click the second tab, add sections to it, rename and add a tab, drag inside a tab
 - [ ] Preview, then back to editing
 
 ## Looks
 
+- [ ] Make it yours: try each colour swatch, your own colour, From my photo, the fonts, button shape and fill, and each background. Reset goes back to the look's original
+- [ ] Try a very pale and a very dark colour of your own on a dark look. Text should stay readable, on the published page too
 - [ ] Open each of the 50 looks with your own content in place. Note which look wrong
 - [ ] Try the filters, paint swatches, Paint it again and the reveal
 - [ ] Header layouts in several looks, with and without a photo
@@ -99,11 +105,11 @@ Nobody has tried any of this on real hardware or in another browser.
 
 These are expected, so they don't need reporting.
 
-- **Sign-ups, forms, tips, embeds, inline calendars and time slots** render but do nothing, and only appear in the gallery. They aren't in the shelf.
+- **Sign-ups, forms, tips, embeds, inline calendars and time slots** render but do nothing, and only appear in the gallery. In the Add list they're marked Soon and can't be chosen.
 - **The `file` block** records a file's name and doesn't store the file, so its download goes nowhere.
 - **Music** opens its link and doesn't play. **Maps** are drawings that open directions.
 - **Connected accounts** don't exist, so gallery and video sources are typed in.
-- **Onboarding:** a new page starts empty, and the name comes from the email address.
+- **Editing before signing up:** the start flow runs after sign-up and verification. Whether someone can build first is a future decision.
 - **Paint swatches** recolour the painting and not the rest of the page. Art is drawn on the visitor's phone, not rasterised.
 - **Share images** aren't made, and a published page has no social preview picture.
 - **Rollback:** publishing overwrites the live copy, by design for now.

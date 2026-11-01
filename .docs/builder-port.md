@@ -1,6 +1,6 @@
 # Builder port
 
-This is the plan the full builder in `apps/editor` was built from, written on 2026-10-31. It replaces the block list in [block-system.md](block-system.md) and the field reference in [inspector-design.md](inspector-design.md) wherever they differ. It's now built, and [qa.md](qa.md) is what comes next.
+This is the plan the full builder in `apps/editor` was built from, written on 2026-10-31. It replaces the block list in [block-system.md](block-system.md) and the field reference in [inspector-design.md](inspector-design.md) wherever they differ. It was built, and its shelf and inspector have since been replaced by the section builder in [builder-v2-port.md](builder-v2-port.md). The blocks and layouts below are still the engine.
 
 The goal is that someone can build any page in the gallery in the real editor, and publish it.
 
@@ -329,9 +329,8 @@ Everything else uses the defaults already agreed in this document and [data-mode
 
 ## Not in this port
 
-These stay hidden in the shelf, and each needs its own piece of work afterwards:
+These are marked Soon in the Add list, and each needs its own piece of work afterwards:
 
-- **Onboarding:** what a new person sees first, including starter pages and a real name instead of their email's first part. You've said this comes later, and I'd do it next, since a good first page depends on the finished blocks.
 - **Sign-ups and forms:** storing submissions and sending email. These need your own email provider.
 - **Connected accounts:** Instagram, TikTok and YouTube, plus RSS.
 - **Payments:** `tip`, and checkout.

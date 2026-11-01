@@ -1,4 +1,10 @@
-import { exampleHandles, isReservedHandle, isValidHandle, readPage } from "@tondo/page";
+import {
+    exampleHandles,
+    isReservedHandle,
+    isValidHandle,
+    PAGE_VERSION,
+    readPage,
+} from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import examples from "./examples.json";
 
@@ -19,7 +25,7 @@ describe("example pages", () => {
         const paths = Object.keys(documents);
         expect(paths.length).toBe(examples.length + 2);
         expect(paths.map(handleOf).sort()).toEqual([...exampleHandles].sort());
-        for (const path of paths) expect(readPage(documents[path]).version).toBe(1);
+        for (const path of paths) expect(readPage(documents[path]).version).toBe(PAGE_VERSION);
     });
 
     it("every gallery page has a document", () => {

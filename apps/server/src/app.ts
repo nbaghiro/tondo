@@ -24,7 +24,7 @@ export interface AppDeps {
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
 const PAGE_HEADERS = {
     "Content-Security-Policy":
-        "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'",
+        "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     // Visitors see a publish straight away. A CDN in front can cache this for a short time instead.

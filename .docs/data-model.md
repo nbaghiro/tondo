@@ -71,11 +71,13 @@ Tables only needed for much later features are `links` (standalone QR codes and 
 
 ```json
 {
-    "version": 1,
+    "version": 2,
     "look": "surf",
     "seed": 31,
+    "style": { "colour": { "mode": "brand", "brand": "#0a8f5c" }, "font": "editorial", "shape": "soft" },
     "header": {
         "layout": "look",
+        "wordmark": "poster",
         "name": "Low Tide Surf",
         "tagline": "Learn to surf in Tofino",
         "bio": "",
@@ -83,11 +85,13 @@ Tables only needed for much later features are `links` (standalone QR codes and 
         "links": [{ "type": "instagram", "value": "https://instagram.com/lowtide" }]
     },
     "blocks": [
-        { "id": "b7k2", "type": "heading", "variant": "plain", "text": "Lessons" },
+        { "id": "b7k2", "type": "heading", "variant": "plain", "text": "Lessons", "section": "s1" },
         {
             "id": "c9m4",
             "type": "services",
             "variant": "list",
+            "section": "s1",
+            "tint": true,
             "showUntil": "2026-12-01T08:00:00Z",
             "items": [
                 { "id": "i1", "name": "First wave", "detail": "2 hours", "price": "$95", "link": "https://example.com" }
@@ -101,6 +105,15 @@ Tables only needed for much later features are `links` (standalone QR codes and 
     ]
 }
 ```
+
+### Sections, style and wordmarks
+
+- **`section`** is an optional id on a block. Blocks with the same id next to each other are one section in the editor, such as a title and its list, or a run of links. A section's kind is worked out from its blocks, not stored. Blocks are still what's saved and what renders.
+- **`tint`** is an optional flag that draws a section on a soft band of the page's colour.
+- **`style`** is an optional object on the page: `colour` (`preset`, `brand`, `photo`, `plain` or `dark`, with a hex `brand`), `font`, `shape`, `fill`, `bg` and `bgPhoto`. Leaving a key out means the look's own choice, and the look stays the base. The server-side renderer applies it, along with contrast rules, so published pages still carry no script.
+- **`header.wordmark`** optionally draws the name as a logo.
+- **Painted placeholders** are photos with a file named `paint-N`. They're drawn from the page's colours rather than stored, and publishing warns about them but allows it.
+- **Version 2** added these. `upgrade.ts` gives version 1 pages section ids when they're read.
 
 ### Rules for keeping it clean
 

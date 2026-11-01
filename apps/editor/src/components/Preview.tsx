@@ -12,14 +12,14 @@ export function Preview(props: { page: Page; onClose: () => void }) {
     return (
         <div class="preview" role="dialog" aria-label="Preview of your page">
             <button
-                class="pill preview-back"
+                class="go preview-back"
                 onClick={() => {
                     props.onClose();
                 }}
             >
                 Back to editing
             </button>
-            <div class="frame preview-frame">
+            <div class="phone preview-frame">
                 <iframe class="canvas" title="Preview" sandbox="allow-popups" srcdoc={html()} />
             </div>
         </div>

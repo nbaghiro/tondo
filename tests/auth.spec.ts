@@ -25,7 +25,9 @@ test("the editor sends logged-out people to log in", async ({ page }) => {
 
 test("log out ends the session", async ({ page }) => {
     await signUpToEditor(page);
-    await page.locator(".logout").click();
+    const tab = page.locator(".tabbar button", { hasText: "Sections" });
+    if (await tab.isVisible()) await tab.click();
+    await page.locator(".logout:visible").click();
     await page.waitForURL((url) => url.pathname === "/");
     await page.goto("/app");
     await page.waitForURL(/\/login/);

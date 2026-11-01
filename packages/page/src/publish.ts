@@ -1,4 +1,6 @@
 import { allBlocks, blockDefinitions } from "./blocks";
+import { isPlaceholder } from "./define-block";
+import type { Photo } from "./define-block";
 import type { Block } from "./blocks";
 import type { Page } from "./schema";
 
@@ -57,4 +59,30 @@ export function publishIssues(page: Page): PublishIssue[] {
         for (const message of blockIssues(block)) issues.push({ target: block.id, message });
     }
     return issues;
+}
+
+function photosIn(value: unknown): Photo[] {
+    if (Array.isArray(value)) return value.flatMap(photosIn);
+    if (typeof value !== "object" || value === null) return [];
+    const file = (value as { file?: unknown }).file;
+    if (typeof file === "string") return [value as Photo];
+    return Object.values(value).flatMap(photosIn);
+}
+
+/** Whether a block still shows a painted stand-in where a photo belongs. */
+export const hasPlaceholder = (block: Block): boolean => photosIn(block).some(isPlaceholder);
+
+/** Worth a look, but none of these stop a page going live. */
+export function publishWarnings(page: Page): PublishIssue[] {
+    return allBlocks(page.blocks)
+        .filter((block) => !block.hidden && block.type !== "tabs" && hasPlaceholder(block))
+        .map((block) => ({
+            target: block.id,
+            message: "This still shows a painting where your photo could go.",
+        }));
+}
+
+/** The first thing to fix in a block, for showing beside it while editing. */
+export function blockProblem(block: Block): string | null {
+    return blockIssues(block)[0] ?? null;
 }

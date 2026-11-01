@@ -1,17 +1,28 @@
 import {
-    addBlock,
-    blockFromLink,
-    duplicateBlock,
+    addLinkToSection,
+    addSection,
+    duplicateSection,
     findBlock,
+    findSection,
     getField,
     HEADER,
+    makeSection,
     moveBlock,
-    newBlock,
+    moveSection,
+    readLink,
     removeBlock,
+    removeSection,
+    routeLink,
+    sectionDefinition,
+    sectionsOf,
     setBlockField,
     setHeaderField,
+    setSectionBigTitle,
+    setSectionShared,
+    setSectionStyle,
+    setSectionTitle,
 } from "@tondo/page";
-import type { Block, BlockType, LookName, Page, Place } from "@tondo/page";
+import type { Block, LookName, Page, PageStyle, Place } from "@tondo/page";
 import { createSignal } from "solid-js";
 import { createHistory } from "./history";
 import { createSaver } from "./saver";
@@ -29,6 +40,8 @@ interface Start {
     onLoggedOut: () => void;
 }
 
+const makeId = () => crypto.randomUUID();
+
 export function createEditor(start: Start) {
     const saver = createSaver(start);
     const backup = loadBackup(start.handle, start.updatedAt);
@@ -38,6 +51,9 @@ export function createEditor(start: Start) {
     const [selected, setSelected] = createSignal<string | null>(null);
     const [version, setVersion] = createSignal(0);
     const [chosenTabs, setChosenTabs] = createSignal<Readonly<Record<string, string>>>({});
+    const [notice, setNotice] = createSignal("");
+    // What a section last held in another style, so trying a style and coming back loses nothing.
+    const earlier = new Map<string, Block[]>();
     let justAdded = false;
 
     const apply = (next: Page) => {
@@ -54,7 +70,7 @@ export function createEditor(start: Start) {
     };
     const clearMissingSelection = (next: Page) => {
         const id = selected();
-        if (id && id !== HEADER && !findBlock(next, id)) setSelected(null);
+        if (id && id !== HEADER && !findSection(next, id)) setSelected(null);
     };
     const travel = (step: (current: Page) => Page | null) => {
         const next = step(page());
@@ -62,29 +78,46 @@ export function createEditor(start: Start) {
         clearMissingSelection(next);
         apply(next);
     };
+    const say = (message: string) => {
+        setNotice(message);
+    };
 
-    // A new block goes below the selected one, in the same list, or into the shown tab.
-    const where = (type: BlockType): { at: number; list?: Place } => {
+    // A new section goes below the selected one, in the same list, or into the shown tab.
+    const where = (hasTabs: boolean): { at: number; list?: Place } => {
         const current = page();
-        const found = findBlock(current, selected() ?? "");
-        if (!found) return { at: current.blocks.length };
-        if (found.block.type === "tabs" && type !== "tabs") {
+        const id = selected();
+        if (id === HEADER) return { at: 0 };
+        const found = id ? findSection(current, id) : null;
+        if (!found) return { at: sectionsOf(current.blocks).length };
+        const first = found.section.blocks[0];
+        if (first?.type === "tabs" && !hasTabs) {
             const tab =
-                found.block.tabs.find((other) => other.id === chosenTabs()[found.block.id]) ??
-                found.block.tabs[0];
-            if (tab) return { at: tab.blocks.length, list: { tabs: found.block.id, tab: tab.id } };
+                first.tabs.find((other) => other.id === chosenTabs()[first.id]) ?? first.tabs[0];
+            if (tab) {
+                return {
+                    at: sectionsOf(tab.blocks).length,
+                    list: { tabs: first.id, tab: tab.id },
+                };
+            }
         }
-        if (found.place && type === "tabs") {
-            const tabs = found.place.tabs;
-            return { at: current.blocks.findIndex((block) => block.id === tabs) + 1 };
+        if (found.place && hasTabs) {
+            const top = findSection(current, found.place.tabs);
+            return { at: (top?.index ?? 0) + 1 };
         }
         return { at: found.index + 1, ...(found.place ? { list: found.place } : {}) };
     };
-    const place = (block: Block, at?: number) => {
-        const spot = at === undefined ? where(block.type) : { at };
-        change(addBlock(page(), block, spot.at, spot.list));
+
+    const placeSection = (key: string, at?: number, styleId?: string): string | null => {
+        const definition = sectionDefinition(key);
+        if (!definition) return null;
+        const blocks = makeSection(definition, makeId, styleId);
+        const hasTabs = blocks.some((block) => block.type === "tabs");
+        const spot = at === undefined ? where(hasTabs) : { at };
+        change(addSection(page(), blocks, spot.at, spot.list));
+        const id = blocks[0]?.section ?? null;
         justAdded = true;
-        setSelected(block.id);
+        setSelected(id);
+        return id;
     };
 
     if (backup) saver.change(backup);
@@ -94,11 +127,15 @@ export function createEditor(start: Start) {
         selected,
         saver,
         changed,
+        notice,
+        clearNotice() {
+            setNotice("");
+        },
         markPublished() {
             setChanged(false);
         },
         select: setSelected,
-        /** True once after a block is added, so the panel can focus its first field. */
+        /** True once after a section is added, so the panel can focus its first field. */
         takeJustAdded() {
             const was = justAdded;
             justAdded = false;
@@ -118,9 +155,9 @@ export function createEditor(start: Start) {
         redo: () => {
             travel((current) => history.redo(current));
         },
-        /** The tab to show: the one holding the selected block, or the last one chosen. */
+        /** The tab to show: the one holding the selected section, or the last one chosen. */
         shownTab(block: Extract<Block, { type: "tabs" }>) {
-            const inside = findBlock(page(), selected() ?? "")?.place;
+            const inside = findSection(page(), selected() ?? "")?.place;
             if (inside?.tabs === block.id) return inside.tab;
             const chosen = chosenTabs()[block.id];
             return block.tabs.some((tab) => tab.id === chosen) ? chosen : block.tabs[0]?.id;
@@ -130,27 +167,124 @@ export function createEditor(start: Start) {
             const tab = found?.type === "tabs" ? found.tabs[position] : undefined;
             if (tab) setChosenTabs((was) => ({ ...was, [id]: tab.id }));
         },
-        add(type: BlockType, at?: number) {
-            place(newBlock(type, crypto.randomUUID()), at);
-        },
-        /** Adds whichever block suits a pasted link. False if it isn't a usable link. */
+        addSection: placeSection,
+        /** Puts a pasted link where it belongs. False if it isn't a usable link. */
         addFromLink(raw: string) {
-            const block = blockFromLink(raw, crypto.randomUUID());
-            if (!block) return false;
-            place(block);
+            const reading = readLink(raw);
+            if (reading.state !== "ok") return false;
+            const { key } = routeLink(reading.url);
+            const definition = sectionDefinition(key);
+            if (!definition) return false;
+            const styleId =
+                key === "media" && /spotify|music\.apple|soundcloud/i.test(reading.url)
+                    ? "music"
+                    : undefined;
+            const existing = sectionsOf(page().blocks).find(
+                (section) =>
+                    section.definition.key === key && (!styleId || section.style.id === styleId),
+            );
+            const id = existing?.id ?? placeSection(key, undefined, styleId);
+            if (!id) return false;
+            const found = findSection(page(), id);
+            if (!found) return false;
+            const first = found.section.blocks[0];
+            const title = reading.title || reading.label;
+            if (key === "links") {
+                const blank = found.section.blocks.find(
+                    (block) =>
+                        (block.type === "button" || block.type === "link-card") && !block.url,
+                );
+                if (blank) {
+                    let next = setBlockField(page(), blank.id, "url", reading.url);
+                    next = setBlockField(
+                        next,
+                        blank.id,
+                        blank.type === "button" ? "text" : "title",
+                        title,
+                    );
+                    change(next);
+                } else {
+                    change(addLinkToSection(page(), id, makeId, reading.url, title));
+                }
+            } else if (first?.type === "contact") {
+                const known = first.items.find(
+                    (entry) => !entry.value && entry.type === reading.icon,
+                );
+                const blank = known ?? first.items.find((entry) => !entry.value);
+                const items = blank
+                    ? first.items.map((entry) =>
+                          entry.id === blank.id
+                              ? { ...entry, value: reading.url, type: reading.icon }
+                              : entry,
+                      )
+                    : [...first.items, { id: makeId(), type: reading.icon, value: reading.url }];
+                change(setBlockField(page(), first.id, "items", items));
+            } else if (first?.type === "video") {
+                const blank = first.items.find((entry) => !entry.url);
+                const items = blank
+                    ? first.items.map((entry) =>
+                          entry.id === blank.id ? { ...entry, url: reading.url } : entry,
+                      )
+                    : [
+                          ...first.items,
+                          { id: makeId(), title: title || "New video", url: reading.url },
+                      ];
+                change(setBlockField(page(), first.id, "items", items));
+            } else if (first) {
+                change(setBlockField(page(), first.id, "url", reading.url));
+            }
+            setSelected(id);
+            say(`Added to ${definition.name}`);
             return true;
         },
-        move(id: string, to: number) {
-            change(moveBlock(page(), id, to));
+        moveSection(id: string, to: number) {
+            change(moveSection(page(), id, to));
+            setSelected(id);
         },
         duplicate(id: string) {
-            const [next, copy] = duplicateBlock(page(), id, () => crypto.randomUUID());
+            const [next, copy] = duplicateSection(page(), id, makeId);
             change(next);
             if (copy) setSelected(copy);
         },
         remove(id: string) {
-            change(removeBlock(page(), id));
+            const name = findSection(page(), id)?.section.definition.name;
+            change(removeSection(page(), id));
             setSelected(null);
+            if (name) say(`Removed ${name}. Undo brings it back.`);
+        },
+        setSectionStyle(id: string, styleId: string) {
+            const found = findSection(page(), id);
+            const style = found?.section.definition.styles.find((other) => other.id === styleId);
+            if (!found || !style) return;
+            const key = (type: string) => `${found.section.id}:${type}`;
+            const was = found.section.blocks[0];
+            if (was) earlier.set(key(was.type), found.section.blocks);
+            change(setSectionStyle(page(), id, styleId, makeId, earlier.get(key(style.type))));
+        },
+        setSectionTitle(id: string, text: string) {
+            change(setSectionTitle(page(), id, text, makeId), `${id}:title`);
+        },
+        setBigTitle(id: string, big: boolean) {
+            change(setSectionBigTitle(page(), id, big));
+        },
+        setShared(id: string, key: "hidden" | "showFrom" | "showUntil" | "tint", value: unknown) {
+            change(setSectionShared(page(), id, key, value), `${id}:${key}`);
+        },
+        addLink(id: string) {
+            change(addLinkToSection(page(), id, makeId));
+        },
+        moveLink(blockId: string, by: number) {
+            const found = findBlock(page(), blockId);
+            if (found) change(moveBlock(page(), blockId, found.index + by));
+        },
+        removeLink(sectionId: string, blockId: string) {
+            const found = findSection(page(), sectionId);
+            if (found && found.section.blocks.length <= 1) {
+                change(removeSection(page(), sectionId));
+                setSelected(null);
+            } else {
+                change(removeBlock(page(), blockId));
+            }
         },
         setField(target: string, key: string, value: unknown, group?: string) {
             const current = page();
@@ -165,13 +299,26 @@ export function createEditor(start: Start) {
             const { [key]: _old, ...rest } = page();
             change(value ? { ...rest, [key]: value } : rest, `page:${key}`);
         },
+        /** A person's own colour stays with them. Everything else belongs to the new look. */
         setLook(look: LookName) {
-            const { paint: _paint, seed: _seed, ...rest } = page();
-            change({ ...rest, look });
+            const { paint: _paint, seed: _seed, style, ...rest } = page();
+            const colour = style?.colour;
+            const kept = colour && (colour.mode === "brand" || colour.mode === "photo");
+            const hadStyle = style && Object.keys(style).length > 0;
+            change(kept ? { ...rest, look, style: { colour } } : { ...rest, look });
+            if (hadStyle) say(kept ? "Changed the look and kept your colour" : "Changed the look");
         },
-        setPaint(palette: readonly string[] | undefined) {
-            const { paint: _paint, ...rest } = page();
-            change(palette ? { ...rest, paint: [...palette] } : rest);
+        setStyle(patch: Partial<PageStyle>, group?: string) {
+            const { style, ...rest } = page();
+            const merged = { ...style, ...patch };
+            const clean = Object.fromEntries(
+                Object.entries(merged).filter(([, value]) => value !== undefined),
+            ) as PageStyle;
+            change(Object.keys(clean).length ? { ...rest, style: clean } : rest, group);
+        },
+        resetStyle() {
+            const { style: _style, seed: _seed, ...rest } = page();
+            change(rest);
         },
         repaint() {
             change({ ...page(), seed: 1 + Math.floor(Math.random() * 998) });

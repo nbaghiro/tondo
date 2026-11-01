@@ -70,8 +70,11 @@ export type LookName = z.output<typeof lookNameSchema>;
 /** "look" is whatever the look draws for itself. The others work in every look. */
 export const headerLayouts = ["look", "centred", "left", "full", "arch", "banner"] as const;
 
+export const wordmarks = ["bubble", "poster", "script", "paint", "seal"] as const;
+
 const headerSchema = z.strictObject({
     layout: z.enum(headerLayouts),
+    wordmark: z.enum(wordmarks).optional(),
     name: z.string().max(80),
     tagline: z.string().max(120).optional(),
     bio: z.string().max(280).optional(),
@@ -91,7 +94,34 @@ const headerSchema = z.strictObject({
 
 const colour = z.string().regex(/^#[0-9a-f]{6}$/i);
 
-export const PAGE_VERSION = 1;
+export const fontPairs = [
+    "editorial",
+    "elegant",
+    "quiet",
+    "modern",
+    "clean",
+    "bold",
+    "friendly",
+    "handmade",
+] as const;
+
+/** "Make it yours": a few designed choices. The colours and CSS are worked out from these. */
+export const pageStyleSchema = z.strictObject({
+    colour: z
+        .strictObject({
+            mode: z.enum(["preset", "brand", "photo", "plain", "dark"]),
+            brand: colour,
+        })
+        .optional(),
+    font: z.enum(fontPairs).optional(),
+    shape: z.enum(["square", "soft", "round"]).optional(),
+    fill: z.enum(["outline", "soft"]).optional(),
+    bg: z.enum(["solid", "gradient", "photo"]).optional(),
+    bgPhoto: photoValue.optional(),
+});
+export type PageStyle = z.output<typeof pageStyleSchema>;
+
+export const PAGE_VERSION = 2;
 
 /** One page's content. Its address belongs to the user, so it isn't stored here. */
 export const pageSchema = z.strictObject({
@@ -104,6 +134,7 @@ export const pageSchema = z.strictObject({
     paint: z.array(colour).min(1).max(6).optional(),
     /** Which painting. Leaving this out uses the look's own. */
     seed: z.number().int().min(1).optional(),
+    style: pageStyleSchema.optional(),
     header: headerSchema,
     blocks: z.array(blockSchemaUnion).max(200),
 });

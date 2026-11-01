@@ -2,42 +2,219 @@
 html.look {
     scrollbar-width: none;
 }
+.t-s {
+    position: relative;
+    display: flow-root;
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 0.12s;
+}
+.t-s:hover,
+.t-block:hover > .t-s {
+    outline-color: color-mix(in srgb, var(--sel, #22263f) 30%, transparent);
+}
+.t-sel,
+.t-sel:hover {
+    outline-color: var(--sel, #22263f);
+}
+.t-s:not(.t-head) {
+    margin: 0 -18px;
+    padding: 0 18px 4px;
+}
+a {
+    -webkit-user-drag: none;
+}
+.t-block input,
+.t-block button,
+.t-block summary {
+    pointer-events: none;
+}
+.t-tint {
+    background: color-mix(in srgb, var(--btn) 9%, var(--bg));
+    padding-top: 14px !important;
+    padding-bottom: 18px !important;
+    margin-top: 12px !important;
+}
+.t-tools {
+    position: absolute;
+    right: 8px;
+    top: -15px;
+    z-index: 9;
+    display: flex;
+    gap: 1px;
+    padding: 3px;
+    background: #22263f;
+    color: #fff;
+    border-radius: 11px;
+    box-shadow: 0 6px 18px rgba(20, 22, 50, 0.32);
+    font-family: Mulish, sans-serif;
+}
+.t-tools button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.t-tools button:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+.t-tools button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+.t-tools .ic {
+    width: 18px;
+    height: 18px;
+}
+.t-tools .t-move {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    padding: 0 10px 0 9px;
+    font:
+        700 13px Mulish,
+        sans-serif;
+    cursor: grab;
+    touch-action: none;
+}
+.t-move svg {
+    width: 9px;
+    height: 14px;
+}
+.t-grip {
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    width: 22px;
+    height: 38px;
+    margin-top: -19px;
+    padding: 0;
+    display: none;
+    place-items: center;
+    background: #fff;
+    color: #22263f;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(20, 22, 50, 0.28);
+    cursor: grab;
+    touch-action: none;
+    z-index: 8;
+}
+.t-grip svg {
+    width: 9px;
+    height: 14px;
+}
+.t-s:hover > .t-grip {
+    display: grid;
+}
+.t-below {
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    transform: translateX(-50%);
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px 4px 8px;
+    background: #fff;
+    color: #22263f;
+    border: 0;
+    border-radius: 20px;
+    box-shadow:
+        0 0 0 1px rgba(34, 38, 63, 0.12),
+        0 4px 12px rgba(20, 22, 50, 0.2);
+    font:
+        700 12.5px Mulish,
+        sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.t-below .ic {
+    width: 15px;
+    height: 15px;
+}
+.t-sel {
+    z-index: 7;
+}
+.t-dragging,
+.t-dragging * {
+    cursor: grabbing !important;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.t-dragging .t-tools,
+.t-dragging .t-below,
+.t-dragging .t-grip {
+    display: none !important;
+}
+.t-dragging .t-s:not(.t-lift) {
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.t-lift {
+    z-index: 20;
+    background: var(--bg);
+    box-shadow: 0 16px 36px rgba(20, 22, 50, 0.3);
+    outline: 2px solid var(--sel, #22263f) !important;
+    outline-offset: -2px;
+    border-radius: 6px;
+}
+.t-slot {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 4px;
+    margin-top: -2px;
+    border-radius: 4px;
+    background: var(--sel, #22263f);
+    box-shadow: 0 0 0 2px var(--bg);
+    z-index: 19;
+    pointer-events: none;
+    transition: top 0.12s;
+}
+.t-fresh {
+    animation: tf 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes tf {
+    from {
+        background: color-mix(in srgb, var(--sel, #22263f) 16%, transparent);
+    }
+}
+.t-hold {
+    transition: transform 0.28s;
+    transform: scale(0.985);
+}
+.t-s {
+    -webkit-touch-callout: none;
+}
+@media (hover: none) {
+    .t-s:hover > .t-grip {
+        display: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .t-dragging .t-s:not(.t-lift),
+    .t-slot,
+    .t-hold {
+        transition: none;
+    }
+    .t-fresh {
+        animation: none;
+    }
+}
 .t-block,
 #t-header {
     position: relative;
     cursor: pointer;
     display: flow-root;
-}
-#t-header {
-    outline: 2px solid transparent;
-    outline-offset: -2px;
-    border-radius: 14px;
-    transition: outline-color 0.12s;
-}
-.t-block > :not(.t-badge) {
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    transition: outline-color 0.12s;
-}
-.t-block:hover > :not(.t-badge),
-#t-header:hover {
-    outline-color: color-mix(in srgb, var(--sel) 38%, transparent);
-}
-.t-block.t-selected > :not(.t-badge),
-#t-header.t-selected {
-    outline-color: var(--sel);
-}
-.t-dragging {
-    opacity: 0.25;
-}
-.t-fresh {
-    animation: t-grow 0.42s cubic-bezier(0.2, 0.9, 0.25, 1.1);
-}
-@keyframes t-grow {
-    from {
-        opacity: 0;
-        transform: scale(0.94) translateY(8px);
-    }
 }
 [contenteditable] {
     outline: 0;
@@ -48,12 +225,12 @@ html.look {
 [data-field]:empty {
     display: none;
 }
-.t-selected [data-field]:empty {
+.t-sel [data-field]:empty {
     display: block;
     min-width: 3em;
     opacity: 0.5;
 }
-.t-selected [data-field]:empty::before {
+.t-sel [data-field]:empty::before {
     content: "Add text";
 }
 .t-off > :not(.t-badge) {
@@ -140,4 +317,17 @@ html.look {
     text-align: center;
     font-size: 14px;
     color: var(--mut);
+}
+
+.t-s > .t-block ~ .t-block .t-badge {
+    display: none;
+}
+
+.t-block .t-tools button,
+.t-block .t-grip,
+.t-block .t-below {
+    pointer-events: auto;
+}
+.t-s {
+    scroll-margin-top: 46px;
 }

@@ -18,6 +18,7 @@ export const routes = {
     authReturn: "/api/v1/auth/return",
     me: "/api/v1/me",
     claim: "/api/v1/me/handle",
+    handleCheck: (value: string) => `/api/v1/handles/${encodeURIComponent(value)}`,
     draft: "/api/v1/me/page",
     publish: "/api/v1/me/page/publish",
     stats: "/api/v1/me/stats",
@@ -30,7 +31,9 @@ export const errorResponse = z.strictObject({ error: z.string() });
 
 const handle = z.string().transform(normaliseHandle).pipe(handleSchema);
 
-export const claimRequest = z.strictObject({ handle });
+/** The address, and optionally the page the start flow built. */
+export const claimRequest = z.strictObject({ handle, page: pageSchema.optional() });
+export const handleResponse = z.strictObject({ available: z.boolean(), message: z.string() });
 export const meResponse = z.strictObject({
     email: z.string(),
     name: z.string(),
@@ -60,6 +63,7 @@ export type PhotosResponse = z.infer<typeof photosResponse>;
 export interface SaveResponse {
     updatedAt: string;
 }
+export type HandleResponse = z.infer<typeof handleResponse>;
 export type ClaimRequest = z.infer<typeof claimRequest>;
 export type MeResponse = z.infer<typeof meResponse>;
 export type HealthResponse = z.infer<typeof healthResponse>;

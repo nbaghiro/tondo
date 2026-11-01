@@ -16,9 +16,9 @@ Beautiful design and ease of use come first. A new person should be able to clai
 
 ## How a page is made
 
-1. Someone claims a handle, which creates their user row and an empty page.
-2. They add blocks. Pasting a URL fills in the title and icon where the platform is recognised.
-3. They pick a look, which sets colours, type, shapes and the art recipe together.
+1. After signing up, someone walks the start flow: name, sections, logo, look and address. Claiming the address creates their user row and that page.
+2. They add and fill sections. A section is one or more blocks. Pasting a URL fills in the title and icon where the platform is recognised.
+3. They can change the look, which sets colours, type, shapes and the art recipe together, and adjust any of those in Make it yours.
 4. Publishing copies the draft to the live page, renders its art and share image, and refreshes the cached page.
 
 The draft and the published version are separate, so editing never changes the live page until the person publishes.
@@ -60,9 +60,9 @@ People sign in with an email and password, or with Google, through [Neon Auth](h
 - **One origin.** Neon's docs say separate frontend and backend deployments aren't supported, because its cookies can't be shared safely across domains. So the browser never talks to Neon directly. `apps/server/src/auth.ts` proxies `/api/auth/*` to Neon using the toolkit in `@neon/auth/server`, and the cookies stay on our own domain. In production one Render service serves everything. In development Vite and Astro proxy `/api` to the server.
 - **Sessions.** The server reads the session through the toolkit, which keeps a signed copy in a cookie for 5 minutes, so most requests don't reach Neon. A session ended somewhere else can stay valid here until that copy expires.
 - **Verification and password reset** use emailed codes, on `/verify`, `/forgot` and `/reset`. Unverified people get no session. This is required on the `dev` branch, and production needs the same setting before launch.
-- **Sign-up** happens in Neon, then the browser claims the address. The `users` row is created at that point, and `users.id` holds Neon's user id with no foreign key.
-- **Google** returns to `/api/v1/auth/return`, which finishes the sign-in, claims any address chosen earlier, and sends the person on.
-- **Screens** are `/login`, `/signup` and `/claim` in `apps/marketing`, with our own design. They call Neon's endpoints through the proxy without the browser SDK.
+- **Sign-up** happens in Neon, then the start flow in the editor claims the address together with the page it built. The `users` row is created at that point, and `users.id` holds Neon's user id with no foreign key.
+- **Google** returns to `/api/v1/auth/return`, which finishes the sign-in and carries any address chosen earlier to the start flow, in the same way as email sign-up.
+- **Screens** are `/login` and `/signup` in `apps/marketing`, with our own design. They call Neon's endpoints through the proxy without the browser SDK.
 
 Local development needs a real Neon project for sign-in, even though app data stays in Docker. Without `NEON_AUTH_BASE_URL` the site runs and sign-in says it isn't set up.
 

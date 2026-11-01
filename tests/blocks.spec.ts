@@ -1,7 +1,14 @@
-import { blockDefinitions, blockTypes, everyLayoutPage, lookNames, samplePage } from "@tondo/page";
+import {
+    blockDefinitions,
+    everyLayoutPage,
+    lookNames,
+    samplePage,
+    sectionAvailable,
+    sectionDefinitions,
+} from "@tondo/page";
 import { renderDocument } from "@tondo/render";
 import { expect, test } from "@playwright/test";
-import { canvas, signUpToEditor } from "./helpers";
+import { addSection, canvas, openLook, signUpToEditor } from "./helpers";
 
 const LOOKS = ["madder", "signal", "sumi", "bloom", "pixel"] as const;
 
@@ -21,7 +28,7 @@ test.describe("every layout", () => {
                 (sum, definition) => sum + Object.keys(definition.layouts).length,
                 0,
             );
-            expect(count).toBe(66);
+            expect(count).toBe(67);
             const overflowing = await page.evaluate(() => {
                 const clipped = (node: Element | null): boolean => {
                     for (let at = node; at; at = at.parentElement) {
@@ -50,52 +57,50 @@ test.describe("every layout", () => {
 });
 
 test.describe("in the editor", () => {
-    test("the shelf offers blocks that work and holds back the rest", async ({ page }) => {
+    test("the list offers sections that work and marks the rest as coming", async ({ page }) => {
         await signUpToEditor(page);
-        const tabs = page.locator(".tabs .pill", { hasText: "Add" });
-        if (await tabs.isVisible()) await tabs.click();
-        const offered = blockTypes.filter((type) => !blockDefinitions[type].held);
-        await expect(page.locator(".tile")).toHaveCount(offered.length);
-        for (const held of ["tip", "signup", "form", "embed"] as const) {
-            await expect(
-                page.locator(".tile", { hasText: blockDefinitions[held].name }),
-            ).toHaveCount(0);
+        const tab = page.locator(".tabbar button", { hasText: "Add" });
+        if (await tab.isVisible()) await tab.click();
+        else await page.locator(".add-row").click();
+        await expect(page.locator("[data-add]")).toHaveCount(sectionDefinitions.length);
+        for (const definition of sectionDefinitions) {
+            const pick = page.locator(`[data-add=${definition.key}]`);
+            if (sectionAvailable(definition)) await expect(pick).toBeEnabled();
+            else await expect(pick).toBeDisabled();
         }
+        await expect(page.locator("[data-add=tip]")).toContainText("Soon");
     });
 
     test("text inside a list can be edited in place", async ({ page }, info) => {
         test.skip(info.project.name === "phone", "On a phone the sheet's fields edit list items");
         await signUpToEditor(page);
-        const tabs = page.locator(".tabs .pill", { hasText: "Add" });
-        if (await tabs.isVisible()) await tabs.click();
-        await page.locator('.tile[aria-label="Products"]').click();
+        await addSection(page, "shop");
         const name = canvas(page).locator('[data-field="items.0.name"]');
-        await expect(name).toHaveText("Tall ash vase");
+        await expect(name).toHaveText("First thing");
         await name.click();
         await name.click();
         await page.keyboard.press("ControlOrMeta+a");
         await page.keyboard.type("Wide bowl");
         await page.keyboard.press("Escape");
         await expect(name).toHaveText("Wide bowl");
+        await expect(page.locator(".status")).toHaveText("Saved");
         await page.reload();
         await expect(canvas(page).locator('[data-field="items.0.name"]')).toHaveText("Wide bowl");
     });
 
     test("the look gallery shows every look and changes the page", async ({ page }) => {
         await signUpToEditor(page);
-        const tab = page.locator(".tabs .pill", { hasText: "Look" });
-        if (await tab.isVisible()) await tab.click();
-        await expect(page.locator(".look-option")).toHaveCount(lookNames.length);
-        await page.locator(".lk-filters .mini", { hasText: "Dark" }).click();
-        const dark = await page.locator(".look-option").count();
+        await openLook(page);
+        await expect(page.locator(".tile")).toHaveCount(lookNames.length);
+        await page.locator(".filters .chip", { hasText: "Dark" }).click();
+        const dark = await page.locator(".tile").count();
         expect(dark).toBeGreaterThan(3);
         expect(dark).toBeLessThan(lookNames.length);
-        await page.locator(".look-option", { hasText: "Noir" }).click();
+        await page.locator(".tile[data-look=noir]").click();
         await expect(canvas(page).locator("html")).toHaveClass(/noir/);
-        await page.locator('.lk-sw[aria-label="Sap"]').click();
-        await expect(page.locator('.lk-sw[aria-label="Sap"]')).toHaveAttribute(
-            "aria-pressed",
-            "true",
-        );
+        await page.getByRole("tab", { name: "Make it yours" }).click();
+        const swatch = page.getByRole("button", { name: "A colour from this look" }).first();
+        await swatch.click();
+        await expect(swatch).toHaveAttribute("aria-pressed", "true");
     });
 });

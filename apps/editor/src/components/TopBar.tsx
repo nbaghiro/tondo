@@ -2,7 +2,10 @@ import { Show } from "solid-js";
 import { logOut, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import type { EditorState } from "../state/document";
-import { Icon } from "./Icon";
+import { paint } from "@tondo/render";
+import { Glyph } from "./Panels";
+
+const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('class="tondo"', "");
 
 interface TopBarProps {
     editor: EditorState;
@@ -26,70 +29,85 @@ export function TopBar(props: TopBarProps) {
         return state === "refused" ? saver().message() : STATUS[state];
     };
     return (
-        <header class="top">
-            <span class="brand">Tondo</span>
-            <a
-                class="address"
-                href={pageUrl(props.account.handle)}
-                target="_blank"
-                rel="noreferrer"
-            >
-                tondo.page/{props.account.handle}
-            </a>
-            <span class="status" role="status" data-state={saver().state()}>
-                {status()}
-                <Show when={saver().state() === "conflict"}>
-                    {" "}
-                    <button
-                        class="status-reload"
-                        onClick={() => {
-                            location.reload();
+        <header class="topbar">
+            <div class="tgroup tl">
+                <span class="tlogo">
+                    <i
+                        ref={(el) => {
+                            el.innerHTML = LOGO;
                         }}
-                    >
-                        Reload
-                    </button>
-                </Show>
-            </span>
-            <button
-                class="round"
-                aria-label="Undo"
-                disabled={!props.editor.canUndo()}
-                onClick={() => {
-                    props.editor.undo();
-                }}
-            >
-                <Icon name="undo" />
-            </button>
-            <button
-                class="round"
-                aria-label="Redo"
-                disabled={!props.editor.canRedo()}
-                onClick={() => {
-                    props.editor.redo();
-                }}
-            >
-                <Icon name="redo" />
-            </button>
-            <button
-                class="preview-open"
-                onClick={() => {
-                    props.onPreview();
-                }}
-            >
-                Preview
-            </button>
-            <button
-                class="publish"
-                disabled={props.publishing || !props.editor.changed()}
-                onClick={() => {
-                    props.onPublish();
-                }}
-            >
-                {props.publishing ? "Publishing" : props.editor.changed() ? "Publish" : "Published"}
-            </button>
-            <button class="logout" onClick={logOut}>
-                Log out
-            </button>
+                    />
+                    Tondo
+                </span>
+                <a
+                    class="url address"
+                    href={pageUrl(props.account.handle)}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    tondo.page/<b>{props.account.handle}</b>
+                </a>
+            </div>
+            <div class="tgroup tr">
+                <span class="saved status" role="status" data-state={saver().state()}>
+                    {status()}
+                    <Show when={saver().state() === "conflict"}>
+                        {" "}
+                        <button
+                            class="status-reload"
+                            onClick={() => {
+                                location.reload();
+                            }}
+                        >
+                            Reload
+                        </button>
+                    </Show>
+                </span>
+                <button
+                    class="circle"
+                    aria-label="Undo"
+                    disabled={!props.editor.canUndo()}
+                    onClick={() => {
+                        props.editor.undo();
+                    }}
+                >
+                    <Glyph name="undo" />
+                </button>
+                <button
+                    class="circle"
+                    aria-label="Redo"
+                    disabled={!props.editor.canRedo()}
+                    onClick={() => {
+                        props.editor.redo();
+                    }}
+                >
+                    <Glyph name="redo" />
+                </button>
+                <button
+                    class="prev preview-open"
+                    onClick={() => {
+                        props.onPreview();
+                    }}
+                >
+                    Preview
+                </button>
+                <button
+                    class="pub-go publish"
+                    disabled={props.publishing || !props.editor.changed()}
+                    onClick={() => {
+                        props.onPublish();
+                    }}
+                >
+                    {props.publishing
+                        ? "Publishing"
+                        : props.editor.changed()
+                          ? "Publish"
+                          : "Published"}
+                </button>
+                <button class="prev logout" onClick={logOut}>
+                    Log out
+                </button>
+            </div>
         </header>
     );
 }

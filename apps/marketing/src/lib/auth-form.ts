@@ -1,5 +1,5 @@
 import { routes } from "@tondo/contract";
-import type { AuthError, ErrorResponse, MeResponse } from "@tondo/contract";
+import type { AuthError, MeResponse } from "@tondo/contract";
 
 const EDITOR_URL =
     (import.meta.env["PUBLIC_EDITOR_URL"] as string | undefined) ??
@@ -35,8 +35,10 @@ const showError = (message: string) => {
 // Development only: lets `.scratchpad/auth-strip` show the real form in a frame.
 const preview = import.meta.env.DEV && params.has("preview");
 
-const goOn = (account: MeResponse) => {
-    const next = account.handle ? EDITOR_URL : new URL("/claim", location.href).href;
+// The editor runs the start flow for someone with no address yet, and checks the one they asked for.
+const goOn = (account: MeResponse, handle?: string) => {
+    const asked = !account.handle && handle ? `?handle=${encodeURIComponent(handle)}` : "";
+    const next = `${EDITOR_URL}${asked}`;
     if (preview) window.parent.postMessage({ tondoGoTo: next }, "*");
     else location.assign(next);
 };
@@ -96,12 +98,11 @@ if (wanted && form) {
 fetch(routes.me)
     .then(async (res) => {
         if (!res.ok) {
-            if (kind === "claim") location.assign("/login");
             return;
         }
         if (kind === "reset") return;
         const account = (await res.json()) as MeResponse;
-        if (!preview && (kind !== "claim" || account.handle)) goOn(account);
+        if (!preview) goOn(account, wanted);
     })
     .catch(() => {
         showError(UNREACHABLE);
@@ -121,7 +122,7 @@ const authMessage = async (res: Response) => {
 
 const toHandle = (value: FormDataEntryValue | null) => (typeof value === "string" ? value : "");
 
-// Sign-up happens in Neon Auth. Once the email is verified, the address is claimed here.
+// Sign-up happens in Neon Auth. Once the email is verified, the editor takes over.
 async function signUp(email: string, password: string, handle: string): Promise<string | null> {
     if (password.length < 8) return "Use at least 8 characters for your password.";
     const name = email.split("@")[0] ?? email;
@@ -137,17 +138,9 @@ async function signUp(email: string, password: string, handle: string): Promise<
     return null;
 }
 
-// A taken address isn't a failure: the account exists, and the next page asks for another address.
 async function continueAs(email: string, name: string, handle: string | undefined): Promise<void> {
-    if (handle) {
-        const claimed = await postJson(routes.claim, { handle });
-        if (claimed.ok) {
-            goOn((await claimed.json()) as MeResponse);
-            return;
-        }
-    }
     const me = await fetch(routes.me);
-    goOn(me.ok ? ((await me.json()) as MeResponse) : { email, name, handle: null });
+    goOn(me.ok ? ((await me.json()) as MeResponse) : { email, name, handle: null }, handle);
 }
 
 const sendCode = (email: string) =>
@@ -171,13 +164,6 @@ async function logIn(email: string, password: string): Promise<string | null> {
     const me = await fetch(routes.me);
     if (!me.ok) return "We couldn't load your account. Please try again.";
     goOn((await me.json()) as MeResponse);
-    return null;
-}
-
-async function claimAddress(handle: string): Promise<string | null> {
-    const res = await postJson(routes.claim, { handle });
-    if (!res.ok) return ((await res.json()) as ErrorResponse).error;
-    goOn((await res.json()) as MeResponse);
     return null;
 }
 
@@ -255,7 +241,7 @@ form?.addEventListener("submit", (event) => {
                   ? requestReset(email)
                   : kind === "reset"
                     ? resetPassword(code, password)
-                    : claimAddress(handle);
+                    : Promise.resolve(null);
     attempt
         .then((message) => {
             if (message !== null) {

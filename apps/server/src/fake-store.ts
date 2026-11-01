@@ -8,6 +8,7 @@ export function createFakeStore(): AccountStore {
         [...owners].find(([, owner]) => owner === userId)?.[0] ?? null;
     return {
         findHandle: (userId) => Promise.resolve(handleOf(userId)),
+        handleTaken: (handle) => Promise.resolve(owners.has(handle)),
         claimHandle: (userId, handle) => {
             const owner = owners.get(handle);
             if (owner && owner !== userId) return Promise.resolve(false);

@@ -29,9 +29,9 @@ export const headerFields: readonly Field[] = [
     text("tagline", "Short line", { max: 120, inline: true }),
     photo("photo", "Photo"),
     longText("bio", "About", { max: 280, inline: true }),
-    list("links", "Links", {
+    list("links", "Social icons", {
         title: "type",
-        add: "Add a link",
+        add: "Add an icon",
         max: 12,
         make: () => ({ type: "globe", value: "" }),
         fields: [

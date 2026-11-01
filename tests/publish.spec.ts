@@ -1,21 +1,20 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { canvas, signUpToEditor } from "./helpers";
+import { addSection, canvas, panel, signUpToEditor } from "./helpers";
 
-async function addButton(page: Page, phone: boolean) {
-    if (phone) await page.locator(".tabs .pill", { hasText: "Add" }).click();
-    await page.locator('.tile[aria-label="Button"]').click();
-    await expect(canvas(page).locator("a.b-btn")).toHaveCount(1);
+async function addButton(page: Page) {
+    await addSection(page, "links");
+    await expect(canvas(page).locator("a.b-btn").first()).toBeVisible();
 }
 
 const saved = (page: Page) => expect(page.locator(".status")).toHaveText("Saved");
 
-test("a draft survives a reload, and stays private until published", async ({ page }, info) => {
+test("a draft survives a reload, and stays private until published", async ({ page }) => {
     const handle = await signUpToEditor(page);
-    await addButton(page, info.project.name === "phone");
+    await addButton(page);
     await saved(page);
     await page.reload();
-    await expect(canvas(page).locator("a.b-btn")).toHaveCount(1);
+    await expect(canvas(page).locator("a.b-btn")).toHaveCount(3);
     const visitor = await page.context().browser()?.newContext();
     const other = await visitor?.newPage();
     const res = await other?.goto(new URL(`/${handle}`, page.url()).href);
@@ -23,21 +22,20 @@ test("a draft survives a reload, and stays private until published", async ({ pa
     await visitor?.close();
 });
 
-test("publishing checks the page, then it opens logged out and counts clicks", async ({
-    page,
-}, info) => {
+test("publishing checks the page, then it opens logged out and counts clicks", async ({ page }) => {
     const handle = await signUpToEditor(page);
-    const phone = info.project.name === "phone";
-    await addButton(page, phone);
+    await addButton(page);
     await page.locator(".publish").click();
-    await expect(page.locator(".pub-issues li")).toContainText("needs a link");
+    await expect(page.locator(".pub-issues li").first()).toContainText("needs a link");
 
-    await page.locator(".pub-issues button").click();
-    await page.locator(".side input.in").first().fill("shop.example.com");
-    await page.locator('.side .i-head [aria-label="Close"]').click();
+    await page.locator(".pub-issues button").first().click();
+    await panel(page).getByRole("button", { name: "Remove this link" }).last().click();
+    await panel(page).getByRole("button", { name: "Remove this link" }).last().click();
+    await panel(page).getByRole("textbox", { name: "Link" }).fill("shop.example.com");
+    await panel(page).getByRole("button", { name: "Close" }).click();
     await saved(page);
     await page.locator(".publish").click();
-    await expect(page.locator(".pub h2")).toHaveText("Your page is live");
+    await expect(panel(page).locator("h2")).toHaveText("Your page is live");
     await expect(page.locator(".publish")).toHaveText("Published");
     await page.keyboard.press("Escape");
 
@@ -70,19 +68,18 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
 
     // A later edit stays private until the next publish.
     await canvas(page).locator("a.b-btn").click();
-    await page.locator(".side .in").nth(1).fill("A new label");
+    await panel(page).getByRole("textbox", { name: "Button text" }).fill("A new label");
     await expect(page.locator(".publish")).toHaveText("Publish");
 });
 
-test("a second tab can't overwrite newer work", async ({ page, context }, info) => {
+test("a second tab can't overwrite newer work", async ({ page, context }) => {
     await signUpToEditor(page);
-    const phone = info.project.name === "phone";
     const second = await context.newPage();
     await second.goto(page.url());
     await expect(second.locator(".address")).toBeVisible();
-    await addButton(page, phone);
+    await addButton(page);
     await saved(page);
-    await addButton(second, phone);
+    await addButton(second);
     await expect(second.locator(".status")).toHaveAttribute("data-state", "conflict");
     await expect(second.locator(".status-reload")).toBeVisible();
     await second.close();
@@ -96,7 +93,7 @@ const ONE_PIXEL = Buffer.from(
 test("an uploaded photo is cropped, saved and shown in the picker", async ({ page }) => {
     await signUpToEditor(page);
     await canvas(page).locator("#t-header").click();
-    await page.locator(".side .ph-empty").first().click();
+    await panel(page).locator(".ph-empty").first().click();
     await page.locator(".upload input").setInputFiles({
         name: "me.png",
         mimeType: "image/png",
@@ -107,7 +104,7 @@ test("an uploaded photo is cropped, saved and shown in the picker", async ({ pag
     const loaded = await image.evaluate((node) => (node as HTMLImageElement).naturalWidth);
     expect(loaded).toBe(1);
 
-    await page.locator(".side .ph .mini").first().click();
+    await panel(page).locator(".ph .mini").first().click();
     await expect(page.locator(".pick-mine button")).toHaveCount(1);
     await page.locator(".upload input").setInputFiles({
         name: "bad.svg",

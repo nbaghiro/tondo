@@ -1,3 +1,4 @@
+import { PAGE_VERSION } from "./schema";
 import { describe, expect, it } from "vitest";
 import {
     handleSchema,
@@ -106,7 +107,7 @@ describe("saved documents", () => {
             ],
         };
         const page = readPage(old);
-        expect(page.version).toBe(1);
+        expect(page.version).toBe(PAGE_VERSION);
         expect(page.header.photo).toEqual({ file: "woman23.jpg", x: 50, y: 22, zoom: 1.8 });
         expect(page.header.links[0]?.value).toBe("mailto:a@b.co");
         expect(page.blocks[0]).toMatchObject({ photo: { file: "ceramic0.jpg" } });

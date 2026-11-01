@@ -37,11 +37,14 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Done | Filmstrip scrolls by itself and slows on hover, with no manual scroll | Loops with a second copy of the cards. Stops for keyboard focus and reduced motion |
 | Done | Clicking a page opens a preview | `PagePreview.astro`, shared by the strip and the gallery |
 | Done | Example pages open at their own addresses | `/maya`, `/oskarbloom` and so on. Reserved, so people can't claim them |
-| Later | Onboarding flow for new people | After the builder port |
+| Done | Onboarding flow for new people | The start flow in `apps/editor`, after sign-up and verification |
 | Done | Fuller gallery with smaller gaps and no labels | 12px gaps, and names stay available to screen readers |
 | For review | Builder port step 3: one slice with the real inspector | Five blocks in four looks, in `apps/editor`. See `builder-port.md` |
 | Waiting on Naib | Builder port steps 4 and 5: all blocks and all looks | Built, and stopped at the step 5 review |
 | Waiting on Naib | Choose the site's design language | Naib likes the Hybrid and prefers a white background to Madder's warm pink. Move it to the real site after the port |
 | Done | Finish the builder port, ready for full QA | Steps 6 to 10. See `qa.md` |
 
-The site changes are in `apps/marketing`. 
+The site changes are in `apps/marketing`.
+| Done | Move the approved builder into the real app | `apps/editor`, `packages/page/src/sections.ts`, `packages/render/src/style.ts`. See `builder-v2-port.md` |
+| Done | Rename Find me to Socials and contact, findable by instagram, social, socials, icons and contact | `packages/page/src/sections.ts` |
+| Done | Give the header's links their own Social icons row, opened by tapping the icons | `SectionPanel.tsx`, `Canvas.tsx` |

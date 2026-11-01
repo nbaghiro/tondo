@@ -1,13 +1,21 @@
 import { claimRequest, routes } from "@tondo/contract";
-import type { ErrorResponse, MeResponse } from "@tondo/contract";
+import type { ErrorResponse, HandleResponse, MeResponse } from "@tondo/contract";
 import type { AccountStore } from "@tondo/db";
-import { isReservedHandle, starterPage } from "@tondo/page";
+import {
+    handleSchema,
+    isReservedHandle,
+    isValidHandle,
+    normaliseHandle,
+    starterPage,
+} from "@tondo/page";
+import type { Page } from "@tondo/page";
 import {
     DEFAULT_AUTH_SKIP_ROUTES,
     handleAuthProxyRequest,
     processAuthMiddleware,
 } from "@neon/auth/server";
 import type { Context, Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 
 export interface AuthConfig {
     store: AccountStore;
@@ -30,7 +38,7 @@ export type CurrentPerson = (c: Context) => Promise<Person | null>;
 export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     const { store, siteUrl, editorUrl, neon } = config;
 
-    const fail = (c: Context, status: 400 | 401 | 409 | 415 | 503, error: string) =>
+    const fail = (c: Context, status: 400 | 401 | 409 | 413 | 415 | 503, error: string) =>
         c.json<ErrorResponse>({ error }, status);
 
     // Neon's toolkit caches the session in a signed cookie, so most requests don't reach Neon.
@@ -55,10 +63,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     };
 
     const nameOf = (person: Person) => person.name || (person.email.split("@")[0] ?? person.email);
-    const claim = (person: Person, handle: string) =>
+    const claim = (person: Person, handle: string, page?: Page) =>
         isReservedHandle(handle)
             ? Promise.resolve(false)
-            : store.claimHandle(person.id, handle, starterPage(nameOf(person)));
+            : store.claimHandle(person.id, handle, page ?? starterPage(nameOf(person)));
 
     app.all(`${routes.auth}/*`, (c) => {
         if (!neon) return c.json({ code: "NOT_SET_UP", message: NOT_SET_UP }, 503);
@@ -80,23 +88,49 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         });
     });
 
-    app.post(routes.claim, async (c) => {
-        // A form on another site can't send JSON without permission, which blocks cross-site posts.
-        if (!c.req.header("content-type")?.startsWith("application/json")) {
-            return fail(c, 415, "Send this as JSON.");
-        }
+    app.get(routes.handleCheck(":handle").replace("%3A", ":"), async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        const parsed = claimRequest.safeParse(await c.req.json<unknown>().catch(() => null));
-        if (!parsed.success) {
-            return fail(c, 400, "Use 1 to 30 lowercase letters, numbers or hyphens.");
+        const handle = normaliseHandle(c.req.param("handle") ?? "");
+        const free = { available: true, message: "That address is free." };
+        const taken = { available: false, message: "That address is taken. Try another one." };
+        if (!handleSchema.safeParse(handle).success) {
+            return c.json<HandleResponse>(
+                isReservedHandle(handle)
+                    ? taken
+                    : {
+                          available: false,
+                          message: "Use 1 to 30 lowercase letters, numbers or hyphens.",
+                      },
+            );
         }
-        const { handle } = parsed.data;
-        if (!(await claim(person, handle))) {
-            return fail(c, 409, "That address is taken. Try another one.");
-        }
-        return c.json<MeResponse>({ email: person.email, name: nameOf(person), handle });
+        return c.json<HandleResponse>((await store.handleTaken(handle)) ? taken : free);
     });
+
+    app.post(
+        routes.claim,
+        bodyLimit({
+            maxSize: 1024 * 1024,
+            onError: (c) => fail(c, 413, "This page is too large to save."),
+        }),
+        async (c) => {
+            // A form on another site can't send JSON without permission, which blocks cross-site posts.
+            if (!c.req.header("content-type")?.startsWith("application/json")) {
+                return fail(c, 415, "Send this as JSON.");
+            }
+            const person = await currentPerson(c);
+            if (!person) return fail(c, 401, "You're not logged in.");
+            const parsed = claimRequest.safeParse(await c.req.json<unknown>().catch(() => null));
+            if (!parsed.success) {
+                return fail(c, 400, "Use 1 to 30 lowercase letters, numbers or hyphens.");
+            }
+            const { handle } = parsed.data;
+            if (!(await claim(person, handle, parsed.data.page))) {
+                return fail(c, 409, "That address is taken. Try another one.");
+            }
+            return c.json<MeResponse>({ email: person.email, name: nameOf(person), handle });
+        },
+    );
 
     // Google returns here. The first visit swaps Neon's verifier for a session cookie and comes
     // back to this same address without it, and the second works out where the person goes next.
@@ -121,11 +155,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         const person = await currentPerson(c);
         if (!person) return c.redirect(failed);
         if (await store.findHandle(person.id)) return c.redirect(editorUrl);
-        const wanted = claimRequest.safeParse({ handle: c.req.query("handle") ?? "" });
-        if (wanted.success && (await claim(person, wanted.data.handle))) {
-            return c.redirect(editorUrl);
-        }
-        return c.redirect(`${siteUrl}/claim`);
+        // A new person goes through the start flow, with the address they asked for ready to check.
+        const wanted = normaliseHandle(c.req.query("handle") ?? "");
+        const usable = isValidHandle(wanted) && !isReservedHandle(wanted);
+        return c.redirect(usable ? `${editorUrl}?handle=${encodeURIComponent(wanted)}` : editorUrl);
     });
 
     return currentPerson;

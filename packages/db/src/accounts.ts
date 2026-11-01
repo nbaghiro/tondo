@@ -7,6 +7,7 @@ import { pages, users } from "./schema";
 export interface AccountStore {
     /** The address someone has claimed, or null if they haven't yet. */
     findHandle: (userId: string) => Promise<string | null>;
+    handleTaken: (handle: string) => Promise<boolean>;
     /** False if the address is taken. Someone who already has an address keeps it. */
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
 }
@@ -21,6 +22,13 @@ export function createAccountStore(db: Db): AccountStore {
     };
     return {
         findHandle,
+        handleTaken: async (handle) => {
+            const [row] = await db
+                .select({ id: users.id })
+                .from(users)
+                .where(eq(users.handle, handle));
+            return row !== undefined;
+        },
         claimHandle: async (userId, handle, page) => {
             const existing = await findHandle(userId);
             if (existing) return existing === handle;

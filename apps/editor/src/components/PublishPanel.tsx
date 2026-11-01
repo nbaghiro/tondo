@@ -1,55 +1,71 @@
 import type { PublishIssue } from "@tondo/page";
 import { For, Show } from "solid-js";
-import { Icon } from "./Icon";
 
 export type PublishView =
     | { state: "issues"; issues: PublishIssue[] }
+    | { state: "warnings"; warnings: PublishIssue[] }
     | { state: "live"; url: string; stats: { views: number; clicks: number } | null }
     | { state: "failed"; message: string };
 
+function IssueList(props: { issues: PublishIssue[]; onOpen: (target: string) => void }) {
+    return (
+        <ul class="pub-issues">
+            <For each={props.issues}>
+                {(issue) => (
+                    <li>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                props.onOpen(issue.target);
+                            }}
+                        >
+                            {issue.message}
+                        </button>
+                    </li>
+                )}
+            </For>
+        </ul>
+    );
+}
+
 export function PublishPanel(props: {
     view: PublishView;
-    onClose: () => void;
     onOpen: (target: string) => void;
+    onPublishAnyway: () => void;
 }) {
     return (
-        <div class="pub" role="dialog" aria-label="Publish">
-            <button
-                class="icon-b pub-close"
-                aria-label="Close"
-                onClick={() => {
-                    props.onClose();
-                }}
-            >
-                <Icon name="close" />
-            </button>
+        <div class="pub" aria-label="Publish">
             <Show when={props.view.state === "issues" && props.view}>
                 {(view) => (
                     <>
-                        <h2>A few things first</h2>
                         <p>Fix these and your page is ready to go live.</p>
-                        <ul class="pub-issues">
-                            <For each={view().issues}>
-                                {(issue) => (
-                                    <li>
-                                        <button
-                                            onClick={() => {
-                                                props.onOpen(issue.target);
-                                            }}
-                                        >
-                                            {issue.message}
-                                        </button>
-                                    </li>
-                                )}
-                            </For>
-                        </ul>
+                        <IssueList issues={view().issues} onOpen={props.onOpen} />
+                    </>
+                )}
+            </Show>
+            <Show when={props.view.state === "warnings" && props.view}>
+                {(view) => (
+                    <>
+                        <p>
+                            Some sections still show a painting where your photo could go. You can
+                            publish now and come back.
+                        </p>
+                        <IssueList issues={view().warnings} onOpen={props.onOpen} />
+                        <button
+                            type="button"
+                            class="go"
+                            onClick={() => {
+                                props.onPublishAnyway();
+                            }}
+                        >
+                            Publish anyway
+                        </button>
                     </>
                 )}
             </Show>
             <Show when={props.view.state === "live" && props.view}>
                 {(view) => (
                     <>
-                        <h2>Your page is live</h2>
                         <p>
                             <a class="pub-link" href={view().url} target="_blank" rel="noreferrer">
                                 Open your page
@@ -67,13 +83,17 @@ export function PublishPanel(props: {
                 )}
             </Show>
             <Show when={props.view.state === "failed" && props.view}>
-                {(view) => (
-                    <>
-                        <h2>That didn't publish</h2>
-                        <p>{view().message}</p>
-                    </>
-                )}
+                {(view) => <p>{view().message}</p>}
             </Show>
         </div>
     );
 }
+
+export const publishTitle = (view: PublishView): string =>
+    view.state === "live"
+        ? "Your page is live"
+        : view.state === "failed"
+          ? "That didn't publish"
+          : view.state === "warnings"
+            ? "Nearly there"
+            : "A few things first";

@@ -1,7 +1,16 @@
-import { everyLayoutPage, samplePage } from "@tondo/page";
+import { everyLayoutPage, lookNames, samplePage } from "@tondo/page";
 import type { LookName, Page } from "@tondo/page";
 import { describe, expect, it } from "vitest";
-import { paint, renderBody, renderDocument, looks } from "./index";
+import {
+    contrast as ratio,
+    fontsHref,
+    looks,
+    paint,
+    renderBody,
+    renderCss,
+    renderDocument,
+    themeOf,
+} from "./index";
 
 const ctx = { assetBase: "/photos/", editable: false };
 const options = { ...ctx, title: "Maya" };
@@ -162,3 +171,94 @@ describe.each(Object.entries(looks))("the %s look", (name, look) => {
         expect(missing).toEqual([]);
     });
 });
+
+describe("a page's own style", () => {
+    const styled = (style: NonNullable<Page["style"]>, look: Page["look"] = "madder"): Page => ({
+        ...samplePage,
+        look,
+        style,
+    });
+
+    it("adds nothing when there are no choices", () => {
+        expect(renderCss(samplePage)).not.toContain("html.look.madder{");
+    });
+
+    it("applies colour, font, shape and fill through the page's CSS", () => {
+        const css = renderCss(
+            styled({
+                colour: { mode: "brand", brand: "#2563eb" },
+                font: "modern",
+                shape: "soft",
+                fill: "outline",
+            }),
+        );
+        expect(css).toContain("html.look.madder{");
+        expect(css).toContain('--disp:"Space Grotesk"');
+        expect(css).toContain("--rb:12px");
+        expect(css).toContain("border:1.5px solid var(--btn)");
+    });
+
+    it("loads a chosen font pair and wordmark fonts, and no script", () => {
+        const page: Page = {
+            ...styled({ font: "friendly" }),
+            header: { ...samplePage.header, wordmark: "bubble" },
+        };
+        expect(fontsHref(page)).toContain("Fredoka");
+        expect(fontsHref(page)).toContain("Bagel+Fat+One");
+        const html = renderDocument(page, { title: "t", assetBase: "/photos/", editable: false });
+        expect(html).not.toContain("<script");
+        expect(html).toContain('class="wm wm-bubble"');
+    });
+
+    it("keeps every look's main text readable in every colour choice", () => {
+        for (const name of lookNames) {
+            for (const colour of [
+                { mode: "brand", brand: "#ffe100" },
+                { mode: "brand", brand: "#123456" },
+                { mode: "plain", brand: "#a42a55" },
+                { mode: "dark", brand: "#a42a55" },
+            ] as const) {
+                const theme = themeOf({ look: name, style: { colour } });
+                const v = theme?.vars ?? {};
+                expect(ratio(v["--fg"] ?? "", v["--bg"] ?? "")).toBeGreaterThanOrEqual(4.5);
+                expect(ratio(v["--mut"] ?? "", v["--bg"] ?? "")).toBeGreaterThanOrEqual(4.5);
+                expect(ratio(v["--cardfg"] ?? "", v["--card"] ?? "")).toBeGreaterThanOrEqual(4.5);
+                expect(ratio(v["--btnfg"] ?? "", v["--btn"] ?? "")).toBeGreaterThanOrEqual(4.5);
+            }
+        }
+    });
+
+    it("corrects a look's own hard-coded text colours in the CSS", () => {
+        const css = lookCssFor("conf");
+        expect(css).toContain("!important");
+    });
+
+    it("draws placeholders as painted images and the wave with no script", () => {
+        const page: Page = {
+            ...samplePage,
+            blocks: [
+                { id: "a", type: "image", variant: "framed", photo: { file: "paint-2" } },
+                {
+                    id: "b",
+                    type: "ribbon",
+                    variant: "wave",
+                    text: "Hello",
+                    section: "b",
+                    tint: true,
+                },
+            ],
+        };
+        const html = renderDocument(page, { title: "t", assetBase: "/photos/", editable: false });
+        expect(html).toContain('src="data:image/svg+xml');
+        expect(html).toContain("<animate");
+        expect(html).toContain('class="b-tint"');
+    });
+});
+
+function lookCssFor(look: Page["look"]): string {
+    return renderCss({
+        ...samplePage,
+        look,
+        style: { colour: { mode: "brand", brand: "#ffe100" } },
+    });
+}
