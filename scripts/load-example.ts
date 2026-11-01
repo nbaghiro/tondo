@@ -33,7 +33,7 @@ async function main(example: string, handle: string): Promise<void> {
     try {
         const saved = await sql`
             update pages set draft = ${sql.json(JSON.parse(JSON.stringify(page)) as never)}, updated_at = now()
-            where slug = '' and user_id = (select id from users where handle = ${handle})
+            where handle = ${handle}
             returning id`;
         if (!saved.length) fail(`No local account has the address ${handle}.`);
     } finally {

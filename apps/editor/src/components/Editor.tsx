@@ -126,10 +126,10 @@ function keepMinimised(on: boolean) {
     }
 }
 
-export function Editor(props: { account: Account; draft: DraftResponse }) {
+export function Editor(props: { account: Account; pageId: string; draft: DraftResponse }) {
     const editor = untrack(() =>
         createEditor({
-            handle: props.account.handle,
+            pageId: props.pageId,
             // Dates on the page follow this person's clock. It's saved with their next change.
             page: {
                 ...props.draft.page,
@@ -144,7 +144,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     );
     const assistant = createAssistant(
         editor,
-        untrack(() => props.account.handle),
+        untrack(() => props.draft.handle),
     );
     assistant.load();
     const [helpStart, setHelpStart] = createSignal<string | undefined>();
@@ -231,19 +231,19 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         const failedSave = "Your latest changes aren't saved yet. Try again in a moment.";
         const saved = await editor.saver.flush();
         const result = saved
-            ? await publish(editor.saver.updatedAt(), free)
+            ? await publish(props.pageId, editor.saver.updatedAt(), free)
             : ({ state: "failed", message: editor.saver.message() || failedSave } as const);
         setPublishing(false);
         if (result.state === "published") {
             // Free choices leave the draft ahead of what's live, so there's still something to publish.
             if (free) editor.syncLive(true, true);
             else editor.markPublished();
-            setLivePage(await loadLive());
+            setLivePage(await loadLive(props.pageId));
             setView({
                 state: "live",
-                url: pageUrl(props.account.handle),
-                handle: props.account.handle,
-                stats: await loadStats(),
+                url: pageUrl(props.draft.handle),
+                handle: props.draft.handle,
+                stats: await loadStats(props.pageId),
             });
         } else if (result.state === "issues") {
             // A stale tab learns about the plan here, and shows the same panel as everyone else.
@@ -259,7 +259,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     };
     // Only the server knows some problems. A refused link clears once it's gone from the page.
     const discardChanges = () => {
-        loadLive()
+        loadLive(props.pageId)
             .then((live) => {
                 if (!live) {
                     setView({
@@ -296,8 +296,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             : { state: "warnings", warnings };
     };
     const openPublishList = async () => {
-        setLivePage(await loadLive());
-        if (await editor.saver.flush()) setServerIssues(await loadPublishChecks());
+        setLivePage(await loadLive(props.pageId));
+        if (await editor.saver.flush()) setServerIssues(await loadPublishChecks(props.pageId));
         setView(listView());
         showPublish();
     };
@@ -564,7 +564,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
 
     const [stale, setStale] = createSignal(
         untrack(() => {
-            const found = loadStaleBackup(props.account.handle, props.draft.updatedAt);
+            const found = loadStaleBackup(props.pageId, props.draft.updatedAt);
             if (found && pageHash(found.page) === pageHash(props.draft.page)) {
                 dropBackup(found.key);
                 return null;
@@ -581,7 +581,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     // Another tab or the dashboard can take the page down, so coming back here checks.
     const checkLive = () => {
         if (document.visibilityState !== "visible") return;
-        loadDraft()
+        loadDraft(props.pageId)
             .then((latest) => {
                 editor.syncLive(latest.published, latest.changed);
             })
@@ -643,7 +643,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    downloadPage(backup().page, props.account.handle);
+                                    downloadPage(backup().page, props.draft.handle);
                                 }}
                             >
                                 Download it
@@ -682,7 +682,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 <div class="wash" aria-hidden="true" ref={setWash} />
                 <TopBar
                     editor={editor}
-                    account={props.account}
+                    pageId={props.pageId}
+                    handle={props.draft.handle}
                     onPreview={() => setPreviewing(true)}
                     publishing={publishing()}
                     onPublish={startPublish}

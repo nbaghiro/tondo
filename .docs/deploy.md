@@ -100,4 +100,4 @@ Rate limits read the client address from the left of `X-Forwarded-For`. This has
 
 - Create `report@tondo.page`. The report page sends mail there.
 - Deleting an account asks Neon to delete the user, and that hasn't been tried against real Neon. If Neon refuses, the person is told their sign-in is still stored.
-- To hide a page for abuse: `pnpm --filter @tondo/db suspend <handle>`.
+- To hide someone for abuse: `pnpm --filter @tondo/db suspend <handle>`. This takes down all of that person's pages, whichever of their addresses you name.

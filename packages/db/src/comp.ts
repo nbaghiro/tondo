@@ -1,8 +1,8 @@
 // Gives Pro for free: pnpm --filter @tondo/db comp <address> [--months 12], or --all instead of an
 // address. Anyone paying through Stripe is skipped.
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { createDb } from "./client";
-import { users } from "./schema";
+import { pages, users } from "./schema";
 
 const args = process.argv.slice(2);
 const at = args.indexOf("--months");
@@ -16,7 +16,20 @@ const { db, close } = createDb();
 const rows = await db
     .update(users)
     .set({ plan: "pro", endsAt: sql`now() + make_interval(months => ${months})` })
-    .where(and(isNull(users.stripeId), all ? undefined : eq(users.handle, handle ?? "")))
-    .returning({ handle: users.handle });
+    .where(
+        and(
+            isNull(users.stripeId),
+            all
+                ? undefined
+                : inArray(
+                      users.id,
+                      db
+                          .select({ id: pages.userId })
+                          .from(pages)
+                          .where(eq(pages.handle, handle ?? "")),
+                  ),
+        ),
+    )
+    .returning({ id: users.id });
 await close();
 process.stdout.write(`Gave ${String(months)} months of Pro to ${String(rows.length)} accounts.\n`);

@@ -14,7 +14,7 @@ async function open(here: HTMLElement): Promise<void> {
     setPlan(account);
     followLogOut();
     const path = inAppPath();
-    if (!account.handle) {
+    if (!account.pages.length) {
         if (path !== "/start") {
             location.replace(`${appPath("/start")}${location.search}`);
             return;
@@ -24,7 +24,6 @@ async function open(here: HTMLElement): Promise<void> {
         mountStart(here, account);
         return;
     }
-    const known = { ...account, handle: account.handle };
     if (path === "/start") {
         location.replace(appPath("/"));
         return;
@@ -32,11 +31,11 @@ async function open(here: HTMLElement): Promise<void> {
     if (path === "/edit") {
         document.title = "Edit page | Tondo";
         const { mountEditor } = await import("./app/builder");
-        await mountEditor(here, known);
+        await mountEditor(here, account);
         return;
     }
     const { mountDashboard } = await import("./app/dashboard");
-    mountDashboard(here, known);
+    mountDashboard(here, account);
 }
 
 async function openLab(here: HTMLElement, lab: string): Promise<void> {

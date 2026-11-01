@@ -36,6 +36,13 @@
       "when": 1793570825926,
       "tag": "0004_sour_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793574372651,
+      "tag": "0005_one_address_per_page",
+      "breakpoints": true
     }
   ]
 }

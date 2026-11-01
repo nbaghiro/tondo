@@ -12,9 +12,9 @@ const examples = Object.entries(documents).map(
     ([path, raw]) => [path.replace(/^.*\/|\.json$/g, ""), raw] as const,
 );
 
-const open = (handle: string, page: Page) =>
+const open = (pageId: string, page: Page) =>
     createEditor({
-        handle,
+        pageId,
         page,
         updatedAt: "2026-11-01T00:00:00Z",
         changed: false,

@@ -1,47 +1,48 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { canvas, openSections, signUpToEditor } from "./helpers";
-
-const url = "/api/v1/me/page";
+import { canvas, openSections, signUpToEditor, draftUrl } from "./helpers";
 
 /** Publishes a page with one button, then changes the draft to something else. */
 async function liveWithChanges(page: Page) {
-    await page.evaluate(async (draftUrl) => {
-        const put = async (text: string, updatedAt: string) => {
-            const res = await fetch(draftUrl, {
-                method: "PUT",
+    await page.evaluate(
+        async (draftUrl) => {
+            const put = async (text: string, updatedAt: string) => {
+                const res = await fetch(draftUrl, {
+                    method: "PUT",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({
+                        updatedAt,
+                        page: {
+                            ...draft.page,
+                            blocks: [
+                                {
+                                    id: "b1",
+                                    section: "b1",
+                                    type: "button",
+                                    variant: "filled",
+                                    text,
+                                    url: "https://fine.example.com/",
+                                },
+                            ],
+                        },
+                    }),
+                });
+                return ((await res.json()) as { updatedAt: string }).updatedAt;
+            };
+            const draft = (await (await fetch(draftUrl)).json()) as {
+                page: object;
+                updatedAt: string;
+            };
+            const updatedAt = await put("The live words", draft.updatedAt);
+            await fetch(`${draftUrl}/publish`, {
+                method: "POST",
                 headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    updatedAt,
-                    page: {
-                        ...draft.page,
-                        blocks: [
-                            {
-                                id: "b1",
-                                section: "b1",
-                                type: "button",
-                                variant: "filled",
-                                text,
-                                url: "https://fine.example.com/",
-                            },
-                        ],
-                    },
-                }),
+                body: JSON.stringify({ updatedAt }),
             });
-            return ((await res.json()) as { updatedAt: string }).updatedAt;
-        };
-        const draft = (await (await fetch(draftUrl)).json()) as {
-            page: object;
-            updatedAt: string;
-        };
-        const updatedAt = await put("The live words", draft.updatedAt);
-        await fetch(`${draftUrl}/publish`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ updatedAt }),
-        });
-        await put("Words not live yet", updatedAt);
-    }, url);
+            await put("Words not live yet", updatedAt);
+        },
+        await draftUrl(page),
+    );
 }
 
 test("the builder goes back to what's live, and Undo brings the changes back", async ({ page }) => {
@@ -83,17 +84,20 @@ test("Home goes back to what's live, and refuses if the page changed elsewhere",
     await page.locator(".discard").click();
 
     // Another tab saves while this one is asking.
-    await page.evaluate(async (draftUrl) => {
-        const draft = (await (await fetch(draftUrl)).json()) as {
-            page: object;
-            updatedAt: string;
-        };
-        await fetch(draftUrl, {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ page: draft.page, updatedAt: draft.updatedAt }),
-        });
-    }, url);
+    await page.evaluate(
+        async (draftUrl) => {
+            const draft = (await (await fetch(draftUrl)).json()) as {
+                page: object;
+                updatedAt: string;
+            };
+            await fetch(draftUrl, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ page: draft.page, updatedAt: draft.updatedAt }),
+            });
+        },
+        await draftUrl(page),
+    );
     await page.locator(".discard-yes").click();
     await expect(page.locator(".toast-s")).toContainText("changed somewhere else");
 

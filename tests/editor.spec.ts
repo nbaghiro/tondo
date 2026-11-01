@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addSection, canvas, panel, signUpToEditor } from "./helpers";
+import { addSection, canvas, panel, signUpToEditor, draftUrl } from "./helpers";
 
 const desktopOnly = (name: string) => {
     test.skip(name === "phone", "Uses a mouse");
@@ -328,22 +328,25 @@ test("the header's words can go, and the art changes from its own panel", async 
 for (const look of ["bake", "madder", "noir", "riso", "sumi"]) {
     test(`Add below covers no text in ${look}`, async ({ page }) => {
         await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
-        await page.evaluate(async (chosen) => {
-            const url = "/api/v1/me/page";
-            const draft = (await (await fetch(url)).json()) as {
-                page: { header: Record<string, unknown> };
-                updatedAt: string;
-            };
-            const header = { ...draft.page.header, tagline: "", bio: "Bowls and mugs." };
-            await fetch(url, {
-                method: "PUT",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    page: { ...draft.page, look: chosen, header },
-                    updatedAt: draft.updatedAt,
-                }),
-            });
-        }, look);
+        const address = await draftUrl(page);
+        await page.evaluate(
+            async ({ chosen, draftUrl }) => {
+                const draft = (await (await fetch(draftUrl)).json()) as {
+                    page: { header: Record<string, unknown> };
+                    updatedAt: string;
+                };
+                const header = { ...draft.page.header, tagline: "", bio: "Bowls and mugs." };
+                await fetch(draftUrl, {
+                    method: "PUT",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({
+                        page: { ...draft.page, look: chosen, header },
+                        updatedAt: draft.updatedAt,
+                    }),
+                });
+            },
+            { chosen: look, draftUrl: address },
+        );
         await page.reload();
         const covered = () =>
             canvas(page)
@@ -469,18 +472,23 @@ test("the Look row matches the section rows and shows the look's colours", async
         row.locator(".look-mini i").evaluate((node) => getComputedStyle(node).backgroundImage);
     const before = await swatch();
     await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
-    await page.evaluate(async () => {
-        const url = "/api/v1/me/page";
-        const draft = (await (await fetch(url)).json()) as { page: object; updatedAt: string };
-        await fetch(url, {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-                page: { ...draft.page, look: "noir" },
-                updatedAt: draft.updatedAt,
-            }),
-        });
-    });
+    await page.evaluate(
+        async (draftUrl) => {
+            const draft = (await (await fetch(draftUrl)).json()) as {
+                page: object;
+                updatedAt: string;
+            };
+            await fetch(draftUrl, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    page: { ...draft.page, look: "noir" },
+                    updatedAt: draft.updatedAt,
+                }),
+            });
+        },
+        await draftUrl(page),
+    );
     await page.reload();
     await open();
     await expect(row.locator("b")).toHaveText("Noir");

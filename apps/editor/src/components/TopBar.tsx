@@ -1,6 +1,5 @@
 import { Show } from "solid-js";
-import { appPath, pageUrl } from "../lib/account";
-import type { Account } from "../lib/account";
+import { appPath, onPage, pageUrl } from "../lib/account";
 import type { EditorState } from "../state/document";
 import { clearBackup, downloadPage } from "../state/storage";
 import { paint } from "@tondo/render";
@@ -10,7 +9,8 @@ const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('cla
 
 interface TopBarProps {
     editor: EditorState;
-    account: Account;
+    pageId: string;
+    handle: string;
     onPreview: () => void;
     onPublish: () => void;
     /** Left out when Help me isn't set up here. */
@@ -41,14 +41,14 @@ export function TopBar(props: TopBarProps) {
             <div class="tgroup tl">
                 <a
                     class="tlogo tohome"
-                    href={appPath("/")}
+                    href={appPath(onPage("/", props.pageId))}
                     aria-label="Back to Home"
                     onClick={(e) => {
                         if (e.metaKey || e.ctrlKey || e.shiftKey) return;
                         e.preventDefault();
                         // Home shows what the server has, so this tab's edits go there first.
                         const go = () => {
-                            location.assign(appPath("/"));
+                            location.assign(appPath(onPage("/", props.pageId)));
                         };
                         saver().flush().then(go, go);
                     }}
@@ -63,11 +63,11 @@ export function TopBar(props: TopBarProps) {
                 </a>
                 <a
                     class="url address"
-                    href={pageUrl(props.account.handle)}
+                    href={pageUrl(props.handle)}
                     target="_blank"
                     rel="noreferrer"
                 >
-                    tondo.page/<b>{props.account.handle}</b>
+                    tondo.page/<b>{props.handle}</b>
                 </a>
                 <Show when={props.onOpenPanel}>
                     <button
@@ -93,7 +93,7 @@ export function TopBar(props: TopBarProps) {
                             class="status-reload"
                             onClick={() => {
                                 // Choosing the latest means this tab's copy isn't wanted any more.
-                                clearBackup(props.account.handle);
+                                clearBackup(props.pageId);
                                 location.reload();
                             }}
                         >
@@ -112,7 +112,7 @@ export function TopBar(props: TopBarProps) {
                         <button
                             class="status-reload"
                             onClick={() => {
-                                downloadPage(props.editor.page(), props.account.handle);
+                                downloadPage(props.editor.page(), props.handle);
                             }}
                         >
                             Download mine

@@ -1,4 +1,4 @@
-import { handleSchema, normaliseHandle, pageSchema } from "@tondo/page";
+import { handleSchema, lookNames, normaliseHandle, pageSchema } from "@tondo/page";
 import { z } from "zod";
 
 export const routes = {
@@ -19,12 +19,14 @@ export const routes = {
     me: "/api/v1/me",
     claim: "/api/v1/me/handle",
     handleCheck: (value: string) => `/api/v1/handles/${encodeURIComponent(value)}`,
-    draft: "/api/v1/me/page",
-    publish: "/api/v1/me/page/publish",
-    live: "/api/v1/me/page/live",
-    publishCheck: "/api/v1/me/page/check",
-    unpublish: "/api/v1/me/page/unpublish",
-    stats: "/api/v1/me/stats",
+    pages: "/api/v1/me/pages",
+    page: (id: string) => `/api/v1/me/pages/${id}`,
+    pageHandle: (id: string) => `/api/v1/me/pages/${id}/handle`,
+    publish: (id: string) => `/api/v1/me/pages/${id}/publish`,
+    live: (id: string) => `/api/v1/me/pages/${id}/live`,
+    publishCheck: (id: string) => `/api/v1/me/pages/${id}/check`,
+    unpublish: (id: string) => `/api/v1/me/pages/${id}/unpublish`,
+    stats: (id: string) => `/api/v1/me/pages/${id}/stats`,
     photos: "/api/v1/me/photos",
     photo: (file: string) => `/api/v1/me/photos/${encodeURIComponent(file)}`,
     billing: "/api/v1/me/billing",
@@ -43,6 +45,7 @@ export const healthResponse = z.strictObject({ status: z.literal("ok") });
 export const errorResponse = z.strictObject({ error: z.string(), code: z.string().optional() });
 
 const handle = z.string().transform(normaliseHandle).pipe(handleSchema);
+const lookNameSchema = z.enum(lookNames);
 
 /** The address, and optionally the page the start flow built. */
 export const claimRequest = z.strictObject({ handle, page: pageSchema.optional() });
@@ -57,10 +60,24 @@ const limits = z.strictObject({
     business: z.boolean(),
     mark: z.boolean(),
 });
+export const pageSummary = z.strictObject({
+    id: z.string(),
+    handle: z.string(),
+    name: z.string(),
+    look: z.string(),
+    seed: z.number().nullable(),
+    live: z.boolean(),
+    changed: z.boolean(),
+    updatedAt: z.string(),
+});
+export const pagesResponse = z.strictObject({ pages: z.array(pageSummary) });
+export type PageSummary = z.infer<typeof pageSummary>;
+export type PagesResponse = z.infer<typeof pagesResponse>;
 export const meResponse = z.strictObject({
     email: z.string(),
     name: z.string(),
-    handle: z.string().nullable(),
+    /** Oldest first. Empty means this person still needs the start flow. */
+    pages: z.array(pageSummary),
     plan: z.enum(["free", "pro", "team"]),
     limits,
     /** When a plan ended or will end, as an ISO date. */
@@ -92,6 +109,7 @@ export type BillingResponse = z.infer<typeof billingResponse>;
 export const liveResponse = z.strictObject({ page: pageSchema });
 export const draftResponse = z.strictObject({
     page: pageSchema,
+    handle: z.string(),
     updatedAt: z.string(),
     published: z.boolean(),
     changed: z.boolean(),
@@ -115,7 +133,19 @@ export const publishRequest = z.strictObject({
     free: z.boolean().optional(),
 });
 export const changeHandleRequest = z.strictObject({ handle });
-export const deleteAccountRequest = z.strictObject({ handle });
+export const deleteAccountRequest = z.strictObject({ email: z.string().max(320) });
+export const newPageRequest = z.strictObject({
+    name: z.string().trim().min(1).max(80),
+    handle,
+    look: lookNameSchema.optional(),
+    /** One of the person's pages to start from, instead of a blank one. */
+    from: z.string().max(40).optional(),
+});
+export type NewPageRequest = z.input<typeof newPageRequest>;
+export const newPageResponse = z.strictObject({ id: z.string() });
+export type NewPageResponse = z.infer<typeof newPageResponse>;
+export const handleChangedResponse = z.strictObject({ handle: z.string() });
+export type HandleChangedResponse = z.infer<typeof handleChangedResponse>;
 export const issuesResponse = z.strictObject({
     error: z.string(),
     issues: z.array(

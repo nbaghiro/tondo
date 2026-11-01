@@ -32,8 +32,8 @@ export async function claimAddress(handle: string, page: Page): Promise<string |
     return body.error ?? "That didn't work. Please try again.";
 }
 
-export async function loadDraft(): Promise<DraftResponse> {
-    const res = await fetch(routes.draft);
+export async function loadDraft(pageId: string): Promise<DraftResponse> {
+    const res = await fetch(routes.page(pageId));
     if (!res.ok) throw new Error("The page couldn't be loaded.");
     return (await res.json()) as DraftResponse;
 }
@@ -43,12 +43,13 @@ export type SaveResult =
     | { state: "conflict" | "refused" | "logged-out" | "failed"; message?: string };
 
 export async function saveDraft(
+    pageId: string,
     page: Page,
     updatedAt: string,
     previous: readonly string[] | null,
 ): Promise<SaveResult> {
     try {
-        const res = await send("PUT", routes.draft, {
+        const res = await send("PUT", routes.page(pageId), {
             page,
             updatedAt,
             ...(previous?.length ? { previous } : {}),
@@ -74,10 +75,14 @@ export type PublishResult =
     | { state: "issues"; issues: PublishIssue[] }
     | { state: "failed"; message: string };
 
-export async function publish(updatedAt: string, free = false): Promise<PublishResult> {
+export async function publish(
+    pageId: string,
+    updatedAt: string,
+    free = false,
+): Promise<PublishResult> {
     const failed = "Publishing didn't work. Check your connection and try again.";
     try {
-        const res = await send("POST", routes.publish, {
+        const res = await send("POST", routes.publish(pageId), {
             updatedAt,
             ...(free ? { free: true } : {}),
         });
@@ -96,21 +101,21 @@ export async function publish(updatedAt: string, free = false): Promise<PublishR
     }
 }
 
-/** What only the server can check before publishing, such as a link it won't allow. */
 /** What visitors see now, or null if nothing is live. */
-export async function loadLive(): Promise<Page | null> {
-    const res = await fetch(routes.live).catch(() => null);
+export async function loadLive(pageId: string): Promise<Page | null> {
+    const res = await fetch(routes.live(pageId)).catch(() => null);
     if (!res?.ok) return null;
     return ((await res.json()) as LiveResponse).page;
 }
 
-export async function loadPublishChecks(): Promise<PublishIssue[]> {
-    const res = await fetch(routes.publishCheck).catch(() => null);
+/** What only the server can check before publishing, such as a link it won't allow. */
+export async function loadPublishChecks(pageId: string): Promise<PublishIssue[]> {
+    const res = await fetch(routes.publishCheck(pageId)).catch(() => null);
     return res?.ok ? ((await res.json()) as PublishCheckResponse).issues : [];
 }
 
-export async function loadStats(days = 30): Promise<StatsResponse | null> {
-    const res = await fetch(`${routes.stats}?days=${String(days)}`).catch(() => null);
+export async function loadStats(pageId: string, days = 30): Promise<StatsResponse | null> {
+    const res = await fetch(`${routes.stats(pageId)}?days=${String(days)}`).catch(() => null);
     return res?.ok ? ((await res.json()) as StatsResponse) : null;
 }
 
@@ -121,13 +126,13 @@ const problemIn = async (res: Response) => {
 };
 
 /** Each of these returns what went wrong, or null if it worked. */
-export async function unpublish(): Promise<string | null> {
-    const res = await postEmpty(routes.unpublish).catch(() => null);
+export async function unpublish(pageId: string): Promise<string | null> {
+    const res = await postEmpty(routes.unpublish(pageId)).catch(() => null);
     return res?.ok ? null : "That didn't work. Check your connection and try again.";
 }
 
-export async function changeAddress(handle: string): Promise<string | null> {
-    const res = await send("PATCH", routes.claim, { handle }).catch(() => null);
+export async function changeAddress(pageId: string, handle: string): Promise<string | null> {
+    const res = await send("PATCH", routes.pageHandle(pageId), { handle }).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? null : problemIn(res);
 }
@@ -146,23 +151,23 @@ export async function changePassword(
     return res.status === 400 ? "That current password isn't right." : problemIn(res);
 }
 
-export async function deleteAccount(handle: string): Promise<DeleteAccountResponse | string> {
-    const res = await send("DELETE", routes.me, { handle }).catch(() => null);
+export async function deleteAccount(email: string): Promise<DeleteAccountResponse | string> {
+    const res = await send("DELETE", routes.me, { email }).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? ((await res.json()) as DeleteAccountResponse) : problemIn(res);
 }
 
 /** Saves work the builder left in this browser, so what's shown here includes it. */
 export async function savePendingWork(
-    handle: string,
+    pageId: string,
     draft: DraftResponse,
 ): Promise<DraftResponse> {
-    const waiting = loadBackup(handle, draft.updatedAt);
+    const waiting = loadBackup(pageId, draft.updatedAt);
     if (!waiting || pageHash(waiting) === pageHash(draft.page)) return draft;
-    const saved = await saveDraft(waiting, draft.updatedAt, null);
+    const saved = await saveDraft(pageId, waiting, draft.updatedAt, null);
     if (saved.state !== "saved") return draft;
-    clearBackup(handle);
-    return loadDraft();
+    clearBackup(pageId);
+    return loadDraft(pageId);
 }
 
 export async function checkAddress(handle: string): Promise<HandleResponse | null> {

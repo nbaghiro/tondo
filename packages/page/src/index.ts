@@ -112,6 +112,8 @@ export {
     FREE_LOOKS,
     GRACE_DAYS,
     isFreeLook,
+    canAddPage,
+    canPublishPage,
     limitsFor,
     PAID_BLOCKS,
     PLANS,

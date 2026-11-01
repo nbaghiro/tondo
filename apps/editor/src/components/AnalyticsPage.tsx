@@ -8,13 +8,13 @@ const RANGES = [7, 30, 90];
 
 const readable = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
-export function AnalyticsPage() {
+export function AnalyticsPage(props: { pageId: string }) {
     const covered = () => plan()?.limits.statsDays ?? 30;
     const [range, setRange] = createSignal(Math.min(30, covered()));
     const [asked, setAsked] = createSignal(false);
     const [metric, setMetric] = createSignal<"views" | "clicks">("views");
     const [asTable, setAsTable] = createSignal(false);
-    const [stats] = createResource(range, (days) => loadStats(days));
+    const [stats] = createResource(range, (days) => loadStats(props.pageId, days));
     const label = () => (metric() === "views" ? "Views" : "Link clicks");
     const points = () =>
         (stats()?.days ?? []).map((entry) => ({ day: entry.day, value: entry[metric()] }));

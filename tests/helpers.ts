@@ -10,8 +10,17 @@ const database = () =>
 /** Changes someone's plan straight in the test database. Ending in the past means it has ended. */
 export async function setPlan(handle: string, plan: string, endsAt: Date | null = null) {
     const sql = database();
-    await sql`update users set plan = ${plan}, ends_at = ${endsAt} where handle = ${handle}`;
+    await sql`update users set plan = ${plan}, ends_at = ${endsAt}
+        where id = (select user_id from pages where handle = ${handle})`;
     await sql.end();
+}
+
+/** The address of this person's first page in the API. */
+export async function draftUrl(page: Page): Promise<string> {
+    const me = (await (await page.request.get("/api/v1/me")).json()) as {
+        pages: { id: string }[];
+    };
+    return `/api/v1/me/pages/${me.pages[0]?.id ?? ""}`;
 }
 
 let count = 0;

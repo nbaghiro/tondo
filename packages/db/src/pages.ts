@@ -1,13 +1,12 @@
 import { pageHash, readPage } from "@tondo/page";
 import type { Page, Plan } from "@tondo/page";
-import { and, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, exists, gte, isNull, ne, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, stats, users } from "./schema";
 
-const MAIN_PAGE = "";
-
 export interface Draft {
     page: Page;
+    handle: string;
     /** Sent back on the next save, so one tab can't overwrite another's work. */
     updatedAt: string;
     published: boolean;
@@ -31,20 +30,44 @@ export interface PageStats {
     targets: { target: string; clicks: number }[];
 }
 
+/** One line about a page, for choosing between them. */
+export interface PageSummary {
+    id: string;
+    handle: string;
+    name: string;
+    look: string;
+    seed: number | null;
+    live: boolean;
+    changed: boolean;
+    updatedAt: string;
+}
+
 /** Everything the page routes need from storage, so they can be tested without a database. */
 export interface PageStore {
     findLive: (handle: string) => Promise<LivePage | null>;
-    handleOf: (userId: string) => Promise<string | null>;
-    findDraft: (userId: string) => Promise<Draft | null>;
+    /** Oldest first, so the order never moves. */
+    listPages: (userId: string) => Promise<PageSummary[]>;
+    findDraft: (userId: string, pageId: string) => Promise<Draft | null>;
     /** Null if someone saved since `updatedAt`. */
-    saveDraft: (userId: string, page: Page, updatedAt: string) => Promise<string | null>;
+    saveDraft: (
+        userId: string,
+        pageId: string,
+        page: Page,
+        updatedAt: string,
+    ) => Promise<string | null>;
     /** False if someone saved since `updatedAt`. Otherwise the draft, or the page given, is live. */
-    publish: (userId: string, updatedAt: string, page?: Page) => Promise<boolean>;
-    unpublish: (userId: string) => Promise<void>;
+    publish: (userId: string, pageId: string, updatedAt: string, page?: Page) => Promise<boolean>;
+    unpublish: (userId: string, pageId: string) => Promise<void>;
     count: (pageId: string, target: string, by?: number) => Promise<void>;
-    /** What's live for this person, for naming the links in their numbers. */
-    findOwnLive: (userId: string) => Promise<Page | null>;
-    statsFor: (userId: string, days: number) => Promise<PageStats>;
+    /** What's live on this page, for naming the links in its numbers. */
+    findOwnLive: (userId: string, pageId: string) => Promise<Page | null>;
+    statsFor: (userId: string, pageId: string, days: number) => Promise<PageStats>;
+    /** The new page's id, or null if the address is taken. */
+    createPage: (userId: string, handle: string, page: Page) => Promise<string | null>;
+    /** False if this is the person's last page, or isn't theirs. */
+    deletePage: (userId: string, pageId: string) => Promise<boolean>;
+    /** False if the address is taken. */
+    setHandle: (userId: string, pageId: string, handle: string) => Promise<boolean>;
 }
 
 // Read as text and compared in the database, because a JS Date would lose the microseconds.
@@ -61,7 +84,44 @@ function read(raw: unknown): Page {
     }
     return page;
 }
-const mainPageOf = (userId: string) => and(eq(pages.userId, userId), eq(pages.slug, MAIN_PAGE));
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The one place that picks a page. It always checks whose it is, and a malformed id finds nothing. */
+const pageOf = (userId: string, pageId: string) =>
+    UUID.test(pageId) ? and(eq(pages.userId, userId), eq(pages.id, pageId)) : sql`false`;
+
+const isUniqueViolation = (error: unknown): boolean => {
+    const { code, cause } = error as { code?: unknown; cause?: { code?: unknown } };
+    return code === "23505" || cause?.code === "23505";
+};
+
+export async function listPagesOf(db: Db, userId: string): Promise<PageSummary[]> {
+    const rows = await db
+        .select({
+            id: pages.id,
+            handle: pages.handle,
+            draft: pages.draft,
+            published: pages.published,
+            updatedAt: stamp,
+        })
+        .from(pages)
+        .where(eq(pages.userId, userId))
+        .orderBy(asc(pages.createdAt), asc(pages.id));
+    return rows.map((row) => {
+        const page = readPage(row.draft);
+        return {
+            id: row.id,
+            handle: row.handle,
+            name: page.header.name,
+            look: page.look,
+            seed: page.seed ?? null,
+            live: row.published !== null,
+            changed: row.published === null || pageHash(page) !== pageHash(readPage(row.published)),
+            updatedAt: row.updatedAt,
+        };
+    });
+}
 
 export function createPageStore(db: Db): PageStore {
     return {
@@ -75,28 +135,17 @@ export function createPageStore(db: Db): PageStore {
                 })
                 .from(pages)
                 .innerJoin(users, eq(pages.userId, users.id))
-                .where(
-                    and(
-                        eq(users.handle, handle),
-                        eq(pages.slug, MAIN_PAGE),
-                        isNull(users.suspendedAt),
-                    ),
-                )
+                .where(and(eq(pages.handle, handle), isNull(users.suspendedAt)))
                 .limit(1);
             return row?.published
                 ? { id: row.id, page: read(row.published), plan: row.plan, endsAt: row.endsAt }
                 : null;
         },
-        handleOf: async (userId) => {
-            const [row] = await db
-                .select({ handle: users.handle })
-                .from(users)
-                .where(eq(users.id, userId));
-            return row?.handle ?? null;
-        },
-        findDraft: async (userId) => {
+        listPages: (userId) => listPagesOf(db, userId),
+        findDraft: async (userId, pageId) => {
             const [row] = await db
                 .select({
+                    handle: pages.handle,
                     draft: pages.draft,
                     published: pages.published,
                     updatedAt: stamp,
@@ -104,12 +153,13 @@ export function createPageStore(db: Db): PageStore {
                 })
                 .from(pages)
                 .innerJoin(users, eq(pages.userId, users.id))
-                .where(mainPageOf(userId))
+                .where(pageOf(userId, pageId))
                 .limit(1);
             if (!row) return null;
             const page = read(row.draft);
             return {
                 page,
+                handle: row.handle,
                 updatedAt: row.updatedAt,
                 published: row.published !== null,
                 changed:
@@ -117,30 +167,30 @@ export function createPageStore(db: Db): PageStore {
                 suspended: row.suspendedAt !== null,
             };
         },
-        saveDraft: async (userId, page, updatedAt) => {
+        saveDraft: async (userId, pageId, page, updatedAt) => {
             const [row] = await db
                 .update(pages)
                 .set({ draft: page, updatedAt: sql`now()` })
-                .where(and(mainPageOf(userId), isUnchanged(updatedAt)))
+                .where(and(pageOf(userId, pageId), isUnchanged(updatedAt)))
                 .returning({ updatedAt: stamp });
             return row?.updatedAt ?? null;
         },
-        publish: async (userId, updatedAt, page) => {
+        publish: async (userId, pageId, updatedAt, page) => {
             const rows = await db
                 .update(pages)
                 .set({ published: page ?? sql`${pages.draft}` })
-                .where(and(mainPageOf(userId), isUnchanged(updatedAt)))
+                .where(and(pageOf(userId, pageId), isUnchanged(updatedAt)))
                 .returning({ id: pages.id });
             return rows.length > 0;
         },
-        unpublish: async (userId) => {
-            await db.update(pages).set({ published: null }).where(mainPageOf(userId));
+        unpublish: async (userId, pageId) => {
+            await db.update(pages).set({ published: null }).where(pageOf(userId, pageId));
         },
-        findOwnLive: async (userId) => {
+        findOwnLive: async (userId, pageId) => {
             const [row] = await db
                 .select({ published: pages.published })
                 .from(pages)
-                .where(mainPageOf(userId))
+                .where(pageOf(userId, pageId))
                 .limit(1);
             return row?.published ? read(row.published) : null;
         },
@@ -154,14 +204,43 @@ export function createPageStore(db: Db): PageStore {
                     set: { count: sql`${stats.count} + ${by}` },
                 });
         },
-        statsFor: async (userId, days) => {
+        statsFor: async (userId, pageId, days) => {
             const since = new Date(Date.now() - (days - 1) * 86_400_000).toISOString().slice(0, 10);
             const rows = await db
                 .select({ target: stats.target, day: stats.day, count: stats.count })
                 .from(stats)
                 .innerJoin(pages, eq(stats.pageId, pages.id))
-                .where(and(mainPageOf(userId), gte(stats.day, since)));
+                .where(and(pageOf(userId, pageId), gte(stats.day, since)));
             return summarise(rows, days);
+        },
+        createPage: async (userId, handle, page) => {
+            const [row] = await db
+                .insert(pages)
+                .values({ userId, handle, draft: page })
+                .onConflictDoNothing({ target: pages.handle })
+                .returning({ id: pages.id });
+            return row?.id ?? null;
+        },
+        deletePage: async (userId, pageId) => {
+            if (!UUID.test(pageId)) return false;
+            const others = db
+                .select({ id: pages.id })
+                .from(pages)
+                .where(and(eq(pages.userId, userId), ne(pages.id, pageId)));
+            const rows = await db
+                .delete(pages)
+                .where(and(pageOf(userId, pageId), exists(others)))
+                .returning({ id: pages.id });
+            return rows.length > 0;
+        },
+        setHandle: async (userId, pageId, handle) => {
+            try {
+                await db.update(pages).set({ handle }).where(pageOf(userId, pageId));
+                return true;
+            } catch (error) {
+                if (isUniqueViolation(error)) return false;
+                throw error;
+            }
         },
     };
 }
@@ -199,21 +278,22 @@ export function summarise(
     };
 }
 
-/** Publishes a main page for a made-up user. For seed data. */
+/** Publishes a page for a made-up user. For seed data. */
 export async function seedUser(db: Db, handle: string, page: Page): Promise<void> {
     const userId = `seed-${handle}`;
     await db.transaction(async (tx) => {
         // Example pages carry no mark.
         await tx
             .insert(users)
-            .values({ id: userId, handle, plan: "pro" })
+            .values({ id: userId, plan: "pro" })
             .onConflictDoUpdate({ target: users.id, set: { plan: "pro" } });
         await tx
             .insert(pages)
-            .values({ userId, slug: MAIN_PAGE, draft: page, published: page })
+            .values({ userId, handle, draft: page, published: page })
             .onConflictDoUpdate({
-                target: [pages.userId, pages.slug],
+                target: pages.handle,
                 set: { draft: page, published: page, updatedAt: new Date() },
+                setWhere: eq(pages.userId, userId),
             });
     });
 }

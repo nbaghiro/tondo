@@ -4,26 +4,29 @@ import { lookNames, samplePage } from "@tondo/page";
 import { renderDocument } from "@tondo/render";
 import postgres from "postgres";
 import { PORTS } from "../scripts/ports";
-import { addSection, canvas, openLook, panel, setPlan, signUpToEditor } from "./helpers";
+import { addSection, canvas, openLook, panel, setPlan, signUpToEditor, draftUrl } from "./helpers";
 
 // A page with something of its own on it, so publishing has nothing else to ask about.
 const withWords = async (page: Page, options: { plan?: string } = {}) => {
     const handle = await signUpToEditor(page, [], options);
-    await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/page");
-        const { page: draft, updatedAt } = (await res.json()) as {
-            page: Record<string, unknown> & { header: Record<string, unknown> };
-            updatedAt: string;
-        };
-        await fetch("/api/v1/me/page", {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-                page: { ...draft, header: { ...draft.header, bio: "Hello" } },
-                updatedAt,
-            }),
-        });
-    });
+    await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(draftUrl);
+            const { page: draft, updatedAt } = (await res.json()) as {
+                page: Record<string, unknown> & { header: Record<string, unknown> };
+                updatedAt: string;
+            };
+            await fetch(draftUrl, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    page: { ...draft, header: { ...draft.header, bio: "Hello" } },
+                    updatedAt,
+                }),
+            });
+        },
+        await draftUrl(page),
+    );
     await page.reload();
     await expect(page.locator(".address")).toContainText(handle);
     return handle;
@@ -66,10 +69,13 @@ test("a photo can be removed, and not while it's on the page", async ({ page }) 
 
 test("Free asks for 7 days of statistics at most", async ({ page }) => {
     await signUpToEditor(page, [], { plan: "free" });
-    const answer = await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/stats?days=90");
-        return (await res.json()) as { range: number; days: unknown[] };
-    });
+    const answer = await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(`${draftUrl}/stats?days=90`);
+            return (await res.json()) as { range: number; days: unknown[] };
+        },
+        await draftUrl(page),
+    );
     expect(answer.range).toBe(7);
     expect(answer.days).toHaveLength(7);
 });
@@ -78,41 +84,51 @@ test("the server refuses a Pro look on Free, and can publish free choices instea
     page,
 }) => {
     const handle = await signUpToEditor(page, [], { plan: "free" });
-    await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/page");
-        const { page: draft, updatedAt } = (await res.json()) as {
-            page: Record<string, unknown> & { header: Record<string, unknown> };
-            updatedAt: string;
-        };
-        await fetch("/api/v1/me/page", {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-                page: { ...draft, look: "bake", header: { ...draft.header, bio: "Hello" } },
-                updatedAt,
-            }),
-        });
-    });
-    const publish = (free: boolean) =>
-        page.evaluate(async (asFree) => {
-            const { updatedAt } = (await (await fetch("/api/v1/me/page")).json()) as {
+    await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(draftUrl);
+            const { page: draft, updatedAt } = (await res.json()) as {
+                page: Record<string, unknown> & { header: Record<string, unknown> };
                 updatedAt: string;
             };
-            const res = await fetch("/api/v1/me/page/publish", {
-                method: "POST",
+            await fetch(draftUrl, {
+                method: "PUT",
                 headers: { "content-type": "application/json" },
-                body: JSON.stringify({ updatedAt, ...(asFree ? { free: true } : {}) }),
+                body: JSON.stringify({
+                    page: { ...draft, look: "bake", header: { ...draft.header, bio: "Hello" } },
+                    updatedAt,
+                }),
             });
-            return res.status;
-        }, free);
+        },
+        await draftUrl(page),
+    );
+    const address = await draftUrl(page);
+    const publish = (free: boolean) =>
+        page.evaluate(
+            async ({ asFree, draftUrl }) => {
+                const { updatedAt } = (await (await fetch(draftUrl)).json()) as {
+                    updatedAt: string;
+                };
+                const res = await fetch(`${draftUrl}/publish`, {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ updatedAt, ...(asFree ? { free: true } : {}) }),
+                });
+                return res.status;
+            },
+            { asFree: free, draftUrl: address },
+        );
     expect(await publish(false)).toBe(422);
     expect(await publish(true)).toBe(204);
     const live = await page.request.get(`/${handle}`);
     expect(await live.text()).toContain('class="look sap"');
-    const draft = await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/page");
-        return ((await res.json()) as { page: { look: string } }).page.look;
-    });
+    const draft = await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(draftUrl);
+            return ((await res.json()) as { page: { look: string } }).page.look;
+        },
+        await draftUrl(page),
+    );
     expect(draft).toBe("bake");
 });
 
@@ -136,10 +152,13 @@ test("a Pro look can be tried, and published with free choices", async ({ page }
 
     const live = await page.request.get(`/${handle}`);
     expect(await live.text()).toContain('class="look sap"');
-    const draft = await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/page");
-        return ((await res.json()) as { page: { look: string } }).page.look;
-    });
+    const draft = await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(draftUrl);
+            return ((await res.json()) as { page: { look: string } }).page.look;
+        },
+        await draftUrl(page),
+    );
     expect(draft).toBe("bake");
 
     await page.goto("/app");
@@ -214,10 +233,13 @@ test("a plan ending keeps the page online, returns the mark and steps down after
     expect(stepped).not.toContain("<script");
     await page.goto("/app");
     await expect(page.locator("[data-plan-notice]")).toContainText("Your page now uses Sap.");
-    const draft = await page.evaluate(async () => {
-        const res = await fetch("/api/v1/me/page");
-        return ((await res.json()) as { page: { look: string } }).page.look;
-    });
+    const draft = await page.evaluate(
+        async (draftUrl) => {
+            const res = await fetch(draftUrl);
+            return ((await res.json()) as { page: { look: string } }).page.look;
+        },
+        await draftUrl(page),
+    );
     expect(draft).toBe("bake");
 
     await setPlan(handle, "pro");
@@ -268,7 +290,7 @@ const customerOf = async (handle: string) => {
     });
     const [row] = await sql<
         { stripe_id: string | null }[]
-    >`select stripe_id from users where handle = ${handle}`;
+    >`select stripe_id from users where id = (select user_id from pages where handle = ${handle})`;
     await sql.end();
     return row?.stripe_id ?? "";
 };
@@ -345,7 +367,7 @@ test("deleting an account cancels its plan", async ({ page }) => {
     await expect(page.locator(".fs", { hasText: "Delete account" })).toContainText(
         "cancels your plan straight away",
     );
-    await page.locator("input[name=confirm]").fill(handle);
+    await page.locator("input[name=confirm]").fill(`${handle}@example.com`);
     await page.locator(".delete-account").click();
     await expect(page.locator(".empty h2")).toHaveText("Your page is gone");
     const left = (await (await control("look", customer)).json()) as { active: number };

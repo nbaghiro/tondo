@@ -118,13 +118,14 @@ export function createApp({
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
     const limitsOfPerson = async (userId: string) => limitsOf(await auth.store.findPlan(userId));
+    const onHandleChange = (before: string | null, after: string | null) => {
+        if (before) cache.drop(before);
+        if (after) cache.drop(after);
+    };
     const currentPerson = mountAuth(app, {
         ...auth,
         scale,
-        onHandleChange: (before, after) => {
-            if (before) cache.drop(before);
-            if (after) cache.drop(after);
-        },
+        onHandleChange,
         cancelBilling: async (userId) => {
             const customer = await auth.store.findStripeId(userId);
             if (customer) await payments?.deleteCustomer(customer);
@@ -135,15 +136,8 @@ export function createApp({
             await Promise.all(files.map((file) => storage.remove(file)));
         },
     });
-    // Publishing has to show straight away, so it clears this person's page from the cache.
-    mountPages(app, pages, currentPerson, {
-        scale,
-        limitsOfPerson,
-        onPublishChange: async (userId) => {
-            const handle = await pages.handleOf(userId);
-            if (handle) cache.drop(handle);
-        },
-    });
+    // Publishing has to show straight away, so it clears that page from the cache.
+    mountPages(app, pages, currentPerson, { scale, limitsOfPerson, onHandleChange });
     if (payments) {
         mountBilling(app, {
             payments,
@@ -151,8 +145,7 @@ export function createApp({
             currentPerson,
             scale,
             onPlanChange: async (userId) => {
-                const handle = await pages.handleOf(userId);
-                if (handle) cache.drop(handle);
+                for (const { handle } of await pages.listPages(userId)) cache.drop(handle);
             },
             appUrl: (c) =>
                 new URL(

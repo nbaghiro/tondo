@@ -1,8 +1,13 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { addSection, canvas, finishStart, signUpToEditor, signUpToStart } from "./helpers";
-
-const draftUrl = "/api/v1/me/page";
+import {
+    addSection,
+    canvas,
+    finishStart,
+    signUpToEditor,
+    signUpToStart,
+    draftUrl,
+} from "./helpers";
 
 const openHelp = async (page: Page) => {
     await page.locator(".helpme").click();
@@ -15,7 +20,7 @@ const ask = async (page: Page, words: string) => {
 const saved = async (page: Page) => {
     await expect(page.locator(".saved")).toHaveAttribute("data-state", "saved");
 };
-const draft = (page: Page) =>
+const draft = async (page: Page) =>
     page.evaluate(
         async (url) =>
             (await (await fetch(url)).json()) as {
@@ -23,7 +28,7 @@ const draft = (page: Page) =>
                 published: boolean;
                 updatedAt: string;
             },
-        draftUrl,
+        await draftUrl(page),
     );
 
 test("one request edits the page, and one undo restores it", async ({ page }) => {
@@ -88,20 +93,23 @@ test("removing several sections asks first", async ({ page }) => {
 
 test("building on a page with content offers to replace it", async ({ page }) => {
     await signUpToEditor(page, ["about"]);
-    await page.evaluate(async (url) => {
-        const now = (await (await fetch(url)).json()) as {
-            page: { header: object };
-            updatedAt: string;
-        };
-        await fetch(url, {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-                updatedAt: now.updatedAt,
-                page: { ...now.page, header: { ...now.page.header, bio: "My own words." } },
-            }),
-        });
-    }, draftUrl);
+    await page.evaluate(
+        async (url) => {
+            const now = (await (await fetch(url)).json()) as {
+                page: { header: object };
+                updatedAt: string;
+            };
+            await fetch(url, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    updatedAt: now.updatedAt,
+                    page: { ...now.page, header: { ...now.page.header, bio: "My own words." } },
+                }),
+            });
+        },
+        await draftUrl(page),
+    );
     await page.reload();
     await openHelp(page);
     await ask(page, "I'm a dog walker in Halifax, please build Halifax Dog Walking");
@@ -113,14 +121,17 @@ test("building on a page with content offers to replace it", async ({ page }) =>
 
 test("a saved conflict stops a turn from starting", async ({ page }) => {
     await signUpToEditor(page);
-    await page.evaluate(async (url) => {
-        const now = (await (await fetch(url)).json()) as { page: object; updatedAt: string };
-        await fetch(url, {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ updatedAt: now.updatedAt, page: now.page }),
-        });
-    }, draftUrl);
+    await page.evaluate(
+        async (url) => {
+            const now = (await (await fetch(url)).json()) as { page: object; updatedAt: string };
+            await fetch(url, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ updatedAt: now.updatedAt, page: now.page }),
+            });
+        },
+        await draftUrl(page),
+    );
     await addSection(page, "about");
     await expect(page.locator(".saved")).toHaveAttribute("data-state", "conflict");
     await openHelp(page);

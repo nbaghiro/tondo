@@ -1,5 +1,5 @@
 import { summarise } from "@tondo/db";
-import type { AccountStore, Draft, PageStore } from "@tondo/db";
+import type { AccountStore, Draft, PageStore, PageSummary } from "@tondo/db";
 import type { Page, Plan } from "@tondo/page";
 
 /** Keeps addresses in memory, for tests. */
@@ -12,8 +12,18 @@ export function createFakeStore(): AccountStore & {
     const owners = new Map<string, string>();
     const plans = new Map<string, { plan: Plan; endsAt: Date | null }>();
     const suspended = new Set<string>();
-    const handleOf = (userId: string) =>
-        [...owners].find(([, owner]) => owner === userId)?.[0] ?? null;
+    const handlesOf = (userId: string) =>
+        [...owners].filter(([, owner]) => owner === userId).map(([handle]) => handle);
+    const summary = (handle: string): PageSummary => ({
+        id: handle,
+        handle,
+        name: handle,
+        look: "madder",
+        seed: null,
+        live: false,
+        changed: true,
+        updatedAt: "1",
+    });
     return {
         plans,
         customers,
@@ -30,36 +40,30 @@ export function createFakeStore(): AccountStore & {
             return Promise.resolve(userId);
         },
         findPlan: (userId) => Promise.resolve(plans.get(userId) ?? { plan: "free", endsAt: null }),
-        findHandle: (userId) => Promise.resolve(handleOf(userId)),
+        listPages: (userId) => Promise.resolve(handlesOf(userId).map(summary)),
         handleTaken: (handle) => Promise.resolve(owners.has(handle)),
         claimHandle: (userId, handle) => {
-            const owner = owners.get(handle);
-            if (owner && owner !== userId) return Promise.resolve(false);
-            if (!handleOf(userId)) owners.set(handle, userId);
-            return Promise.resolve(handleOf(userId) === handle);
-        },
-        changeHandle: (userId, handle) => {
-            const owner = owners.get(handle);
-            if (owner && owner !== userId) return Promise.resolve(false);
-            const before = handleOf(userId);
-            if (before) owners.delete(before);
+            const held = handlesOf(userId);
+            if (held.length) return Promise.resolve(held.includes(handle));
+            if (owners.has(handle)) return Promise.resolve(false);
             owners.set(handle, userId);
             return Promise.resolve(true);
         },
-        isSuspended: (userId) => Promise.resolve(suspended.has(userId)),
         suspend: (userId) => {
             suspended.add(userId);
         },
         removeUser: (userId) => {
-            const before = handleOf(userId);
-            if (before && suspended.has(userId)) owners.set(before, `removed:${before}`);
-            else if (before) owners.delete(before);
+            for (const handle of handlesOf(userId)) {
+                if (suspended.has(userId)) owners.set(handle, `removed:${userId}`);
+                else owners.delete(handle);
+            }
             return Promise.resolve();
         },
     };
 }
 
 interface Row {
+    userId: string;
     handle: string;
     draft: Page;
     published: Page | null;
@@ -70,20 +74,27 @@ interface Row {
 
 const FREE = { plan: "free" as const, endsAt: null };
 
-/** Keeps pages in memory, for tests. */
+/** Keeps pages in memory, for tests. `addUser` gives a person's first page their own id. */
 export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
     const rows = new Map<string, Row>(
         Object.entries(seed).map(([handle, page]) => [
             `seed-${handle}`,
-            { handle, draft: page, published: page, updatedAt: 1 },
+            { userId: `seed-${handle}`, handle, draft: page, published: page, updatedAt: 1 },
         ]),
     );
     const counts: { pageId: string; target: string }[] = [];
+    const own = (userId: string, pageId: string) => {
+        const row = rows.get(pageId);
+        return row?.userId === userId ? row : undefined;
+    };
+    const ofUser = (userId: string) => [...rows].filter(([, row]) => row.userId === userId);
+    const isChanged = (row: Row) => JSON.stringify(row.draft) !== JSON.stringify(row.published);
     const toDraft = (row: Row): Draft => ({
         page: row.draft,
+        handle: row.handle,
         updatedAt: String(row.updatedAt),
         published: row.published !== null,
-        changed: JSON.stringify(row.draft) !== JSON.stringify(row.published),
+        changed: isChanged(row),
         suspended: row.suspended === true,
     });
     const store: PageStore = {
@@ -95,20 +106,32 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
                     : null,
             );
         },
-        handleOf: (userId) => Promise.resolve(rows.get(userId)?.handle ?? null),
-        findDraft: (userId) => {
-            const row = rows.get(userId);
+        listPages: (userId) =>
+            Promise.resolve(
+                ofUser(userId).map(([id, row]) => ({
+                    id,
+                    handle: row.handle,
+                    name: row.draft.header.name,
+                    look: row.draft.look,
+                    seed: row.draft.seed ?? null,
+                    live: row.published !== null,
+                    changed: isChanged(row),
+                    updatedAt: String(row.updatedAt),
+                })),
+            ),
+        findDraft: (userId, pageId) => {
+            const row = own(userId, pageId);
             return Promise.resolve(row ? toDraft(row) : null);
         },
-        saveDraft: (userId, page, updatedAt) => {
-            const row = rows.get(userId);
+        saveDraft: (userId, pageId, page, updatedAt) => {
+            const row = own(userId, pageId);
             if (row?.updatedAt !== Number(updatedAt)) return Promise.resolve(null);
             row.draft = page;
             row.updatedAt += 1;
             return Promise.resolve(String(row.updatedAt));
         },
-        publish: (userId, updatedAt, page) => {
-            const row = rows.get(userId);
+        publish: (userId, pageId, updatedAt, page) => {
+            const row = own(userId, pageId);
             if (row?.updatedAt !== Number(updatedAt)) return Promise.resolve(false);
             row.published = page ?? row.draft;
             return Promise.resolve(true);
@@ -117,34 +140,61 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             counts.push({ pageId, target });
             return Promise.resolve();
         },
-        unpublish: (userId) => {
-            const row = rows.get(userId);
+        unpublish: (userId, pageId) => {
+            const row = own(userId, pageId);
             if (row) row.published = null;
             return Promise.resolve();
         },
-        findOwnLive: (userId) => Promise.resolve(rows.get(userId)?.published ?? null),
-        statsFor: (userId, days) => {
+        findOwnLive: (userId, pageId) => Promise.resolve(own(userId, pageId)?.published ?? null),
+        statsFor: (userId, pageId, days) => {
             const today = new Date().toISOString().slice(0, 10);
             return Promise.resolve(
                 summarise(
-                    counts
-                        .filter((c) => c.pageId === userId)
-                        .map(({ target }) => ({ target, day: today, count: 1 })),
+                    own(userId, pageId)
+                        ? counts
+                              .filter((c) => c.pageId === pageId)
+                              .map(({ target }) => ({ target, day: today, count: 1 }))
+                        : [],
                     days,
                 ),
             );
         },
+        createPage: (userId, handle, page) => {
+            if ([...rows.values()].some((row) => row.handle === handle)) {
+                return Promise.resolve(null);
+            }
+            const id = crypto.randomUUID();
+            rows.set(id, { userId, handle, draft: page, published: null, updatedAt: 1 });
+            return Promise.resolve(id);
+        },
+        deletePage: (userId, pageId) => {
+            if (!own(userId, pageId) || ofUser(userId).length < 2) return Promise.resolve(false);
+            rows.delete(pageId);
+            return Promise.resolve(true);
+        },
+        setHandle: (userId, pageId, handle) => {
+            const taken = [...rows].some(([id, row]) => row.handle === handle && id !== pageId);
+            if (taken) return Promise.resolve(false);
+            const row = own(userId, pageId);
+            if (row) row.handle = handle;
+            return Promise.resolve(true);
+        },
     };
     const addUser = (userId: string, handle: string, page: Page) => {
-        rows.set(userId, { handle, draft: page, published: null, updatedAt: 1 });
+        rows.set(userId, { userId, handle, draft: page, published: null, updatedAt: 1 });
+    };
+    const eachOf = (userId: string, change: (row: Row) => void) => {
+        for (const [, row] of ofUser(userId)) change(row);
     };
     const suspend = (userId: string) => {
-        const row = rows.get(userId);
-        if (row) row.suspended = true;
+        eachOf(userId, (row) => {
+            row.suspended = true;
+        });
     };
     const setPlan = (userId: string, plan: { plan: Plan; endsAt: Date | null }) => {
-        const row = rows.get(userId);
-        if (row) row.plan = plan;
+        eachOf(userId, (row) => {
+            row.plan = plan;
+        });
     };
     const setDraft = (userId: string, page: Page) => {
         const row = rows.get(userId);

@@ -3,8 +3,9 @@ import { createEffect, createSignal, For, Show, untrack } from "solid-js";
 import { groupsInOrder, NAV } from "../app/nav";
 import type { NavItem } from "../app/nav";
 import { follow, path } from "../app/router";
-import { appPath, SITE_URL } from "../lib/account";
+import { appPath, chosenPage, onPage, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
+import type { PageSummary } from "@tondo/contract";
 import { AccountPage } from "./AccountPage";
 import { AnalyticsPage } from "./AnalyticsPage";
 import { HomePage } from "./HomePage";
@@ -27,8 +28,9 @@ function Logo() {
     );
 }
 
-function NavLink(props: { item: NavItem; onGo?: () => void }) {
+function NavLink(props: { item: NavItem; pageId: string; onGo?: () => void }) {
     const to = () => props.item.path ?? "/";
+    const inApp = () => onPage(to(), props.pageId);
     return (
         <Show
             when={props.item.path !== undefined}
@@ -44,10 +46,10 @@ function NavLink(props: { item: NavItem; onGo?: () => void }) {
             }
         >
             <a
-                href={appPath(to())}
+                href={appPath(inApp())}
                 aria-current={path() === to() ? "page" : undefined}
                 onClick={(e) => {
-                    follow(e, to());
+                    follow(e, inApp());
                     props.onGo?.();
                 }}
             >
@@ -97,23 +99,34 @@ export function Shell(props: { account: Account }) {
     const groups = groupsInOrder(NAV);
     const bottom = NAV.filter((item) => item.group === "bottom");
     const inMore = NAV.filter((item) => item.id !== "home" && item.id !== "analytics");
+    const chosen = (): PageSummary => {
+        const found = chosenPage(account().pages);
+        if (!found) throw new Error("The page couldn't be loaded.");
+        return found;
+    };
+    const pageId = () => chosen().id;
     const page = () => {
         switch (path()) {
             case "/analytics":
-                return <AnalyticsPage />;
+                return <AnalyticsPage pageId={pageId()} />;
             case "/settings":
                 return (
                     <SettingsPage
-                        account={account()}
+                        page={chosen()}
                         onAddress={(handle) => {
-                            setAccount({ ...account(), handle });
+                            setAccount({
+                                ...account(),
+                                pages: account().pages.map((other) =>
+                                    other.id === pageId() ? { ...other, handle } : other,
+                                ),
+                            });
                         }}
                     />
                 );
             case "/account":
                 return <AccountPage account={account()} />;
             case "/":
-                return <HomePage account={account()} />;
+                return <HomePage page={chosen()} />;
             default:
                 return <NotFoundPage />;
         }
@@ -123,7 +136,7 @@ export function Shell(props: { account: Account }) {
             <aside class="side">
                 <div class="side-top">
                     <Logo />
-                    <a class="edit" href={appPath("/edit")}>
+                    <a class="edit" href={appPath(onPage("/edit", pageId()))}>
                         <NavIcon name="edit" />
                         Edit page
                     </a>
@@ -135,43 +148,45 @@ export function Shell(props: { account: Account }) {
                                 <Show when={group.name}>
                                     <h3>{group.name}</h3>
                                 </Show>
-                                <For each={group.items}>{(item) => <NavLink item={item} />}</For>
+                                <For each={group.items}>
+                                    {(item) => <NavLink item={item} pageId={pageId()} />}
+                                </For>
                             </>
                         )}
                     </For>
                 </nav>
                 <div class="side-foot">
                     <PlanLine />
-                    <For each={bottom}>{(item) => <NavLink item={item} />}</For>
+                    <For each={bottom}>{(item) => <NavLink item={item} pageId={pageId()} />}</For>
                 </div>
             </aside>
             <div class="main">
                 <header class="bar">
                     <Logo />
-                    <span class="bar-address">tondo.page/{account().handle}</span>
+                    <span class="bar-address">tondo.page/{chosen().handle}</span>
                 </header>
                 <main class="wrap">{page()}</main>
             </div>
             <nav class="bottom" aria-label="Main">
                 <a
-                    href={appPath("/")}
+                    href={appPath(onPage("/", pageId()))}
                     aria-current={path() === "/" ? "page" : undefined}
                     onClick={(e) => {
-                        follow(e, "/");
+                        follow(e, onPage("/", pageId()));
                     }}
                 >
                     <NavIcon name="home" />
                     Home
                 </a>
-                <a class="ed" href={appPath("/edit")}>
+                <a class="ed" href={appPath(onPage("/edit", pageId()))}>
                     <NavIcon name="edit" />
                     Edit page
                 </a>
                 <a
-                    href={appPath("/analytics")}
+                    href={appPath(onPage("/analytics", pageId()))}
                     aria-current={path() === "/analytics" ? "page" : undefined}
                     onClick={(e) => {
-                        follow(e, "/analytics");
+                        follow(e, onPage("/analytics", pageId()));
                     }}
                 >
                     <NavIcon name="chart" />
@@ -198,7 +213,9 @@ export function Shell(props: { account: Account }) {
                 <div class="sheet" role="dialog" aria-label="More">
                     <PlanLine />
                     <For each={inMore}>
-                        {(item) => <NavLink item={item} onGo={() => setMore(false)} />}
+                        {(item) => (
+                            <NavLink item={item} pageId={pageId()} onGo={() => setMore(false)} />
+                        )}
                     </For>
                 </div>
             </Show>

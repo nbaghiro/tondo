@@ -26,7 +26,7 @@ describe("saver", () => {
             return reply();
         });
         const saver = createSaver({
-            handle: "june",
+            pageId: "june",
             updatedAt: "1",
             onLoggedOut: () => undefined,
         });

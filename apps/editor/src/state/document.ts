@@ -39,7 +39,7 @@ export { getField, HEADER };
 export type EditorState = ReturnType<typeof createEditor>;
 
 interface Start {
-    handle: string;
+    pageId: string;
     page: Page;
     updatedAt: string;
     changed: boolean;
@@ -51,7 +51,7 @@ const makeId = () => crypto.randomUUID();
 
 export function createEditor(start: Start) {
     const saver = createSaver(start);
-    const backup = loadBackup(start.handle, start.updatedAt);
+    const backup = loadBackup(start.pageId, start.updatedAt);
     const history = createHistory<Page>();
     const [page, setPage] = createSignal<Page>(backup ?? start.page);
     const [changed, setChanged] = createSignal(start.changed || backup !== null);

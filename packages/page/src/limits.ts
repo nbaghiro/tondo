@@ -48,6 +48,17 @@ export const PLANS: Readonly<Record<Plan, Limits>> = {
     team: PAID,
 };
 
+/** Whether someone with this many pages can add another. */
+export const canAddPage = (limits: Pick<Limits, "pages">, total: number): boolean =>
+    total < limits.pages;
+
+/** Whether this page can go live, given how many of the person's pages already are. */
+export const canPublishPage = (
+    limits: Pick<Limits, "pages">,
+    live: number,
+    isLive: boolean,
+): boolean => isLive || live < limits.pages;
+
 export const FREE_LOOKS = [
     "madder",
     "sap",

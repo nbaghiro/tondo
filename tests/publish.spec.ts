@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { addSection, canvas, panel, signUpToEditor } from "./helpers";
+import { addSection, canvas, panel, signUpToEditor, draftUrl } from "./helpers";
 
 async function addButton(page: Page) {
     await addSection(page, "links");
@@ -62,7 +62,7 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
 
     // Counts are written in batches, so they arrive a moment later.
     const readStats = async () =>
-        (await (await page.request.get("/api/v1/me/stats")).json()) as {
+        (await (await page.request.get(`${await draftUrl(page)}/stats`)).json()) as {
             views: number;
             clicks: number;
         };

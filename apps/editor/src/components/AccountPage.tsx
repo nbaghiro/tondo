@@ -125,7 +125,7 @@ export function AccountPage(props: { account: Account }) {
         e.preventDefault();
         setDeleting(true);
         setDeleteProblem("");
-        const result = await deleteAccount(props.account.handle).finally(() => {
+        const result = await deleteAccount(props.account.email).finally(() => {
             setDeleting(false);
         });
         if (typeof result === "string") {
@@ -224,12 +224,12 @@ export function AccountPage(props: { account: Account }) {
                     }}
                 >
                     <label class="f">
-                        Type your address to confirm
+                        Type your email to confirm
                         <input
                             name="confirm"
                             autocomplete="off"
                             autocapitalize="off"
-                            placeholder={props.account.handle}
+                            placeholder={props.account.email}
                             value={confirm()}
                             onInput={(e) => setConfirm(e.currentTarget.value)}
                         />
@@ -242,7 +242,10 @@ export function AccountPage(props: { account: Account }) {
                     <button
                         class="b bad delete-account"
                         type="submit"
-                        disabled={deleting() || confirm().trim() !== props.account.handle}
+                        disabled={
+                            deleting() ||
+                            confirm().trim().toLowerCase() !== props.account.email.toLowerCase()
+                        }
                     >
                         {deleting() ? "Deleting" : "Delete my account"}
                     </button>

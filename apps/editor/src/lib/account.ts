@@ -1,10 +1,28 @@
 import { routes } from "@tondo/contract";
-import type { MeResponse, SignOutResponse } from "@tondo/contract";
+import type { MeResponse, PageSummary, SignOutResponse } from "@tondo/contract";
 
-export type Account = MeResponse & { handle: string };
+/** An account with at least one page. */
+export type Account = MeResponse;
 
-/** Null handle means this person still needs the start flow. */
+/** No pages means this person still needs the start flow. */
 export type LoadedAccount = MeResponse;
+
+/** The page named in the address, or the one edited last. Null only with no pages at all. */
+export function chosenPage(
+    pages: readonly PageSummary[],
+    asked = new URLSearchParams(location.search).get("page"),
+): PageSummary | null {
+    const named = pages.find((page) => page.id === asked);
+    if (named) return named;
+    return pages.reduce<PageSummary | null>(
+        (latest, page) => (latest && latest.updatedAt >= page.updatedAt ? latest : page),
+        null,
+    );
+}
+
+/** An address inside the app that stays on this page. */
+export const onPage = (path: string, pageId: string): string =>
+    `${path}${path.includes("?") ? "&" : "?"}page=${pageId}`;
 
 export const SITE_URL =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ??

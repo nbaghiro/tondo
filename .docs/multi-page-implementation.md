@@ -1,6 +1,8 @@
 # Multi-page implementation plan
 
-This plan builds option 2 in [multi-page.md](multi-page.md): every page has its own address. It's ready to start on "go", and that hasn't been given, so nothing here is built. I checked it against the working tree on 2026-11-01, when plans M0 to M3 had landed and M4 and M5 were in progress, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. The SQL hasn't been run.
+This plan builds option 2 in [multi-page.md](multi-page.md): every page has its own address.
+
+**Status:** P1 and P2 are built: the migration, the stores, routes by page id and the editor by page id. A person can only reach one page in the interface, although the API can add more. P3, P4 and P5 aren't started and are on hold, because the owner has since changed the plans (Free has no live page, a $4 plan has 1 live page, a flat $10 plan has several pages and team features, and pages go offline with their content kept when someone stops paying). Sections below that describe the Free draft, read-only pages and Free's prompts were written before that change, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
 
 **There are no users, so there's no backwards compatibility work.** No shims, dual reads, phased column moves, or upgrade paths for accounts or photo folders. Singular routes are removed in the same change that adds the new ones. The migration only keeps local development data.
 
@@ -338,6 +340,25 @@ The sequence stays as it is: teams after this work. T1 to T9 fall by roughly 3 t
 
 **Team's numbers need the owner.** `PLANS.team` shares `PAID`, so a member gets 5 pages. `plans.md`'s "10 a person, plus 25" stops applying.
 
+## What changed while building
+
+Where the code or a later decision differed from the plan above, this is what was done in P1 and P2.
+
+- **`pages.handle` is required, and there's no `pages_live_has_address` check.** The null value only existed for the Free draft, which isn't being built, and this plan's decision 4 says both go without it. If new plans need a page with no address, it's one migration.
+- **Not built, on the owner's new plans:** `Limits.drafts`, `isReadOnly`, taking down a read-only page freeing its address, Free's prompts, and `handle` on the publish request. Limits are unchanged in number, and page rules are only in `canAddPage` and `canPublishPage` in `limits.ts`, so new numbers change there.
+- **A page over the live limit gets a plain publish issue,** without the plan group, Get Pro or any price, until the new plans settle what to offer.
+- **The migration was written from two generated steps.** `drizzle-kit generate` asks whether `handle` is a rename of `slug`, and needs a terminal to answer. I generated it in two steps, merged them into `0005_one_address_per_page`, and ordered the statements by hand so the addresses are copied before `users.handle` goes. It doesn't carry `removed:` rows, since neither the local database nor the test database has any.
+- **`hasPage` and `isSuspended` aren't in `AccountStore`.** `listPages` answers the first, and the page routes read suspension from the draft.
+- **`publish` and `unpublish` don't return the handle,** because the route has already read the draft. `publish` still returns a boolean, since it can't change an address.
+- **`/me` also returns each page's `updatedAt`,** which choosing the page edited last needs.
+- **`POST /me/pages` also takes `look`,** for "start from a look".
+- **`PATCH` returns `{ handle }`,** not the whole account.
+- **Deleting a page is refused while suspended,** or it would free an address that's meant to stay out of use.
+- **The sidebar's Edit page stays until P3.** Links inside the app now carry `?page=<id>`.
+- **Coming back from checkout has no page id,** so it opens the page edited last. I left `billing.ts` alone, as Stripe work is out of scope here. It needs the id once people can reach several pages.
+- **Photos are still in one folder per person,** which is P4. Removing a photo already checks every page's draft and live copy.
+- **Swapping two addresses wasn't built.** Nothing in the interface would use it yet.
+
 ## Decisions that would change this plan
 
 These stay working defaults, numbered as in [multi-page.md](multi-page.md).
@@ -367,7 +388,6 @@ These stay working defaults, numbered as in [multi-page.md](multi-page.md).
 
 ## What I couldn't verify
 
-- **The SQL and generated migration,** since nothing was run. I read local data only.
 - **Whether Help me uploads before the first page exists in practice.** I read that from the route and `usage`'s comment, and the plan holds either way.
 - **Line numbers,** which will move as M4 and M5 land.
 - **Sizes,** which are estimates.

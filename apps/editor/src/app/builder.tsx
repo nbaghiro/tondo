@@ -2,7 +2,7 @@ import type { Page } from "@tondo/page";
 import { render } from "solid-js/web";
 import { Editor } from "../components/Editor";
 import { StartFlow } from "../components/StartFlow";
-import { appPath } from "../lib/account";
+import { appPath, chosenPage } from "../lib/account";
 import type { Account, LoadedAccount } from "../lib/account";
 import { claimAddress, loadDraft } from "../lib/api";
 import "../styles/fields.css";
@@ -10,9 +10,11 @@ import "../styles/builder.css";
 import "../styles/help.css";
 
 export async function mountEditor(root: HTMLElement, account: Account): Promise<void> {
-    const draft = await loadDraft();
+    const chosen = chosenPage(account.pages);
+    if (!chosen) throw new Error("The page couldn't be loaded.");
+    const draft = await loadDraft(chosen.id);
     root.innerHTML = "";
-    render(() => <Editor account={account} draft={draft} />, root);
+    render(() => <Editor account={account} pageId={chosen.id} draft={draft} />, root);
 }
 
 export function mountStart(root: HTMLElement, _account: LoadedAccount): void {

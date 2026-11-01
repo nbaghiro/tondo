@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { FREE_LOOKS, GRACE_DAYS, limitsFor, PAID_BLOCKS, PLANS } from "./limits";
+import {
+    canAddPage,
+    canPublishPage,
+    FREE_LOOKS,
+    GRACE_DAYS,
+    limitsFor,
+    PAID_BLOCKS,
+    PLANS,
+} from "./limits";
 import { lookNames } from "./schema";
 import { sectionAvailable, sectionDefinitions } from "./sections";
 
@@ -56,5 +64,18 @@ describe("the split", () => {
         ]);
         // With Title, which is drawn from a separate definition, that's the 14 free kinds.
         expect(available.length - paid(PAID_BLOCKS).length + 1).toBe(14);
+    });
+});
+
+describe("how many pages", () => {
+    it("adds pages up to the plan's number", () => {
+        expect(canAddPage(PLANS.pro, PLANS.pro.pages - 1)).toBe(true);
+        expect(canAddPage(PLANS.pro, PLANS.pro.pages)).toBe(false);
+    });
+
+    it("lets a page that's already live publish again at the limit", () => {
+        expect(canPublishPage(PLANS.free, PLANS.free.pages, true)).toBe(true);
+        expect(canPublishPage(PLANS.free, PLANS.free.pages, false)).toBe(false);
+        expect(canPublishPage(PLANS.free, 0, false)).toBe(true);
     });
 });

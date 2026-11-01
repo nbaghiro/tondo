@@ -12,11 +12,11 @@ const MAX_UNCONFIRMED = 20;
 
 /** Saves about a second after the last change. Work is kept in the browser until the server has it. */
 export function createSaver(options: {
-    handle: string;
+    pageId: string;
     updatedAt: string;
     onLoggedOut: () => void;
 }) {
-    const { handle, onLoggedOut } = options;
+    const { pageId, onLoggedOut } = options;
     const [state, setState] = createSignal<SaveState>("saved");
     const [message, setMessage] = createSignal("");
     let updatedAt = options.updatedAt;
@@ -35,7 +35,7 @@ export function createSaver(options: {
         if (!page || state() === "conflict") return;
         waiting = null;
         setState("saving");
-        const result = await saveDraft(page, updatedAt, unconfirmed);
+        const result = await saveDraft(pageId, page, updatedAt, unconfirmed);
         if (result.state === "failed") {
             unconfirmed = [...unconfirmed, pageHash(page)].slice(-MAX_UNCONFIRMED);
         }
@@ -45,11 +45,11 @@ export function createSaver(options: {
             const next = pending();
             if (next) {
                 // The copy kept in the browser has to say which version it's now on top of.
-                saveBackup(handle, next, updatedAt);
+                saveBackup(pageId, next, updatedAt);
                 await run();
                 return;
             }
-            clearBackup(handle);
+            clearBackup(pageId);
             setState("saved");
             return;
         }
@@ -83,17 +83,17 @@ export function createSaver(options: {
         updatedAt: () => updatedAt,
         change(page: Page) {
             waiting = page;
-            saveBackup(handle, page, updatedAt);
+            saveBackup(pageId, page, updatedAt);
             if (state() === "saved") setState("saving");
             clearTimeout(timer);
             timer = setTimeout(startSoon, WAIT_MS);
         },
         /** After a conflict: this version wins, saved on top of whatever is there now. */
         async keepMine(page: Page): Promise<void> {
-            const latest = await loadDraft();
+            const latest = await loadDraft(pageId);
             updatedAt = latest.updatedAt;
             waiting = page;
-            saveBackup(handle, page, updatedAt);
+            saveBackup(pageId, page, updatedAt);
             setState("saving");
             await start();
         },

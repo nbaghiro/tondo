@@ -146,11 +146,11 @@ describe("who's logged in", () => {
         expect(await (await app.request("/api/v1/me", { headers })).json()).toMatchObject({
             email: june.email,
             name: june.name,
-            handle: null,
+            pages: [],
         });
         await app.request("/api/v1/me/handle", postJson({ handle: "june" }, SESSION));
         const after = (await (await app.request("/api/v1/me", { headers })).json()) as object;
-        expect(after).toMatchObject({ handle: "june" });
+        expect(after).toMatchObject({ pages: [{ handle: "june" }] });
     });
 });
 
@@ -332,11 +332,11 @@ describe("the limits on sign-in", () => {
         const res = await app.request("/api/v1/me", {
             method: "DELETE",
             headers: { "content-type": "application/json", cookie: SESSION },
-            body: JSON.stringify({ handle: "june" }),
+            body: JSON.stringify({ email: june.email }),
         });
         expect(res.status).toBe(503);
         expect(await res.json()).toMatchObject({ pageRemoved: false, signInRemoved: false });
-        expect(await store.findHandle(june.id)).toBe("june");
+        expect((await store.listPages(june.id)).map((page) => page.handle)).toEqual(["june"]);
         expect(calls.some((call) => call.url.includes("delete-user"))).toBe(false);
     });
 
@@ -358,10 +358,10 @@ describe("the limits on sign-in", () => {
         const res = await app.request("/api/v1/me", {
             method: "DELETE",
             headers: { "content-type": "application/json", cookie: SESSION },
-            body: JSON.stringify({ handle: "june" }),
+            body: JSON.stringify({ email: june.email }),
         });
         expect(res.status).toBe(503);
-        expect(await store.findHandle(june.id)).toBe("june");
+        expect((await store.listPages(june.id)).map((page) => page.handle)).toEqual(["june"]);
     });
 
     it("keeps a suspended address out of use after the account is deleted", async () => {
@@ -373,24 +373,10 @@ describe("the limits on sign-in", () => {
         const res = await app.request("/api/v1/me", {
             method: "DELETE",
             headers: { "content-type": "application/json", cookie: SESSION },
-            body: JSON.stringify({ handle: "june" }),
+            body: JSON.stringify({ email: june.email }),
         });
         expect(res.status).toBe(200);
         expect(await store.handleTaken("june")).toBe(true);
-    });
-
-    it("won't change a suspended page's address", async () => {
-        fakeNeon(() => Response.json(session));
-        const store = createFakeStore();
-        await store.claimHandle(june.id, "june", starterPage("June"));
-        store.suspend(june.id);
-        const res = await setup({ store }).request("/api/v1/me/handle", {
-            method: "PATCH",
-            headers: { "content-type": "application/json", cookie: SESSION },
-            body: JSON.stringify({ handle: "fresh" }),
-        });
-        expect(res.status).toBe(403);
-        expect(await store.findHandle(june.id)).toBe("june");
     });
 });
 
@@ -418,7 +404,7 @@ describe("deleting an account with a plan", () => {
         const res = await app.request("/api/v1/me", {
             method: "DELETE",
             headers: { "content-type": "application/json", cookie: COOKIE },
-            body: JSON.stringify({ handle: "june" }),
+            body: JSON.stringify({ email: session.user.email }),
         });
         return { res, store };
     };
@@ -431,7 +417,7 @@ describe("deleting an account with a plan", () => {
         });
         expect(res.status).toBe(200);
         expect(seen).toEqual(["cus_1"]);
-        expect(await store.findHandle(session.user.id)).toBeNull();
+        expect(await store.listPages(session.user.id)).toEqual([]);
     });
 
     it("keeps everything if Stripe can't be reached", async () => {
@@ -440,6 +426,8 @@ describe("deleting an account with a plan", () => {
         expect(((await res.json()) as { error: string }).error).toContain(
             "couldn't cancel your plan",
         );
-        expect(await store.findHandle(session.user.id)).toBe("june");
+        expect((await store.listPages(session.user.id)).map((page) => page.handle)).toEqual([
+            "june",
+        ]);
     });
 });

@@ -31,8 +31,8 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 
 | Table | Columns | What it's for |
 |---|---|---|
-| `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address. `suspended_at`, when set, stops their page being served. `plan`, `stripe_id` and `ends_at` hold their plan, see [plans-implementation.md](plans-implementation.md) |
-| `pages` | id, user_id, slug, draft, published, updated_at | The page being edited and its live copy, each one JSONB document. The empty slug is the main page |
+| `users` | id | One person. `id` is Neon Auth's user id. A row appears when they claim their first address. `suspended_at`, when set, stops all their pages being served. `plan`, `stripe_id` and `ends_at` hold their plan, see [plans-implementation.md](plans-implementation.md) |
+| `pages` | id, user_id, handle, draft, published, updated_at, created_at | The page being edited and its live copy, each one JSONB document. `handle` is the page's own address, unique across everyone. `created_at` keeps the list in order |
 
 | `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
 
@@ -62,7 +62,7 @@ Tables only needed for much later features are `links` (standalone QR codes and 
 ### Trade-offs
 
 - **No version history or rollback.** Publishing overwrites `published`. A `versions` table can be added later without touching anything else.
-- **One address per person.** Several addresses, or an address for a team, means moving `handle` into its own table. Teams would add that table along with their members, in one migration.
+- **An address belongs to a page.** `pages.handle` is the only list of addresses, so one unique constraint means no address is taken twice. It has no table of its own, because a page and its address have the same life. Old addresses that keep redirecting, or addresses held with no page, would need one.
 - **`users.id` has no foreign key** to Neon Auth's tables, which Neon manages. Deleting a person means removing their `users` row in code, which isn't built yet, and their pages follow.
 - **`contacts.entries`** holds form answers with the person. Listing one form's answers scans the user's contacts, so split it out if that gets slow.
 - **Photos have no table.** Listing storage is slower than a query, which is fine for a picker and upload limits.

@@ -2,21 +2,20 @@ import type { Page, Plan } from "@tondo/page";
 import {
     date,
     integer,
+    index,
     jsonb,
     pgTable,
     primaryKey,
     text,
     timestamp,
-    unique,
     uuid,
 } from "drizzle-orm/pg-core";
 
 // `id` is the user id from Neon Auth, which also holds their email and password. A row appears when
-// someone claims their address.
+// someone claims their first address.
 export const users = pgTable("users", {
     id: text("id").primaryKey(),
-    handle: text("handle").notNull().unique(),
-    /** Set when a page is taken down for abuse. It stops being served, and the account stays. */
+    /** Set when a person is taken down for abuse. None of their pages are served, and the account stays. */
     suspendedAt: timestamp("suspended_at", { withTimezone: true }),
     plan: text("plan").$type<Plan>().notNull().default("free"),
     stripeId: text("stripe_id").unique(),
@@ -24,8 +23,9 @@ export const users = pgTable("users", {
     endsAt: timestamp("ends_at", { withTimezone: true }),
 });
 
-// A user has a main page, with an empty slug, and can gain sub-pages. Editing changes the draft, and
-// publishing copies it to `published`. `updated_at` also stops one tab's save overwriting another's.
+// Every page has its own address, and nothing public connects one person's pages. Editing changes the
+// draft, and publishing copies it to `published`. `updated_at` also stops one tab's save overwriting
+// another's.
 export const pages = pgTable(
     "pages",
     {
@@ -33,12 +33,13 @@ export const pages = pgTable(
         userId: text("user_id")
             .notNull()
             .references(() => users.id, { onDelete: "cascade" }),
-        slug: text("slug").notNull().default(""),
+        handle: text("handle").notNull().unique(),
         draft: jsonb("draft").$type<Page>().notNull(),
         published: jsonb("published").$type<Page>(),
         updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+        createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     },
-    (table) => [unique("pages_user_slug").on(table.userId, table.slug)],
+    (table) => [index("pages_user").on(table.userId)],
 );
 
 // Daily counts. An empty target is a view of the page, and any other target is one of its links.

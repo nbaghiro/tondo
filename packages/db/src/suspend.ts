@@ -1,7 +1,7 @@
-// Takes a page down, or puts it back: pnpm --filter @tondo/db suspend <address> [--lift]
-import { eq, sql } from "drizzle-orm";
+// Takes a person's pages down, or puts them back, found by any one of their addresses: pnpm --filter @tondo/db suspend <address> [--lift]
+import { eq, inArray, sql } from "drizzle-orm";
 import { createDb } from "./client";
-import { users } from "./schema";
+import { pages, users } from "./schema";
 
 const handle = process.argv[2];
 const lift = process.argv.includes("--lift");
@@ -10,8 +10,13 @@ const { db, close } = createDb();
 const rows = await db
     .update(users)
     .set({ suspendedAt: lift ? null : sql`now()` })
-    .where(eq(users.handle, handle))
-    .returning({ handle: users.handle, stripeId: users.stripeId });
+    .where(
+        inArray(
+            users.id,
+            db.select({ id: pages.userId }).from(pages).where(eq(pages.handle, handle)),
+        ),
+    )
+    .returning({ stripeId: users.stripeId });
 await close();
 if (!lift && rows[0]?.stripeId) {
     process.stdout.write(

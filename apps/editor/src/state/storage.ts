@@ -3,7 +3,7 @@ import type { Page } from "@tondo/page";
 
 // A copy of work the server doesn't have yet, so a lost connection or a closed tab loses nothing.
 // Each tab keeps its own, so a save in one tab can't clear another tab's unsaved work.
-const PREFIX = "tondo-unsaved-v2:";
+const PREFIX = "tondo-unsaved-v3:";
 
 function tabId(): string {
     try {
@@ -17,7 +17,7 @@ function tabId(): string {
     }
 }
 
-const key = (handle: string, tab = tabId()) => `${PREFIX}${handle}:${tab}`;
+const key = (pageId: string, tab = tabId()) => `${PREFIX}${pageId}:${tab}`;
 
 export interface Backup {
     key: string;
@@ -25,12 +25,12 @@ export interface Backup {
     base: string;
 }
 
-function allBackups(handle: string): Backup[] {
+function allBackups(pageId: string): Backup[] {
     const found: Backup[] = [];
     try {
         for (let i = 0; i < localStorage.length; i++) {
             const name = localStorage.key(i);
-            if (!name?.startsWith(`${PREFIX}${handle}:`)) continue;
+            if (!name?.startsWith(`${PREFIX}${pageId}:`)) continue;
             const { page, base } = JSON.parse(localStorage.getItem(name) ?? "{}") as {
                 page: unknown;
                 base: string;
@@ -45,27 +45,27 @@ function allBackups(handle: string): Backup[] {
 }
 
 /** Unsaved work from this tab or a closed one, if it was made on top of what the server has now. */
-export function loadBackup(handle: string, updatedAt: string): Page | null {
-    const usable = allBackups(handle).filter((backup) => backup.base === updatedAt);
-    return (usable.find((backup) => backup.key === key(handle)) ?? usable[0])?.page ?? null;
+export function loadBackup(pageId: string, updatedAt: string): Page | null {
+    const usable = allBackups(pageId).filter((backup) => backup.base === updatedAt);
+    return (usable.find((backup) => backup.key === key(pageId)) ?? usable[0])?.page ?? null;
 }
 
 /** Unsaved work made on an older version. It can't merge by itself, so the person chooses. */
-export function loadStaleBackup(handle: string, updatedAt: string): Backup | null {
-    return allBackups(handle).find((backup) => backup.base !== updatedAt) ?? null;
+export function loadStaleBackup(pageId: string, updatedAt: string): Backup | null {
+    return allBackups(pageId).find((backup) => backup.base !== updatedAt) ?? null;
 }
 
-export function saveBackup(handle: string, page: Page, base: string): void {
+export function saveBackup(pageId: string, page: Page, base: string): void {
     try {
-        localStorage.setItem(key(handle), JSON.stringify({ page, base }));
+        localStorage.setItem(key(pageId), JSON.stringify({ page, base }));
     } catch {
         // Browser storage is full or blocked. The server save still runs.
     }
 }
 
-export function clearBackup(handle: string): void {
+export function clearBackup(pageId: string): void {
     try {
-        localStorage.removeItem(key(handle));
+        localStorage.removeItem(key(pageId));
     } catch {
         // As above.
     }

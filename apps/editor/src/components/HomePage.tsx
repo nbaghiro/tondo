@@ -1,5 +1,5 @@
 import { routes } from "@tondo/contract";
-import type { DraftResponse, StatsResponse } from "@tondo/contract";
+import type { DraftResponse, PageSummary, StatsResponse } from "@tondo/contract";
 import {
     freeLookFor,
     isFreeLook,
@@ -12,8 +12,7 @@ import {
 import type { ChecklistItem, Page } from "@tondo/page";
 import { looks, paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
-import { appPath, pageUrl } from "../lib/account";
-import type { Account } from "../lib/account";
+import { appPath, onPage, pageUrl } from "../lib/account";
 import { loadBilling, loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { loadAssistant } from "../lib/assistant-stream";
 import { longDate } from "../lib/plan-copy";
@@ -24,26 +23,26 @@ import { Phone } from "./Phone";
 const PHONE_ART = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 3);
 
 async function loadHome(
-    handle: string,
+    pageId: string,
 ): Promise<{ draft: DraftResponse; stats: StatsResponse | null; live: Page | null }> {
-    const res = await fetch(routes.draft);
+    const res = await fetch(routes.page(pageId));
     if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? "We couldn't load your page. Reload to try again.");
     }
     // Leaving the builder straight after typing leaves that work in this browser, so it's saved first.
-    const draft = await savePendingWork(handle, (await res.json()) as DraftResponse);
-    const live = draft.published ? await loadLive() : null;
-    return { draft, stats: await loadStats(30), live };
+    const draft = await savePendingWork(pageId, (await res.json()) as DraftResponse);
+    const live = draft.published ? await loadLive(pageId) : null;
+    return { draft, stats: await loadStats(pageId, 30), live };
 }
 
-function checklistLink(item: ChecklistItem): string {
+function checklistLink(item: ChecklistItem, pageId: string): string {
     const asked = new URLSearchParams();
     if (item.panel) asked.set("panel", item.panel);
     if (item.section) asked.set("section", item.section);
     if (item.item) asked.set("item", item.item);
-    const query = asked.toString();
-    return appPath(`/edit${query ? `?${query}` : ""}`);
+    asked.set("page", pageId);
+    return appPath(`/edit?${asked.toString()}`);
 }
 
 /** What someone whose plan has ended needs to know about their live page. Null if nothing. */
@@ -59,7 +58,7 @@ function planNotice(live: Page | null): string | null {
         : `Your page now uses ${to}. Your draft still has everything, so getting Pro brings it back.`;
 }
 
-function Checklist(props: { items: ChecklistItem[] }) {
+function Checklist(props: { items: ChecklistItem[]; pageId: string }) {
     const left = () => props.items.filter((item) => !item.done);
     const next = () => left()[0]?.id;
     return (
@@ -81,7 +80,7 @@ function Checklist(props: { items: ChecklistItem[] }) {
                     <For each={props.items}>
                         {(item) => (
                             <li classList={{ done: item.done, next: next() === item.id }}>
-                                <a href={checklistLink(item)} data-check={item.id}>
+                                <a href={checklistLink(item, props.pageId)} data-check={item.id}>
                                     <span class="tick">
                                         <Show when={item.done}>
                                             <NavIcon name="check" />
@@ -104,12 +103,12 @@ function Checklist(props: { items: ChecklistItem[] }) {
     );
 }
 
-function Numbers(props: { stats: StatsResponse | null }) {
+function Numbers(props: { stats: StatsResponse | null; pageId: string }) {
     return (
         <Card
             title={`Last ${String(props.stats?.range ?? 30)} days`}
             extra={
-                <a class="lnk" href={appPath("/analytics")}>
+                <a class="lnk" href={appPath(onPage("/analytics", props.pageId))}>
                     See more
                 </a>
             }
@@ -139,8 +138,8 @@ function Numbers(props: { stats: StatsResponse | null }) {
     );
 }
 
-export function HomePage(props: { account: Account }) {
-    const [data, { refetch }] = createResource(() => props.account.handle, loadHome);
+export function HomePage(props: { page: PageSummary }) {
+    const [data, { refetch }] = createResource(() => props.page.id, loadHome);
     const [assistant] = createResource(loadAssistant);
     const [billing] = createResource(() =>
         plan()?.billing && plan()?.plan !== "free" ? loadBilling() : null,
@@ -149,7 +148,7 @@ export function HomePage(props: { account: Account }) {
     const [busy, setBusy] = createSignal(false);
     const [confirmDiscard, setConfirmDiscard] = createSignal(false);
     const toast = createToast();
-    const address = () => `tondo.page/${props.account.handle}`;
+    const address = () => `tondo.page/${props.page.handle}`;
     const fullLink = () => `https://${address()}`;
 
     const copy = () => {
@@ -172,8 +171,8 @@ export function HomePage(props: { account: Account }) {
     const discard = async (updatedAt: string) => {
         setBusy(true);
         setConfirmDiscard(false);
-        const live = await loadLive();
-        const saved = live ? await saveDraft(live, updatedAt, null) : null;
+        const live = await loadLive(props.page.id);
+        const saved = live ? await saveDraft(props.page.id, live, updatedAt, null) : null;
         setBusy(false);
         if (saved?.state === "saved") toast.say("Back to your live page");
         else if (saved?.state === "conflict")
@@ -187,17 +186,17 @@ export function HomePage(props: { account: Account }) {
         const page = data()?.draft.page;
         // Anything worth a second look is shown in the builder, where it can be fixed.
         if (page && (publishIssues(page).length || publishWarnings(page).length)) {
-            location.assign(appPath("/edit?panel=publish"));
+            location.assign(appPath(onPage("/edit?panel=publish", props.page.id)));
             return;
         }
         setBusy(true);
-        const result = await publish(updatedAt);
+        const result = await publish(props.page.id, updatedAt);
         setBusy(false);
         if (result.state === "published") {
             toast.say("Your page is live");
             await refetch();
         } else if (result.state === "issues") {
-            location.assign(appPath("/edit?panel=publish"));
+            location.assign(appPath(onPage("/edit?panel=publish", props.page.id)));
         } else {
             toast.say(result.message);
         }
@@ -362,7 +361,7 @@ export function HomePage(props: { account: Account }) {
                                                 </span>
                                                 <a
                                                     class="addr"
-                                                    href={pageUrl(props.account.handle)}
+                                                    href={pageUrl(props.page.handle)}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                 >
@@ -379,7 +378,7 @@ export function HomePage(props: { account: Account }) {
                                                     <a
                                                         class="ib"
                                                         aria-label="Open your page"
-                                                        href={pageUrl(props.account.handle)}
+                                                        href={pageUrl(props.page.handle)}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                     >
@@ -396,11 +395,14 @@ export function HomePage(props: { account: Account }) {
                                                 published: draft().published,
                                                 suspended: draft().suspended,
                                             })}
+                                            pageId={props.page.id}
                                         />
                                         <Show when={helpAvailable()}>
                                             <a
                                                 class="card home-help"
-                                                href={appPath("/edit?panel=help")}
+                                                href={appPath(
+                                                    onPage("/edit?panel=help", props.page.id),
+                                                )}
                                                 data-home-help
                                             >
                                                 <span class="home-help-mark">
@@ -419,7 +421,10 @@ export function HomePage(props: { account: Account }) {
                                             </a>
                                         </Show>
                                         <Show when={draft().published}>
-                                            <Numbers stats={loaded().stats} />
+                                            <Numbers
+                                                stats={loaded().stats}
+                                                pageId={props.page.id}
+                                            />
                                         </Show>
                                     </div>
                                 </div>

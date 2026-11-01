@@ -169,9 +169,14 @@ export function mountPhotos(
         }
         const key = `${folderFor(person.id)}${c.req.param("file")}`;
         if (!UPLOAD_KEY.test(key)) return fail(c, 404, "We couldn't find that photo.");
-        const draft = await pages.findDraft(person.id);
-        const live = await pages.findOwnLive(person.id);
-        if (photosIn([draft?.page, live]).some((photo) => photo.file === key)) {
+        const own = await pages.listPages(person.id);
+        const documents = await Promise.all(
+            own.flatMap(({ id }) => [
+                pages.findDraft(person.id, id).then((draft) => draft?.page ?? null),
+                pages.findOwnLive(person.id, id),
+            ]),
+        );
+        if (photosIn(documents).some((photo) => photo.file === key)) {
             return fail(c, 409, "This photo is on your page. Take it off first.");
         }
         await storage.remove(key);

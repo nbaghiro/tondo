@@ -1,4 +1,4 @@
-import { changeHandleRequest, claimRequest, routes } from "@tondo/contract";
+import { claimRequest, deleteAccountRequest, routes } from "@tondo/contract";
 import type {
     DeleteAccountResponse,
     ErrorResponse,
@@ -97,11 +97,8 @@ async function beforeDeadline(work: Promise<void> | undefined, ms: number): Prom
 export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     const { store, siteUrl, editorUrl, neon } = config;
 
-    const fail = (
-        c: Context,
-        status: 400 | 401 | 403 | 409 | 413 | 415 | 429 | 503,
-        error: string,
-    ) => c.json<ErrorResponse>({ error }, status);
+    const fail = (c: Context, status: 400 | 401 | 409 | 413 | 415 | 429 | 503, error: string) =>
+        c.json<ErrorResponse>({ error }, status);
 
     // Neon's toolkit caches the session in a signed cookie, so most requests don't reach Neon.
     const currentPerson: CurrentPerson = async (c) => {
@@ -134,13 +131,13 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
 
     const nameOf = (person: Person) => person.name || (person.email.split("@")[0] ?? person.email);
     // Everything the editor knows about this person, from one place.
-    const meOf = async (person: Person, handle: string | null): Promise<MeResponse> => {
+    const meOf = async (person: Person): Promise<MeResponse> => {
         const account = await store.findPlan(person.id);
         const { designUntil, ...limits } = limitsOf(account);
         return {
             email: person.email,
             name: nameOf(person),
-            handle,
+            pages: await store.listPages(person.id),
             plan: account.plan,
             limits,
             endsAt: account.endsAt?.toISOString() ?? null,
@@ -190,7 +187,6 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         maxSize: 4096,
         onError: (c) => fail(c, 413, "That's too long."),
     });
-    const allowChange = createLimiter(scale(10), 60_000);
     const allowCheck = createLimiter(scale(60), 60_000);
 
     app.use(
@@ -237,7 +233,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         c.header("Cache-Control", "no-store");
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        return c.json<MeResponse>(await meOf(person, await store.findHandle(person.id)));
+        return c.json<MeResponse>(await meOf(person));
     });
 
     app.get(routes.handleCheck(":handle").replace("%3A", ":"), async (c) => {
@@ -282,33 +278,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             if (!(await claim(person, handle, parsed.data.page))) {
                 return fail(c, 409, "That address is taken. Try another one.");
             }
-            return c.json<MeResponse>(await meOf(person, handle));
+            config.onHandleChange?.(null, handle);
+            return c.json<MeResponse>(await meOf(person));
         },
     );
-
-    app.patch(routes.claim, smallBody, async (c) => {
-        if (!c.req.header("content-type")?.startsWith("application/json")) {
-            return fail(c, 415, "Send this as JSON.");
-        }
-        const person = await currentPerson(c);
-        if (!person) return fail(c, 401, "You're not logged in.");
-        if (!allowChange(person.id))
-            return fail(c, 429, "Too many tries. Wait a little and try again.");
-        if (await store.isSuspended(person.id)) {
-            return fail(c, 403, "This page was taken down, so its address can't be changed.");
-        }
-        const parsed = changeHandleRequest.safeParse(await c.req.json<unknown>().catch(() => null));
-        if (!parsed.success) {
-            return fail(c, 400, "Use 1 to 30 lowercase letters, numbers or hyphens.");
-        }
-        const { handle } = parsed.data;
-        const before = await store.findHandle(person.id);
-        if (!(await store.changeHandle(person.id, handle))) {
-            return fail(c, 409, "That address is taken. Try another one.");
-        }
-        config.onHandleChange?.(before, handle);
-        return c.json<MeResponse>(await meOf(person, handle));
-    });
 
     // The plan goes first, then photos, because both can be tried again. If they can't be removed, the page and sign-in
     // stay too, so the person can still come back and finish. Once the page is gone, the sign-in is
@@ -319,13 +292,13 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         }
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        const handle = await store.findHandle(person.id);
-        const parsed = (await c.req.json<unknown>().catch(() => null)) as {
-            handle?: unknown;
-        } | null;
-        if (handle && parsed?.handle !== handle) {
-            return fail(c, 400, "Type your address to confirm.");
+        const parsed = deleteAccountRequest.safeParse(
+            await c.req.json<unknown>().catch(() => null),
+        );
+        if (parsed.data?.email.trim().toLowerCase() !== person.email.toLowerCase()) {
+            return fail(c, 400, "Type your email to confirm.");
         }
+        const handles = (await store.listPages(person.id)).map((page) => page.handle);
         const stoppedAt = (error: unknown, what: string, photosRemoved: boolean) => {
             process.stderr.write(`Couldn't delete ${what}: ${String(error)}\n`);
             return c.json(
@@ -365,7 +338,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         } catch (error) {
             return stoppedAt(error, "page", true);
         }
-        config.onHandleChange?.(handle, null);
+        for (const handle of handles) config.onHandleChange?.(handle, null);
         // Neon only allows this if deleting users is switched on, so the answer says how it went.
         const removed = neon
             ? await handleAuthProxyRequest({
@@ -419,7 +392,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
 
         const person = await currentPerson(c);
         if (!person) return c.redirect(failed);
-        if (await store.findHandle(person.id)) return c.redirect(editorUrl);
+        if ((await store.listPages(person.id)).length) return c.redirect(editorUrl);
         // A new person goes through the start flow, with the address they asked for ready to check.
         const wanted = normaliseHandle(c.req.query("handle") ?? "");
         const usable = isValidHandle(wanted) && !isReservedHandle(wanted);

@@ -7,6 +7,7 @@ import {
     panel,
     signUpToEditor,
     signUpToStart,
+    draftUrl,
 } from "./helpers";
 
 test("icons in the panels stay small", async ({ page }) => {
@@ -178,7 +179,10 @@ test("a second media link is added, and doesn't replace the first", async ({ pag
     await paste("https://open.spotify.com/album/first");
     await paste("https://www.youtube.com/watch?v=second");
     await page.waitForTimeout(1500);
-    const draft = await page.evaluate(async () => (await fetch("/api/v1/me/page")).text());
+    const draft = await page.evaluate(
+        async (draftUrl) => (await fetch(draftUrl)).text(),
+        await draftUrl(page),
+    );
     expect(draft).toContain("open.spotify.com/album/first");
     expect(draft).toContain("youtube.com/watch?v=second");
 });

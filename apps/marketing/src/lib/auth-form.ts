@@ -36,8 +36,8 @@ const showError = (message: string) => {
 const preview = import.meta.env.DEV && params.has("preview");
 
 // The editor runs the start flow for someone with no address yet, and checks the one they asked for.
-const goOn = (account: Pick<MeResponse, "handle">, handle?: string) => {
-    const asked = !account.handle && handle ? `?handle=${encodeURIComponent(handle)}` : "";
+const goOn = (account: Pick<MeResponse, "pages">, handle?: string) => {
+    const asked = !account.pages.length && handle ? `?handle=${encodeURIComponent(handle)}` : "";
     const next = `${EDITOR_URL}${asked}`;
     if (preview) window.parent.postMessage({ tondoGoTo: next }, "*");
     else location.assign(next);
@@ -146,7 +146,7 @@ async function signUp(email: string, password: string, handle: string): Promise<
 
 async function continueAs(handle: string | undefined): Promise<void> {
     const me = await fetch(routes.me);
-    goOn(me.ok ? ((await me.json()) as MeResponse) : { handle: null }, handle);
+    goOn(me.ok ? ((await me.json()) as MeResponse) : { pages: [] }, handle);
 }
 
 const sendCode = (email: string) =>
@@ -184,7 +184,7 @@ async function verify(code: string): Promise<string | null> {
         return null;
     }
     const account = (await me.json()) as MeResponse;
-    await continueAs(account.handle ? undefined : pending.handle);
+    await continueAs(account.pages.length ? undefined : pending.handle);
     return null;
 }
 

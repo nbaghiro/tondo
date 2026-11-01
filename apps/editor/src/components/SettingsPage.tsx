@@ -1,26 +1,18 @@
 import { plan } from "../state/plan";
-import { routes } from "@tondo/contract";
-import type { DraftResponse } from "@tondo/contract";
+import type { PageSummary } from "@tondo/contract";
 import { isReservedHandle, isValidHandle, normaliseHandle } from "@tondo/page";
 import { createEffect, createResource, createSignal, Show, untrack } from "solid-js";
-import { appPath } from "../lib/account";
-import type { Account } from "../lib/account";
-import { changeAddress, checkAddress, saveDraft, unpublish } from "../lib/api";
+import { appPath, onPage } from "../lib/account";
+import { changeAddress, checkAddress, loadDraft, saveDraft, unpublish } from "../lib/api";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
 
-async function loadOwnDraft(): Promise<DraftResponse> {
-    const res = await fetch(routes.draft);
-    if (!res.ok) throw new Error("The page couldn't be loaded.");
-    return (await res.json()) as DraftResponse;
-}
-
-export function SettingsPage(props: { account: Account; onAddress: (handle: string) => void }) {
-    const [draft, { refetch }] = createResource(loadOwnDraft);
+export function SettingsPage(props: { page: PageSummary; onAddress: (handle: string) => void }) {
+    const [draft, { refetch }] = createResource(() => props.page.id, loadDraft);
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
     const [timeZone, setTimeZone] = createSignal("");
-    const [handle, setHandle] = createSignal(untrack(() => props.account.handle));
-    const [current, setCurrent] = createSignal(untrack(() => props.account.handle));
+    const [handle, setHandle] = createSignal(untrack(() => props.page.handle));
+    const [current, setCurrent] = createSignal(untrack(() => props.page.handle));
     const [addressNote, setAddressNote] = createSignal("");
     const [confirmDown, setConfirmDown] = createSignal(false);
     // A conflict brings in the latest page, and what someone typed has to stay in the boxes.
@@ -50,7 +42,7 @@ export function SettingsPage(props: { account: Account; onAddress: (handle: stri
             ...(description().trim() ? { description: description().trim() } : {}),
             ...(timeZone() ? { timeZone: timeZone() } : {}),
         };
-        const result = await saveDraft(page, loaded.updatedAt, null);
+        const result = await saveDraft(props.page.id, page, loaded.updatedAt, null);
         if (result.state === "saved") {
             toast.say("Saved");
             await refetch();
@@ -82,7 +74,7 @@ export function SettingsPage(props: { account: Account; onAddress: (handle: stri
             setAddressNote(check.message);
             return;
         }
-        const problem = await changeAddress(next);
+        const problem = await changeAddress(props.page.id, next);
         if (problem) {
             setAddressNote(problem);
             return;
@@ -94,7 +86,7 @@ export function SettingsPage(props: { account: Account; onAddress: (handle: stri
     };
 
     const takeDown = async () => {
-        const problem = await unpublish();
+        const problem = await unpublish(props.page.id);
         toast.say(problem ?? "Your page isn't live any more");
         await refetch();
     };
@@ -222,7 +214,12 @@ export function SettingsPage(props: { account: Account; onAddress: (handle: stri
                                 <Show
                                     when={loaded().published}
                                     fallback={
-                                        <a class="b" href={appPath("/edit?panel=publish")}>
+                                        <a
+                                            class="b"
+                                            href={appPath(
+                                                onPage("/edit?panel=publish", props.page.id),
+                                            )}
+                                        >
                                             Go to publish
                                         </a>
                                     }
