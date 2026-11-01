@@ -26,6 +26,11 @@ It replaces that account's draft and leaves its live page alone. It refuses to r
 
 A button or card with no link doesn't show on a live page, so these look the same as in the gallery until you give them one. Publishing asks for those links. Sections that show "Not available yet" use a block that isn't ready, and they stop a page publishing until they're removed.
 
+## Deferred until after QA
+
+- **Starter pages.** There are none for now, and no code exists for them.
+- **Building before sign-up.** This also waits until QA has finished.
+
 ## Starting up
 
 ```sh
