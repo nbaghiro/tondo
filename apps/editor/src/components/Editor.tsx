@@ -1,4 +1,4 @@
-import { findSection, publishWarnings } from "@tondo/page";
+import { findSection, publishIssues, publishWarnings } from "@tondo/page";
 import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
@@ -11,6 +11,7 @@ import { Canvas } from "./Canvas";
 import { LookTiles, MakeItYours } from "./LookPanel";
 import { AddList, Glyph, PagePanel } from "./Panels";
 import { Preview } from "./Preview";
+import { setAskedItem } from "./Fields";
 import { PublishPanel, publishTitle } from "./PublishPanel";
 import type { PublishView } from "./PublishPanel";
 import { HeaderPanel, SectionPanel } from "./SectionPanel";
@@ -122,12 +123,18 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 stats: await loadStats(),
             });
         } else {
-            setView(result);
+            setView(result.state === "issues" ? { ...result, fromServer: true } : result);
         }
         showPublish();
     };
     const startPublish = () => {
+        const issues = publishIssues(editor.page());
         const warnings = publishWarnings(editor.page());
+        if (issues.length) {
+            setView({ state: "issues", issues });
+            showPublish();
+            return;
+        }
         if (warnings.length) {
             setView({ state: "warnings", warnings });
             showPublish();
@@ -137,6 +144,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             setPublishing(false);
         });
     };
+    // The list follows the page, so it stays right while things get fixed.
+    const shownView = (): PublishView | null => {
+        const current = view();
+        if (current?.state !== "issues" || current.fromServer) return current;
+        const issues = publishIssues(editor.page());
+        return issues.length
+            ? { state: "issues", issues }
+            : { state: "warnings", warnings: publishWarnings(editor.page()) };
+    };
+    const fixing = () => (view() && view()?.state !== "live" ? shownView() : null);
 
     const closeRight = () => {
         setRight(null);
@@ -322,7 +339,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         const id = editor.selected();
         if (id) {
             setRight(null);
-            setView(null);
+            // Fixing something from the publish list keeps the list to come back to.
+            setView((was) => (was?.state === "live" ? null : was));
             setLeft("page");
             setTall(false);
             setSheet("section");
@@ -434,6 +452,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                         tall={tall()}
                         onClose={closeRight}
                     >
+                        <Show when={fixing()}>
+                            <button type="button" class="pub-back" onClick={showPublish}>
+                                <Show
+                                    when={publishIssues(editor.page()).length}
+                                    fallback="Back to publishing"
+                                >
+                                    {(n) => `Back to the list: ${String(n())} left`}
+                                </Show>
+                            </button>
+                        </Show>
                         <Show
                             when={id === HEADER}
                             fallback={<SectionPanel editor={editor} id={id} />}
@@ -482,7 +510,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     </Show>
                 </Panel>
             </Show>
-            <Show when={!editor.selected() && right() === "publish" && view()}>
+            <Show when={!editor.selected() && right() === "publish" && shownView()}>
                 {(current) => (
                     <Panel
                         title={publishTitle(current())}
@@ -494,17 +522,18 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     >
                         <PublishPanel
                             view={current()}
-                            onOpen={(target) => {
-                                setView(null);
+                            onOpen={(issue) => {
                                 setRight(null);
-                                if (target === "page") {
+                                if (issue.target === "page") {
                                     setSheet("page");
                                     return;
                                 }
+                                setAskedItem(issue.item ?? issue.target);
                                 editor.select(
-                                    target === HEADER
+                                    issue.target === HEADER
                                         ? HEADER
-                                        : (findSection(editor.page(), target)?.section.id ?? null),
+                                        : (findSection(editor.page(), issue.target)?.section.id ??
+                                              null),
                                 );
                             }}
                             onPublishAnyway={() => {

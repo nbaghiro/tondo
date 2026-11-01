@@ -1,4 +1,4 @@
-import { allBlocks, blockDefinitions, drawBlock, escapeHtml } from "@tondo/page";
+import { allBlocks, blockDefinitions, drawBlock, escapeHtml, liveContent } from "@tondo/page";
 import type { Block, Page, RenderContext } from "@tondo/page";
 import { isSafeUrl } from "@tondo/page";
 import { baseCss } from "./base-css";
@@ -66,10 +66,13 @@ export interface DocumentOptions extends RenderContext {
     now?: Date;
     /** The live page's address. Its links then go through /l/, which counts clicks. */
     trackAs?: string;
+    /** Draws what a visitor sees, leaving out sample content and empty tabs. */
+    live?: boolean;
 }
 
-export function renderDocument(page: Page, options: DocumentOptions): string {
-    const { title, editorCss = "", now, assetBase, editable, trackAs } = options;
+export function renderDocument(saved: Page, options: DocumentOptions): string {
+    const { title, editorCss = "", now, assetBase, editable, trackAs, live } = options;
+    const page = live ? liveContent(saved).page : saved;
     const ctx = { assetBase, editable };
     const body = renderBody(page, ctx, now);
     const description = page.description
@@ -80,7 +83,11 @@ export function renderDocument(page: Page, options: DocumentOptions): string {
 
 /** The address a tracked link goes to, or null if the live page has no such link. */
 export function findLink(page: Page, target: string, now = new Date()): string | null {
-    const body = renderBody(page, { assetBase: "/photos/", editable: false }, now);
+    const body = renderBody(
+        liveContent(page).page,
+        { assetBase: "/photos/", editable: false },
+        now,
+    );
     for (const match of body.matchAll(LINK)) {
         const url = unescapeHtml(match[1] ?? "");
         if (linkId(url) === target && isSafeUrl(url)) return url;

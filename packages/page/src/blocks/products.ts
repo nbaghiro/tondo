@@ -6,7 +6,7 @@ import {
     linkValue,
     photoTag,
     photoValue,
-    safeHref,
+    linkOr,
 } from "../define-block";
 import { link, list, photo, text } from "../fields";
 import { carouselCss, item } from "./parts";
@@ -71,8 +71,13 @@ ${carouselCss}.b-car b{display:block;font-weight:600;margin-top:7px;line-height:
             const at = `items.${String(i)}`;
             const words = `${editableText(ctx, "b", `${at}.name`, entry.name)}${editableText(ctx, "small", `${at}.price`, entry.price)}`;
             return carousel
-                ? `<a href="${safeHref(entry.url)}">${photoTag(ctx, entry.photo)}${words}</a>`
-                : `<a class="b-prod" href="${safeHref(entry.url)}"><span class="b-pi">${photoTag(ctx, entry.photo)}</span>${words}</a>`;
+                ? linkOr(ctx, entry.url, "", `${photoTag(ctx, entry.photo)}${words}`)
+                : linkOr(
+                      ctx,
+                      entry.url,
+                      "b-prod",
+                      `<span class="b-pi">${photoTag(ctx, entry.photo)}</span>${words}`,
+                  );
         });
         return `<div class="${carousel ? "b-car" : "b-grid"}">${cells.join("")}</div>`;
     },

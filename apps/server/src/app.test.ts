@@ -28,12 +28,11 @@ describe("server", () => {
         expect(res.headers.get("location")).toBe("/sample");
     });
 
-    it("returns a page as JSON", async () => {
-        const res = await app.request("/api/v1/pages/sample");
-        expect(await res.json()).toEqual({ page: samplePage });
+    it("doesn't hand out saved documents, which hold hidden blocks", async () => {
+        expect((await app.request("/api/v1/pages/sample")).status).toBe(404);
     });
 
-    it.each(["/nobody", "/api", "/not_valid", "/api/v1/pages/nobody"])(
+    it.each(["/nobody", "/api", "/not_valid", "/api/v1/pages/sample"])(
         "404s on %s",
         async (path) => {
             expect((await app.request(path)).status).toBe(404);

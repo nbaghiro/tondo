@@ -131,6 +131,12 @@ describe("sections on a page", () => {
 
     it("says what's left to do, and publishing blocks dead links but only warns on paintings", () => {
         let page = addSection(empty, makeSection(definition("spotlight"), makeId), 0);
+        page = {
+            ...page,
+            blocks: page.blocks.map((block) =>
+                block.type === "link-card" ? { ...block, title: "My own" } : block,
+            ),
+        };
         const section = sectionsOf(page.blocks)[0];
         expect(section && sectionStatus(section)).toBe("Add a photo");
         expect(publishIssues(page).some((issue) => issue.message.includes("needs a link"))).toBe(

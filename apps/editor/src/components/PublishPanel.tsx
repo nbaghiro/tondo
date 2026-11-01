@@ -2,12 +2,12 @@ import type { PublishIssue } from "@tondo/page";
 import { For, Show } from "solid-js";
 
 export type PublishView =
-    | { state: "issues"; issues: PublishIssue[] }
+    | { state: "issues"; issues: PublishIssue[]; fromServer?: boolean }
     | { state: "warnings"; warnings: PublishIssue[] }
     | { state: "live"; url: string; stats: { views: number; clicks: number } | null }
     | { state: "failed"; message: string };
 
-function IssueList(props: { issues: PublishIssue[]; onOpen: (target: string) => void }) {
+function IssueList(props: { issues: PublishIssue[]; onOpen: (issue: PublishIssue) => void }) {
     return (
         <ul class="pub-issues">
             <For each={props.issues}>
@@ -16,7 +16,7 @@ function IssueList(props: { issues: PublishIssue[]; onOpen: (target: string) => 
                         <button
                             type="button"
                             onClick={() => {
-                                props.onOpen(issue.target);
+                                props.onOpen(issue);
                             }}
                         >
                             {issue.message}
@@ -30,7 +30,7 @@ function IssueList(props: { issues: PublishIssue[]; onOpen: (target: string) => 
 
 export function PublishPanel(props: {
     view: PublishView;
-    onOpen: (target: string) => void;
+    onOpen: (issue: PublishIssue) => void;
     onPublishAnyway: () => void;
 }) {
     return (
@@ -38,7 +38,7 @@ export function PublishPanel(props: {
             <Show when={props.view.state === "issues" && props.view}>
                 {(view) => (
                     <>
-                        <p>Fix these and your page is ready to go live.</p>
+                        <p>Fix these and your page can go live. Tap one to go to it.</p>
                         <IssueList issues={view().issues} onOpen={props.onOpen} />
                     </>
                 )}
@@ -46,10 +46,15 @@ export function PublishPanel(props: {
             <Show when={props.view.state === "warnings" && props.view}>
                 {(view) => (
                     <>
-                        <p>
-                            Some sections still show a painting where your photo could go. You can
-                            publish now and come back.
-                        </p>
+                        <Show
+                            when={view().warnings.length}
+                            fallback={<p>Everything's ready to go live.</p>}
+                        >
+                            <p>
+                                Your page can go live now. These won't stop it, and you can come
+                                back to them.
+                            </p>
+                        </Show>
                         <IssueList issues={view().warnings} onOpen={props.onOpen} />
                         <button
                             type="button"
@@ -58,7 +63,7 @@ export function PublishPanel(props: {
                                 props.onPublishAnyway();
                             }}
                         >
-                            Publish anyway
+                            {view().warnings.length ? "Publish anyway" : "Publish"}
                         </button>
                     </>
                 )}
@@ -95,5 +100,5 @@ export const publishTitle = (view: PublishView): string =>
         : view.state === "failed"
           ? "That didn't publish"
           : view.state === "warnings"
-            ? "Nearly there"
+            ? "Ready to publish"
             : "A few things first";

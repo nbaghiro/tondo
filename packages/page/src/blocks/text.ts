@@ -3,12 +3,18 @@ import { blockSchema, defineBlock, editableText, escapeHtml } from "../define-bl
 import { longText } from "../fields";
 
 // Saved pages hold plain words, never HTML. Addresses become links when the page is drawn.
-const ADDRESS = /\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)]/g;
-const linkify = (value: string) =>
-    escapeHtml(value).replace(
-        ADDRESS,
-        (url) => `<a href="${url}" rel="noopener">${url.replace(/^https?:\/\//, "")}</a>`,
-    );
+const ADDRESS = /\bhttps?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)]/g;
+function linkify(value: string): string {
+    let html = "";
+    let from = 0;
+    for (const match of value.matchAll(ADDRESS)) {
+        const url = match[0];
+        html += escapeHtml(value.slice(from, match.index));
+        html += `<a href="${escapeHtml(url)}" rel="noopener">${escapeHtml(url.replace(/^https?:\/\//, ""))}</a>`;
+        from = match.index + url.length;
+    }
+    return html + escapeHtml(value.slice(from));
+}
 
 export const text = defineBlock({
     schema: blockSchema("text", ["plain", "card"], { text: z.string().max(600) }),

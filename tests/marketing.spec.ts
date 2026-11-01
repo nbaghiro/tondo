@@ -41,3 +41,13 @@ test.describe("the gallery", () => {
         await expect(page.locator(".bk-in .b-player")).toHaveCount(1);
     });
 });
+
+test("example pages keep everything, even words that match a section's sample", async ({
+    page,
+}) => {
+    // Their words were the source of some samples, and they're drawn in full, never as "live".
+    await page.goto("/mayaokafor");
+    await expect(page.locator("main")).toContainText("Tall ash vase");
+    await page.goto("/harbourbakery");
+    await expect(page.locator("main")).toContainText("Tue to Fri");
+});

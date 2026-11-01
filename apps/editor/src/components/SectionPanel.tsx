@@ -15,7 +15,7 @@ import { createEffect, createSignal, For, onMount, Show, untrack } from "solid-j
 import { wireHtml } from "../lib/drawings";
 import { HEADER } from "../state/document";
 import type { EditorState } from "../state/document";
-import { FieldView, SourceInput, Toggle } from "./Fields";
+import { askedItem, FieldView, SourceInput, Toggle } from "./Fields";
 import { Glyph } from "./Panels";
 
 const ASSETS = "/photos/";
@@ -66,6 +66,10 @@ function LinkList(props: { editor: EditorState; section: () => Section }) {
     const [open, setOpen] = createSignal<string | null>(
         untrack(() => props.section().blocks[0]?.id ?? null),
     );
+    createEffect(() => {
+        const asked = askedItem();
+        if (asked && props.section().blocks.some((block) => block.id === asked)) setOpen(asked);
+    });
     const label = (block: Block) =>
         block.type === "button" ? block.text : block.type === "link-card" ? block.title : "Link";
     return (
@@ -209,7 +213,10 @@ export function SectionPanel(props: { editor: EditorState; id: string }) {
     onMount(() => {
         if (!props.editor.takeJustAdded()) return;
         if (!window.matchMedia("(pointer: fine)").matches) return;
-        body()?.querySelector<HTMLElement>("input.in, textarea.in")?.focus();
+        // The title sits below the style tiles and items, and focus would scroll them away.
+        body()
+            ?.querySelector<HTMLElement>("input.in:not([data-title]), textarea.in")
+            ?.focus({ preventScroll: true });
     });
 
     return (
@@ -289,6 +296,7 @@ export function SectionPanel(props: { editor: EditorState; id: string }) {
                                 </span>
                                 <input
                                     class="in"
+                                    data-title
                                     maxLength={60}
                                     value={live().title?.text ?? ""}
                                     onInput={(e) => {

@@ -3,7 +3,6 @@ import { z } from "zod";
 
 export const routes = {
     health: "/health",
-    page: (handle: string) => `/api/v1/pages/${encodeURIComponent(handle)}`,
     // Neon Auth's endpoints, proxied by the server so its cookies stay on our domain.
     auth: "/api/auth",
     signUp: "/api/auth/sign-up/email",
@@ -26,7 +25,6 @@ export const routes = {
 } as const;
 
 export const healthResponse = z.strictObject({ status: z.literal("ok") });
-export const pageResponse = z.strictObject({ page: pageSchema });
 export const errorResponse = z.strictObject({ error: z.string() });
 
 const handle = z.string().transform(normaliseHandle).pipe(handleSchema);
@@ -50,7 +48,13 @@ export const saveRequest = z.strictObject({ page: pageSchema, updatedAt: z.strin
 export const publishRequest = z.strictObject({ updatedAt: z.string().max(40) });
 export const issuesResponse = z.strictObject({
     error: z.string(),
-    issues: z.array(z.strictObject({ target: z.string(), message: z.string() })),
+    issues: z.array(
+        z.strictObject({
+            target: z.string(),
+            item: z.string().optional(),
+            message: z.string(),
+        }),
+    ),
 });
 export const statsResponse = z.strictObject({ views: z.number(), clicks: z.number() });
 export const photosResponse = z.strictObject({ files: z.array(z.string()) });
@@ -67,7 +71,6 @@ export type HandleResponse = z.infer<typeof handleResponse>;
 export type ClaimRequest = z.infer<typeof claimRequest>;
 export type MeResponse = z.infer<typeof meResponse>;
 export type HealthResponse = z.infer<typeof healthResponse>;
-export type PageResponse = z.infer<typeof pageResponse>;
 export type ErrorResponse = z.infer<typeof errorResponse>;
 
 /** What Neon Auth sends when it refuses something. */

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { blockSchema, defineBlock, editableText, linkValue, safeHref } from "../define-block";
+import { blockSchema, defineBlock, editableText, linkOr, linkValue } from "../define-block";
 import { choice, link, list, source, text } from "../fields";
 import { cardCss, item } from "./parts";
 
@@ -64,12 +64,17 @@ export const posts = defineBlock({
             { id: "b", title: "Choosing a first clay", date: "October 8", url: "" },
         ],
     }),
-    css: `.b-posts a{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.b-posts small{display:block;font-size:13px;color:var(--mut)}.b-posts b{display:block;font:var(--dw,500) 18px/1.25 var(--disp)}.b-posts span{display:block;font-size:14.5px;color:var(--mut);margin-top:2px}.b-posts-c{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.b-posts-c a{display:block;padding:13px;${cardCss};color:var(--cardfg)!important}.b-posts-c small,.b-posts-c span{display:block;font-size:13px;opacity:.72}.b-posts-c b{display:block;margin:3px 0;font:var(--dw,500) 16px/1.2 var(--disp)}`,
+    css: `.b-posts>*{display:block;padding:12px 0;border-bottom:1px solid var(--line)}.b-posts small{display:block;font-size:13px;color:var(--mut)}.b-posts b{display:block;font:var(--dw,500) 18px/1.25 var(--disp)}.b-posts span{display:block;font-size:14.5px;color:var(--mut);margin-top:2px}.b-posts-c{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.b-posts-c>*{display:block;padding:13px;${cardCss};color:var(--cardfg)!important}.b-posts-c small,.b-posts-c span{display:block;font-size:13px;opacity:.72}.b-posts-c b{display:block;margin:3px 0;font:var(--dw,500) 16px/1.2 var(--disp)}`,
     render: (block, ctx) => {
         if (!block.items.length) return "";
         const rows = block.items.map((entry, i) => {
             const at = `items.${String(i)}`;
-            return `<a href="${safeHref(entry.url)}">${editableText(ctx, "small", `${at}.date`, entry.date)}${editableText(ctx, "b", `${at}.title`, entry.title)}${editableText(ctx, "span", `${at}.text`, entry.text)}</a>`;
+            return linkOr(
+                ctx,
+                entry.url,
+                "",
+                `${editableText(ctx, "small", `${at}.date`, entry.date)}${editableText(ctx, "b", `${at}.title`, entry.title)}${editableText(ctx, "span", `${at}.text`, entry.text)}`,
+            );
         });
         return `<div class="${block.variant === "cards" ? "b-posts-c" : "b-posts"}">${rows.join("")}</div>`;
     },

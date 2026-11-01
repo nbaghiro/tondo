@@ -11,6 +11,7 @@ export const file = defineBlock({
         sub: z.string().max(40).optional(),
     }),
     name: "File",
+    held: true,
     group: "media",
     layouts: { card: { label: "Card" } },
     fields: [

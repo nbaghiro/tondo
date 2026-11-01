@@ -7,7 +7,7 @@ import {
     linkValue,
     photoTag,
     photoValue,
-    safeHref,
+    linkOr,
 } from "../define-block";
 import { link, photo, text } from "../fields";
 import { icon } from "../icons";
@@ -65,21 +65,35 @@ export const linkCard = defineBlock({
     render: (block, ctx) => {
         if (!block.title && !block.photo && !ctx.editable) return "";
         const words = `${editableText(ctx, "b", "title", block.title)}${editableText(ctx, "small", "text", block.text)}`;
-        const href = safeHref(block.url);
         if (LARGE.has(block.variant)) {
             const tag = block.tag ? `<em>${escapeHtml(block.tag)}</em>` : "";
             const cta = block.cta
                 ? `<span class="b-btn b-sm">${editableText(ctx, "span", "cta", block.cta)}</span>`
                 : "";
             const layout = block.variant === "large" ? "" : ` b-f-${block.variant}`;
-            return `<a class="b-feature${layout}" href="${href}"><span class="b-fi">${photoTag(ctx, block.photo)}${tag}</span><span class="b-ft">${words}${cta}</span></a>`;
+            return linkOr(
+                ctx,
+                block.url,
+                `b-feature${layout}`,
+                `<span class="b-fi">${photoTag(ctx, block.photo)}${tag}</span><span class="b-ft">${words}${cta}</span>`,
+            );
         }
         if (block.variant === "icon") {
             const reading = readLink(block.url);
             const name = reading.state === "ok" ? reading.icon : "globe";
-            return `<a class="b-thumb" href="${href}"><span class="b-ti b-iconbox">${icon(name)}</span><span>${words}</span></a>`;
+            return linkOr(
+                ctx,
+                block.url,
+                "b-thumb",
+                `<span class="b-ti b-iconbox">${icon(name)}</span><span>${words}</span>`,
+            );
         }
         const lead = block.photo ? `<span class="b-ti">${photoTag(ctx, block.photo)}</span>` : "";
-        return `<a class="b-thumb${lead ? "" : " b-thumb-plain"}" href="${href}">${lead}<span>${words}</span></a>`;
+        return linkOr(
+            ctx,
+            block.url,
+            `b-thumb${lead ? "" : " b-thumb-plain"}`,
+            `${lead}<span>${words}</span>`,
+        );
     },
 });

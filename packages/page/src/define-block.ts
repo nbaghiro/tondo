@@ -92,6 +92,19 @@ export const linkValue = z
 export const safeHref = (url: string | undefined): string =>
     escapeHtml(url === undefined || url === "" ? "#" : url);
 
+/** A link, or plain content when it has nowhere to go. A live page has no links that do nothing. */
+export function linkOr(
+    ctx: RenderContext,
+    url: string | undefined,
+    cls: string,
+    inner: string,
+): string {
+    const attr = cls ? ` class="${cls}"` : "";
+    return url || ctx.editable
+        ? `<a${attr} href="${safeHref(url)}">${inner}</a>`
+        : `<div${attr}>${inner}</div>`;
+}
+
 const shared = {
     hidden: z.boolean().optional(),
     showFrom: z.iso.datetime().optional(),

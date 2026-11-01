@@ -2,40 +2,78 @@ import { allBlocks, blockDefinitions } from "./blocks";
 import { isPlaceholder } from "./define-block";
 import type { Photo } from "./define-block";
 import type { Block } from "./blocks";
+import { liveContent } from "./sample-content";
 import type { Page } from "./schema";
+import { findSection } from "./sections";
 
 export interface PublishIssue {
-    /** The block to open, or "header". */
+    /** The block to open, or "header" or "page". */
     target: string;
+    /** The list item to open, when one item is the problem. */
+    item?: string | undefined;
     message: string;
 }
 
+interface Problem {
+    message: string;
+    item?: string;
+}
+
 const NEEDS_LINK: Partial<Record<Block["type"], string>> = {
-    button: "This button needs a link.",
-    "link-card": "This link card needs a link.",
-    music: "This music block needs a link.",
-    booking: "This booking block needs a link to your booking page.",
-    embed: "This embed needs a link.",
+    button: "needs a link.",
+    "link-card": "needs a link.",
+    music: "needs a link.",
+    booking: "needs a link to your booking page.",
+    embed: "needs a link.",
 };
 
-function blockIssues(block: Block): string[] {
+const quoted = (name: string) => (name ? `"${name}"` : "This item");
+
+function wordsOf(block: Block): string {
+    if (block.type === "button") return block.text;
+    if ("title" in block && typeof block.title === "string") return block.title;
+    return "";
+}
+
+function blockProblems(block: Block): Problem[] {
     const definition = blockDefinitions[block.type];
     if (definition.held || definition.layouts[block.variant]?.held) {
-        return [`${definition.name} isn't available yet, so remove it or pick another layout.`];
+        return [
+            {
+                message: `${definition.name} isn't available yet, so remove it or pick another layout.`,
+            },
+        ];
     }
-    const linkMessage = NEEDS_LINK[block.type];
-    if (linkMessage && "url" in block && !block.url) return [linkMessage];
-    if (block.type === "video" && block.items.some((entry) => !entry.url)) {
-        return ["Every video here needs a link."];
+    const need = NEEDS_LINK[block.type];
+    if (need && "url" in block && !block.url) {
+        return [{ message: `${quoted(wordsOf(block))} ${need}` }];
     }
-    if (block.type === "products" && block.items.some((entry) => !entry.url)) {
-        return ["Every product here needs a link to where it's sold."];
+    if (block.type === "video") {
+        return block.items
+            .filter((entry) => !entry.url)
+            .map((entry) => ({ item: entry.id, message: `${quoted(entry.title)} needs a link.` }));
     }
-    if (block.type === "contact" && block.items.some((entry) => !entry.value)) {
-        return ["Fill in or remove the empty ways to reach you."];
+    if (block.type === "products") {
+        return block.items
+            .filter((entry) => !entry.url)
+            .map((entry) => ({
+                item: entry.id,
+                message: `${quoted(entry.name)} needs a link to where it's sold.`,
+            }));
+    }
+    if (block.type === "contact") {
+        return block.items
+            .filter((entry) => !entry.value)
+            .map((entry) => ({
+                item: entry.id,
+                message: `Fill in or remove the empty ${entry.type} row.`,
+            }));
     }
     return [];
 }
+
+const sectionName = (page: Page, id: string) =>
+    findSection(page, id)?.section.definition.name ?? "This section";
 
 /** What has to be fixed before a page can go live. A draft may be unfinished, and a live page can't. */
 export function publishIssues(page: Page): PublishIssue[] {
@@ -45,18 +83,28 @@ export function publishIssues(page: Page): PublishIssue[] {
     if (links.some((link) => !link.value)) {
         issues.push({
             target: "header",
-            message: "Fill in or remove the empty links in your header.",
+            message: "Top of the page: fill in or remove the empty social icons.",
         });
     }
     if (buttonText && !buttonUrl) {
-        issues.push({ target: "header", message: "Your header's button needs a link." });
+        issues.push({ target: "header", message: "Top of the page: the button needs a link." });
     }
-    const live = allBlocks(page.blocks).filter((block) => !block.hidden);
-    if (!live.some((block) => block.type !== "tabs")) {
-        issues.push({ target: "page", message: "Add at least one block to your page." });
+    const visible = liveContent(page).page;
+    const live = allBlocks(visible.blocks).filter((block) => !block.hidden);
+    if (!live.some((block) => block.type !== "tabs" && block.type !== "heading")) {
+        issues.push({
+            target: "page",
+            message: "Change a section to your own words, so there's something to show.",
+        });
     }
     for (const block of live) {
-        for (const message of blockIssues(block)) issues.push({ target: block.id, message });
+        for (const problem of blockProblems(block)) {
+            issues.push({
+                target: block.id,
+                item: problem.item,
+                message: `${sectionName(page, block.id)}: ${problem.message}`,
+            });
+        }
     }
     return issues;
 }
@@ -74,15 +122,22 @@ export const hasPlaceholder = (block: Block): boolean => photosIn(block).some(is
 
 /** Worth a look, but none of these stop a page going live. */
 export function publishWarnings(page: Page): PublishIssue[] {
-    return allBlocks(page.blocks)
+    const { page: visible, leftOut } = liveContent(page);
+    const paintings = allBlocks(visible.blocks)
         .filter((block) => !block.hidden && block.type !== "tabs" && hasPlaceholder(block))
         .map((block) => ({
             target: block.id,
-            message: "This still shows a painting where your photo could go.",
+            message: `${sectionName(page, block.id)}: still shows a painting where your photo could go.`,
         }));
+    const left = leftOut.map((entry) => ({
+        target: entry.target,
+        item: entry.item,
+        message: `${entry.section}: "${entry.words}" is sample text, so it won't show.`,
+    }));
+    return [...left, ...paintings];
 }
 
 /** The first thing to fix in a block, for showing beside it while editing. */
 export function blockProblem(block: Block): string | null {
-    return blockIssues(block)[0] ?? null;
+    return blockProblems(block)[0]?.message ?? null;
 }

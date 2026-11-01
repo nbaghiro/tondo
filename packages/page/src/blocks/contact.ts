@@ -54,9 +54,10 @@ export const contact = defineBlock({
     }),
     css: `.b-contact-b{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-top:10px}.b-contact-b a{text-align:center;padding:11px 3px;font-size:13px;font-weight:600;${cardCss};color:var(--cardfg)!important}.b-contact-b .ic{margin:0 auto 3px}
 .b-contact{margin-top:10px;${cardCss};padding:2px 14px}.b-contact a{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}.b-contact a:first-child{border:0}.b-contact b{display:block;line-height:1.2}.b-contact small{display:block;font-size:13px;opacity:.72;overflow-wrap:anywhere}.b-contact .ic{flex:none;color:var(--acc)}`,
-    render: (block) => {
-        if (!block.items.length) return "";
-        const rows = block.items.map((entry) => {
+    render: (block, ctx) => {
+        const items = ctx.editable ? block.items : block.items.filter((entry) => entry.value);
+        if (!items.length) return "";
+        const rows = items.map((entry) => {
             const href = safeHref(entry.value);
             const label = LABELS[entry.type];
             if (block.variant === "icons") {

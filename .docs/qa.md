@@ -106,7 +106,7 @@ Nobody has tried any of this on real hardware or in another browser.
 These are expected, so they don't need reporting.
 
 - **Sign-ups, forms, tips, embeds, inline calendars and time slots** render but do nothing, and only appear in the gallery. In the Add list they're marked Soon and can't be chosen.
-- **The `file` block** records a file's name and doesn't store the file, so its download goes nowhere.
+- **The `file` block** shows as coming, and can't be added until files can be delivered.
 - **Music** opens its link and doesn't play. **Maps** are drawings that open directions.
 - **Connected accounts** don't exist, so gallery and video sources are typed in.
 - **Editing before signing up:** the start flow runs after sign-up and verification. Whether someone can build first is a future decision.

@@ -33,9 +33,12 @@ function wordmark(page: Page, ctx: RenderContext): string {
 }
 
 function partsOf(page: Page, ctx: RenderContext): HeaderParts {
+    const shownLinks = ctx.editable
+        ? page.header.links
+        : page.header.links.filter((link) => link.value);
     const look = looks[page.look];
     const theme = themeOf(page);
-    const { name, tagline, bio, photo, links, buttonText, buttonUrl } = page.header;
+    const { name, tagline, bio, photo, buttonText, buttonUrl } = page.header;
     const image = photoTag(ctx, photo);
     return {
         art: paint(theme ? paintFor(theme) : (page.paint ?? look.palette), page.seed ?? look.seed, {
@@ -55,17 +58,18 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
         name: wordmark(page, ctx) || editable(ctx, "h1", "name", name),
         tagline: editable(ctx, "span", "tagline", tagline, "p-tag"),
         bio: editable(ctx, "p", "bio", bio),
-        links: links.length
-            ? `<div class="b-social">${links
+        links: shownLinks.length
+            ? `<div class="b-social">${shownLinks
                   .map(
                       (link) =>
                           `<a href="${safeHref(link.value)}" aria-label="${link.type}">${icon(link.type)}</a>`,
                   )
                   .join("")}</div>`
             : "",
-        button: buttonText
-            ? `<a class="b-btn p-btn" href="${safeHref(buttonUrl)}">${editable(ctx, "span", "buttonText", buttonText)}</a>`
-            : "",
+        button:
+            buttonText && (buttonUrl || ctx.editable)
+                ? `<a class="b-btn p-btn" href="${safeHref(buttonUrl)}">${editable(ctx, "span", "buttonText", buttonText)}</a>`
+                : "",
     };
 }
 
@@ -93,7 +97,9 @@ export function renderHeader(page: Page, ctxIn: RenderContext): string {
     const { layout } = page.header;
     if (layout === "look") {
         const own = look.header ? look.header(parts) : LAYOUTS.centred(parts);
-        return recolourHtml(`<div class="h-own">${own}${parts.button}</div>`, page);
+        // A long name gets more room, since a look's own type is sized for a short one.
+        const long = page.header.name.length > 22 ? " h-long" : "";
+        return recolourHtml(`<div class="h-own${long}">${own}${parts.button}</div>`, page);
     }
     return `<div class="h-${layout}">${LAYOUTS[layout](parts)}${parts.button}</div>`;
 }

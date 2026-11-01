@@ -6,7 +6,7 @@ import {
     linkValue,
     photoTag,
     photoValue,
-    safeHref,
+    linkOr,
 } from "../define-block";
 import { link, list, photo, text } from "../fields";
 import { item } from "./parts";
@@ -61,7 +61,7 @@ export const team = defineBlock({
         ],
     }),
     css: `.b-team{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;text-align:center}.b-team span{display:block;aspect-ratio:1;border-radius:50%;overflow:hidden;margin-bottom:7px;background:var(--line)}.b-team b{display:block;font-size:14.5px;line-height:1.2}.b-team small{font-size:12.5px;color:var(--mut)}
-.b-people a{display:grid;grid-template-columns:76px 1fr auto;gap:13px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.b-people a>span:first-child{display:block;width:76px;height:92px;overflow:hidden;border-radius:calc(var(--r)/2);background:var(--line)}.b-people b{display:block;font:var(--dw,500) 19px/1.15 var(--disp)}.b-people small{display:block;font-size:13.5px;color:var(--mut)}.b-people i{font-style:normal;font-size:13px;font-weight:600;white-space:nowrap}`,
+.b-people>*{display:grid;grid-template-columns:76px 1fr auto;gap:13px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.b-people>*>span:first-child{display:block;width:76px;height:92px;overflow:hidden;border-radius:calc(var(--r)/2);background:var(--line)}.b-people b{display:block;font:var(--dw,500) 19px/1.15 var(--disp)}.b-people small{display:block;font-size:13.5px;color:var(--mut)}.b-people i{font-style:normal;font-size:13px;font-weight:600;white-space:nowrap}`,
     render: (block, ctx) => {
         if (!block.items.length) return "";
         const list = block.variant === "list";
@@ -70,8 +70,13 @@ export const team = defineBlock({
             const words = `${editableText(ctx, "b", `${at}.name`, entry.name)}${editableText(ctx, "small", `${at}.role`, entry.role)}`;
             const picture = `<span>${photoTag(ctx, entry.photo)}</span>`;
             return list
-                ? `<a href="${safeHref(entry.url)}">${picture}<span>${words}</span>${entry.url ? "<i>See page</i>" : ""}</a>`
-                : `<a href="${safeHref(entry.url)}">${picture}${words}</a>`;
+                ? linkOr(
+                      ctx,
+                      entry.url,
+                      "",
+                      `${picture}<span>${words}</span>${entry.url ? "<i>See page</i>" : ""}`,
+                  )
+                : linkOr(ctx, entry.url, "", `${picture}${words}`);
         });
         return `<div class="${list ? "b-people" : "b-team"}">${people.join("")}</div>`;
     },

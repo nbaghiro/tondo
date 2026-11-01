@@ -14,6 +14,7 @@ export {
     photoTag,
     photoValue,
     safeHref,
+    linkOr,
 } from "./define-block";
 export type { BlockDefinition, BlockGroup, Layout, Photo, RenderContext } from "./define-block";
 export type { BlockValues, DateTimeField, Field, ListField, SourceOption } from "./fields";
@@ -77,3 +78,5 @@ export {
 } from "./schema";
 export type { Header, LookName, Page, PageStyle } from "./schema";
 export { isSafeUrl } from "./urls";
+export { liveContent } from "./sample-content";
+export type { LeftOut } from "./sample-content";

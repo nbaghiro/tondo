@@ -104,3 +104,64 @@ test.describe("in the editor", () => {
         await expect(swatch).toHaveAttribute("aria-pressed", "true");
     });
 });
+
+const LONG_NAMES = [
+    "Alexandria Montgomery-Whitfield Studio of Fine Art and Ceramics",
+    "Wolfeschlegelsteinhausenbergerdorff",
+];
+
+test.describe("a long name", () => {
+    for (const look of lookNames) {
+        test(`fits in ${look}`, async ({ page }, info) => {
+            test.skip(info.project.name !== "desktop");
+            await page.route(/fonts\.g/, (route) => route.abort());
+            await page.setViewportSize({ width: 390, height: 844 });
+            for (const name of LONG_NAMES) {
+                await page.setContent(
+                    renderDocument(
+                        {
+                            ...samplePage,
+                            look,
+                            header: { ...samplePage.header, layout: "look", name },
+                        },
+                        { title: "Name", assetBase: "/", editable: false },
+                    ),
+                    { waitUntil: "domcontentloaded" },
+                );
+                const spill = await page.evaluate(() => {
+                    const h1 = document.querySelector("#t-header h1");
+                    if (!h1) return "no name";
+                    const range = document.createRange();
+                    range.selectNodeContents(h1);
+                    const text = range.getBoundingClientRect();
+                    if (text.left < -1 || text.right > innerWidth + 1) return "off the screen";
+                    // A frame around the name has to hold it.
+                    for (
+                        let at = h1.parentElement;
+                        at && at.id !== "t-header";
+                        at = at.parentElement
+                    ) {
+                        const box = at.getBoundingClientRect();
+                        if (
+                            getComputedStyle(at).overflow === "hidden" &&
+                            text.height > box.height + 1
+                        ) {
+                            return `clipped by ${at.className}`;
+                        }
+                        if (
+                            box.width < innerWidth - 2 &&
+                            box.width > 0 &&
+                            (text.right > box.right + 1 ||
+                                text.left < box.left - 1 ||
+                                text.bottom > box.bottom + 1)
+                        ) {
+                            return `spills out of ${at.className}`;
+                        }
+                    }
+                    return null;
+                });
+                expect(spill, `${look}: ${name}`).toBeNull();
+            }
+        });
+    }
+});

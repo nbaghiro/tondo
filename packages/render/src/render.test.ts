@@ -1,4 +1,12 @@
-import { everyLayoutPage, lookNames, samplePage } from "@tondo/page";
+import {
+    everyLayoutPage,
+    lookNames,
+    makeSection,
+    samplePage,
+    sectionAvailable,
+    sectionDefinition,
+    sectionDefinitions,
+} from "@tondo/page";
 import type { LookName, Page } from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import {
@@ -62,7 +70,7 @@ describe("showing blocks", () => {
         type: "button" as const,
         variant: "filled" as const,
         text: "Sale",
-        url: "",
+        url: "https://example.com",
     };
     const body = (block: Page["blocks"][number], editable = false) =>
         renderBody(
@@ -152,10 +160,10 @@ describe.each(Object.entries(looks))("the %s look", (name, look) => {
     });
 
     it("only has rules for things blocks and its header can draw", () => {
-        const html = renderDocument(everyLayoutPage(name as LookName), options).replace(
-            /<style[\s\S]*?<\/style>/g,
-            "",
-        );
+        const html = renderDocument(everyLayoutPage(name as LookName), {
+            ...options,
+            editable: true,
+        }).replace(/<style[\s\S]*?<\/style>/g, "");
         const known = new Set(
             [...html.matchAll(/class="([^"]*)"/g)].flatMap((m) => (m[1] ?? "").split(/\s+/)),
         );
@@ -262,3 +270,81 @@ function lookCssFor(look: Page["look"]): string {
         style: { colour: { mode: "brand", brand: "#ffe100" } },
     });
 }
+
+describe("a live page", () => {
+    const live = (page: Page) =>
+        renderDocument(page, { title: "t", assetBase: "/photos/", editable: false, live: true });
+
+    it("never recolours a person's words or links", () => {
+        const page: Page = {
+            ...samplePage,
+            look: "surf",
+            style: { colour: { mode: "brand", brand: "#0f766e" } },
+            header: {
+                ...samplePage.header,
+                layout: "look",
+                bio: "Pantone #ff0000 or rgb(1,2,3)",
+                links: [{ id: "l", type: "globe", value: "https://x.com/p#abc123" }],
+            },
+        };
+        const html = renderBody(page, { assetBase: "/photos/", editable: false });
+        expect(html).toContain("Pantone #ff0000 or rgb(1,2,3)");
+        expect(html).toContain("https://x.com/p#abc123");
+    });
+
+    it("links a quoted address to the address itself", () => {
+        const page: Page = {
+            ...samplePage,
+            blocks: [
+                { id: "t", type: "text", variant: "plain", text: 'Read "https://a.com/x" now' },
+            ],
+        };
+        expect(live(page)).toContain('href="https://a.com/x"');
+        expect(live(page)).toContain("&quot;");
+    });
+
+    it("has no link that goes nowhere, whatever sections it holds", () => {
+        const body = (blocks: Page["blocks"]) => live({ ...samplePage, blocks });
+        // Every available section, with its words changed so they count as the person's own.
+        const own = (value: unknown): unknown => {
+            if (Array.isArray(value)) return value.map(own);
+            if (typeof value !== "object" || value === null) return value;
+            return Object.fromEntries(
+                Object.entries(value).map(([key, inner]) => [
+                    key,
+                    ["name", "title", "text", "date"].includes(key)
+                        ? `Mine ${String(inner)}`
+                        : own(inner),
+                ]),
+            );
+        };
+        const blocks = sectionDefinitions.filter(sectionAvailable).flatMap((definition) => {
+            let i = 0;
+            return makeSection(definition, () => `${definition.key}${String(i++)}`);
+        });
+        const html = body(own(blocks) as Page["blocks"]);
+        expect(html).toContain("Mine");
+        expect(html).not.toContain('href="#"');
+    });
+
+    it("hides empty tabs and untouched sample sections", () => {
+        const definition = sectionDefinition("proof");
+        if (!definition) throw new Error("No section.");
+        let i = 0;
+        const blocks = makeSection(definition, () => `p${String(i++)}`);
+        const html = live({
+            ...samplePage,
+            blocks: [
+                ...blocks,
+                {
+                    id: "t",
+                    type: "tabs",
+                    variant: "pills",
+                    tabs: [{ id: "a", label: "Shop", blocks: [] }],
+                },
+            ],
+        });
+        expect(html).not.toContain("b-tabs");
+        expect(html).not.toContain("b-quote");
+    });
+});

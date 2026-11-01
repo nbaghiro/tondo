@@ -1,5 +1,5 @@
 import { routes } from "@tondo/contract";
-import type { ErrorResponse, HealthResponse, PageResponse } from "@tondo/contract";
+import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { PageStore } from "@tondo/db";
 import { handleSchema, normaliseHandle } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
@@ -65,11 +65,6 @@ export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) 
     mountPhotos(app, storage ?? null, currentPerson);
     if (photos) app.get("/photos/*", photos);
 
-    app.get(routes.page(":handle").replace("%3A", ":"), async (c) => {
-        const found = await live(c.req.param("handle") ?? "");
-        return found ? c.json<PageResponse>({ page: found.page }) : c.json(notFound, 404);
-    });
-
     // The destination comes from the live page, so this can't be used to send people elsewhere.
     app.get("/l/:handle/:target", async (c) => {
         const found = await live(c.req.param("handle"));
@@ -93,6 +88,7 @@ export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) 
                 title: found.page.header.name,
                 assetBase: "/photos/",
                 editable: false,
+                live: true,
                 trackAs: handle,
             }),
             200,

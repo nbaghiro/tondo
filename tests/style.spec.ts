@@ -104,6 +104,7 @@ test.describe("published pages stay readable", () => {
 test("a style change reaches the published page, with no script", async ({ page }) => {
     const handle = await signUpToEditor(page);
     await addSection(page, "about");
+    await panel(page).locator("textarea").first().fill("My own words about my work.");
     await panel(page).getByRole("button", { name: "Close" }).click();
     await openLook(page);
     await page.getByRole("tab", { name: "Make it yours" }).click();
@@ -133,6 +134,9 @@ test("undo brings back the look's own style", async ({ page }) => {
     await page.getByRole("tab", { name: "Make it yours" }).click();
     await page.getByRole("button", { name: "Plain white" }).click();
     await expect(page.locator(".reset")).toBeVisible();
+    await page.getByRole("button", { name: "Undo" }).click();
+    await expect(page.locator(".reset")).toHaveCount(0);
+    await page.getByRole("button", { name: "Plain white" }).click();
     await page.locator(".reset").click();
     await expect(page.locator(".reset")).toHaveCount(0);
 });

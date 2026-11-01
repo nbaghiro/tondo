@@ -15,14 +15,14 @@ describe.each(blockTypes)("%s", (type) => {
     });
 
     it("draws something", () => {
-        expect(definition.draw(made, published)).not.toBe("");
+        expect(definition.draw(made, editing)).not.toBe("");
     });
 
     it("every layout renders", () => {
         expect(Object.keys(definition.layouts).length).toBeGreaterThan(0);
         for (const variant of Object.keys(definition.layouts)) {
             expect(blockSchemaUnion.safeParse({ ...made, variant }).success).toBe(true);
-            expect(definition.draw({ ...made, variant }, published)).not.toBe("");
+            expect(definition.draw({ ...made, variant }, editing)).not.toBe("");
         }
     });
 

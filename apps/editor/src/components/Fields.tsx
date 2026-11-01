@@ -26,6 +26,8 @@ export interface FieldProps {
 
 // One list for every picker on the screen, so a new upload appears in all of them.
 const [myPhotos, setMyPhotos] = createSignal<string[]>([]);
+/** A list item the publish list asked to see, so its row opens by itself. */
+export const [askedItem, setAskedItem] = createSignal<string | null>(null);
 let photosLoaded = false;
 
 const asText = (value: unknown) => (typeof value === "string" ? value : "");
@@ -626,6 +628,10 @@ function ListInput(props: FieldProps) {
     const items = () =>
         asList<Record<string, unknown> & { id: string }>(props.values()[props.field.key]);
     const [openId, setOpenId] = createSignal<string | null>(null);
+    createEffect(() => {
+        const asked = askedItem();
+        if (asked && items().some((item) => item.id === asked)) setOpenId(asked);
+    });
     const save = (next: unknown[]) => props.set(props.field.key, next);
     let box: HTMLDivElement | undefined;
     const titleOf = (item: Record<string, unknown>) => {

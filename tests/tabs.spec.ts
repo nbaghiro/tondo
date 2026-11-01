@@ -59,6 +59,7 @@ test("a pasted link becomes the right section", async ({ page }) => {
 
 test("preview shows the page as visitors see it, and comes back", async ({ page }) => {
     await addSection(page, "about");
+    await panel(page).locator("textarea").first().fill("My own words about my work.");
     await page.keyboard.press("Escape");
     await openPreview(page);
     const shown = page.frameLocator(".preview iframe");

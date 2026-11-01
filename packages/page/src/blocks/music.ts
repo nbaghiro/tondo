@@ -7,7 +7,7 @@ import {
     linkValue,
     photoTag,
     photoValue,
-    safeHref,
+    linkOr,
 } from "../define-block";
 import { link, list, photo, text } from "../fields";
 import { icon } from "../icons";
@@ -62,14 +62,23 @@ export const music = defineBlock({
         if (!block.title && !ctx.editable) return "";
         const words = `${editableText(ctx, "b", "title", block.title)}${editableText(ctx, "small", "sub", block.sub)}`;
         const cover = `<span class="b-cover">${photoTag(ctx, block.cover)}</span>`;
-        const href = safeHref(block.url);
         if (block.variant === "compact") {
-            return `<a class="b-player b-player-c" href="${href}"><span class="b-pt">${cover}<span class="b-pm">${words}</span><i class="b-mplay">${icon("play")}</i></span></a>`;
+            return linkOr(
+                ctx,
+                block.url,
+                "b-player b-player-c",
+                `<span class="b-pt">${cover}<span class="b-pm">${words}</span><i class="b-mplay">${icon("play")}</i></span>`,
+            );
         }
         const songs = (block.tracks ?? []).map(
             (song) =>
                 `<li><span>${escapeHtml(song.name)}</span><small>${escapeHtml(song.length ?? "")}</small></li>`,
         );
-        return `<a class="b-player" href="${href}"><span class="b-pt">${cover}<span class="b-pm">${words}<span class="b-ctl">${icon("prev")}<i>${icon("play")}</i>${icon("next")}</span></span></span>${songs.length ? `<ol>${songs.join("")}</ol>` : ""}</a>`;
+        return linkOr(
+            ctx,
+            block.url,
+            "b-player",
+            `<span class="b-pt">${cover}<span class="b-pm">${words}<span class="b-ctl">${icon("prev")}<i>${icon("play")}</i>${icon("next")}</span></span></span>${songs.length ? `<ol>${songs.join("")}</ol>` : ""}`,
+        );
     },
 });

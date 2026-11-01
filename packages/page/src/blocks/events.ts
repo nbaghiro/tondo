@@ -5,6 +5,7 @@ import {
     editableText,
     escapeHtml,
     linkValue,
+    linkOr,
     safeHref,
 } from "../define-block";
 import { dateTime, link, list, text } from "../fields";
@@ -106,8 +107,16 @@ export const events = defineBlock({
         const words = ({ entry, i }: typeof first) =>
             `${editableText(ctx, "b", `items.${String(i)}.name`, entry.name)}${editableText(ctx, "small", `items.${String(i)}.place`, entry.place)}`;
         if (block.variant === "next") {
-            const button = cta ? `<span class="b-btn b-sm">${cta}</span>` : "";
-            return `<a class="b-evnext" href="${safeHref(first.entry.url)}">${dateTile(first.entry.at)}<span class="b-et">${words(first)}</span>${button}</a>`;
+            const button =
+                cta && (first.entry.url || ctx.editable)
+                    ? `<span class="b-btn b-sm">${cta}</span>`
+                    : "";
+            return linkOr(
+                ctx,
+                first.entry.url,
+                "b-evnext",
+                `${dateTile(first.entry.at)}<span class="b-et">${words(first)}</span>${button}`,
+            );
         }
         if (block.variant === "schedule") {
             const rows = showing.map(
@@ -116,9 +125,13 @@ export const events = defineBlock({
             );
             return `<div class="b-sched">${rows.join("")}</div>`;
         }
-        const rows = showing.map(
-            (row) =>
-                `<a class="b-ev" href="${safeHref(row.entry.url)}">${dateTile(row.entry.at)}<span class="b-et">${words(row)}</span>${cta ? `<span class="b-chip">${cta}</span>` : ""}</a>`,
+        const rows = showing.map((row) =>
+            linkOr(
+                ctx,
+                row.entry.url,
+                "b-ev",
+                `${dateTile(row.entry.at)}<span class="b-et">${words(row)}</span>${cta && (row.entry.url || ctx.editable) ? `<span class="b-chip">${cta}</span>` : ""}`,
+            ),
         );
         return `<div class="b-events">${rows.join("")}</div>`;
     },

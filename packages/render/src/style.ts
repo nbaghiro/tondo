@@ -278,9 +278,20 @@ export function recolourHtml(html: string, page: Pick<Page, "look" | "style">): 
     const theme = themeOf(page);
     if (!theme) return html;
     const change = recolourer(page.look, theme);
+    // Only colours in the look's own markup. Words and links stay as written, and their quotes are
+    // escaped, so nothing a person typed can look like one of these attributes.
+    const own = /(?<=\s)(style|fill|stroke|stop-color|flood-color|color)="([^"]*)"/g;
     return html
         .split(/(<svg class="tondo"[\s\S]*?<\/svg>)/)
-        .map((part, i) => (i % 2 ? part : recolourText(part, change)))
+        .map((part, i) =>
+            i % 2
+                ? part
+                : part.replace(
+                      own,
+                      (_, name: string, value: string) =>
+                          `${name}="${recolourText(value, change)}"`,
+                  ),
+        )
         .join("");
 }
 

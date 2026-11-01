@@ -25,16 +25,17 @@ test("a draft survives a reload, and stays private until published", async ({ pa
 test("publishing checks the page, then it opens logged out and counts clicks", async ({ page }) => {
     const handle = await signUpToEditor(page);
     await addButton(page);
+    await panel(page).getByRole("textbox", { name: "Button text" }).fill("Shop");
+    await panel(page).getByRole("button", { name: "Close" }).click();
     await page.locator(".publish").click();
-    await expect(page.locator(".pub-issues li").first()).toContainText("needs a link");
+    await expect(page.locator(".pub-issues li").first()).toContainText('"Shop" needs a link');
 
     await page.locator(".pub-issues button").first().click();
-    await panel(page).getByRole("button", { name: "Remove this link" }).last().click();
-    await panel(page).getByRole("button", { name: "Remove this link" }).last().click();
     await panel(page).getByRole("textbox", { name: "Link" }).fill("shop.example.com");
     await panel(page).getByRole("button", { name: "Close" }).click();
     await saved(page);
     await page.locator(".publish").click();
+    await page.getByRole("button", { name: "Publish anyway" }).click();
     await expect(panel(page).locator("h2")).toHaveText("Your page is live");
     await expect(page.locator(".publish")).toHaveText("Published");
     await page.keyboard.press("Escape");
@@ -67,7 +68,7 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
     expect(stats.views).toBeGreaterThanOrEqual(1);
 
     // A later edit stays private until the next publish.
-    await canvas(page).locator("a.b-btn").click();
+    await canvas(page).locator("a.b-btn").first().click();
     await panel(page).getByRole("textbox", { name: "Button text" }).fill("A new label");
     await expect(page.locator(".publish")).toHaveText("Publish");
 });

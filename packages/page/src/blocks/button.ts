@@ -22,7 +22,7 @@ export const button = defineBlock({
     }),
     css: `.b-btn.alt{background:var(--card);color:var(--cardfg)!important;border:var(--line-b,1px solid var(--line))}`,
     render: (block, ctx) =>
-        block.text || ctx.editable
+        ctx.editable || (block.text && block.url)
             ? `<a class="b-btn${block.variant === "outline" ? " alt" : ""}" href="${safeHref(block.url)}">${editableText(ctx, "span", "text", block.text)}</a>`
             : "",
 });

@@ -15,6 +15,17 @@ body,
     height: 100%;
     margin: 0;
 }
+/* Nothing, including the canvas scrolling itself, may move the whole screen. */
+html,
+body {
+    overflow: clip;
+}
+.icon {
+    display: block;
+    flex: none;
+    width: 18px;
+    height: 18px;
+}
 body {
     background: var(--paper);
     color: var(--ink);
@@ -22,7 +33,6 @@ body {
         15.5px/1.45 Mulish,
         sans-serif;
     -webkit-font-smoothing: antialiased;
-    overflow: hidden;
 }
 button,
 input,
@@ -1176,7 +1186,7 @@ small.todo::before {
     font-size: 14px;
     color: var(--soft);
 }
-.ghost-b {
+.drag-ghost {
     position: fixed;
     left: 0;
     top: 0;
@@ -2054,6 +2064,17 @@ small.todo::before {
 }
 .pub p {
     margin: 0 0 12px;
+}
+.pub-back {
+    display: block;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: var(--band);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: left;
 }
 .pub-issues {
     list-style: none;

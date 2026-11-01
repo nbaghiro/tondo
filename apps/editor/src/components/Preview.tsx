@@ -8,6 +8,7 @@ export function Preview(props: { page: Page; onClose: () => void }) {
             title: "Preview",
             assetBase: "/photos/",
             editable: false,
+            live: true,
         }).replace("<head>", '<head><base target="_blank">');
     return (
         <div class="preview" role="dialog" aria-label="Preview of your page">

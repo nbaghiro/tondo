@@ -608,8 +608,10 @@ export function Canvas(props: CanvasProps) {
             const node = d.querySelector(".t-sel");
             const box = node?.getBoundingClientRect();
             if (!node || !box || (box.top >= 0 && box.bottom <= win.innerHeight)) return;
-            node.scrollIntoView({
-                block: box.height > win.innerHeight ? "start" : "center",
+            // Scrolls only this frame. scrollIntoView would also move the screen around it.
+            const offset = box.height > win.innerHeight ? 0 : (win.innerHeight - box.height) / 2;
+            win.scrollBy({
+                top: box.top - offset,
                 behavior: motionOk(win) ? "smooth" : "auto",
             });
         }, SHEET_MS);

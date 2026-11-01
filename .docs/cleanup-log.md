@@ -43,6 +43,7 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Waiting on Naib | Builder port steps 4 and 5: all blocks and all looks | Built, and stopped at the step 5 review |
 | Done | Choose the site's design language | Naib chose Porcelain |
 | Done | Finish the builder port, ready for full QA | Steps 6 to 10. See `qa.md` |
+| Done | Review groups 1 and 2: broken panels, misleading live pages | See `review-2026-10-31.md`. Groups 3 to 5 are still open |
 
 The site changes are in `apps/marketing`.
 | Done | Move the approved builder into the real app | `apps/editor`, `packages/page/src/sections.ts`, `packages/render/src/style.ts`. See `builder-v2-port.md` |
