@@ -13,6 +13,8 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [data-model.md](data-model.md) | How pages and blocks get saved, and why Postgres with JSONB fits |
 | [plans.md](plans.md) | Subscription options with current competitor prices and estimated costs. The owner chose option A on 2026-11-01 |
 | [plans-implementation.md](plans-implementation.md) | M0 to M5 are built, off until `PLANS_ON`, with no Stripe account yet: schema, limits, publish-time payment, Stripe, the mark, tests, what the owner must set up, and milestones. Multiple pages are in multi-page-implementation.md |
+| [multi-page.md](multi-page.md) | The decision on several pages: own address per page (option 2), with the other options, competitors, Home design and working defaults |
+| [multi-page-implementation.md](multi-page-implementation.md) | Plan, not yet built: schema, routes, store, Home's switcher and pencil, builder, photos, tests and milestones, replacing M6 |
 | [inspector-design.md](inspector-design.md) | The original inspector design. `builder-port.md` is what was built |
 | [how-it-works.md](how-it-works.md) | Product surfaces, data model, rendering, art and open decisions |
 | [deploy.md](deploy.md) | How to set up Neon, Neon Auth and Render, and what is needed before it works |
