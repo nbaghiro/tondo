@@ -47,7 +47,7 @@ test.describe("the teams and pricing pages", () => {
         await expect(page.locator("h1")).toContainText("one look for the team");
         await page.locator('.foot a[href="/pricing"]').click();
         await expect(page).toHaveURL(/\/pricing$/);
-        await expect(page.locator("h1")).toHaveText("Everything in Tondo is free today");
+        await expect(page.locator("h1")).toHaveText("Free for now, with paid plans on the way");
     });
 
     test("the nav goes to the pages, and Home links to both", async ({ page }, testInfo) => {
@@ -114,14 +114,18 @@ test.describe("the teams and pricing pages", () => {
         await page.goto("/pricing");
         await expect(page.locator(".r-table thead th")).toHaveText([
             /Free.*\$0.*Available today/,
-            /Pro.*\$6 a month.*Planned/,
-            /Team.*\$4 a person.*Planned/,
+            /Pro.*\$6 a month or \$60 a year.*Planned/,
+            /Team.*\$4 a person, from 3 people.*Planned/,
         ]);
         for (const feature of ["Custom domain", "Shared looks", "Roles and permissions"]) {
             const row = page.locator(".r-table tbody tr", { hasText: feature });
             await expect(row.locator(".r-yes")).toHaveCount(0);
             await expect(row.locator(".st").first()).toHaveText("Coming");
         }
+        await expect(page.locator(".r-table")).not.toContainText("All 50 looks");
+        const looks = page.locator(".r-table tbody tr", { hasText: "Looks" }).first();
+        await expect(looks.locator(".r-value")).toHaveText(["12", "All 50", "All 50"]);
+        await expect(page.locator(".r-hero")).toContainText("can't be bought yet");
     });
 
     for (const path of ["/teams", "/pricing"]) {

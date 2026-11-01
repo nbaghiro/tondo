@@ -71,3 +71,4 @@ The site changes are in `apps/marketing`.
 | Done | Close the left panel into the top bar, with an x instead of an arrow | Replaces the icon rail. A list button in the bar brings the panel back |
 | Done | Smaller gap between undo and redo | `.undo-redo` in `builder.css` |
 | Done | Cleaner way out of Preview | A small x at the top right, and Escape, so the phone sits centred on its own |
+| Done | Say what's decided about plans on the pricing page and Home | `data/plans.ts` holds the table. Free, Pro and Team now show the decided limits, the page says paid plans can't be bought yet and everything that works today stays open until they can. Pages per plan isn't advertised while the owner settles how multiple pages work |

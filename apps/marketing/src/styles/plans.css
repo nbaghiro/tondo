@@ -882,6 +882,11 @@
     align-items: center;
     gap: 8px;
 }
+.r-value {
+    display: block;
+    font-weight: 600;
+}
+
 .r-yes,
 .r-no {
     display: inline-block;

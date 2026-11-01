@@ -7,13 +7,13 @@ const plans = [
         name: "Free",
         price: "$0",
         now: true,
-        features: ["One page and one address", "All 50 looks", "Views and link clicks"],
+        features: ["One page and one address", "12 looks", "7 days of statistics"],
     },
     {
         name: "Pro",
         price: "$6 a month",
         now: false,
-        features: ["Custom domain", "Deeper statistics", "No Tondo branding"],
+        features: ["All 50 looks and your own colour", "Shop, Services and Tabs", "No Tondo mark"],
     },
     {
         name: "Team",
@@ -26,10 +26,10 @@ const plans = [
 
 <section class="band" id="pricing">
     <div class="wrap">
-        <h2>Free today, with paid plans to come</h2>
+        <h2>Free for now, with paid plans on the way</h2>
         <p class="sub">
-            Everything available now is free. Pro and Team aren't built yet, and their prices may
-            change.
+            Paid plans can't be bought yet, so every account can use everything that works today.
+            Free keeps one page and 12 looks once they open.
         </p>
         <div class="plans">
             {plans.map((plan) => (
@@ -48,7 +48,7 @@ const plans = [
             ))}
         </div>
         <a class="pl-more" href="/pricing">
-            See all features and planned prices
+            See every plan and price
         </a>
     </div>
 </section>
