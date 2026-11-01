@@ -11,6 +11,7 @@ export {
 } from "./document";
 export { headerArtChoices, renderHeader } from "./header";
 export { linkId } from "./links";
+export { lookCatalogue } from "./look-catalogue";
 export { looks } from "./looks";
 export {
     contrast,

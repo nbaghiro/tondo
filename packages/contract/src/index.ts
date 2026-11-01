@@ -26,6 +26,11 @@ export const routes = {
     unpublish: "/api/v1/me/page/unpublish",
     stats: "/api/v1/me/stats",
     photos: "/api/v1/me/photos",
+    assistant: "/api/v1/me/assistant",
+    assistantTurn: "/api/v1/me/assistant/turn",
+    assistantImage: "/api/v1/me/assistant/image",
+    assistantPhoto: "/api/v1/me/assistant/photo",
+    assistantDiscard: "/api/v1/me/assistant/discard",
 } as const;
 
 export const healthResponse = z.strictObject({ status: z.literal("ok") });
@@ -87,6 +92,112 @@ export const statsResponse = z.strictObject({
 export const publishCheckResponse = z.strictObject({ issues: issuesResponse.shape.issues });
 export type PublishCheckResponse = z.infer<typeof publishCheckResponse>;
 export const photosResponse = z.strictObject({ files: z.array(z.string()) });
+
+export const assistantStatus = z.strictObject({
+    available: z.boolean(),
+    creditsLeft: z.number(),
+    credits: z.number(),
+    /** The first day of next month, as a date. */
+    resetsOn: z.string(),
+    imageCredits: z.number(),
+    /** False if there's no image model on this server, so nothing offers to make one. */
+    images: z.boolean(),
+});
+
+export const assistantTurn = z.strictObject({
+    page: pageSchema,
+    message: z.string().trim().min(1).max(4000),
+    /** Plain words only. Nothing from a past turn's tools crosses into the next. */
+    history: z
+        .array(
+            z.strictObject({
+                role: z.enum(["user", "model"]),
+                text: z.string().max(4000),
+            }),
+        )
+        .max(20),
+    selected: z.string().max(100).nullable(),
+    timeZone: z.string().max(60).optional(),
+});
+
+const photoChoice = z.strictObject({
+    url: z.url(),
+    /** A small data: image, fetched by the server so a visitor's browser doesn't call the provider. */
+    thumb: z.string().regex(/^data:image\/webp;base64,/),
+    alt: z.string(),
+    credit: z.string(),
+    creditUrl: z.string(),
+    provider: z.string(),
+    providerUrl: z.string(),
+    licence: z.string(),
+});
+export type PhotoChoice = z.infer<typeof photoChoice>;
+
+export const assistantOffer = z.discriminatedUnion("type", [
+    z.strictObject({
+        type: z.literal("choice"),
+        question: z.string(),
+        options: z.array(z.string()),
+    }),
+    z.strictObject({ type: z.literal("publish") }),
+    z.strictObject({
+        type: z.literal("remove"),
+        sections: z.array(z.strictObject({ id: z.string(), name: z.string() })),
+    }),
+    z.strictObject({ type: z.literal("replace"), page: pageSchema }),
+    z.strictObject({
+        type: z.literal("photos"),
+        target: z.string(),
+        choices: z.array(photoChoice),
+    }),
+    z.strictObject({
+        type: z.literal("image"),
+        prompt: z.string(),
+        kind: z.enum(["photo", "logo", "art"]),
+        target: z.string(),
+        count: z.number(),
+        credits: z.number(),
+    }),
+]);
+export type AssistantOffer = z.infer<typeof assistantOffer>;
+
+export const assistantEvent = z.discriminatedUnion("type", [
+    z.strictObject({ type: z.literal("status"), text: z.string() }),
+    z.strictObject({ type: z.literal("page"), page: pageSchema }),
+    z.strictObject({ type: z.literal("offer"), offer: assistantOffer }),
+    z.strictObject({
+        type: z.literal("done"),
+        page: pageSchema,
+        reply: z.string(),
+        changes: z.array(z.string()),
+        creditsLeft: z.number(),
+        /** True when a turn limit ended it early, and what's here is only part of the request. */
+        partial: z.boolean(),
+    }),
+    z.strictObject({
+        type: z.literal("stopped"),
+        reason: z.enum(["refusal", "error"]),
+        message: z.string(),
+    }),
+]);
+export type AssistantEvent = z.infer<typeof assistantEvent>;
+
+export const assistantImageRequest = z.strictObject({
+    prompt: z.string().trim().min(1).max(400),
+    kind: z.enum(["photo", "logo", "art"]),
+    count: z.number().int().min(1).max(3),
+    /** The name at the top of their page, so a logo may use it. */
+    name: z.string().max(80),
+});
+export const assistantImageResponse = z.strictObject({
+    files: z.array(z.string()),
+    creditsLeft: z.number(),
+});
+export const assistantPhotoRequest = z.strictObject({ url: z.url() });
+export const assistantPhotoResponse = z.strictObject({ file: z.string() });
+export const assistantDiscardRequest = z.strictObject({ files: z.array(z.string()).max(3) });
+export type AssistantStatus = z.infer<typeof assistantStatus>;
+export type AssistantTurn = z.infer<typeof assistantTurn>;
 
 export const deleteAccountResponse = z.strictObject({
     photosRemoved: z.boolean(),

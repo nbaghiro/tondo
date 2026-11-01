@@ -86,8 +86,25 @@ export { setupChecklist } from "./checklist";
 export type { ChecklistItem } from "./checklist";
 export { addFromLink } from "./add-link";
 export type { AddedLink, PlaceSection } from "./add-link";
-export { editList } from "./edit-list";
+export { editList, editRows } from "./edit-list";
 export type { ListEdit } from "./edit-list";
 export { tryBlockField, tryHeaderField } from "./explain";
 export type { Tried } from "./explain";
 export { resetStyle, setLook, setPageText, setPaint, setSeed, setStyle } from "./page-settings";
+export { assistantCatalogue } from "./assistant-catalogue";
+export { checkClaim, claimKind, createEvidence } from "./assistant-facts";
+export type { ClaimKind, Evidence } from "./assistant-facts";
+export { createShortIds, digestPage, digestSection, inert } from "./assistant-digest";
+export type { Digest, ShortIds } from "./assistant-digest";
+export {
+    addBuilt,
+    applyTool,
+    isBlankPage,
+    placePhoto,
+    toolDeclarations,
+    toolInputs,
+    toolLevels,
+    toolNames,
+    toolStatus,
+} from "./assistant-tools";
+export type { Offer, ToolContext, ToolDeclaration, ToolName, ToolResult } from "./assistant-tools";
