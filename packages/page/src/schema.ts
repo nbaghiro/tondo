@@ -124,6 +124,15 @@ export type PageStyle = z.output<typeof pageStyleSchema>;
 export const PAGE_VERSION = 2;
 
 /** One page's content. Its address belongs to the user, so it isn't stored here. */
+function isTimeZone(value: string): boolean {
+    try {
+        new Intl.DateTimeFormat("en", { timeZone: value });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 export const pageSchema = z.strictObject({
     version: z.literal(PAGE_VERSION),
     /** What shows in browser tabs and when the link is shared. Leaving this out uses the name. */
@@ -136,7 +145,7 @@ export const pageSchema = z.strictObject({
     seed: z.number().int().min(1).optional(),
     style: pageStyleSchema.optional(),
     /** The owner's time zone, so an event at 10 am is at 10 am where they are. */
-    timeZone: z.string().max(60).optional(),
+    timeZone: z.string().max(60).refine(isTimeZone, "That isn't a time zone.").optional(),
     header: headerSchema,
     blocks: z.array(blockSchemaUnion).max(200),
     /** Blocks that couldn't be read. Kept so nothing is lost, and never shown to visitors. */

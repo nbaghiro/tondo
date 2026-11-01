@@ -57,6 +57,17 @@ const RESERVED = new Set([
     "terms",
     "tondo",
     "verify",
+    "no-reply",
+    "noreply",
+    "postmaster",
+    "sign-in",
+    "sign-up",
+    "log-in",
+    "hostmaster",
+    "mailer-daemon",
+    "do-not-reply",
+    "verified",
+    "team-tondo",
     "webmail",
     "www",
     ...exampleHandles,
@@ -72,6 +83,9 @@ export function isValidHandle(handle: string): boolean {
     return HANDLE.test(handle);
 }
 
+// tondo-help or t0ndo-support could pass for us just as well as the plain name.
+const POSES_AS_US = /^(tondo|t0ndo|tond0|t0nd0)(-|$)/;
+
 export function isReservedHandle(handle: string): boolean {
-    return RESERVED.has(handle);
+    return RESERVED.has(handle) || POSES_AS_US.test(handle);
 }

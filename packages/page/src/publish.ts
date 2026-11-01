@@ -12,6 +12,8 @@ export interface PublishIssue {
     /** The list item to open, when one item is the problem, or a header field's key. */
     item?: string | undefined;
     message: string;
+    /** A link the server refused, so the issue can clear once it's gone from the page. */
+    url?: string | undefined;
 }
 
 interface Problem {
@@ -102,7 +104,9 @@ export function publishIssues(page: Page): PublishIssue[] {
     if (!hasOwnTop && !live.some((block) => block.type !== "heading")) {
         issues.push({
             target: "add",
-            message: "There's nothing to show yet. Add a section, or write a line about yourself.",
+            message: page.unreadable?.length
+                ? "There's nothing to show yet. Part of your page couldn't be read, and it's kept safe, so email support to get it back. You can also add a section."
+                : "There's nothing to show yet. Add a section, or write a line about yourself.",
         });
     }
     for (const block of live) {
@@ -145,7 +149,38 @@ export function publishWarnings(page: Page): PublishIssue[] {
         seen.add(key);
         return [{ target: entry.target, item: entry.item, message }];
     });
-    return [...left, ...paintings];
+    const unreadable = (page.unreadable ?? []).map((block) => ({
+        target: "page",
+        message: `Something couldn't be read and won't show: ${unreadableName(block)}. It's kept safe, so email support to get it back.`,
+    }));
+    return numberRepeats([...unreadable, ...left, ...paintings]);
+}
+
+function unreadableName(raw: unknown): string {
+    const type = (raw as { type?: unknown } | null)?.type;
+    const known =
+        typeof type === "string" && Object.hasOwn(blockDefinitions, type)
+            ? blockDefinitions[type as Block["type"]].name
+            : null;
+    return known ? `a ${known} section` : "a section";
+}
+
+// Two sections of the same kind can have the same problem, so each line has to say which it is.
+function numberRepeats(list: PublishIssue[]): PublishIssue[] {
+    const total = new Map<string, number>();
+    for (const { message } of list) total.set(message, (total.get(message) ?? 0) + 1);
+    const seen = new Map<string, number>();
+    return list.map((issue) => {
+        const of = total.get(issue.message) ?? 1;
+        if (of === 1) return issue;
+        const at = (seen.get(issue.message) ?? 0) + 1;
+        seen.set(issue.message, at);
+        const name = issue.message.indexOf(":");
+        return {
+            ...issue,
+            message: `${issue.message.slice(0, name)} (${String(at)} of ${String(of)})${issue.message.slice(name)}`,
+        };
+    });
 }
 
 /** The first thing to fix in a block, for showing beside it while editing. */

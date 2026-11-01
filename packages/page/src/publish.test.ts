@@ -7,6 +7,11 @@ import { makeSection, sectionAvailable, sectionDefinition, sectionDefinitions } 
 import { starterPage, samplePage } from "./samples";
 
 describe("publishIssues", () => {
+    it("mentions what couldn't be read when there's nothing else on the page", () => {
+        const page = { ...starterPage("June"), unreadable: [{ type: "music" }] };
+        expect(publishIssues(page)[0]?.message).toContain("couldn't be read");
+    });
+
     it("accepts a finished page", () => {
         expect(publishIssues(samplePage)).toEqual([]);
     });

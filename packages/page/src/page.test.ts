@@ -2,9 +2,11 @@ import { PAGE_VERSION } from "./schema";
 import { describe, expect, it } from "vitest";
 import {
     handleSchema,
+    isReservedHandle,
     isSafeUrl,
     normaliseHandle,
     pageSchema,
+    publishWarnings,
     readLink,
     readPage,
     samplePage,
@@ -115,5 +117,37 @@ describe("saved documents", () => {
 
     it("are left alone when they're current", () => {
         expect(upgradePage(samplePage)).toBe(samplePage);
+    });
+});
+
+describe("review fixes", () => {
+    it("refuses a made-up time zone and reads a saved one without losing the page", () => {
+        const good = { ...samplePage, timeZone: "Asia/Tokyo" };
+        expect(pageSchema.safeParse(good).success).toBe(true);
+        const bad = { ...samplePage, timeZone: "Mars/Olympus" };
+        expect(pageSchema.safeParse(bad).success).toBe(false);
+        expect(readPage(bad).timeZone).toBeUndefined();
+        expect(readPage(bad).blocks.length).toBe(samplePage.blocks.length);
+    });
+
+    it("reserves addresses that could pass for Tondo", () => {
+        for (const handle of [
+            "no-reply",
+            "postmaster",
+            "sign-in",
+            "tondo-help",
+            "t0ndo",
+            "tond0-x",
+        ]) {
+            expect(isReservedHandle(handle), handle).toBe(true);
+        }
+        expect(isReservedHandle("tondoki")).toBe(false);
+    });
+
+    it("names what couldn't be read, and tells repeated warnings apart", () => {
+        const unread = { ...samplePage, unreadable: [{ type: "music" }, { type: "music" }] };
+        const messages = publishWarnings(unread).map((issue) => issue.message);
+        expect(messages.some((message) => message.includes("a Music section"))).toBe(true);
+        expect(new Set(messages).size).toBe(messages.length);
     });
 });

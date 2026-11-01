@@ -1,4 +1,8 @@
 import { z } from "zod";
+
+// Zod otherwise tries `new Function` to see if it can compile checks, and the editor's security
+// policy refuses that, which logs a violation on every load.
+z.config({ jitless: true });
 import type { Field } from "./fields";
 import { isSafeUrl } from "./urls";
 

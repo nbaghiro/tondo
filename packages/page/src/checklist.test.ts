@@ -4,6 +4,15 @@ import { readPage } from "./upgrade";
 import { samplePage, starterPage } from "./samples";
 
 describe("setup checklist", () => {
+    it("doesn't tick Publish for a page that was taken down", () => {
+        const done = (suspended: boolean) =>
+            setupChecklist(starterPage("Maya"), { published: true, suspended }).find(
+                (item) => item.id === "publish",
+            )?.done;
+        expect(done(false)).toBe(true);
+        expect(done(true)).toBe(false);
+    });
+
     it("starts mostly undone for a new page, with five items", () => {
         const items = setupChecklist(starterPage("Maya"), { published: false });
         expect(items.map((item) => item.id)).toEqual([

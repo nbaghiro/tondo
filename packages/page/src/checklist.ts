@@ -17,7 +17,10 @@ export interface ChecklistItem {
 }
 
 /** What's left to make a page feel finished, worked out from the page itself. */
-export function setupChecklist(page: Page, status: { published: boolean }): ChecklistItem[] {
+export function setupChecklist(
+    page: Page,
+    status: { published: boolean; suspended?: boolean },
+): ChecklistItem[] {
     const { header } = page;
     const hasOwnPhoto = Boolean(header.photo && !isPlaceholder(header.photo));
     const left = liveContent(page).leftOut[0];
@@ -63,7 +66,7 @@ export function setupChecklist(page: Page, status: { published: boolean }): Chec
             id: "publish",
             label: "Publish your page",
             hint: "Then your address works for everyone",
-            done: status.published,
+            done: status.published && !status.suspended,
             panel: "publish",
         },
     ];
