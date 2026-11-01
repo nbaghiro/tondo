@@ -86,7 +86,11 @@ export const saveRequest = z.strictObject({
     /** Saves whose answers never arrived. If one of them landed, this retry isn't a conflict. */
     previous: z.array(z.string().max(40)).max(20).optional(),
 });
-export const publishRequest = z.strictObject({ updatedAt: stamp });
+export const publishRequest = z.strictObject({
+    updatedAt: stamp,
+    /** Publishes a copy with free choices, and leaves the draft as it is. */
+    free: z.boolean().optional(),
+});
 export const changeHandleRequest = z.strictObject({ handle });
 export const deleteAccountRequest = z.strictObject({ handle });
 export const issuesResponse = z.strictObject({
@@ -97,6 +101,7 @@ export const issuesResponse = z.strictObject({
             item: z.string().optional(),
             message: z.string(),
             url: z.string().optional(),
+            plan: z.string().optional(),
         }),
     ),
 });

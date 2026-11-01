@@ -9,13 +9,14 @@ import type {
     StatsResponse,
 } from "@tondo/contract";
 import type { Draft, PageStore } from "@tondo/db";
-import { pageHash, publishIssues } from "@tondo/page";
-import type { PublishIssue } from "@tondo/page";
+import { pageHash, publishIssues, stepDown } from "@tondo/page";
+import type { Page, PublishIssue } from "@tondo/page";
 import { linkTargets } from "@tondo/render";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
 import { blockedIssues } from "./blocked";
+import { planIssues } from "./limits";
 import type { LimitsOfPerson } from "./limits";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
@@ -89,9 +90,14 @@ export function mountPages(
     });
 
     // What only the server can know. The editor adds these to its own list before anyone presses Publish.
-    const serverIssues = (draft: Draft): PublishIssue[] => [
+    const serverIssues = async (
+        userId: string,
+        draft: Draft,
+        page: Page = draft.page,
+    ): Promise<PublishIssue[]> => [
         ...(draft.suspended ? [{ target: "page", message: SUSPENDED }] : []),
-        ...blockedIssues(draft.page),
+        ...planIssues(page, await limitsOfPerson(userId), await store.findOwnLive(userId)),
+        ...blockedIssues(page),
     ];
 
     app.get(routes.publishCheck, async (c) => {
@@ -99,7 +105,7 @@ export function mountPages(
         if (!person) return fail(c, 401, "You're not logged in.");
         const draft = await store.findDraft(person.id);
         if (!draft) return fail(c, 404, "Choose your address first.");
-        return c.json<PublishCheckResponse>({ issues: serverIssues(draft) });
+        return c.json<PublishCheckResponse>({ issues: await serverIssues(person.id, draft) });
     });
 
     app.post(routes.publish, smallBody, async (c) => {
@@ -111,11 +117,22 @@ export function mountPages(
         if (!parsed.success) return fail(c, 400, "Save your page and try again.");
         const draft = await store.findDraft(person.id);
         if (!draft) return fail(c, 404, "Choose your address first.");
-        const issues = [...serverIssues(draft), ...publishIssues(draft.page)];
+        // The copy goes through every check the draft would, and the draft stays as it is.
+        const free = parsed.data.free
+            ? stepDown(draft.page, {
+                  keepContent: false,
+                  live: await store.findOwnLive(person.id),
+                  keepDesign: (await limitsOfPerson(person.id)).design,
+              })
+            : undefined;
+        const issues = [
+            ...(await serverIssues(person.id, draft, free)),
+            ...publishIssues(free ?? draft.page),
+        ];
         if (issues.length) {
             return c.json<IssuesResponse>({ error: "Fix these before publishing.", issues }, 422);
         }
-        if (!(await store.publish(person.id, parsed.data.updatedAt))) return conflict(c);
+        if (!(await store.publish(person.id, parsed.data.updatedAt, free))) return conflict(c);
         await onPublishChange(person.id);
         return c.body(null, 204);
     });

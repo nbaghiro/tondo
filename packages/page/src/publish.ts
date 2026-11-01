@@ -14,6 +14,8 @@ export interface PublishIssue {
     message: string;
     /** A link the server refused, so the issue can clear once it's gone from the page. */
     url?: string | undefined;
+    /** Set when the problem is only that the plan doesn't cover this. */
+    plan?: string | undefined;
 }
 
 interface Problem {

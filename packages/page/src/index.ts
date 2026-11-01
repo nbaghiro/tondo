@@ -119,3 +119,6 @@ export {
     TEAM_MINIMUM,
 } from "./limits";
 export type { Account, AccountLimits, Limits, Plan } from "./limits";
+export { paidUses } from "./paid-uses";
+export type { PaidCode, PaidUse } from "./paid-uses";
+export { FREE_LOOK_FOR, freeLookFor, stepDown } from "./step-down";

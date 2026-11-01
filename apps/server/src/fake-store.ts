@@ -89,10 +89,10 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             row.updatedAt += 1;
             return Promise.resolve(String(row.updatedAt));
         },
-        publish: (userId, updatedAt) => {
+        publish: (userId, updatedAt, page) => {
             const row = rows.get(userId);
             if (row?.updatedAt !== Number(updatedAt)) return Promise.resolve(false);
-            row.published = row.draft;
+            row.published = page ?? row.draft;
             return Promise.resolve(true);
         },
         count: (pageId, target) => {

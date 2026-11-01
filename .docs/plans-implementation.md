@@ -2,7 +2,7 @@
 
 This plan builds the plan the owner chose in [plans.md](plans.md).
 
-**Status:** M0 and M1 are done. M2 to M5 are being built in order. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
+**Status:** M0 to M2 are done. M3 to M5 are being built in order. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
 
 It was first checked against the working tree and Stripe's docs on 2026-11-01, while other agents were changing `apps/` and `.docs/`, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. I haven't tried any of this against a real Stripe account.
 
@@ -707,6 +707,11 @@ Where the code or a later decision differed from the plan above, this is what wa
 - **`Draft` isn't given the plan.** Routes ask `findPlan` once, through `limitsOfPerson`, so only `LivePage` gains the plan (with the mark).
 - **`/me` also returns `endsAt`,** which Account's private release line and Home's notices need.
 - **`limitsFor` accepts any plan text** and treats one it doesn't know as Free, so a bad value in the database can't break a page.
+- **`paidUses` is given the look's label.** Labels live in `packages/render`, which `packages/page` can't import, so callers pass them in.
+- **A new schedule counts even on a section already live.** The plan exempted any block already live, which would let someone schedule a live section for free. A schedule that's already live, unchanged, stays exempt.
+- **Over 6 sections after a downgrade.** The limit becomes the larger of 6 and what's live now, so a page with 8 live can still swap sections but can't reach 9.
+- **Free choices keep a design the plan still allows.** During the 30 days, `free: true` removes only the content that needs Pro, and leaves the look alone.
+- **The look pairs haven't been checked on screenshots.** Plan M2 asked for it, and it's still to do, listed with QA.
 - **The state of the plan is one signal in the editor,** `state/plan.ts`, set when the account loads, so panels don't pass it down.
 
 ## Decisions still open

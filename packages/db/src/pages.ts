@@ -36,8 +36,8 @@ export interface PageStore {
     findDraft: (userId: string) => Promise<Draft | null>;
     /** Null if someone saved since `updatedAt`. */
     saveDraft: (userId: string, page: Page, updatedAt: string) => Promise<string | null>;
-    /** Null if someone saved since `updatedAt`. Otherwise the draft is live. */
-    publish: (userId: string, updatedAt: string) => Promise<boolean>;
+    /** False if someone saved since `updatedAt`. Otherwise the draft, or the page given, is live. */
+    publish: (userId: string, updatedAt: string, page?: Page) => Promise<boolean>;
     unpublish: (userId: string) => Promise<void>;
     count: (pageId: string, target: string, by?: number) => Promise<void>;
     /** What's live for this person, for naming the links in their numbers. */
@@ -116,10 +116,10 @@ export function createPageStore(db: Db): PageStore {
                 .returning({ updatedAt: stamp });
             return row?.updatedAt ?? null;
         },
-        publish: async (userId, updatedAt) => {
+        publish: async (userId, updatedAt, page) => {
             const rows = await db
                 .update(pages)
-                .set({ published: sql`${pages.draft}` })
+                .set({ published: page ?? sql`${pages.draft}` })
                 .where(and(mainPageOf(userId), isUnchanged(updatedAt)))
                 .returning({ id: pages.id });
             return rows.length > 0;

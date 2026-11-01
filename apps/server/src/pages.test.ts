@@ -1,4 +1,6 @@
+import type { IssuesResponse, StatsResponse } from "@tondo/contract";
 import { pageHash, samplePage, starterPage } from "@tondo/page";
+import type { Page } from "@tondo/page";
 import { linkId } from "@tondo/render";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
@@ -290,5 +292,57 @@ describe("keeping a page under control", () => {
         expect(stats.clicks).toBe(1);
         expect(stats.links).toEqual([]);
         expect(stats.earlierClicks).toBe(1);
+    });
+});
+
+describe("publishing and plans", () => {
+    const bake = (): Page => ({
+        ...starterPage("June"),
+        look: "bake",
+        header: { ...starterPage("June").header, bio: "Hello" },
+    });
+    const setupWith = (page: Page) => {
+        const made = setup();
+        made.pages.setDraft("june", page);
+        const post = (body: unknown) => made.call("june", "POST", "/api/v1/me/page/publish", body);
+        const get = (path: string) => made.call("june", "GET", path);
+        return { ...made, post, get };
+    };
+    const setupPlans = () => {
+        vi.stubEnv("PLANS_ON", "true");
+        return setupWith(bake());
+    };
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it("refuses a paid look on Free, and says it's about the plan", async () => {
+        const { post } = setupPlans();
+        const res = await post({ updatedAt: "1" });
+        expect(res.status).toBe(422);
+        const { issues } = (await res.json()) as IssuesResponse;
+        expect(issues[0]).toMatchObject({
+            plan: "look",
+            message: expect.stringContaining("Bakehouse") as string,
+        });
+    });
+
+    it("publishes free choices as a copy, leaving the draft alone", async () => {
+        const { post, pages } = setupPlans();
+        expect((await post({ updatedAt: "1", free: true })).status).toBe(204);
+        expect((await pages.store.findOwnLive("june"))?.look).toBe("sap");
+        expect((await pages.store.findDraft("june"))?.page.look).toBe("bake");
+    });
+
+    it("lets everything through while plans are off", async () => {
+        const { post } = setupWith(bake());
+        expect((await post({ updatedAt: "1" })).status).toBe(204);
+    });
+
+    it("clamps statistics to the plan, and says which range it used", async () => {
+        const { get } = setupPlans();
+        const body = (await (await get("/api/v1/me/stats?days=90")).json()) as StatsResponse;
+        expect(body.range).toBe(7);
+        expect(body.days).toHaveLength(7);
     });
 });

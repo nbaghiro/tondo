@@ -1,5 +1,6 @@
-import { limitsFor, PLANS } from "@tondo/page";
-import type { Account, AccountLimits } from "@tondo/page";
+import { limitsFor, paidUses, PLANS } from "@tondo/page";
+import type { Account, AccountLimits, Limits, Page, PublishIssue } from "@tondo/page";
+import { looks } from "@tondo/render";
 
 export const plansOn = (): boolean => process.env["PLANS_ON"] === "true";
 
@@ -17,3 +18,11 @@ export const photoLimitMessage = ({ photos }: { photos: number }): string =>
         : `You've used your ${photos.toLocaleString("en")} photos. Remove one to add another.`;
 
 export type LimitsOfPerson = (userId: string) => Promise<AccountLimits>;
+
+/** What a page uses that its owner's plan doesn't cover, marked so the editor can offer a way on. */
+export const planIssues = (page: Page, limits: Limits, live: Page | null): PublishIssue[] =>
+    paidUses(page, limits, live, (look) => looks[look].label).map((use) => ({
+        target: use.target,
+        message: `This page uses ${use.label}, which is part of Pro.`,
+        plan: use.code,
+    }));

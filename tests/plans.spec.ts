@@ -36,3 +36,45 @@ test("Free asks for 7 days of statistics at most", async ({ page }) => {
     expect(answer.range).toBe(7);
     expect(answer.days).toHaveLength(7);
 });
+
+test("the server refuses a Pro look on Free, and can publish free choices instead", async ({
+    page,
+}) => {
+    const handle = await signUpToEditor(page, [], { plan: "free" });
+    await page.evaluate(async () => {
+        const res = await fetch("/api/v1/me/page");
+        const { page: draft, updatedAt } = (await res.json()) as {
+            page: Record<string, unknown> & { header: Record<string, unknown> };
+            updatedAt: string;
+        };
+        await fetch("/api/v1/me/page", {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                page: { ...draft, look: "bake", header: { ...draft.header, bio: "Hello" } },
+                updatedAt,
+            }),
+        });
+    });
+    const publish = (free: boolean) =>
+        page.evaluate(async (asFree) => {
+            const { updatedAt } = (await (await fetch("/api/v1/me/page")).json()) as {
+                updatedAt: string;
+            };
+            const res = await fetch("/api/v1/me/page/publish", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ updatedAt, ...(asFree ? { free: true } : {}) }),
+            });
+            return res.status;
+        }, free);
+    expect(await publish(false)).toBe(422);
+    expect(await publish(true)).toBe(204);
+    const live = await page.request.get(`/${handle}`);
+    expect(await live.text()).toContain('class="look sap"');
+    const draft = await page.evaluate(async () => {
+        const res = await fetch("/api/v1/me/page");
+        return ((await res.json()) as { page: { look: string } }).page.look;
+    });
+    expect(draft).toBe("bake");
+});
