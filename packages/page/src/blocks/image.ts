@@ -4,6 +4,7 @@ import {
     defineBlock,
     editableText,
     linkValue,
+    leavesOut,
     photoTag,
     photoValue,
     safeHref,
@@ -38,7 +39,7 @@ export const image = defineBlock({
     }),
     css: `.b-img{margin:12px 0 0}.b-img>span,.b-img>a{display:block;overflow:hidden}.b-img figcaption{font-size:13.5px;color:var(--mut);margin-top:6px;text-align:center}.b-img-full{margin-inline:-18px}.b-img-full>*:first-child{height:300px}.b-img-framed>*:first-child{height:280px;border:var(--line-b,1px solid var(--line));padding:8px;background:var(--card);border-radius:var(--r)}.b-img-framed img{border-radius:calc(var(--r)/1.5)}.b-img-round>*:first-child{width:230px;height:230px;margin:auto;border-radius:50%}.b-img-arch>*:first-child{width:78%;height:320px;margin:auto;border-radius:200px 200px 14px 14px}`,
     render: (block, ctx) => {
-        if (!block.photo) return "";
+        if (!block.photo || leavesOut(ctx, block.photo)) return "";
         const picture = photoTag(ctx, block.photo, block.alt);
         const frame = block.url
             ? `<a href="${safeHref(block.url)}">${picture}</a>`

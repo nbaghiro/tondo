@@ -494,26 +494,41 @@ export const WORDMARK_FONTS =
     "family=Anton&family=Bagel+Fat+One&family=Pacifico&family=Fraunces:opsz,SOFT,wght@9..144,100,900";
 
 /** A painted stand-in for a photo, in this page's colours. */
-export function placeholderFor(page: Page): (n: number) => string {
+const blend = (from: string, to: string, share: number): string => {
+    const channel = (hex: string, at: number) => Number.parseInt(hex.slice(at, at + 2), 16);
+    const mixed = [1, 3, 5].map((at) =>
+        Math.round(channel(from, at) * (1 - share) + channel(to, at) * share),
+    );
+    return toHex(mixed[0] ?? 0, mixed[1] ?? 0, mixed[2] ?? 0);
+};
+
+/** The quiet tile for a missing photo, and the painting a painted wordmark is filled with. */
+export function photoStandIns(page: Page): {
+    placeholder: (n: number) => string;
+    wordmarkArt: () => string;
+} {
     const look = looks[page.look];
     const theme = themeOf(page);
-    const seen = new Map<number, string>();
-    return (n) => {
-        const known = seen.get(n);
-        if (known) return known;
-        const palette = theme ? paintFor(theme) : (page.paint ?? look.palette);
-        const art = paint(
-            palette.length > 1 ? palette : [palette[0] ?? "#888888", "#b9bfd8"],
-            (page.seed ?? look.seed) + n * 7,
-            {
-                screen: theme ? theme.dark : look.screen,
-            },
-        );
-        const inner = art.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
-        const ground = theme?.vars["--bg"] ?? (look.screen ? "#17151f" : "#fbfaf7");
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><rect width="300" height="300" fill="${ground}"/><svg x="-110" y="-110" width="520" height="520" viewBox="0 0 400 400">${inner}</svg></svg>`;
-        const uri = `data:image/svg+xml,${encodeURIComponent(svg)}`;
-        seen.set(n, uri);
-        return uri;
+    const vars = theme?.vars ?? lookVars(page.look, look);
+    const ground = parseColour(vars["--bg"]) ?? (look.screen ? "#17151f" : "#fbfaf7");
+    const ink = parseColour(vars["--fg"]) ?? (look.screen ? "#ffffff" : "#111111");
+    const tile = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><rect width="300" height="300" fill="${blend(ground, ink, 0.1)}"/><g transform="translate(126 126)" fill="none" stroke="${blend(ground, ink, 0.42)}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="44" height="36" rx="6"/><circle cx="15" cy="18" r="4"/><path d="m3 36 12-11 9 8 8-7 13 11"/></g></svg>`;
+    const uri = `data:image/svg+xml,${encodeURIComponent(tile)}`;
+    let art = "";
+    return {
+        placeholder: () => uri,
+        wordmarkArt: () => {
+            if (art) return art;
+            const palette = theme ? paintFor(theme) : (page.paint ?? look.palette);
+            const painting = paint(
+                palette.length > 1 ? palette : [palette[0] ?? "#888888", "#b9bfd8"],
+                (page.seed ?? look.seed) + 7,
+                { screen: theme ? theme.dark : look.screen },
+            );
+            const inner = painting.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice"><rect width="300" height="300" fill="${theme?.vars["--bg"] ?? (look.screen ? "#17151f" : "#fbfaf7")}"/><svg x="-110" y="-110" width="520" height="520" viewBox="0 0 400 400">${inner}</svg></svg>`;
+            art = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+            return art;
+        },
     };
 }

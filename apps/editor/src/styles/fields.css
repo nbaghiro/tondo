@@ -138,6 +138,33 @@ textarea.in {
 .ph-empty:hover {
     background: var(--band);
 }
+.ph-tile {
+    flex-direction: column;
+    gap: 8px;
+    min-height: 104px;
+    background: var(--band);
+    border: 0;
+}
+.ph-tile:hover {
+    background: #f3eff0;
+}
+.ph-glyph {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: var(--soft);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.ph-wide {
+    grid-template-columns: minmax(0, 1fr);
+}
+.phs-i.empty {
+    display: grid;
+    place-items: center;
+    background: var(--band);
+}
 .pick {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -162,7 +189,54 @@ textarea.in {
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
 }
+.phs-c,
+.ph-crop {
+    position: relative;
+    min-width: 0;
+}
+.ph-x {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: #fff;
+    background: var(--ink);
+    border: 0;
+    border-radius: 50%;
+    opacity: 0;
+    cursor: pointer;
+}
+.ph-x::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+}
+.ph-x svg {
+    width: 13px;
+    height: 13px;
+}
+.phs-c:hover .ph-x,
+.ph-crop:hover .ph-x,
+.phs-i.on + .ph-x,
+.phs-i:focus-visible + .ph-x,
+.ph-img:focus-visible + .ph-x,
+.ph-x:focus-visible {
+    opacity: 1;
+}
+@media (hover: none) {
+    .ph-x {
+        opacity: 1;
+    }
+    .ph-x::before {
+        inset: -11px;
+    }
+}
 .phs-i {
+    width: 100%;
     aspect-ratio: 1;
     padding: 0;
     background-size: cover;

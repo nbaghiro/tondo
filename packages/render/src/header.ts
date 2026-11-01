@@ -1,9 +1,9 @@
-import { escapeHtml, icon, photoTag, safeHref } from "@tondo/page";
+import { escapeHtml, icon, leavesOut, photoTag, safeHref } from "@tondo/page";
 import type { Page, RenderContext } from "@tondo/page";
 import { paint } from "./art";
 import type { HeaderParts } from "./define-look";
 import { looks } from "./looks";
-import { paintFor, placeholderFor, recolourHtml, themeOf } from "./style";
+import { paintFor, photoStandIns, recolourHtml, themeOf } from "./style";
 
 const editable = (
     ctx: RenderContext,
@@ -27,7 +27,7 @@ function wordmark(page: Page, ctx: RenderContext): string {
     const base = { bubble: 56, poster: 62, script: 58, paint: 62, seal: 34 };
     if (!kind) return "";
     const words = escapeHtml(kind === "poster" ? name.toUpperCase() : name);
-    const art = kind === "paint" && ctx.placeholder ? ctx.placeholder(1).replace(/"/g, "%22") : "";
+    const art = kind === "paint" && ctx.wordmarkArt ? ctx.wordmarkArt().replace(/"/g, "%22") : "";
     const backing = art ? `;background-image:url(&quot;${escapeHtml(art)}&quot;)` : "";
     return `<h1 aria-label="${escapeHtml(name)}"><span class="wm wm-${kind}" style="font-size:${String(wordmarkSize(name, base[kind]))}px${backing}">${words}</span></h1>`;
 }
@@ -39,7 +39,7 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
     const look = looks[page.look];
     const theme = themeOf(page);
     const { name, tagline, bio, photo, buttonText, buttonUrl } = page.header;
-    const image = photoTag(ctx, photo);
+    const image = leavesOut(ctx, photo) ? "" : photoTag(ctx, photo);
     return {
         art: paint(theme ? paintFor(theme) : (page.paint ?? look.palette), page.seed ?? look.seed, {
             screen: theme ? theme.dark : look.screen,
@@ -92,7 +92,7 @@ const LAYOUTS = {
 
 export function renderHeader(page: Page, ctxIn: RenderContext): string {
     const look = looks[page.look];
-    const ctx = { ...ctxIn, placeholder: ctxIn.placeholder ?? placeholderFor(page) };
+    const ctx = { ...photoStandIns(page), ...ctxIn };
     const parts = partsOf(page, ctx);
     const { layout } = page.header;
     if (layout === "look") {

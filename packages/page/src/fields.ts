@@ -27,6 +27,8 @@ export interface LinkField extends Common {
 }
 export interface PhotoField extends Common {
     kind: "photo";
+    /** Fine with nothing there, so removing the photo leaves no stand-in. */
+    optional?: boolean;
 }
 export interface PhotoListField extends Common {
     kind: "photoList";

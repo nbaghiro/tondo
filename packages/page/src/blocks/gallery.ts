@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { blockSchema, defineBlock, escapeHtml, photoTag, photoValue } from "../define-block";
+import {
+    blockSchema,
+    defineBlock,
+    escapeHtml,
+    leavesOut,
+    photoTag,
+    photoValue,
+} from "../define-block";
 import { choice, photoList, source } from "../fields";
 
 const STARTER = ["ceramic0", "potter1", "ceramic7", "potter3", "potter0", "book7"];
@@ -54,15 +61,16 @@ export const gallery = defineBlock({
 .b-mos{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:104px;gap:6px;margin-top:10px}.b-mos>span{display:block;overflow:hidden;border-radius:calc(var(--r)/2)}.b-mos>span:nth-child(6n+1){grid-column:span 2;grid-row:span 2}
 .b-car{display:flex;gap:10px;overflow-x:auto;margin:10px -18px 0;padding:0 18px 4px;scrollbar-width:none;scroll-snap-type:x proximity}.b-car>span{flex:0 0 62%;display:block;scroll-snap-align:center}.b-car img{height:210px;border-radius:var(--r)}.b-car small{display:block;font-size:15px;font-weight:600;margin-top:7px}`,
     render: (block, ctx) => {
-        if (!block.photos.length) return "";
+        const photos = block.photos.filter((p) => !leavesOut(ctx, p));
+        if (!photos.length) return "";
         if (block.variant === "carousel") {
-            const cells = block.photos.map(
+            const cells = photos.map(
                 (p) =>
                     `<span>${photoTag(ctx, p)}${p.caption ? `<small>${escapeHtml(p.caption)}</small>` : ""}</span>`,
             );
             return `<div class="b-car">${cells.join("")}</div>`;
         }
-        const cells = block.photos.map((p) => `<span>${photoTag(ctx, p)}</span>`);
+        const cells = photos.map((p) => `<span>${photoTag(ctx, p)}</span>`);
         return `<div class="${block.variant === "mosaic" ? "b-mos" : "b-gal"}">${cells.join("")}</div>`;
     },
 });

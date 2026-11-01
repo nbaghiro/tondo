@@ -20,7 +20,7 @@ export {
     makeTheme,
     paintFor,
     parseColour,
-    placeholderFor,
+    photoStandIns,
     strongColourLooks,
     themeOf,
     toHsl,

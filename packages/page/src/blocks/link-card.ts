@@ -5,6 +5,7 @@ import {
     editableText,
     escapeHtml,
     linkValue,
+    leavesOut,
     photoTag,
     photoValue,
     linkOr,
@@ -75,7 +76,7 @@ export const linkCard = defineBlock({
                 ctx,
                 block.url,
                 `b-feature${layout}`,
-                `<span class="b-fi">${photoTag(ctx, block.photo)}${tag}</span><span class="b-ft">${words}${cta}</span>`,
+                `${leavesOut(ctx, block.photo) ? "" : `<span class="b-fi">${photoTag(ctx, block.photo)}${tag}</span>`}<span class="b-ft">${words}${cta}</span>`,
             );
         }
         if (block.variant === "icon") {
@@ -88,7 +89,10 @@ export const linkCard = defineBlock({
                 `<span class="b-ti b-iconbox">${icon(name)}</span><span>${words}</span>`,
             );
         }
-        const lead = block.photo ? `<span class="b-ti">${photoTag(ctx, block.photo)}</span>` : "";
+        const lead =
+            block.photo && !leavesOut(ctx, block.photo)
+                ? `<span class="b-ti">${photoTag(ctx, block.photo)}</span>`
+                : "";
         return linkOr(
             ctx,
             block.url,

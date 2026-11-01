@@ -4,6 +4,7 @@ import {
     defineBlock,
     editableText,
     escapeHtml,
+    leavesOut,
     photoTag,
     photoValue,
 } from "../define-block";
@@ -25,7 +26,10 @@ export const logos = defineBlock({
             add: "Add a name",
             max: 12,
             hint: "A name works until you have a logo image.",
-            fields: [text("name", "Name", { max: 24 }), photo("logo", "Logo image")],
+            fields: [
+                text("name", "Name", { max: 24 }),
+                photo("logo", "Logo image", { optional: true }),
+            ],
             make: () => ({ name: "New name" }),
         }),
     ],
@@ -44,7 +48,7 @@ export const logos = defineBlock({
         if (!block.items.length) return "";
         const names = block.items.map(
             (entry) =>
-                `<span>${entry.logo ? photoTag(ctx, entry.logo, entry.name) : escapeHtml(entry.name)}</span>`,
+                `<span>${entry.logo && !leavesOut(ctx, entry.logo) ? photoTag(ctx, entry.logo, entry.name) : escapeHtml(entry.name)}</span>`,
         );
         return `<div class="b-logos">${editableText(ctx, "small", "label", block.label)}<div>${names.join("")}</div></div>`;
     },

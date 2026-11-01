@@ -129,7 +129,7 @@ function photosIn(value: unknown): Photo[] {
     return Object.values(value).flatMap(photosIn);
 }
 
-/** Whether a block still shows a painted stand-in where a photo belongs. */
+/** Whether a block still has a stand-in where a photo belongs. */
 export const hasPlaceholder = (block: Block): boolean => photosIn(block).some(isPlaceholder);
 
 /** Worth a look, but none of these stop a page going live. */
@@ -139,7 +139,7 @@ export function publishWarnings(page: Page): PublishIssue[] {
         .filter((block) => !block.hidden && block.type !== "tabs" && hasPlaceholder(block))
         .map((block) => ({
             target: block.id,
-            message: `${sectionName(page, block.id)}: still shows a painting where your photo could go.`,
+            message: `${sectionName(page, block.id)}: has no photo yet. Visitors see a plain tile or no image.`,
         }));
     const seen = new Set<string>();
     const left = leftOut.flatMap((entry) => {

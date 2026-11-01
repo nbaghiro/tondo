@@ -15,7 +15,7 @@ import { looks } from "./looks";
 import {
     fontChoices,
     lookCss,
-    placeholderFor,
+    photoStandIns,
     styleCss,
     WORDMARK_FONTS,
     wordmarkCss,
@@ -62,7 +62,7 @@ function drawTop(blocks: readonly Block[], ctx: RenderContext): string {
 }
 
 export function renderBody(page: Page, ctx: RenderContext, now = new Date()): string {
-    const withNow = { ...ctx, now, timeZone: page.timeZone, placeholder: placeholderFor(page) };
+    const withNow = { ...ctx, now, timeZone: page.timeZone, ...photoStandIns(page) };
     return `<main class="page"><div id="t-header">${renderHeader(page, withNow)}</div><div id="t-blocks">${drawTop(page.blocks, withNow)}</div></main>`;
 }
 
@@ -107,7 +107,7 @@ export function renderDocument(saved: Page, options: DocumentOptions): string {
     const { title, editorCss = "", now, assetBase, editable, trackAs, live, onDrawError } = options;
     const { shareUrl } = options;
     const page = live ? liveContent(saved).page : saved;
-    const ctx = { assetBase, editable, ...(onDrawError ? { onDrawError } : {}) };
+    const ctx = { assetBase, editable, live, ...(onDrawError ? { onDrawError } : {}) };
     const body = renderBody(page, ctx, now);
     const description = page.description
         ? `<meta name="description" content="${escapeHtml(page.description)}">`

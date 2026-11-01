@@ -10,6 +10,8 @@ export type { Block, BlockType, LeafBlock } from "./blocks";
 export {
     escapeHtml,
     isPlaceholder,
+    leavesOut,
+    photoStandIn,
     isShowing,
     photoTag,
     photoValue,

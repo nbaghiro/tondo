@@ -1,4 +1,4 @@
-import { demoPhotos, readLink } from "@tondo/page";
+import { demoPhotos, isPlaceholder, photoStandIn, readLink } from "@tondo/page";
 import type {
     BlockValues,
     DateTimeField,
@@ -301,9 +301,44 @@ const movedTo = (photo: Photo, x: number, y: number): Photo => {
     return { ...rest, ...(x === 50 ? {} : { x }), ...(y === 50 ? {} : { y }) };
 };
 
+/** The same picture the canvas draws for a missing photo. */
+function PhotoGlyph() {
+    return (
+        <svg class="ph-glyph" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="2" y="6" width="44" height="36" rx="6" />
+            <circle cx="15" cy="18" r="4" />
+            <path d="m3 36 12-11 9 8 8-7 13 11" />
+        </svg>
+    );
+}
+
+function RemovePhoto(props: { label: string; onRemove: () => void }) {
+    return (
+        <button
+            type="button"
+            class="ph-x"
+            aria-label={props.label}
+            onClick={() => {
+                props.onRemove();
+            }}
+        >
+            <Icon name="close" />
+        </button>
+    );
+}
+
+const isDelete = (e: KeyboardEvent) => e.key === "Delete" || e.key === "Backspace";
+
 function PhotoInput(props: FieldProps) {
     const [open, setOpen] = createSignal(false);
-    const photo = () => props.values()[props.field.key] as Photo | undefined;
+    const removePhoto = () => {
+        const field = props.field as Extract<Field, { kind: "photo" }>;
+        props.set(field.key, field.optional ? undefined : photoStandIn);
+    };
+    const photo = () => {
+        const value = props.values()[props.field.key] as Photo | undefined;
+        return isPlaceholder(value) ? undefined : value;
+    };
     const pick = (file: string) => {
         props.set(props.field.key, { file });
         setOpen(false);
@@ -314,34 +349,40 @@ function PhotoInput(props: FieldProps) {
             <Show
                 when={photo()}
                 fallback={
-                    <button type="button" class="ph-empty" onClick={() => setOpen((is) => !is)}>
-                        <Icon name="plus" />
+                    <button
+                        type="button"
+                        class="ph-empty ph-tile"
+                        onClick={() => setOpen((is) => !is)}
+                    >
+                        <PhotoGlyph />
                         Add a photo
                     </button>
                 }
             >
                 {(current) => (
                     <div class="ph">
-                        <CropPoint
-                            assets={props.assets}
-                            photo={current()}
-                            onMove={(x, y) => {
-                                props.set(props.field.key, movedTo(current(), x, y));
+                        <div
+                            class="ph-crop"
+                            onKeyDown={(e) => {
+                                if (!isDelete(e)) return;
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removePhoto();
                             }}
-                        />
+                        >
+                            <CropPoint
+                                assets={props.assets}
+                                photo={current()}
+                                onMove={(x, y) => {
+                                    props.set(props.field.key, movedTo(current(), x, y));
+                                }}
+                            />
+                            <RemovePhoto label="Remove photo" onRemove={removePhoto} />
+                        </div>
                         <div class="ph-side">
                             <small>Drag the dot to the part that matters.</small>
                             <button type="button" class="mini" onClick={() => setOpen((is) => !is)}>
                                 Replace
-                            </button>
-                            <button
-                                type="button"
-                                class="mini quiet"
-                                onClick={() => {
-                                    props.set(props.field.key, undefined);
-                                }}
-                            >
-                                Remove
                             </button>
                         </div>
                     </div>
@@ -406,15 +447,42 @@ const moveItem = <T,>(list: readonly T[], from: number, to: number): T[] => {
 
 type ListPhoto = Photo & { id: string; caption?: string };
 
+const openNext = new Map<string, string>();
+
 function PhotoListInput(props: FieldProps) {
     const field = () => props.field as Extract<Field, { kind: "photoList" }>;
     const photos = () => asList<ListPhoto>(props.values()[props.field.key]);
     const [adding, setAdding] = createSignal(false);
     const [openId, setOpenId] = createSignal<string | null>(null);
+    onMount(() => {
+        const next = openNext.get(props.field.key);
+        openNext.delete(props.field.key);
+        if (next) setOpenId(next);
+    });
     const save = (next: ListPhoto[]) => props.set(props.field.key, next);
     const update = (id: string, change: (photo: ListPhoto) => ListPhoto) =>
         save(photos().map((photo) => (photo.id === id ? change(photo) : photo)));
     const opened = () => photos().find((photo) => photo.id === openId());
+    const removeAt = (index: number, refocus: boolean) => {
+        const list = photos();
+        const gone = list[index];
+        if (!gone) return;
+        const left = list.filter((photo) => photo.id !== gone.id);
+        const panel = grid?.closest(".side");
+        // Saving redraws the panel, so the neighbour to open is left for the new list to pick up.
+        if (openId() === gone.id) {
+            const neighbour = left[index] ?? left[index - 1];
+            if (neighbour) openNext.set(props.field.key, neighbour.id);
+            setOpenId(neighbour?.id ?? null);
+        }
+        save(left);
+        if (refocus) {
+            queueMicrotask(() => {
+                const tiles = [...(panel?.querySelectorAll<HTMLElement>(".phs-i") ?? [])];
+                tiles[Math.min(index, left.length - 1)]?.focus();
+            });
+        }
+    };
     let grid: HTMLDivElement | undefined;
     return (
         <div class="fd">
@@ -427,36 +495,81 @@ function PhotoListInput(props: FieldProps) {
             >
                 <For each={photos()}>
                     {(photo, index) => (
-                        <button
-                            type="button"
-                            class="phs-i"
-                            classList={{ on: openId() === photo.id }}
-                            aria-label={`Photo ${String(index() + 1)}. Open to edit, or drag to reorder`}
-                            style={{ "background-image": `url(${props.assets}${photo.file})` }}
-                            onClick={() => setOpenId((id) => (id === photo.id ? null : photo.id))}
-                            onPointerDown={(e) => {
-                                if (grid) {
-                                    startReorder(e, grid, ".phs-i", index(), (to) => {
-                                        save(moveItem(photos(), index(), to));
-                                    });
+                        <div class="phs-c">
+                            <button
+                                type="button"
+                                class="phs-i"
+                                classList={{
+                                    on: openId() === photo.id,
+                                    empty: isPlaceholder(photo),
+                                }}
+                                aria-label={
+                                    isPlaceholder(photo)
+                                        ? `Photo ${String(index() + 1)} is empty. Open to add a photo, or drag to reorder`
+                                        : `Photo ${String(index() + 1)}. Open to edit, or drag to reorder`
                                 }
-                            }}
-                        />
+                                style={
+                                    isPlaceholder(photo)
+                                        ? {}
+                                        : {
+                                              "background-image": `url(${props.assets}${photo.file})`,
+                                          }
+                                }
+                                onClick={() => {
+                                    setAdding(false);
+                                    setOpenId((id) => (id === photo.id ? null : photo.id));
+                                }}
+                                onKeyDown={(e) => {
+                                    if (!isDelete(e)) return;
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    removeAt(index(), true);
+                                }}
+                                onPointerDown={(e) => {
+                                    if (grid) {
+                                        startReorder(e, grid, ".phs-c", index(), (to) => {
+                                            save(moveItem(photos(), index(), to));
+                                        });
+                                    }
+                                }}
+                            >
+                                <Show when={isPlaceholder(photo)}>
+                                    <PhotoGlyph />
+                                </Show>
+                            </button>
+                            <RemovePhoto
+                                label={`Remove photo ${String(index() + 1)}`}
+                                onRemove={() => {
+                                    removeAt(index(), false);
+                                }}
+                            />
+                        </div>
                     )}
                 </For>
-                <Show when={photos().length < field().max}>
+                <Show when={photos().length && photos().length < field().max}>
                     <button
                         type="button"
                         class="phs-add"
                         aria-label="Add photos"
-                        onClick={() => setAdding((is) => !is)}
+                        onClick={() => {
+                            setOpenId(null);
+                            setAdding((is) => !is);
+                        }}
                     >
                         <Icon name="plus" />
                     </button>
                 </Show>
             </div>
-            <Show when={!photos().length && !adding()}>
-                <p class="fd-h">Add a few photos. Six works well in most layouts.</p>
+            <Show when={!photos().length}>
+                <button
+                    type="button"
+                    class="ph-empty ph-tile"
+                    onClick={() => setAdding((is) => !is)}
+                >
+                    <PhotoGlyph />
+                    Add a photo
+                </button>
+                <p class="fd-h">Six works well in most layouts.</p>
             </Show>
             <Show when={adding()}>
                 <PhotoGrid
@@ -469,26 +582,30 @@ function PhotoListInput(props: FieldProps) {
             <Show when={opened()} keyed>
                 {(photo) => (
                     <div class="phs-open">
-                        <div class="ph">
-                            <CropPoint
-                                assets={props.assets}
-                                photo={photo}
-                                onMove={(x, y) => {
-                                    update(photo.id, (p) => movedTo(p, x, y) as ListPhoto);
-                                }}
-                            />
-                            <div class="ph-side">
-                                <small>Drag the dot to the part that matters.</small>
-                                <button
-                                    type="button"
-                                    class="mini quiet"
-                                    onClick={() => {
-                                        save(photos().filter((p) => p.id !== photo.id));
-                                        setOpenId(null);
+                        <div class="ph" classList={{ "ph-wide": isPlaceholder(photo) }}>
+                            <Show
+                                when={!isPlaceholder(photo)}
+                                fallback={
+                                    <PhotoGrid
+                                        assets={props.assets}
+                                        onPick={(file) => {
+                                            update(photo.id, (p) => ({ ...p, file }));
+                                        }}
+                                    />
+                                }
+                            >
+                                <CropPoint
+                                    assets={props.assets}
+                                    photo={photo}
+                                    onMove={(x, y) => {
+                                        update(photo.id, (p) => movedTo(p, x, y) as ListPhoto);
                                     }}
-                                >
-                                    Remove
-                                </button>
+                                />
+                            </Show>
+                            <div class="ph-side">
+                                <Show when={!isPlaceholder(photo)}>
+                                    <small>Drag the dot to the part that matters.</small>
+                                </Show>
                             </div>
                         </div>
                         <input

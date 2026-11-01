@@ -6,7 +6,7 @@ import {
     renderCss,
     renderDocument,
     renderHeader,
-    placeholderFor,
+    photoStandIns,
 } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, untrack } from "solid-js";
 import { GRIP, iconHtml } from "../lib/drawings";
@@ -66,7 +66,7 @@ export function Canvas(props: CanvasProps) {
     const srcdoc = untrack(() =>
         renderDocument(props.editor.page(), { ...CTX, title: "Preview", editorCss: canvasCss }),
     );
-    const ctxFor = (page: Page) => ({ ...CTX, placeholder: placeholderFor(page) });
+    const ctxFor = (page: Page) => ({ ...CTX, ...photoStandIns(page) });
 
     function syncLook(d: Document, page: Page) {
         const styles = d.getElementById("t-styles");

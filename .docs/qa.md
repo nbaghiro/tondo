@@ -88,6 +88,11 @@ In development the marketing site and published pages are on different ports. In
 - [ ] Header layouts in several looks, with and without a photo
 - [ ] A long name in looks with seals and frames, such as Bakehouse, Lume and Rovers. Long names may overflow
 
+## Missing photos
+
+- [ ] A new section with no photo shows a plain tile with a small image icon, in a light and a dark look, and the right panel shows "Add a photo"
+- [ ] Publish with one left. You get a warning and can still publish. Your live page leaves it out of the header, single images, galleries, link cards and logos. Products, team, music and video keep the plain tile
+
 ## Saving
 
 - [ ] Normal saves show nothing in the top bar. Reload, and your work is there. Go offline and make a change: a message appears, and it clears once you reconnect

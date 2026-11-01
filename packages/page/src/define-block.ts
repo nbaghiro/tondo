@@ -16,8 +16,12 @@ export interface RenderContext {
     now?: Date | undefined;
     /** The page owner's time zone, for dates. */
     timeZone?: string | undefined;
-    /** Draws a painted placeholder photo. The renderer fills this in, since it knows the page. */
+    /** Draws what a visitor sees: blocks that can do without a missing photo leave it out. */
+    live?: boolean | undefined;
+    /** Draws the quiet tile for a missing photo. The renderer fills this in, since it knows the page. */
     placeholder?: ((n: number) => string) | undefined;
+    /** The painting inside a painted wordmark. */
+    wordmarkArt?: (() => string) | undefined;
 }
 
 export type BlockGroup = "words" | "actions" | "media" | "selling" | "collecting" | "details";
@@ -76,9 +80,16 @@ export function photoStyle(photo: Photo): string {
 
 const PLACEHOLDER = /^paint-(\d+)$/;
 
-/** A new section's painted stand-in, so an unfilled page already looks designed. */
+/** A new section's stand-in for a photo, drawn as a quiet tile until a real one is added. */
 export const isPlaceholder = (photo: Photo | undefined): boolean =>
     photo !== undefined && PLACEHOLDER.test(photo.file);
+
+/** What a photo field goes back to when its photo is removed. */
+export const photoStandIn: Photo = { file: "paint-1" };
+
+/** Whether this block should drop a missing photo, on a page visitors see. */
+export const leavesOut = (ctx: RenderContext, photo: Photo | undefined): boolean =>
+    Boolean(ctx.live && isPlaceholder(photo));
 
 export function photoTag(ctx: RenderContext, photo: Photo | undefined, alt = ""): string {
     if (!photo) return "";
@@ -86,7 +97,7 @@ export function photoTag(ctx: RenderContext, photo: Photo | undefined, alt = "")
     const painted = PLACEHOLDER.exec(photo.file)?.[1];
     const src =
         painted && ctx.placeholder ? ctx.placeholder(Number(painted)) : ctx.assetBase + photo.file;
-    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"${style ? ` style="${style}"` : ""}>`;
+    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy"${painted && ctx.editable ? ' title="Add a photo"' : ""}${style ? ` style="${style}"` : ""}>`;
 }
 
 /** An empty link is allowed while a page is a draft. Publishing is what requires one. */

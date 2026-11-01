@@ -129,7 +129,7 @@ describe("sections on a page", () => {
         expect(findSection(page, id)?.section.title).toBeUndefined();
     });
 
-    it("says what's left to do, and publishing blocks dead links but only warns on paintings", () => {
+    it("says what's left to do, and publishing blocks dead links but only warns on missing photos", () => {
         let page = addSection(empty, makeSection(definition("spotlight"), makeId), 0);
         page = {
             ...page,

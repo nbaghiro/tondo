@@ -27,7 +27,7 @@ const LINK_TYPES = [
 export const headerFields: readonly Field[] = [
     text("name", "Name", { max: 80, inline: true }),
     text("tagline", "Short line", { max: 120, inline: true }),
-    photo("photo", "Photo"),
+    photo("photo", "Photo", { optional: true }),
     longText("bio", "About", { max: 280, inline: true }),
     list("links", "Social icons", {
         title: "type",

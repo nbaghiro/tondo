@@ -10,6 +10,7 @@ import {
 import type { LookName, Page } from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import {
+    photoStandIns,
     contrast as ratio,
     fontsHref,
     looks,
@@ -241,7 +242,7 @@ describe("a page's own style", () => {
         expect(css).toContain("!important");
     });
 
-    it("draws placeholders as painted images and the wave with no script", () => {
+    it("draws placeholders as quiet tiles and the wave with no script", () => {
         const page: Page = {
             ...samplePage,
             blocks: [
@@ -258,6 +259,7 @@ describe("a page's own style", () => {
         };
         const html = renderDocument(page, { title: "t", assetBase: "/photos/", editable: false });
         expect(html).toContain('src="data:image/svg+xml');
+        expect(html).not.toContain("feTurbulence%22%20");
         expect(html).toContain("<animate");
         expect(html).toContain('class="b-tint"');
     });
@@ -346,5 +348,75 @@ describe("a live page", () => {
         });
         expect(html).not.toContain("b-tabs");
         expect(html).not.toContain("b-quote");
+    });
+});
+
+describe("missing photos", () => {
+    const seeded: Page = {
+        ...samplePage,
+        header: { ...samplePage.header, layout: "centred", photo: { file: "paint-1" } },
+        blocks: [
+            { id: "a", type: "image", variant: "framed", photo: { file: "paint-2" } },
+            {
+                id: "b",
+                type: "gallery",
+                variant: "grid",
+                photos: [
+                    { id: "p", file: "paint-3" },
+                    { id: "q", file: "real.jpg" },
+                ],
+            },
+            {
+                id: "c",
+                type: "link-card",
+                variant: "large",
+                title: "Mine",
+                url: "https://a.example.com",
+                photo: { file: "paint-4" },
+            },
+            {
+                id: "d",
+                type: "team",
+                variant: "circles",
+                items: [
+                    { id: "i", name: "Ana", role: "Owner", url: "", photo: { file: "paint-5" } },
+                ],
+            },
+        ],
+    };
+    const tiles = (html: string) => html.split('src="data:image/svg+xml').length - 1;
+    const draw = (page: Page, editable: boolean, live: boolean) =>
+        renderBody(page, { assetBase: "/photos/", editable, live });
+
+    it("shows a tile for every one while editing, with a hint only there", () => {
+        const html = draw(seeded, true, false);
+        expect(tiles(html)).toBe(5);
+        expect(html).toContain('title="Add a photo"');
+    });
+
+    it("leaves them out of live pages where it can, and keeps the tile where it can't", () => {
+        const html = draw(seeded, false, true);
+        expect(tiles(html)).toBe(1);
+        expect(html).not.toContain('title="Add a photo"');
+        expect(html).not.toContain("b-img");
+        expect(html).not.toContain("b-fi");
+        expect(html).toContain("real.jpg");
+        expect(html).toContain("Mine");
+    });
+
+    it("takes its tint from the look, on light and dark", () => {
+        const decode = (look: Page["look"]) =>
+            decodeURIComponent(photoStandIns({ ...seeded, look }).placeholder(1));
+        const fill = (svg: string) => /fill="(#[0-9a-f]{6})"/.exec(svg)?.[1] ?? "";
+        const level = (hex: string) => Number.parseInt(hex.slice(1, 3), 16);
+        expect(decode("madder")).not.toContain("feTurbulence");
+        expect(level(fill(decode("madder")))).toBeGreaterThan(180);
+        expect(level(fill(decode("noir")))).toBeLessThan(90);
+    });
+
+    it("keeps the painting in a painted wordmark", () => {
+        const page: Page = { ...seeded, header: { ...seeded.header, wordmark: "paint" } };
+        expect(draw(page, false, true)).toContain("wm-paint");
+        expect(draw(page, false, true)).toContain("feTurbulence");
     });
 });

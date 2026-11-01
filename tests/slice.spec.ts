@@ -75,8 +75,10 @@ test("a look with a signature header draws it, and a general layout replaces it"
 test("the gallery edits photos and captions", async ({ page }) => {
     await addSection(page, "photos");
     await expect(canvas(page).locator(".b-gal img")).toHaveCount(6);
-    await panel(page).getByRole("button", { name: "Photo 1." }).click();
-    await panel(page).getByRole("button", { name: "Remove", exact: true }).click();
+    await panel(page)
+        .getByRole("button", { name: /^Photo 1 / })
+        .click();
+    await panel(page).getByRole("button", { name: "Remove photo 1", exact: true }).click();
     await expect(canvas(page).locator(".b-gal img")).toHaveCount(5);
     await panel(page).getByRole("button", { name: "Add photos" }).click();
     await panel(page).getByRole("button", { name: "Use photo man0" }).click();
