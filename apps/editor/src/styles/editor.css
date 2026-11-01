@@ -812,7 +812,7 @@ textarea.in {
     outline: 2px solid var(--madder);
     outline-offset: 1px;
 }
-.lk-sws {
+.sw-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -821,7 +821,7 @@ textarea.in {
     font-weight: 700;
     cursor: pointer;
 }
-.lk-sw {
+.sw {
     position: relative;
     flex: none;
     width: 38px;
