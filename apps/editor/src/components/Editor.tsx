@@ -578,6 +578,10 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 >
                     <AddList
                         editor={editor}
+                        onAddedLink={() => {
+                            setLeft("page");
+                            setSheet("section");
+                        }}
                         onAdd={(key) => {
                             if (!swallowClick) addAt(key);
                         }}

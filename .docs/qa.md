@@ -88,6 +88,10 @@ In development the marketing site and published pages are on different ports. In
 - [ ] Header layouts in several looks, with and without a photo
 - [ ] A long name in looks with seals and frames, such as Bakehouse, Lume and Rovers. Long names may overflow
 
+## Adding sections
+
+- [ ] Add a section has a search box that stays put while the list scrolls. It's focused on a computer and not on a phone. "cv", "newsletter" and a pasted Instagram link all find something, and Enter adds the top result
+
 ## Missing photos
 
 - [ ] A new section with no photo shows a plain tile with a small image icon, in a light and a dark look, and the right panel shows "Add a photo"

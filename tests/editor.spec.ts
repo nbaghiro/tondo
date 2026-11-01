@@ -175,3 +175,54 @@ test("a normal save shows no word in the bar, and still announces it", async ({ 
     const box = await status.boundingBox();
     expect(box?.width ?? 0).toBeLessThanOrEqual(1);
 });
+
+test("the add panel searches by meaning, adds on Enter and keeps its sections in view", async ({
+    page,
+    isMobile,
+}) => {
+    if (isMobile) await page.locator(".tabbar button", { hasText: "Add" }).click();
+    else await page.locator(".add-row").click();
+    const search = page.locator("#add-q");
+    const list = page.locator(".lside [data-add]");
+    if (isMobile) await expect(search).not.toBeFocused();
+    else await expect(search).toBeFocused();
+    const all = await list.count();
+
+    await search.fill("zzzz");
+    await expect(page.locator(".lside .hint-box")).toContainText("Nothing matches");
+    await search.fill("cv");
+    await expect(list.first()).toBeVisible();
+    expect(await list.count()).toBeLessThan(all);
+    await search.fill("newsletter");
+    await expect(list.first()).toBeVisible();
+    await search.fill("");
+    await expect(list).toHaveCount(all);
+    await search.fill("instagram.com/maya");
+    await expect(page.locator(".lside [data-route]")).toBeVisible();
+    await search.fill("about");
+    await search.press("Enter");
+    await expect(canvas(page).locator("#t-blocks > section.t-s")).toHaveCount(1);
+});
+
+test("the add panel's search stays fixed and shows 12 sections at 1080 tall", async ({
+    page,
+}, info) => {
+    desktopOnly(info.project.name);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.locator(".add-row").click();
+    await page.locator("[data-add=links]").waitFor();
+    const shown = await page.evaluate(() => {
+        const body = document.querySelector(".lside .side-body");
+        const box = body?.getBoundingClientRect();
+        if (!body || !box) return 0;
+        body.scrollTop = 120;
+        const stuck = document.querySelector(".add-find")?.getBoundingClientRect().top ?? 0;
+        if (Math.abs(stuck - box.top) > 1) return -1;
+        body.scrollTop = 0;
+        return [...document.querySelectorAll(".lside [data-add]")].filter((node) => {
+            const rect = node.getBoundingClientRect();
+            return rect.top >= box.top && rect.bottom <= box.bottom;
+        }).length;
+    });
+    expect(shown).toBeGreaterThanOrEqual(12);
+});

@@ -2381,3 +2381,26 @@ small.todo::before {
         position: fixed;
     }
 }
+/* Stays put while the list scrolls under it. Takes less height than the hint it replaced. */
+.find.add-find {
+    position: sticky;
+    top: -8px;
+    z-index: 2;
+    margin: -8px -16px 6px;
+    padding: 8px 16px;
+    background: var(--paper);
+}
+.add-find svg,
+.find.add-find .glyph {
+    left: 25px;
+    top: 16px;
+}
+.add-find input {
+    padding: 6px 10px 6px 34px;
+    font-size: 14px;
+}
+@media (max-width: 860px) {
+    .add-find input {
+        font-size: 16px;
+    }
+}

@@ -1,5 +1,4 @@
 import {
-    findSection,
     readLink,
     routeLink,
     sectionAvailable,
@@ -65,36 +64,134 @@ function Pick(props: {
     );
 }
 
+function sectionHits(query: string) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sectionDefinitions.filter((section) =>
+        `${section.name} ${section.why} ${section.words}`.toLowerCase().includes(q),
+    );
+}
+
+function linkRoute(query: string) {
+    const q = query.trim();
+    const reading = /[./@]/.test(q) || /^\+?\d[\d ()-]{5,}$/.test(q) ? readLink(q) : null;
+    return reading?.state === "ok"
+        ? { ...routeLink(reading.url), detail: reading.label, url: reading.url }
+        : null;
+}
+
+function RoutePick(props: {
+    found: NonNullable<ReturnType<typeof linkRoute>>;
+    onAdd: (url: string) => void;
+}) {
+    return (
+        <button
+            type="button"
+            class="add-pick"
+            data-route={props.found.url}
+            onClick={() => {
+                props.onAdd(props.found.url);
+            }}
+        >
+            <span class="tico">
+                <Glyph name={sectionDefinition(props.found.key)?.icon ?? "link"} />
+            </span>
+            <span>
+                <b>{props.found.label}</b>
+                <small>{props.found.detail}</small>
+            </span>
+            <span class="plus">
+                <Glyph name="plus" />
+            </span>
+        </button>
+    );
+}
+
 export function AddList(props: {
     editor: EditorState;
     onAdd: (key: string) => void;
+    onAddedLink: () => void;
     onDrag?: (key: string, name: string, e: PointerEvent) => void;
 }) {
-    const where = () => {
-        const id = props.editor.selected();
-        if (id === HEADER) return "at the top";
-        const found = id ? findSection(props.editor.page(), id) : null;
-        return found ? `below ${found.section.definition.name}` : "at the end";
-    };
+    const [query, setQuery] = createSignal("");
+    const hits = () => sectionHits(query());
+    const route = () => linkRoute(query());
     const main = sectionDefinitions.filter((section) => !section.less);
     const less = sectionDefinitions.filter((section) => section.less);
+    const addLink = (url: string) => {
+        if (props.editor.addFromLink(url)) props.onAddedLink();
+    };
     return (
         <>
-            <p class="where">
-                Tap to add it {where()}
-                <span class="wide-only">, or drag it to the spot you want on your page</span>.
-            </p>
-            <For each={main}>
-                {(definition) => (
-                    <Pick definition={definition} onAdd={props.onAdd} onDrag={props.onDrag} />
-                )}
-            </For>
-            <div class="grp">Less common</div>
-            <For each={less}>
-                {(definition) => (
-                    <Pick definition={definition} onAdd={props.onAdd} onDrag={props.onDrag} />
-                )}
-            </For>
+            <div class="find add-find">
+                <Glyph name="search" />
+                <input
+                    id="add-q"
+                    placeholder="Search sections, or paste a link"
+                    aria-label="Search sections, or paste a link"
+                    autocomplete="off"
+                    ref={(input) => {
+                        // A phone's keyboard would cover the list it's there to choose from.
+                        if (window.matchMedia("(min-width: 861px)").matches) {
+                            queueMicrotask(() => {
+                                input.focus();
+                            });
+                        }
+                    }}
+                    value={query()}
+                    onInput={(e) => setQuery(e.currentTarget.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Escape" && query()) {
+                            e.stopPropagation();
+                            setQuery("");
+                        }
+                        if (e.key === "Enter") {
+                            const found = route();
+                            const first = hits().find(sectionAvailable);
+                            if (found) addLink(found.url);
+                            else if (first) props.onAdd(first.key);
+                        }
+                    }}
+                />
+            </div>
+            <Show
+                when={query().trim()}
+                fallback={
+                    <>
+                        <For each={main}>
+                            {(definition) => (
+                                <Pick
+                                    definition={definition}
+                                    onAdd={props.onAdd}
+                                    onDrag={props.onDrag}
+                                />
+                            )}
+                        </For>
+                        <div class="grp">Less common</div>
+                        <For each={less}>
+                            {(definition) => (
+                                <Pick
+                                    definition={definition}
+                                    onAdd={props.onAdd}
+                                    onDrag={props.onDrag}
+                                />
+                            )}
+                        </For>
+                    </>
+                }
+            >
+                <Show when={route()}>
+                    {(found) => <RoutePick found={found()} onAdd={addLink} />}
+                </Show>
+                <For each={hits()}>
+                    {(definition) => (
+                        <Pick definition={definition} onAdd={props.onAdd} onDrag={props.onDrag} />
+                    )}
+                </For>
+                <Show when={!route() && !hits().length}>
+                    <p class="hint-box">Nothing matches that. Try another word, or paste a link.</p>
+                </Show>
+            </Show>
         </>
     );
 }
@@ -207,21 +304,8 @@ export function PagePanel(props: {
         return rest;
     };
     const look = () => looks[props.editor.page().look];
-    const hits = () => {
-        const q = query().trim().toLowerCase();
-        if (!q) return [];
-        return sectionDefinitions.filter((section) =>
-            `${section.name} ${section.why} ${section.words}`.toLowerCase().includes(q),
-        );
-    };
-    const reading = () => {
-        const q = query().trim();
-        return /[./@]/.test(q) || /^\+?\d[\d ()-]{5,}$/.test(q) ? readLink(q) : null;
-    };
-    const route = () => {
-        const r = reading();
-        return r?.state === "ok" ? { ...routeLink(r.url), detail: r.label, url: r.url } : null;
-    };
+    const hits = () => sectionHits(query());
+    const route = () => linkRoute(query());
     const addFromLink = (url: string) => {
         if (props.editor.addFromLink(url)) {
             setQuery("");
@@ -367,27 +451,7 @@ export function PagePanel(props: {
                 }
             >
                 <Show when={route()}>
-                    {(found) => (
-                        <button
-                            type="button"
-                            class="add-pick"
-                            data-route={found().url}
-                            onClick={() => {
-                                addFromLink(found().url);
-                            }}
-                        >
-                            <span class="tico">
-                                <Glyph name={sectionDefinition(found().key)?.icon ?? "link"} />
-                            </span>
-                            <span>
-                                <b>{found().label}</b>
-                                <small>{found().detail}</small>
-                            </span>
-                            <span class="plus">
-                                <Glyph name="plus" />
-                            </span>
-                        </button>
-                    )}
+                    {(found) => <RoutePick found={found()} onAdd={addFromLink} />}
                 </Show>
                 <For each={hits()}>
                     {(definition) => <Pick definition={definition} onAdd={add} />}
