@@ -29,6 +29,7 @@
         "test:watch": "vitest",
         "e2e": "playwright test",
         "examples:images": "tsx scripts/build-example-images.ts",
+        "looks:images": "tsx scripts/build-look-tiles.ts",
         "check:boundaries": "tsx scripts/check-boundaries.ts",
         "check:suppressions": "tsx scripts/check-suppressions.ts",
         "check:ports": "tsx scripts/check-ports.ts",
