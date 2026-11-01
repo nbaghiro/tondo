@@ -10,7 +10,7 @@ const PASCAL = /^[A-Z][A-Za-z0-9]*(\.test)?\.(tsx|astro)$/;
 const LOWER = /^[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9]+)*$/;
 // Astro names a route with a parameter this way.
 const ROUTE_PARAM = /^\[[a-z]+\]\.astro$/;
-const SKIP = new Set(["node_modules", "dist", "migrations"]);
+const SKIP = new Set(["node_modules", "dist", "migrations", "test-results"]);
 const ROOT_EXCEPTIONS = new Set(["README.md", "AGENTS.md"]);
 
 function check(root: string, dir: string, errors: string[]): void {

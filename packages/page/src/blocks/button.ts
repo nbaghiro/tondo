@@ -20,7 +20,7 @@ export const button = defineBlock({
         url: "",
         text: "Visit my shop",
     }),
-    css: `.b-btn{display:block;text-align:center;font-weight:600;padding:14px 18px;margin-top:10px;background:var(--btn);color:var(--btnfg)!important;border-radius:var(--rb);border:var(--bb,0)}.b-btn.alt{background:var(--card);color:var(--cardfg)!important;border:var(--line-b,1px solid var(--line))}`,
+    css: `.b-btn.alt{background:var(--card);color:var(--cardfg)!important;border:var(--line-b,1px solid var(--line))}`,
     render: (block, ctx) =>
         block.text || ctx.editable
             ? `<a class="b-btn${block.variant === "outline" ? " alt" : ""}" href="${safeHref(block.url)}">${editableText(ctx, "span", "text", block.text)}</a>`

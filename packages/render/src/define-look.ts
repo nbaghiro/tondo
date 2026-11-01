@@ -4,6 +4,8 @@ export interface HeaderParts {
     image: string;
     /** The photo in a round frame. */
     avatar: string;
+    /** Up to two letters from the name, for seals and crests. */
+    initials: string;
     name: string;
     tagline: string;
     bio: string;
@@ -30,3 +32,6 @@ export interface Look {
 export function defineLook(look: Look): Look {
     return look;
 }
+
+/** The person's photo, or the page's painting until they've added one. */
+export const picture = (p: HeaderParts): string => p.image || p.art;

@@ -108,7 +108,12 @@ export function createEditor(account: { handle: string; name: string }) {
             return next !== current || value === getField(current, target, key);
         },
         setLook(look: LookName) {
-            change({ ...page(), look });
+            const { paint: _paint, seed: _seed, ...rest } = page();
+            change({ ...rest, look });
+        },
+        setPaint(palette: readonly string[] | undefined) {
+            const { paint: _paint, ...rest } = page();
+            change(palette ? { ...rest, paint: [...palette] } : rest);
         },
         repaint() {
             change({ ...page(), seed: 1 + Math.floor(Math.random() * 998) });

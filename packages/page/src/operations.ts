@@ -120,12 +120,35 @@ function withValue(owner: object, key: string, value: unknown): [object, object]
     return [without, { ...owner, [key]: value }];
 }
 
+// A key like "items.0.title" reaches inside a list, for text edited in place on the canvas.
+function withPath(owner: Record<string, unknown>, path: string[], value: unknown): unknown {
+    const [head = "", ...rest] = path;
+    if (!rest.length) return { ...owner, [head]: value };
+    const inner = owner[head];
+    if (Array.isArray(inner)) {
+        const index = Number(rest[0]);
+        return {
+            ...owner,
+            [head]: inner.map((entry: Record<string, unknown>, i) =>
+                i === index ? withPath(entry, rest.slice(1), value) : entry,
+            ),
+        };
+    }
+    return owner;
+}
+
 function parseWith<T extends object>(
     owner: T,
     key: string,
     value: unknown,
     parse: (candidate: object) => { success: boolean; data?: T },
 ): T | null {
+    if (key.includes(".")) {
+        const nested = parse(
+            withPath(owner as Record<string, unknown>, key.split("."), value) as object,
+        );
+        return nested.success && nested.data ? nested.data : null;
+    }
     const [without, withIt] = withValue(owner, key, value);
     if (value === "" || value === undefined || value === false) {
         const left = parse(without);
@@ -162,7 +185,11 @@ export function ownerOf(page: Page, target: string): Header | Block | null {
 
 export function getField(page: Page, target: string, key: string): unknown {
     const owner = ownerOf(page, target);
-    return owner ? Object.entries(owner).find(([name]) => name === key)?.[1] : undefined;
+    if (!owner) return undefined;
+    return key.split(".").reduce<unknown>((value, part) => {
+        if (value === null || typeof value !== "object") return undefined;
+        return Object.entries(value).find(([name]) => name === part)?.[1];
+    }, owner);
 }
 
 /** How many highlights a page may have. More than this and nothing stands out. */

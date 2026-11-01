@@ -1,5 +1,18 @@
 import { isSafeUrl } from "./urls";
 
+export const linkTypes = [
+    "instagram",
+    "tiktok",
+    "youtube",
+    "spotify",
+    "apple",
+    "globe",
+    "mail",
+    "phone",
+    "chat",
+    "pin",
+] as const;
+
 // What a pasted link says about itself, so nobody has to choose an action, a service or an icon.
 const SERVICES: readonly (readonly [RegExp, string, string])[] = [
     [/(^|\.)instagram\.com/i, "Instagram", "instagram"],

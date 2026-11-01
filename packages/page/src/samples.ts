@@ -1,3 +1,5 @@
+import { blockDefinitions, blockTypes } from "./blocks";
+import type { Block } from "./blocks";
 import type { Page } from "./schema";
 
 // Fictional, used for seed data and previews.
@@ -73,4 +75,30 @@ export function starterPage(name: string): Page {
         header: { layout: "look", name, links: [] },
         blocks: [],
     };
+}
+
+/** A page holding every layout of every block, for tests and the block gallery. */
+export function everyLayoutPage(look: Page["look"] = "madder"): Page {
+    const blocks = blockTypes
+        .filter((type) => type !== "tabs")
+        .flatMap((type) =>
+            Object.keys(blockDefinitions[type].layouts).map(
+                (variant) =>
+                    ({
+                        ...blockDefinitions[type].make(),
+                        id: `${type}-${variant}`,
+                        variant,
+                    }) as Block,
+            ),
+        );
+    const tabs: Block = {
+        id: "tabs-pills",
+        type: "tabs",
+        variant: "pills",
+        tabs: [
+            { id: "one", label: "Shop", blocks: [] },
+            { id: "two", label: "About", blocks: [] },
+        ],
+    };
+    return { ...samplePage, look, blocks: [...blocks, tabs] };
 }

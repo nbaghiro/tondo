@@ -44,6 +44,40 @@ describe.each(blockTypes)("%s", (type) => {
         expect(html).not.toContain("<script>");
     });
 
+    it("escapes text inside lists too", () => {
+        const fill = (value: unknown): unknown => {
+            if (Array.isArray(value)) return value.map(fill);
+            if (value && typeof value === "object") {
+                return Object.fromEntries(
+                    Object.entries(value).map(([key, inner]) => [
+                        key,
+                        /^(id|type|variant|kind|file|at|url|value|source)$/.test(key)
+                            ? inner
+                            : fill(inner),
+                    ]),
+                );
+            }
+            return typeof value === "string" ? "<xss>" : value;
+        };
+        for (const variant of Object.keys(definition.layouts)) {
+            const html = definition.draw(fill({ ...made, variant }), published);
+            expect(html).not.toContain("<xss>");
+        }
+    });
+
+    it("leaves nothing behind when its text is empty, and doesn't fail", () => {
+        const blank = (value: unknown): unknown => {
+            return Array.isArray(value) && type !== "tabs" ? [] : value;
+        };
+        const emptied = Object.fromEntries(
+            Object.entries(made).map(([key, value]) => [key, blank(value)]),
+        );
+        for (const variant of Object.keys(definition.layouts)) {
+            expect(() => definition.draw({ ...emptied, variant }, published)).not.toThrow();
+            expect(() => definition.draw({ ...emptied, variant }, editing)).not.toThrow();
+        }
+    });
+
     it("rejects a javascript: link on any link field", () => {
         for (const field of definition.fields.filter((f) => f.kind === "link")) {
             const bad = { ...made, [field.key]: "javascript:alert(1)" };

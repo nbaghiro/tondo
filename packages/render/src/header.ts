@@ -28,6 +28,14 @@ function partsOf(page: Page, ctx: RenderContext): HeaderParts {
         }),
         image,
         avatar: image ? `<span class="p-av">${image}</span>` : "",
+        initials: escapeHtml(
+            name
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((word) => word.charAt(0).toUpperCase())
+                .join(""),
+        ),
         name: editable(ctx, "h1", "name", name),
         tagline: editable(ctx, "span", "tagline", tagline, "p-tag"),
         bio: editable(ctx, "p", "bio", bio),
@@ -67,8 +75,8 @@ export function renderHeader(page: Page, ctx: RenderContext): string {
     const parts = partsOf(page, ctx);
     const { layout } = page.header;
     if (layout === "look") {
-        const own = look.header ? look.header(parts) : `${LAYOUTS.centred(parts)}${parts.button}`;
-        return `<div class="h-own">${own}</div>`;
+        const own = look.header ? look.header(parts) : LAYOUTS.centred(parts);
+        return `<div class="h-own">${own}${parts.button}</div>`;
     }
     return `<div class="h-${layout}">${LAYOUTS[layout](parts)}${parts.button}</div>`;
 }

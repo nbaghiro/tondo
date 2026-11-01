@@ -41,6 +41,8 @@ export interface ChoiceField extends Common {
 }
 export interface DateTimeField extends Common {
     kind: "dateTime";
+    /** Saved as a time on the person's own clock, rather than an exact instant. */
+    local?: boolean;
 }
 export interface ListField extends Common {
     kind: "list";
@@ -122,6 +124,27 @@ export const list = (key: string, label: string, extras: Extras<ListField>): Lis
 });
 export const source = (key: string, label: string, extras: Extras<SourceField>): SourceField => ({
     kind: "source",
+    key,
+    label,
+    ...extras,
+});
+export const toggle = (
+    key: string,
+    label: string,
+    extras: Extras<ToggleField> = {},
+): ToggleField => ({
+    kind: "toggle",
+    key,
+    label,
+    ...extras,
+});
+export const dateTime = (
+    key: string,
+    label: string,
+    extras: Extras<DateTimeField> = {},
+): DateTimeField => ({ kind: "dateTime", key, label, ...extras });
+export const file = (key: string, label: string, extras: Extras<FileField> = {}): FileField => ({
+    kind: "file",
     key,
     label,
     ...extras,

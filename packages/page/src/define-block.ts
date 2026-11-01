@@ -60,10 +60,10 @@ export function photoStyle(photo: Photo): string {
     return rules.join(";");
 }
 
-export function photoTag(ctx: RenderContext, photo: Photo | undefined): string {
+export function photoTag(ctx: RenderContext, photo: Photo | undefined, alt = ""): string {
     if (!photo) return "";
     const style = photoStyle(photo);
-    return `<img src="${escapeHtml(ctx.assetBase + photo.file)}" alt="" loading="lazy"${style ? ` style="${style}"` : ""}>`;
+    return `<img src="${escapeHtml(ctx.assetBase + photo.file)}" alt="${escapeHtml(alt)}" loading="lazy"${style ? ` style="${style}"` : ""}>`;
 }
 
 /** An empty link is allowed while a page is a draft. Publishing is what requires one. */

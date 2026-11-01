@@ -125,10 +125,25 @@ export function Canvas(props: CanvasProps) {
         node?.classList.add("t-selected");
     }
 
+    // Changing the look or its painting opens up from the middle, like paint spreading.
+    let drawnLook = "";
+    const lookKey = (page: Page) =>
+        [page.look, page.seed ?? "", page.paint?.join() ?? ""].join("|");
+
     function sync(d: Document) {
         const page = props.editor.page();
-        syncLook(d, page);
-        syncHeader(d, page);
+        const apply = () => {
+            syncLook(d, page);
+            syncHeader(d, page);
+        };
+        const key = lookKey(page);
+        const reveal =
+            drawnLook !== "" &&
+            drawnLook !== key &&
+            !matchMedia("(prefers-reduced-motion: reduce)").matches;
+        drawnLook = key;
+        if (reveal && "startViewTransition" in d) d.startViewTransition(apply);
+        else apply();
         syncBlocks(d, page);
         syncSelection(d, props.editor.selected());
         props.onLayout();

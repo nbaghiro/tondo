@@ -231,11 +231,15 @@ This replaces the old order, where blocks came before the inspector, because the
 
 ### 4. All blocks
 
+Done on 2026-10-31. Every layout renders in `tests/blocks.spec.ts`, and `http://localhost:8100/?blocks` shows them all in any look, in development. Fixed drawings for example pages, such as Juno's prints, are left for step 9.
+
 The remaining 24, in groups: words and actions, media, selling, details, then held ones. They follow the slice's pattern, so this can run in parallel agents. A shared test covers every block: escaping, unsafe links, empty fields, overflow at phone width, and every layout rendering.
 
 Finished when a test gallery shows all 66 layouts.
 
 ### 5. All looks: **Review**
+
+Built on 2026-10-31 and waiting for review. Where a look's example used a fixed picture, its header uses the person's photo, or the page's painting until they add one.
 
 - All 50 looks, with fonts and signature headers. Headers draw only from the header's fields, and fixed details like Tally's prices move into blocks.
 - Automatic checks for text contrast in each look and that its selectors match.

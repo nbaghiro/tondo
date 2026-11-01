@@ -1,5 +1,12 @@
 import { demoPhotos, readLink } from "@tondo/page";
-import type { BlockValues, Field, ListField, Photo, SourceOption } from "@tondo/page";
+import type {
+    BlockValues,
+    DateTimeField,
+    Field,
+    ListField,
+    Photo,
+    SourceOption,
+} from "@tondo/page";
 import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import { Icon } from "./Icon";
 
@@ -533,9 +540,17 @@ function DateTimeInput(props: FieldProps) {
                 class="in"
                 type="datetime-local"
                 aria-label={props.field.label}
-                value={toLocalInput(asText(props.values()[props.field.key]))}
+                value={
+                    (props.field as DateTimeField).local
+                        ? asText(props.values()[props.field.key])
+                        : toLocalInput(asText(props.values()[props.field.key]))
+                }
                 onChange={(e) => {
                     const local = e.currentTarget.value;
+                    if ((props.field as DateTimeField).local) {
+                        props.set(props.field.key, local || undefined);
+                        return;
+                    }
                     props.set(props.field.key, local ? new Date(local).toISOString() : undefined);
                 }}
             />
@@ -561,6 +576,9 @@ function ListInput(props: FieldProps) {
     return (
         <div class="fd">
             <Label text={props.field.label} />
+            <Show when={props.field.hint}>
+                <p class="fd-h">{props.field.hint}</p>
+            </Show>
             <div
                 class="ls"
                 ref={(el) => {
@@ -620,7 +638,13 @@ function ListInput(props: FieldProps) {
                             </div>
                             <Show when={openId() === item.id}>
                                 <div class="ls-b">
-                                    <For each={field().fields}>
+                                    <For
+                                        each={field().fields.filter(
+                                            (inner) =>
+                                                !inner.when ||
+                                                inner.when({ ...props.values(), ...item }),
+                                        )}
+                                    >
                                         {(inner) => (
                                             <FieldView
                                                 field={inner}

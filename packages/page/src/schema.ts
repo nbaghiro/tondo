@@ -2,6 +2,9 @@ import { z } from "zod";
 import { blockSchemaUnion } from "./blocks";
 import { linkValue, photoValue } from "./define-block";
 import { isReservedHandle, isValidHandle } from "./handle";
+import { linkTypes } from "./links";
+
+export { linkTypes };
 
 export const handleSchema = z
     .string()
@@ -9,22 +12,60 @@ export const handleSchema = z
     .refine((handle) => !isReservedHandle(handle), "That address is reserved.");
 
 // Render fills in each look. Its record is keyed by this list, so a missing look won't compile.
-export const lookNames = ["madder", "sumi", "surf", "dusk"] as const;
+export const lookNames = [
+    "madder",
+    "dusk",
+    "sumi",
+    "sap",
+    "indigo",
+    "bake",
+    "noir",
+    "signal",
+    "surf",
+    "roast",
+    "lilac",
+    "fern",
+    "atelier",
+    "vellum",
+    "plaster",
+    "lagoon",
+    "tide",
+    "brine",
+    "lume",
+    "harvest",
+    "wax",
+    "shelf",
+    "press",
+    "postal",
+    "counsel",
+    "calm",
+    "ledger",
+    "estate",
+    "office",
+    "bloom",
+    "cutout",
+    "riso",
+    "nix",
+    "comet",
+    "second",
+    "ink",
+    "rave",
+    "volt",
+    "pixel",
+    "conf",
+    "rivet",
+    "trail",
+    "smile",
+    "keys",
+    "crumb",
+    "biscuit",
+    "glass",
+    "rovers",
+    "stacks",
+    "scrap",
+] as const;
 export const lookNameSchema = z.enum(lookNames);
 export type LookName = z.output<typeof lookNameSchema>;
-
-export const linkTypes = [
-    "instagram",
-    "tiktok",
-    "youtube",
-    "spotify",
-    "apple",
-    "globe",
-    "mail",
-    "phone",
-    "chat",
-    "pin",
-] as const;
 
 /** "look" is whatever the look draws for itself. The others work in every look. */
 export const headerLayouts = ["look", "centred", "left", "full", "arch", "banner"] as const;

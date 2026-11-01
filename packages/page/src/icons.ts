@@ -15,6 +15,9 @@ const PATHS: Record<string, string> = {
     calendar:
         '<rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3v4M15.5 3v4"/>',
     bag: '<path d="M5.5 8.5h13l1 12h-15zM9 8.5V7a3 3 0 0 1 6 0v1.5"/>',
+    prev: '<path d="M18 6v12l-9-6zM6 6v12" fill="currentColor"/>',
+    next: '<path d="M6 6v12l9-6zM18 6v12" fill="currentColor"/>',
+    download: '<path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/>',
     play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/>',
     pin: '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
 };
