@@ -68,3 +68,6 @@ The site changes are in `apps/marketing`.
 | Done | Align the tiles | `.bgs` and `.styles` align to the top, labels stay on one line, and "The look's art" is now "Look's art" |
 | Done | Quiet the Look row, give "Add below" its own space, and set one spacing rhythm for panels | `LookMini` in `Panels.tsx`, `canvas.css`, and the gap variables in `fields.css` |
 | Done | Give Help me a proper place on Home | The bare link sat between two cards with no space. It's now one quiet row under "Finish your page", drawn like the rows inside it with the builder's spark, so the checklist still leads. Hidden when the assistant isn't available |
+| Done | Close the left panel into the top bar, with an x instead of an arrow | Replaces the icon rail. A list button in the bar brings the panel back |
+| Done | Smaller gap between undo and redo | `.undo-redo` in `builder.css` |
+| Done | Cleaner way out of Preview | A small x at the top right, and Escape, so the phone sits centred on its own |

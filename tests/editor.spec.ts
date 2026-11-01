@@ -487,36 +487,33 @@ test("the Look row matches the section rows and shows the look's colours", async
     expect(await swatch()).not.toBe(before);
 });
 
-test("the left panel minimises to icons that open sections, and stays that way", async ({
-    page,
-}, info) => {
+test("the left panel closes into the top bar, and stays that way", async ({ page }, info) => {
     desktopOnly(info.project.name);
-    await addSection(page, "about");
     await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "Minimise panel" }).click();
-    const rail = page.getByRole("navigation", { name: "Your page, minimised" });
-    await expect(rail).toBeVisible();
+    await page.locator("#panel-minimise").click();
+    const open = page.getByRole("button", { name: "Open your page panel" });
     await expect(page.locator(".lside")).toBeHidden();
-    await expect(page.getByRole("button", { name: "Expand panel" })).toBeFocused();
+    await expect(open).toBeFocused();
 
-    await expect(rail.locator("[data-rail] .rail-dot")).toHaveCount(1);
-    await rail.locator("[data-rail]").first().click();
+    await canvas(page).locator("#t-header h1").click();
     await expect(panel(page)).toBeVisible();
     await expect(page.locator(".lside")).toBeHidden();
-    await expect(rail.locator("[data-rail]").first()).toHaveAttribute("aria-current", "true");
 
     await page.reload();
-    await expect(rail).toBeVisible();
-    await page.getByRole("button", { name: "Expand panel" }).click();
+    await expect(open).toBeVisible();
+    await open.click();
     await expect(page.locator(".lside")).toBeVisible();
-    await expect(rail).toHaveCount(0);
+    await expect(open).toHaveCount(0);
+    await expect(page.locator("#panel-minimise")).toBeFocused();
 });
 
-test("a phone keeps its sheet, with no rail or minimise control", async ({ page }, info) => {
+test("a phone keeps its sheet, with no control to close it into the bar", async ({
+    page,
+}, info) => {
     test.skip(info.project.name !== "phone", "Checks the phone's sheet");
     await page.locator(".tabbar button", { hasText: "Sections" }).click();
     await expect(page.locator(".lside.open")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Minimise panel" })).toBeHidden();
+    await expect(page.locator("#panel-minimise")).toBeHidden();
     await expect(page.locator(".lside .close")).toBeVisible();
 });
 

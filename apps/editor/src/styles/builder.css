@@ -1622,6 +1622,12 @@ small.todo::before {
     box-shadow: none;
     background: none;
 }
+.topbar .undo-redo {
+    width: 30px;
+}
+.topbar .undo-redo + .undo-redo {
+    margin-left: -6px;
+}
 .topbar .circle:hover:not(:disabled) {
     background: var(--band);
 }
@@ -1979,17 +1985,32 @@ small.todo::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    justify-content: safe center;
     padding: 14px;
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.96);
 }
 .preview-back {
-    width: auto;
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+        0 0 0 1px rgba(59, 18, 34, 0.1),
+        0 6px 18px rgba(59, 18, 34, 0.12);
+}
+.preview-back:hover {
+    background: var(--band);
 }
 @media (max-width: 860px) {
     .preview .preview-frame {
-        height: calc(100% - 66px);
+        height: 100%;
     }
 }
 .pub p {
@@ -2169,7 +2190,7 @@ small.todo::before {
         padding: 0;
     }
     .preview {
-        padding: 10px 0 0;
+        padding: 0;
     }
 }
 
@@ -2348,11 +2369,9 @@ small.todo::before {
 .st {
     white-space: nowrap;
 }
-/* The left panel minimised to icons. Phones keep their sheet. */
-.rail {
-    display: none;
-}
-.minimise {
+/* The left panel closes into the top bar, which gets a button to bring it back. Phones keep their sheet. */
+.minimise,
+.panel-open {
     display: none;
 }
 @media (min-width: 861px) {
@@ -2364,93 +2383,10 @@ small.todo::before {
         margin-left: auto;
         margin-right: -6px;
     }
-    .build .lside.railed {
+    .panel-open {
+        display: grid;
+    }
+    .build .lside.minimised {
         display: none;
-    }
-    .rail {
-        position: absolute;
-        top: 78px;
-        left: 18px;
-        z-index: 5;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        width: 56px;
-        max-height: calc(100% - 96px);
-        padding: 8px 0;
-        background: rgba(255, 255, 255, 0.9);
-        -webkit-backdrop-filter: blur(18px);
-        backdrop-filter: blur(18px);
-        border-radius: 28px;
-        box-shadow:
-            0 0 0 1px rgba(59, 18, 34, 0.06),
-            0 18px 46px rgba(59, 18, 34, 0.13),
-            0 3px 8px rgba(59, 18, 34, 0.05);
-        animation: rail-in 0.18s ease-out;
-    }
-    .rail-list {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-height: 0;
-        overflow-y: auto;
-        scrollbar-width: none;
-    }
-    .rail-b {
-        position: relative;
-        display: grid;
-        place-items: center;
-        flex: none;
-        width: 40px;
-        height: 40px;
-        padding: 0;
-        background: none;
-        border: 0;
-        border-radius: 11px;
-        cursor: pointer;
-    }
-    .rail-b .tico {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-    }
-    .rail-b .tico .ic {
-        width: 18px;
-        height: 18px;
-    }
-    .rail-b:hover .tico {
-        background: #efebec;
-    }
-    .rail-b[aria-current] {
-        box-shadow: inset 0 0 0 1.5px var(--ink);
-    }
-    .rail-add {
-        background: none;
-    }
-    .rail-open {
-        display: grid;
-        transform: rotate(180deg);
-    }
-    .rail-dot {
-        position: absolute;
-        top: 3px;
-        right: 3px;
-        width: 8px;
-        height: 8px;
-        background: #e2a33c;
-        border-radius: 50%;
-        box-shadow: 0 0 0 1.5px #fff;
-    }
-}
-@keyframes rail-in {
-    from {
-        opacity: 0;
-        transform: translateX(-8px);
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .rail {
-        animation: none;
     }
 }

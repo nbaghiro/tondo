@@ -14,7 +14,7 @@ import { createEditor, HEADER } from "../state/document";
 import { Canvas } from "./Canvas";
 import { HelpPanel } from "./HelpPanel";
 import { LookTiles, MakeItYours } from "./LookPanel";
-import { AddList, Glyph, PagePanel, Rail } from "./Panels";
+import { AddList, Glyph, PagePanel } from "./Panels";
 import { Phone } from "./Phone";
 import { Preview } from "./Preview";
 import { revealAsked, setAskedItem } from "./Fields";
@@ -85,20 +85,20 @@ function Panel(props: {
     );
 }
 
-const RAIL_KEY = "tondo:left-panel-minimised";
+const MINIMISED_KEY = "tondo:left-panel-minimised";
 
-function readRailed(): boolean {
+function readMinimised(): boolean {
     try {
-        return localStorage.getItem(RAIL_KEY) === "1";
+        return localStorage.getItem(MINIMISED_KEY) === "1";
     } catch {
         return false;
     }
 }
 
-function keepRailed(on: boolean) {
+function keepMinimised(on: boolean) {
     try {
-        if (on) localStorage.setItem(RAIL_KEY, "1");
-        else localStorage.removeItem(RAIL_KEY);
+        if (on) localStorage.setItem(MINIMISED_KEY, "1");
+        else localStorage.removeItem(MINIMISED_KEY);
     } catch {
         // Private browsing can refuse this, and the panel then just opens expanded next time.
     }
@@ -250,16 +250,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         setRight("help");
         setSheet("help");
     };
-    const [railed, setRailed] = createSignal(readRailed());
+    const [minimised, setMinimised] = createSignal(readMinimised());
     const minimise = (on: boolean) => {
-        setRailed(on);
-        keepRailed(on);
+        setMinimised(on);
+        keepMinimised(on);
         queueMicrotask(() => {
-            document.getElementById(on ? "rail-expand" : "panel-minimise")?.focus();
+            document.getElementById(on ? "panel-open" : "panel-minimise")?.focus();
         });
     };
     const openAdd = () => {
-        setRailed(false);
+        setMinimised(false);
         setLeft("add");
         setSheet("add");
     };
@@ -579,6 +579,13 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     onHelp={assistant.status()?.available ? openHelp : undefined}
                     helping={right() === "help"}
                     suspended={props.draft.suspended}
+                    onOpenPanel={
+                        minimised() && left() === "page"
+                            ? () => {
+                                  minimise(false);
+                              }
+                            : undefined
+                    }
                 />
                 <Phone id="phone">
                     <Canvas
@@ -613,19 +620,19 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 fallback={
                     <Panel
                         title="Your page"
-                        class={railed() ? "lside railed" : "lside"}
+                        class={minimised() ? "lside minimised" : "lside"}
                         extra={
                             <button
                                 type="button"
                                 class="back minimise"
                                 id="panel-minimise"
-                                aria-label="Minimise panel"
-                                title="Minimise panel"
+                                aria-label="Close panel"
+                                title="Close panel"
                                 onClick={() => {
                                     minimise(true);
                                 }}
                             >
-                                <Glyph name="back" />
+                                <Glyph name="x" />
                             </button>
                         }
                         open={sheet() === "page"}
@@ -792,16 +799,6 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                         />
                     </Panel>
                 )}
-            </Show>
-            <Show when={railed() && left() === "page"}>
-                <Rail
-                    editor={editor}
-                    onExpand={() => {
-                        minimise(false);
-                    }}
-                    onOpenLook={openLook}
-                    onAdd={openAdd}
-                />
             </Show>
             <nav class="tabbar" aria-label="Editor">
                 <button

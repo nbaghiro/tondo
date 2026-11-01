@@ -19,6 +19,8 @@ interface TopBarProps {
     publishing: boolean;
     /** Taken down for breaking the rules. Pressing Publish explains why. */
     suspended: boolean;
+    /** Only while the left panel is closed into this bar. */
+    onOpenPanel?: (() => void) | undefined;
 }
 
 const STATUS = {
@@ -67,6 +69,20 @@ export function TopBar(props: TopBarProps) {
                 >
                     tondo.page/<b>{props.account.handle}</b>
                 </a>
+                <Show when={props.onOpenPanel}>
+                    <button
+                        type="button"
+                        class="circle panel-open"
+                        id="panel-open"
+                        aria-label="Open your page panel"
+                        title="Open your page panel"
+                        onClick={() => {
+                            props.onOpenPanel?.();
+                        }}
+                    >
+                        <Glyph name="list" />
+                    </button>
+                </Show>
             </div>
             <div class="tgroup tr">
                 <span class="saved status" role="status" data-state={saver().state()}>
@@ -116,7 +132,7 @@ export function TopBar(props: TopBarProps) {
                     </button>
                 </Show>
                 <button
-                    class="circle"
+                    class="circle undo-redo"
                     aria-label="Undo"
                     disabled={!props.editor.canUndo()}
                     onClick={() => {
@@ -126,7 +142,7 @@ export function TopBar(props: TopBarProps) {
                     <Glyph name="undo" />
                 </button>
                 <button
-                    class="circle"
+                    class="circle undo-redo"
                     aria-label="Redo"
                     disabled={!props.editor.canRedo()}
                     onClick={() => {

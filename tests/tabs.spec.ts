@@ -67,4 +67,7 @@ test("preview shows the page as visitors see it, and comes back", async ({ page 
     await expect(shown.locator(".t-block")).toHaveCount(0);
     await page.locator(".preview-back").click();
     await expect(page.locator(".preview")).toHaveCount(0);
+    await openPreview(page);
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".preview")).toHaveCount(0);
 });
