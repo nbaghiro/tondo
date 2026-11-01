@@ -102,10 +102,9 @@ export const services = defineBlock({
                 return `<div><span>${name}${detail}</span><i></i>${price}</div>`;
             }
             if (block.variant === "tiers") {
-                return `<div class="${entry.popular ? "on" : ""}">${entry.popular ? "<mark>Most popular</mark>" : ""}${name}<strong>${escapeHtml(entry.price ?? "")}${entry.detail ? `<small>${escapeHtml(entry.detail)}</small>` : ""}</strong><ul>${listItems(lines(entry.included))}</ul>${cta && (entry.url || ctx.editable) ? `<a class="b-btn b-sm" href="${href}">${cta}</a>` : ""}</div>`;
+                return `<div class="${entry.popular ? "on" : ""}">${entry.popular ? "<mark>Most popular</mark>" : ""}${name}<strong>${escapeHtml(entry.price ?? "")}${entry.detail ? `<small>${escapeHtml(entry.detail)}</small>` : ""}</strong><ul>${listItems(lines(entry.included))}</ul>${cta && entry.url ? `<a class="b-btn b-sm" href="${href}">${cta}</a>` : ""}</div>`;
             }
-            const chip =
-                cta && (entry.url || ctx.editable) ? `<span class="b-chip">${cta}</span>` : "";
+            const chip = cta && entry.url ? `<span class="b-chip">${cta}</span>` : "";
             return linkOr(
                 ctx,
                 entry.url,

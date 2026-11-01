@@ -107,10 +107,7 @@ export const events = defineBlock({
         const words = ({ entry, i }: typeof first) =>
             `${editableText(ctx, "b", `items.${String(i)}.name`, entry.name)}${editableText(ctx, "small", `items.${String(i)}.place`, entry.place)}`;
         if (block.variant === "next") {
-            const button =
-                cta && (first.entry.url || ctx.editable)
-                    ? `<span class="b-btn b-sm">${cta}</span>`
-                    : "";
+            const button = cta && first.entry.url ? `<span class="b-btn b-sm">${cta}</span>` : "";
             return linkOr(
                 ctx,
                 first.entry.url,
@@ -130,7 +127,7 @@ export const events = defineBlock({
                 ctx,
                 row.entry.url,
                 "b-ev",
-                `${dateTile(row.entry.at)}<span class="b-et">${words(row)}</span>${cta && (row.entry.url || ctx.editable) ? `<span class="b-chip">${cta}</span>` : ""}`,
+                `${dateTile(row.entry.at)}<span class="b-et">${words(row)}</span>${cta && row.entry.url ? `<span class="b-chip">${cta}</span>` : ""}`,
             ),
         );
         return `<div class="b-events">${rows.join("")}</div>`;
