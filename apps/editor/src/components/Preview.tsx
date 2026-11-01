@@ -1,11 +1,16 @@
 import type { Page } from "@tondo/page";
 import { renderDocument } from "@tondo/render";
-import { onCleanup } from "solid-js";
+import { For, onCleanup, Show } from "solid-js";
 import { Glyph } from "./Panels";
 import { Phone } from "./Phone";
 
 /** The page as visitors see it, with links opening elsewhere. */
-export function Preview(props: { page: Page; onClose: () => void }) {
+export function Preview(props: {
+    page: Page;
+    onClose: () => void;
+    /** When this preview is of free choices: what changes, and the way to publish them. */
+    freeChoices?: { changes: string[]; onPublish: () => void; busy: boolean } | undefined;
+}) {
     const html = () =>
         renderDocument(props.page, {
             title: "Preview",
@@ -36,6 +41,30 @@ export function Preview(props: { page: Page; onClose: () => void }) {
             <Phone class="preview-frame">
                 <iframe class="canvas" title="Preview" sandbox="allow-popups" srcdoc={html()} />
             </Phone>
+            <Show when={props.freeChoices}>
+                {(free) => (
+                    <div class="free-choices" data-free-preview>
+                        <p>
+                            This is what would go live. Your draft keeps everything, so nothing is
+                            lost.
+                        </p>
+                        <ul>
+                            <For each={free().changes}>{(line) => <li>{line}</li>}</For>
+                        </ul>
+                        <button
+                            type="button"
+                            class="go"
+                            data-publish-this
+                            disabled={free().busy}
+                            onClick={() => {
+                                free().onPublish();
+                            }}
+                        >
+                            {free().busy ? "Publishing" : "Publish this"}
+                        </button>
+                    </div>
+                )}
+            </Show>
         </div>
     );
 }

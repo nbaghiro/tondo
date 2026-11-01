@@ -8,6 +8,7 @@ import type { Account } from "../lib/account";
 import { AccountPage } from "./AccountPage";
 import { AnalyticsPage } from "./AnalyticsPage";
 import { HomePage } from "./HomePage";
+import { plan } from "../state/plan";
 import { NavIcon } from "./Parts";
 import { SettingsPage } from "./SettingsPage";
 
@@ -53,6 +54,16 @@ function NavLink(props: { item: NavItem; onGo?: () => void }) {
                 <NavIcon name={props.item.icon} />
                 {props.item.label}
             </a>
+        </Show>
+    );
+}
+
+function PlanLine() {
+    return (
+        <Show when={plan()?.billing}>
+            <p class="plan-line" data-plan-line>
+                {plan()?.limits.mark ? "Free plan" : "Pro"}
+            </p>
         </Show>
     );
 }
@@ -130,6 +141,7 @@ export function Shell(props: { account: Account }) {
                     </For>
                 </nav>
                 <div class="side-foot">
+                    <PlanLine />
                     <For each={bottom}>{(item) => <NavLink item={item} />}</For>
                 </div>
             </aside>
@@ -184,6 +196,7 @@ export function Shell(props: { account: Account }) {
                     }}
                 />
                 <div class="sheet" role="dialog" aria-label="More">
+                    <PlanLine />
                     <For each={inMore}>
                         {(item) => <NavLink item={item} onGo={() => setMore(false)} />}
                     </For>

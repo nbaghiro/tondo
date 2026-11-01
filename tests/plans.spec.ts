@@ -1,5 +1,29 @@
 import { expect, test } from "@playwright/test";
-import { canvas, panel, signUpToEditor } from "./helpers";
+import type { Page } from "@playwright/test";
+import { addSection, canvas, openLook, panel, setPlan, signUpToEditor } from "./helpers";
+
+// A page with something of its own on it, so publishing has nothing else to ask about.
+const withWords = async (page: Page, options: { plan?: string } = {}) => {
+    const handle = await signUpToEditor(page, [], options);
+    await page.evaluate(async () => {
+        const res = await fetch("/api/v1/me/page");
+        const { page: draft, updatedAt } = (await res.json()) as {
+            page: Record<string, unknown> & { header: Record<string, unknown> };
+            updatedAt: string;
+        };
+        await fetch("/api/v1/me/page", {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                page: { ...draft, header: { ...draft.header, bio: "Hello" } },
+                updatedAt,
+            }),
+        });
+    });
+    await page.reload();
+    await expect(page.locator(".address")).toContainText(handle);
+    return handle;
+};
 
 const ONE_PIXEL = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg==",
@@ -77,4 +101,75 @@ test("the server refuses a Pro look on Free, and can publish free choices instea
         return ((await res.json()) as { page: { look: string } }).page.look;
     });
     expect(draft).toBe("bake");
+});
+
+test("a Pro look can be tried, and published with free choices", async ({ page }) => {
+    const handle = await withWords(page, { plan: "free" });
+    await openLook(page);
+    const tile = page.locator(".tile[data-look=bake]");
+    await expect(tile).toHaveAttribute("aria-label", "Bakehouse look, part of Pro");
+    await expect(page.locator(".tile[data-look=sap]")).toHaveAttribute("aria-label", "Sap look");
+    await tile.click();
+    await expect(page.locator("[data-plan-note]")).toContainText("Bakehouse is part of Pro");
+
+    await page.keyboard.press("Escape");
+    await page.locator(".publish").click();
+    const planPanel = page.locator("[data-plan-panel]");
+    await expect(planPanel).toContainText("Your page uses Bakehouse, which is part of Pro.");
+    await planPanel.locator("[data-free-choices]").click();
+    await expect(page.locator("[data-free-preview]")).toContainText("Bakehouse becomes Sap.");
+    await page.locator("[data-publish-this]").click();
+    await expect(page.locator(".pub-address")).toContainText(handle);
+
+    const live = await page.request.get(`/${handle}`);
+    expect(await live.text()).toContain('class="look sap"');
+    const draft = await page.evaluate(async () => {
+        const res = await fetch("/api/v1/me/page");
+        return ((await res.json()) as { page: { look: string } }).page.look;
+    });
+    expect(draft).toBe("bake");
+
+    await page.goto("/app");
+    await expect(page.locator(".tag")).toContainText("Live, with free choices");
+});
+
+test("a Pro section shows its label and a line about a plain button", async ({ page }) => {
+    await signUpToEditor(page, [], { plan: "free" });
+    await addSection(page, "shop");
+    await expect(page.locator("[data-plan-note]")).toContainText(
+        "A plain button can link there for free.",
+    );
+});
+
+test("Analytics says what Free shows, without asking for more", async ({ page }) => {
+    await signUpToEditor(page, [], { plan: "free" });
+    await page.goto("/app/analytics");
+    await expect(page.locator('.seg button[aria-pressed="true"]')).toContainText("7 days");
+    await page.locator(".seg button", { hasText: "90 days" }).click();
+    await expect(page.locator("[data-plan-stats]")).toContainText("You can see 7 days on Free.");
+    await expect(page.locator('.seg button[aria-pressed="true"]')).toContainText("7 days");
+});
+
+test("Pro has no labels", async ({ page }) => {
+    await signUpToEditor(page);
+    await openLook(page);
+    await expect(page.locator(".tile[data-look=bake]")).toHaveAttribute(
+        "aria-label",
+        "Bakehouse look",
+    );
+    await expect(page.locator(".pro-label")).toHaveCount(0);
+});
+
+test("a tab that hasn't heard about the plan shows the same panel after a refusal", async ({
+    page,
+}) => {
+    await withWords(page);
+    await openLook(page);
+    await page.locator(".tile[data-look=bake]").click();
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".saved.status")).toHaveAttribute("data-state", "saved");
+    const handle = (await page.locator(".address b").textContent()) ?? "";
+    await setPlan(handle, "free");
+    await page.locator(".publish").click();
+    await expect(page.locator("[data-plan-panel]")).toContainText("Bakehouse");
 });

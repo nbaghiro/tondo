@@ -542,3 +542,16 @@ textarea.in {
     font-weight: 400;
     color: var(--faint);
 }
+
+.pro-label {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--soft);
+    letter-spacing: 0;
+}
+.pro-row {
+    margin: 0;
+    font-size: 13px;
+    color: var(--soft);
+}

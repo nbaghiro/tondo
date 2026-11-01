@@ -1,3 +1,5 @@
+import { needsPro } from "../state/plan";
+import { ProLabel } from "./Parts";
 import {
     allBlocks,
     blockDefinitions,
@@ -178,6 +180,12 @@ function Timing(props: { editor: EditorState; section: () => Section }) {
                     props.editor.setShared(id(), "hidden", !checked);
                 }}
             />
+            <Show when={needsPro("business")}>
+                <p class="pro-row">
+                    Show from and Show until
+                    <ProLabel for="business" />
+                </p>
+            </Show>
             <FieldView
                 assets={ASSETS}
                 field={{ kind: "dateTime", key: "showFrom", label: "Show from" }}

@@ -1,13 +1,23 @@
 import { routes } from "@tondo/contract";
 import type { DraftResponse, StatsResponse } from "@tondo/contract";
-import { publishIssues, publishWarnings, setupChecklist } from "@tondo/page";
-import type { ChecklistItem } from "@tondo/page";
-import { paint, renderDocument } from "@tondo/render";
+import {
+    freeLookFor,
+    isFreeLook,
+    pageHash,
+    publishIssues,
+    publishWarnings,
+    setupChecklist,
+    stepDown,
+} from "@tondo/page";
+import type { ChecklistItem, Page } from "@tondo/page";
+import { looks, paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { loadAssistant } from "../lib/assistant-stream";
+import { longDate } from "../lib/plan-copy";
+import { plan } from "../state/plan";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
 import { Phone } from "./Phone";
 
@@ -15,7 +25,7 @@ const PHONE_ART = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 3);
 
 async function loadHome(
     handle: string,
-): Promise<{ draft: DraftResponse; stats: StatsResponse | null }> {
+): Promise<{ draft: DraftResponse; stats: StatsResponse | null; live: Page | null }> {
     const res = await fetch(routes.draft);
     if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -23,7 +33,8 @@ async function loadHome(
     }
     // Leaving the builder straight after typing leaves that work in this browser, so it's saved first.
     const draft = await savePendingWork(handle, (await res.json()) as DraftResponse);
-    return { draft, stats: await loadStats(30) };
+    const live = draft.published ? await loadLive() : null;
+    return { draft, stats: await loadStats(30), live };
 }
 
 function checklistLink(item: ChecklistItem): string {
@@ -33,6 +44,19 @@ function checklistLink(item: ChecklistItem): string {
     if (item.item) asked.set("item", item.item);
     const query = asked.toString();
     return appPath(`/edit${query ? `?${query}` : ""}`);
+}
+
+/** What someone whose plan has ended needs to know about their live page. Null if nothing. */
+function planNotice(live: Page | null): string | null {
+    const current = plan();
+    if (!current?.billing || current.plan === "free" || !current.endsAt) return null;
+    if (new Date(current.endsAt) > new Date()) return null;
+    if (!live || isFreeLook(live.look)) return null;
+    const from = looks[live.look].label;
+    const to = looks[freeLookFor(live.look)].label;
+    return current.designUntil
+        ? `Your plan has ended, and your page is still live. It keeps ${from} until ${longDate(current.designUntil)}, then moves to ${to}. You can choose another free look before then, or get Pro again.`
+        : `Your page now uses ${to}. Your draft still has everything, so getting Pro brings it back.`;
 }
 
 function Checklist(props: { items: ChecklistItem[] }) {
@@ -83,7 +107,7 @@ function Checklist(props: { items: ChecklistItem[] }) {
 function Numbers(props: { stats: StatsResponse | null }) {
     return (
         <Card
-            title="Last 30 days"
+            title={`Last ${String(props.stats?.range ?? 30)} days`}
             extra={
                 <a class="lnk" href={appPath("/analytics")}>
                     See more
@@ -198,6 +222,17 @@ export function HomePage(props: { account: Account }) {
             >
                 {(loaded) => {
                     const draft = () => loaded().draft;
+                    // Someone who chose free choices hasn't got unfinished work, only Pro choices kept.
+                    const onlyPro = () => {
+                        const { live } = loaded();
+                        if (!plan()?.billing || !live || !draft().changed) return false;
+                        const down = stepDown(draft().page, {
+                            keepContent: false,
+                            live,
+                            keepDesign: plan()?.limits.design ?? false,
+                        });
+                        return pageHash(down) === pageHash(live);
+                    };
                     const status = () =>
                         draft().suspended
                             ? {
@@ -207,17 +242,23 @@ export function HomePage(props: { account: Account }) {
                               }
                             : !draft().published
                               ? { tone: "", label: "Not live yet", line: "Only you can see it." }
-                              : draft().changed
+                              : onlyPro()
                                 ? {
-                                      tone: "warn",
-                                      label: "Live, with unpublished changes",
-                                      line: "Visitors see the last version you published.",
-                                  }
-                                : {
                                       tone: "ok",
-                                      label: "Live",
-                                      line: "Anyone with your link can see it.",
-                                  };
+                                      label: "Live, with free choices",
+                                      line: "Your draft has Pro choices that aren't on your live page.",
+                                  }
+                                : draft().changed
+                                  ? {
+                                        tone: "warn",
+                                        label: "Live, with unpublished changes",
+                                        line: "Visitors see the last version you published.",
+                                    }
+                                  : {
+                                        tone: "ok",
+                                        label: "Live",
+                                        line: "Anyone with your link can see it.",
+                                    };
                     return (
                         <>
                             <div class="home">
@@ -287,6 +328,13 @@ export function HomePage(props: { account: Account }) {
                                                 live page. It's kept safe. Email support and we'll
                                                 get it back for you.
                                             </p>
+                                        </Show>
+                                        <Show when={planNotice(loaded().live)}>
+                                            {(notice) => (
+                                                <p class="notice" role="status" data-plan-notice>
+                                                    {notice()}
+                                                </p>
+                                            )}
                                         </Show>
                                         <Show when={draft().suspended}>
                                             <p class="notice bad" role="alert" data-suspended>

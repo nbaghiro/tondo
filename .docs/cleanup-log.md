@@ -75,3 +75,4 @@ The site changes are in `apps/marketing`.
 | Done | Let people remove a photo from Your photos, and say Pro in the gallery | The picker has a small x on each of your photos, refused with a clear line while the photo is on your page. `gallery.astro` marks example pages using a Pro look |
 | Done | App logo goes to the site, and the site offers Go to app when signed in | `Shell.tsx`, `Nav.astro`. The builder's logo still goes to Home |
 | Done | One address for the site and the app, no subdomains needed | Already how production works. `deploy.md` says so, and the e2e suite runs against that one server |
+| Done | Show what needs Pro, and offer a way on at publish | Small Pro labels on looks, colours, fonts, Shop and the others, the schedule and longer statistics, a publish panel with Get Pro and Publish with free choices, a preview of those choices, Home notices when a plan ends, and a quiet plan line in the sidebar. All hidden while `PLANS_ON` is off |

@@ -72,10 +72,13 @@ export type PublishResult =
     | { state: "issues"; issues: PublishIssue[] }
     | { state: "failed"; message: string };
 
-export async function publish(updatedAt: string): Promise<PublishResult> {
+export async function publish(updatedAt: string, free = false): Promise<PublishResult> {
     const failed = "Publishing didn't work. Check your connection and try again.";
     try {
-        const res = await send("POST", routes.publish, { updatedAt });
+        const res = await send("POST", routes.publish, {
+            updatedAt,
+            ...(free ? { free: true } : {}),
+        });
         if (res.ok) return { state: "published" };
         if (res.status === 422) {
             const { issues } = (await res.json()) as IssuesResponse;

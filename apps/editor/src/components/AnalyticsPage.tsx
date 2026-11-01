@@ -1,14 +1,17 @@
 import { createResource, createSignal, For, Show } from "solid-js";
 import { loadStats } from "../lib/api";
+import { plan } from "../state/plan";
 import { BarRows, LineChart, shortDate } from "./Chart";
-import { Card, EmptyLine, PageHeader } from "./Parts";
+import { Card, EmptyLine, PageHeader, ProLabel } from "./Parts";
 
 const RANGES = [7, 30, 90];
 
 const readable = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
 export function AnalyticsPage() {
-    const [range, setRange] = createSignal(30);
+    const covered = () => plan()?.limits.statsDays ?? 30;
+    const [range, setRange] = createSignal(Math.min(30, covered()));
+    const [asked, setAsked] = createSignal(false);
     const [metric, setMetric] = createSignal<"views" | "clicks">("views");
     const [asTable, setAsTable] = createSignal(false);
     const [stats] = createResource(range, (days) => loadStats(days));
@@ -27,14 +30,26 @@ export function AnalyticsPage() {
                             <button
                                 type="button"
                                 aria-pressed={range() === days}
-                                onClick={() => setRange(days)}
+                                onClick={() => {
+                                    setAsked(days > covered());
+                                    if (days <= covered()) setRange(days);
+                                }}
                             >
                                 {days} days
+                                <Show when={days > covered()}>
+                                    <ProLabel for="business" />
+                                </Show>
                             </button>
                         )}
                     </For>
                 </div>
             </PageHeader>
+            <Show when={asked()}>
+                <p class="notice" role="status" data-plan-stats>
+                    You can see {covered()} days on Free. Your views are still being counted, so
+                    older days will be here if you get Pro.
+                </p>
+            </Show>
             <Show when={stats()} fallback={<p class="emptyline">Loading your numbers</p>}>
                 {(data) => (
                     <div class="stack">

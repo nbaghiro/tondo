@@ -1,3 +1,4 @@
+import { plan } from "../state/plan";
 import { routes } from "@tondo/contract";
 import type { DraftResponse } from "@tondo/contract";
 import { isReservedHandle, isValidHandle, normaliseHandle } from "@tondo/page";
@@ -202,6 +203,11 @@ export function SettingsPage(props: { account: Account; onAddress: (handle: stri
                                 </button>
                             </form>
                         </SettingsSection>
+                        <Show when={plan()?.billing && plan()?.limits.mark}>
+                            <p class="notice" data-plan-mark>
+                                Free pages show a small Made with Tondo. Pro removes it.
+                            </p>
+                        </Show>
                         <SettingsSection
                             title="Publishing"
                             lead={

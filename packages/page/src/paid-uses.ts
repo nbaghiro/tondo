@@ -6,6 +6,7 @@ import type { Limits } from "./limits";
 import { liveContent } from "./sample-content";
 import type { LookName, Page } from "./schema";
 import { findSection, sectionsOf } from "./sections";
+import type { Section, SectionDefinition } from "./sections";
 
 export type PaidCode =
     "look" | "colour" | "font" | "background" | "section" | "schedule" | "too_many";
@@ -36,10 +37,33 @@ export const scheduleIsLive = (block: Block, known: Map<string, Block>): boolean
     return found?.showFrom === block.showFrom && found?.showUntil === block.showUntil;
 };
 
+type Allowance = Pick<Limits, "design" | "business" | "sections">;
+
+/** Whether a kind of section needs Pro. */
+export const isPaidSection = (definition: SectionDefinition): boolean =>
+    definition.styles.some((style) => (PAID_BLOCKS as readonly string[]).includes(style.type));
+
 /** Everything on this page that the account's plan doesn't cover, and that would newly go live. */
-export function paidUses(
+export const paidUses = (
     page: Page,
-    limits: Pick<Limits, "design" | "business" | "sections">,
+    limits: Allowance,
+    live: Page | null,
+    lookLabel: (look: LookName) => string,
+): PaidUse[] => usesIn(page, countedSections(page), limits, live, lookLabel);
+
+/** The same, counting sections still showing sample words, because they're being tried. */
+export const triedUses = (
+    page: Page,
+    limits: Allowance,
+    live: Page | null,
+    lookLabel: (look: LookName) => string,
+): PaidUse[] =>
+    usesIn(page, sectionsOf(page.blocks.filter((block) => !block.hidden)), limits, live, lookLabel);
+
+function usesIn(
+    page: Page,
+    counted: readonly Section[],
+    limits: Allowance,
     live: Page | null,
     lookLabel: (look: LookName) => string,
 ): PaidUse[] {
@@ -58,7 +82,6 @@ export function paidUses(
         }
     }
     const known = liveBlocks(live);
-    const counted = countedSections(page);
     if (!limits.business) {
         const seen = new Set<string>();
         const blocks = allBlocks(counted.flatMap((section) => section.all));

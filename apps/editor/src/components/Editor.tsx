@@ -1,11 +1,23 @@
-import { findSection, pageHash, publishIssues, publishWarnings } from "@tondo/page";
-import type { PublishIssue } from "@tondo/page";
+import {
+    findSection,
+    freeLookFor,
+    PLANS,
+    pageHash,
+    paidUses,
+    publishIssues,
+    publishWarnings,
+    stepDown,
+    triedUses,
+} from "@tondo/page";
+import type { LookName, Page, PublishIssue } from "@tondo/page";
 import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { JSX } from "solid-js";
 import { loadDraft, loadLive, loadPublishChecks, loadStats, publish } from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
+import { changesFrom, noteFor } from "../lib/plan-copy";
+import { plan, refreshPlan } from "../state/plan";
 import type { Account } from "../lib/account";
 import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
 import type { Backup } from "../state/storage";
@@ -140,21 +152,54 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     const [dragOrder, setDragOrder] = createSignal<{ id: string; to: number } | null>(null);
     const [picking, setPicking] = createSignal<{ name: string; x: number; y: number } | null>(null);
 
+    const lookLabel = (look: LookName) => looks[look].label;
+    const limits = () => plan()?.limits ?? PLANS.pro;
+    const [livePage, setLivePage] = createSignal<Page | null>(null);
+    const [freeBusy, setFreeBusy] = createSignal(false);
+    const [freePreview, setFreePreview] = createSignal(false);
+    const [checkoutProblem, setCheckoutProblem] = createSignal("");
+    const freeCopy = () =>
+        stepDown(editor.page(), {
+            keepContent: false,
+            live: livePage(),
+            keepDesign: limits().design,
+        });
+
+    // Says once per visit that something needs Pro. What the page already had when it opened was seen.
+    const [planNote, setPlanNote] = createSignal("");
+    const usesNow = () =>
+        plan()?.billing ? triedUses(editor.page(), limits(), livePage(), lookLabel) : [];
+    const mentioned = new Set(untrack(usesNow).map((use) => `${use.code}${use.label}`));
+    createEffect(() => {
+        const fresh = usesNow().filter((use) => !mentioned.has(`${use.code}${use.label}`));
+        const first = fresh[0];
+        if (!first) return;
+        for (const use of fresh) mentioned.add(`${use.code}${use.label}`);
+        setPlanNote(noteFor(first));
+        const timer = setTimeout(() => setPlanNote(""), NOTICE_MS * 2);
+        onCleanup(() => {
+            clearTimeout(timer);
+        });
+    });
+
     const showPublish = () => {
         editor.select(null);
         setRight("publish");
         setSheet("publish");
     };
-    const runPublish = async () => {
+    const runPublish = async (free = false) => {
         setPublishing(true);
         const failedSave = "Your latest changes aren't saved yet. Try again in a moment.";
         const saved = await editor.saver.flush();
         const result = saved
-            ? await publish(editor.saver.updatedAt())
+            ? await publish(editor.saver.updatedAt(), free)
             : ({ state: "failed", message: editor.saver.message() || failedSave } as const);
         setPublishing(false);
         if (result.state === "published") {
-            editor.markPublished();
+            // Free choices leave the draft ahead of what's live, so there's still something to publish.
+            if (free) editor.syncLive(true, true);
+            else editor.markPublished();
+            setLivePage(await loadLive());
             setView({
                 state: "live",
                 url: pageUrl(props.account.handle),
@@ -162,6 +207,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 stats: await loadStats(),
             });
         } else if (result.state === "issues") {
+            // A stale tab learns about the plan here, and shows the same panel as everyone else.
+            if (result.issues.some((issue) => issue.plan)) await refreshPlan();
             // Everything the server refused stays listed until it's fixed.
             const known = publishIssues(editor.page()).map((issue) => issue.message);
             setServerIssues(result.issues.filter((issue) => !known.includes(issue.message)));
@@ -191,12 +238,26 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         !issue.url ||
         JSON.stringify(editor.page()).includes(JSON.stringify(issue.url).slice(1, -1));
     const listView = (): PublishView => {
-        const issues = [...serverIssues().filter(stillApplies), ...publishIssues(editor.page())];
-        return issues.length
-            ? { state: "issues", issues }
-            : { state: "warnings", warnings: publishWarnings(editor.page()) };
+        const issues = [
+            ...serverIssues().filter((issue) => !issue.plan && stillApplies(issue)),
+            ...publishIssues(editor.page()),
+        ];
+        if (issues.length) return { state: "issues", issues };
+        const warnings = publishWarnings(editor.page());
+        const uses = plan()?.billing
+            ? paidUses(editor.page(), limits(), livePage(), lookLabel)
+            : [];
+        return uses.length
+            ? {
+                  state: "plan",
+                  uses,
+                  warnings,
+                  ...(checkoutProblem() ? { problem: checkoutProblem() } : {}),
+              }
+            : { state: "warnings", warnings };
     };
     const openPublishList = async () => {
+        setLivePage(await loadLive());
         if (await editor.saver.flush()) setServerIssues(await loadPublishChecks());
         setView(listView());
         showPublish();
@@ -215,7 +276,12 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     // The list follows the page, so it stays right while things get fixed.
     const shownView = (): PublishView | null => {
         const current = view();
-        if (current?.state !== "issues" && current?.state !== "warnings") return current;
+        if (
+            current?.state !== "issues" &&
+            current?.state !== "warnings" &&
+            current?.state !== "plan"
+        )
+            return current;
         return listView();
     };
     const fixing = () => (view() && view()?.state !== "live" ? shownView() : null);
@@ -791,6 +857,12 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                                 }
                                 openIssue(issue.target, issue.item);
                             }}
+                            onFreeChoices={() => setFreePreview(true)}
+                            onGetPro={() => {
+                                setCheckoutProblem(
+                                    "We couldn't open the payment page. Please try again, or publish with free choices for now.",
+                                );
+                            }}
                             onPublishAnyway={() => {
                                 runPublish().catch(() => {
                                     setPublishing(false);
@@ -860,6 +932,35 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 <div class="toast on" role="status">
                     {editor.notice()}
                 </div>
+            </Show>
+            <Show when={planNote()}>
+                <div class="toast on" role="status" data-plan-note>
+                    {planNote()}
+                </div>
+            </Show>
+            <Show when={freePreview()}>
+                <Preview
+                    page={freeCopy()}
+                    onClose={() => setFreePreview(false)}
+                    freeChoices={{
+                        changes: changesFrom(
+                            paidUses(editor.page(), limits(), livePage(), lookLabel),
+                            looks[freeLookFor(editor.page().look)].label,
+                        ),
+                        busy: freeBusy(),
+                        onPublish: () => {
+                            setFreeBusy(true);
+                            runPublish(true)
+                                .catch(() => {
+                                    setPublishing(false);
+                                })
+                                .finally(() => {
+                                    setFreeBusy(false);
+                                    setFreePreview(false);
+                                });
+                        },
+                    }}
+                />
             </Show>
             <Show when={previewing()}>
                 <Preview page={editor.page()} onClose={() => setPreviewing(false)} />

@@ -50,7 +50,8 @@ window.addEventListener("pageshow", (event) => {
 });
 
 const lab = import.meta.env.DEV ? location.search.slice(1) : "";
-const opening = lab === "fields" || lab === "blocks" ? openLab(root, lab) : open(root);
+const opening =
+    lab === "fields" || lab === "blocks" || lab === "plans" ? openLab(root, lab) : open(root);
 opening.catch((error: unknown) => {
     // The server says what's wrong when it can. A failed fetch has no message worth showing.
     const said = error instanceof TypeError || !(error instanceof Error) ? "" : error.message;
