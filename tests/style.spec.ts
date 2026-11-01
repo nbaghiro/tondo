@@ -58,11 +58,10 @@ function measure(): Sample[] {
     return out;
 }
 
-// A look with no changes is left out: its colours are the approved design, and the guard only runs
-// when someone changes them.
 function stylesFor(look: LookName): PageStyle[] {
     const { colours, base } = lookColours(look);
     return [
+        {},
         { colour: { mode: "preset", brand: colours[0] ?? base } },
         { colour: { mode: "plain", brand: base } },
         { colour: { mode: "dark", brand: base } },

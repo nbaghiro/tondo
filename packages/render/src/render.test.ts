@@ -155,8 +155,8 @@ describe.each(Object.entries(looks))("the %s look", (name, look) => {
         const button = parseColour(read("btn") ?? "", bg);
         expect(pair("fg", bg), "text on the page").toBeGreaterThanOrEqual(4.5);
         expect(pair("cardfg", card), "text on a card").toBeGreaterThanOrEqual(4.5);
-        expect(pair("mut", bg), "quiet text on the page").toBeGreaterThanOrEqual(3.5);
-        expect(pair("btnfg", button), "button text").toBeGreaterThanOrEqual(3.5);
+        expect(pair("mut", bg), "quiet text on the page").toBeGreaterThanOrEqual(4.5);
+        expect(pair("btnfg", button), "button text").toBeGreaterThanOrEqual(4.5);
     });
 
     it("only has rules for things blocks and its header can draw", () => {
