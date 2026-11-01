@@ -1,6 +1,6 @@
 import "@tondo/brand/tokens.css";
 import { inAppPath } from "./app/router";
-import { appPath, loadAccount, UNREACHABLE } from "./lib/account";
+import { appPath, followLogOut, loadAccount, UNREACHABLE } from "./lib/account";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("The page has no #root element.");
@@ -10,6 +10,7 @@ async function open(here: HTMLElement): Promise<void> {
     // Null means the browser is already on its way to the login page.
     const account = await loadAccount();
     if (!account) return;
+    followLogOut();
     const path = inAppPath();
     if (!account.handle) {
         if (path !== "/start") {
@@ -40,6 +41,11 @@ async function openLab(here: HTMLElement, lab: string): Promise<void> {
     const { mountLab } = await import("./app/labs");
     mountLab(here, lab);
 }
+
+// The back button can restore a frozen page, so it has to ask again who's logged in.
+window.addEventListener("pageshow", (event) => {
+    if (event.persisted) location.reload();
+});
 
 const lab = import.meta.env.DEV ? location.search.slice(1) : "";
 const opening = lab === "fields" || lab === "blocks" ? openLab(root, lab) : open(root);

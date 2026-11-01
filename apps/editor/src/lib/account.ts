@@ -1,5 +1,5 @@
 import { routes } from "@tondo/contract";
-import type { MeResponse } from "@tondo/contract";
+import type { MeResponse, SignOutResponse } from "@tondo/contract";
 
 export type Account = MeResponse & { handle: string };
 
@@ -37,13 +37,40 @@ export const toLogin = (): void => {
     location.assign(`${SITE_URL}/login`);
 };
 
-export function logOut(): void {
-    const leave = () => {
-        location.assign(SITE_URL || "/");
-    };
-    fetch(routes.signOut, {
+const sessions = new BroadcastChannel("tondo-session");
+
+/** When another tab logs out, this one follows instead of showing a page it can't save. */
+export const followLogOut = (): void => {
+    sessions.onmessage = toLogin;
+};
+
+function sayLogOutFailed(): void {
+    const note = document.createElement("div");
+    note.className = "logout-failed";
+    note.setAttribute("role", "alert");
+    note.textContent = "We couldn't log you out, so you're still logged in. Please try again.";
+    note.style.cssText =
+        "position:fixed;left:16px;right:16px;bottom:16px;z-index:1000;margin:auto;max-width:480px;padding:12px 16px;border-radius:8px;background:#1d1a17;color:#fff";
+    document.querySelector(".logout-failed")?.remove();
+    document.body.append(note);
+}
+
+async function endSession(): Promise<void> {
+    const res = await fetch(routes.signOut, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: "{}",
-    }).then(leave, leave);
+    }).catch(() => null);
+    const answer = (await res?.json().catch(() => null)) as SignOutResponse | null | undefined;
+    // Only our server sends this answer, and it comes with the cookies cleared.
+    if (typeof answer?.ended !== "boolean") {
+        sayLogOutFailed();
+        return;
+    }
+    sessions.postMessage("logged-out");
+    location.assign(answer.ended ? SITE_URL || "/" : `${SITE_URL}/login?notice=device-only`);
+}
+
+export function logOut(): void {
+    endSession().catch(sayLogOutFailed);
 }

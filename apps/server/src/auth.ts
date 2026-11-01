@@ -4,6 +4,7 @@ import type {
     ErrorResponse,
     HandleResponse,
     MeResponse,
+    SignOutResponse,
 } from "@tondo/contract";
 import type { AccountStore } from "@tondo/db";
 import {
@@ -47,6 +48,24 @@ export interface Person {
 }
 
 const NOT_SET_UP = "Sign-in isn't set up yet.";
+
+// Everything Neon's sign-out expires, plus the signed cache the toolkit adds.
+const SESSION_COOKIES = ["session_token", "session_data", "dont_remember", "local.session_data"];
+
+const clearSession = (c: Context) => {
+    for (const name of SESSION_COOKIES) {
+        c.header(
+            "Set-Cookie",
+            `__Secure-neon-auth.${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
+            { append: true },
+        );
+    }
+};
+
+const isSameOrigin = (c: Context) => {
+    const origin = c.req.header("origin") ?? "";
+    return URL.canParse(origin) && new URL(origin).host === c.req.header("host");
+};
 
 /** Neon couldn't say who this is, which isn't the same as them being logged out. */
 export class AuthUnavailable extends Error {}
@@ -105,6 +124,8 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             c.header("Set-Cookie", cookie, { append: true });
         if (!res.ok) return null;
         const data = (await res.json().catch(() => null)) as { user?: Person | null } | null;
+        // Neon says this session is over, so the browser shouldn't keep offering it.
+        if (!data?.user) clearSession(c);
         return data?.user ?? null;
     };
 
@@ -163,6 +184,27 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         limitAuth,
     );
 
+    // Leaving must work even if Neon doesn't answer, so our own page clears the cookies regardless
+    // and says the session may outlive them. Another site's request is refused, not obeyed.
+    app.post(routes.signOut, async (c) => {
+        if (!neon) return c.json({ code: "NOT_SET_UP", message: NOT_SET_UP }, 503);
+        const res = await handleAuthProxyRequest({
+            request: c.req.raw,
+            path: "sign-out",
+            baseUrl: neon.baseUrl,
+            cookieSecret: neon.cookieSecret,
+        }).catch(() => null);
+        if (res?.ok) {
+            clearSession(c);
+            return c.json<SignOutResponse>({ ended: true });
+        }
+        if (!isSameOrigin(c))
+            return c.json({ code: "INVALID_ORIGIN", message: "Not allowed." }, 403);
+        process.stderr.write(`Neon didn't end a session: ${String(res?.status)}\n`);
+        clearSession(c);
+        return c.json<SignOutResponse>({ ended: false }, 502);
+    });
+
     app.all(`${routes.auth}/*`, (c) => {
         if (!neon) return c.json({ code: "NOT_SET_UP", message: NOT_SET_UP }, 503);
         return handleAuthProxyRequest({
@@ -174,6 +216,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     });
 
     app.get(routes.me, async (c) => {
+        c.header("Cache-Control", "no-store");
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
         return c.json<MeResponse>({
@@ -314,6 +357,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
                   .then((res) => {
                       for (const cookie of res.headers.getSetCookie())
                           c.header("Set-Cookie", cookie, { append: true });
+                      if (res.ok) clearSession(c);
                       return res.ok;
                   })
                   .catch(() => false)

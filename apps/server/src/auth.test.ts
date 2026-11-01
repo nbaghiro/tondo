@@ -265,6 +265,60 @@ describe("the limits on sign-in", () => {
         vi.unstubAllEnvs();
     });
 
+    const cleared = (res: Response) =>
+        res.headers
+            .getSetCookie()
+            .filter((cookie) => cookie.includes("Max-Age=0") && cookie.includes("Secure"))
+            .map((cookie) => cookie.split("=")[0]);
+    const signOut = (origin: string) => ({
+        method: "POST",
+        headers: { "content-type": "application/json", cookie: SESSION, host: "site", origin },
+        body: "{}",
+    });
+
+    it("clears both cookies when Neon ends the session", async () => {
+        fakeNeon(() => Response.json({ success: true }));
+        const res = await setup().request("http://site/api/auth/sign-out", signOut("http://site"));
+        expect(await res.json()).toEqual({ ended: true });
+        expect(cleared(res)).toEqual(
+            expect.arrayContaining([
+                "__Secure-neon-auth.session_token",
+                "__Secure-neon-auth.local.session_data",
+            ]),
+        );
+    });
+
+    it.each([
+        ["answers an error", () => new Response("no", { status: 500 })],
+        [
+            "can't be reached",
+            () => {
+                throw new TypeError("fetch failed");
+            },
+        ],
+    ])("clears the cookies and says so when Neon %s", async (_, answer) => {
+        fakeNeon(answer);
+        const res = await setup().request("http://site/api/auth/sign-out", signOut("http://site"));
+        expect(res.status).toBe(502);
+        expect(await res.json()).toEqual({ ended: false });
+        expect(cleared(res)).toContain("__Secure-neon-auth.session_token");
+    });
+
+    it("won't log someone out for another site", async () => {
+        fakeNeon(() => Response.json({ code: "INVALID_ORIGIN" }, { status: 403 }));
+        const res = await setup().request("http://site/api/auth/sign-out", signOut("https://evil"));
+        expect(res.status).toBe(403);
+        expect(res.headers.getSetCookie()).toEqual([]);
+    });
+
+    it("clears a session Neon no longer knows", async () => {
+        fakeNeon(() => Response.json(null));
+        const res = await setup().request("/api/v1/me", { headers: { cookie: SESSION } });
+        expect(res.status).toBe(401);
+        expect(res.headers.get("cache-control")).toBe("no-store");
+        expect(cleared(res)).toContain("__Secure-neon-auth.local.session_data");
+    });
+
     it("keeps the account when photos can't be removed, and says what happened", async () => {
         const calls = fakeNeon(() => Response.json(session));
         const store = createFakeStore();

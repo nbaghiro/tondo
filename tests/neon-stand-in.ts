@@ -19,7 +19,12 @@ interface Person {
 const people = new Map<string, Person>();
 const sessions = new Map<string, Person>();
 
-function send(res: ServerResponse, status: number, body: unknown, cookie?: string): void {
+function send(
+    res: ServerResponse,
+    status: number,
+    body: unknown,
+    cookie?: string | string[],
+): void {
     res.writeHead(status, {
         "content-type": "application/json",
         ...(cookie ? { "set-cookie": cookie } : {}),
@@ -44,6 +49,11 @@ function signIn(person: Person): { cookie: string; token: string } {
         cookie: `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`,
     };
 }
+
+// Real Neon's sign-out and account deletion expire all of these, not only the token.
+const EXPIRED = ["session_token", "session_data", "dont_remember", "local.session_data"].map(
+    (name) => `__Secure-neon-auth.${name}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`,
+);
 
 const tokenIn = (header: string | undefined) => /session_token=([^;]+)/.exec(header ?? "")?.[1];
 
@@ -166,13 +176,18 @@ const server = createServer((req, res) => {
                 const found = token ? sessions.get(token) : undefined;
                 if (found) people.delete(found.email);
                 if (token) sessions.delete(token);
-                send(res, 200, { success: true }, `${COOKIE}=; Path=/; Max-Age=0`);
+                send(res, 200, { success: true }, EXPIRED);
                 return;
             }
             case "sign-out": {
+                // Real Neon refuses another site with no cookies changed.
+                if (!/^http:\/\/localhost:\d+$/.test(req.headers.origin ?? "http://localhost:1")) {
+                    send(res, 403, { code: "INVALID_ORIGIN", message: "Invalid origin" });
+                    return;
+                }
                 const token = tokenIn(req.headers.cookie);
                 if (token) sessions.delete(token);
-                send(res, 200, { success: true }, `${COOKIE}=; Path=/; Max-Age=0`);
+                send(res, 200, { success: true }, EXPIRED);
                 return;
             }
             default:

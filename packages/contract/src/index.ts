@@ -93,6 +93,10 @@ export const deleteAccountResponse = z.strictObject({
     pageRemoved: z.boolean(),
     signInRemoved: z.boolean(),
 });
+/** False means the cookies are gone but Neon didn't confirm the session ended. */
+export interface SignOutResponse {
+    ended: boolean;
+}
 export type DeleteAccountResponse = z.infer<typeof deleteAccountResponse>;
 export type LiveResponse = z.infer<typeof liveResponse>;
 export type DraftResponse = z.infer<typeof draftResponse>;

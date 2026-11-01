@@ -76,6 +76,12 @@ if (kind === "login" && params.get("notice") === "reset") {
     notice("Your password is changed. Log in with the new one.");
 }
 
+if (kind === "login" && params.get("notice") === "device-only") {
+    notice(
+        "You're logged out on this device, but we couldn't confirm the session ended. Log in and out again to be sure.",
+    );
+}
+
 const urlError = params.get("error");
 if (urlError) showError(URL_ERRORS[urlError] ?? URL_ERRORS["google-failed"] ?? "");
 
