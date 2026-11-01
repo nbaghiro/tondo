@@ -67,3 +67,4 @@ The site changes are in `apps/marketing`.
 | Done | Collapse the builder's left panel to icons | `Rail` in `Panels.tsx`, kept per browser. Dragging to reorder from the rail isn't built. Phones keep their sheet |
 | Done | Align the tiles | `.bgs` and `.styles` align to the top, labels stay on one line, and "The look's art" is now "Look's art" |
 | Done | Quiet the Look row, give "Add below" its own space, and set one spacing rhythm for panels | `LookMini` in `Panels.tsx`, `canvas.css`, and the gap variables in `fields.css` |
+| Done | Give Help me a proper place on Home | The bare link sat between two cards with no space. It's now one quiet row under "Finish your page", drawn like the rows inside it with the builder's spark, so the checklist still leads. Hidden when the assistant isn't available |
