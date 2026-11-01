@@ -225,26 +225,27 @@ export function HomePage(props: { account: Account }) {
                                             >
                                                 {address()}
                                             </a>
-                                            <span class="sp" />
-                                            <button
-                                                class="ib"
-                                                aria-label="Copy link"
-                                                onClick={copy}
-                                            >
-                                                <NavIcon name="copy" />
-                                            </button>
-                                            <a
-                                                class="ib"
-                                                aria-label="Open your page"
-                                                href={pageUrl(props.account.handle)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                            >
-                                                <NavIcon name="open" />
-                                            </a>
-                                            <button class="b sm" onClick={share}>
-                                                Share
-                                            </button>
+                                            <span class="status-acts">
+                                                <button
+                                                    class="ib"
+                                                    aria-label="Copy link"
+                                                    onClick={copy}
+                                                >
+                                                    <NavIcon name="copy" />
+                                                </button>
+                                                <a
+                                                    class="ib"
+                                                    aria-label="Open your page"
+                                                    href={pageUrl(props.account.handle)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                >
+                                                    <NavIcon name="open" />
+                                                </a>
+                                                <button class="b sm" onClick={share}>
+                                                    Share
+                                                </button>
+                                            </span>
                                         </div>
                                     </Card>
                                     <Checklist

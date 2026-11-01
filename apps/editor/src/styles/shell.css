@@ -317,8 +317,11 @@ svg.i {
     font-weight: 700;
     overflow-wrap: anywhere;
 }
-.sp {
-    flex: 1;
+.status-acts {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
 }
 .ib {
     display: grid;
