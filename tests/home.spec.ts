@@ -199,3 +199,28 @@ test("unsaved work from an older version can be restored or thrown away", async 
     });
     expect(after).toBe("From the older tab");
 });
+
+test("the large phone leads Home, with no edit button on it, and Edit stays in reach", async ({
+    page,
+    isMobile,
+}) => {
+    await signUpToEditor(page);
+    await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+    await page.goto("/app");
+    const phone = await page.locator(".dev").boundingBox();
+    await expect(page.locator(".pv")).not.toContainText("Edit");
+    if (isMobile) {
+        expect(phone?.width).toBeGreaterThan(300);
+        await expect(page.locator(".bottom .ed")).toBeVisible();
+        const scroll = await page.evaluate(
+            () => document.documentElement.scrollWidth - window.innerWidth,
+        );
+        expect(scroll).toBeLessThanOrEqual(0);
+    } else {
+        const side = await page.locator(".home > .stack").boundingBox();
+        expect(phone?.width).toBeGreaterThan(380);
+        expect(phone?.height).toBeGreaterThan(700);
+        expect((phone?.x ?? 0) + (phone?.width ?? 0)).toBeLessThan(side?.x ?? 0);
+        await expect(page.locator(".side .edit")).toBeVisible();
+    }
+});

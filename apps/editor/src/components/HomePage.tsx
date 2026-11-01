@@ -2,12 +2,14 @@ import { routes } from "@tondo/contract";
 import type { DraftResponse, StatsResponse } from "@tondo/contract";
 import { publishIssues, publishWarnings, setupChecklist } from "@tondo/page";
 import type { ChecklistItem } from "@tondo/page";
-import { renderDocument } from "@tondo/render";
+import { paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
+
+const PHONE_ART = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 3);
 
 async function loadHome(
     handle: string,
@@ -214,60 +216,65 @@ export function HomePage(props: { account: Account }) {
                                   };
                     return (
                         <>
-                            <PageHeader
-                                title={
-                                    draft().page.header.name.trim()
-                                        ? `Hello, ${draft().page.header.name}`
-                                        : "Hello"
-                                }
-                                lead={status().line}
-                            >
-                                <Show
-                                    when={
-                                        draft().published && draft().changed && !draft().suspended
+                            <div class="home">
+                                <PageHeader
+                                    title={
+                                        draft().page.header.name.trim()
+                                            ? `Hello, ${draft().page.header.name}`
+                                            : "Hello"
                                     }
+                                    lead={status().line}
                                 >
-                                    <button
-                                        class="b p pub"
-                                        disabled={busy()}
-                                        onClick={() => {
-                                            goLive(draft().updatedAt).catch(() => {
-                                                setBusy(false);
-                                            });
-                                        }}
-                                    >
-                                        {busy() ? "Publishing" : "Publish"}
-                                    </button>
                                     <Show
-                                        when={confirmDiscard()}
-                                        fallback={
-                                            <button
-                                                class="b discard"
-                                                disabled={busy()}
-                                                onClick={() => setConfirmDiscard(true)}
-                                            >
-                                                Discard changes, back to live
-                                            </button>
+                                        when={
+                                            draft().published &&
+                                            draft().changed &&
+                                            !draft().suspended
                                         }
                                     >
                                         <button
-                                            class="b bad discard-yes"
+                                            class="b p pub"
                                             disabled={busy()}
                                             onClick={() => {
-                                                discard(draft().updatedAt).catch(() => {
+                                                goLive(draft().updatedAt).catch(() => {
                                                     setBusy(false);
                                                 });
                                             }}
                                         >
-                                            Yes, discard my changes
+                                            {busy() ? "Publishing" : "Publish"}
                                         </button>
-                                        <button class="b" onClick={() => setConfirmDiscard(false)}>
-                                            Keep them
-                                        </button>
+                                        <Show
+                                            when={confirmDiscard()}
+                                            fallback={
+                                                <button
+                                                    class="b discard"
+                                                    disabled={busy()}
+                                                    onClick={() => setConfirmDiscard(true)}
+                                                >
+                                                    Discard changes, back to live
+                                                </button>
+                                            }
+                                        >
+                                            <button
+                                                class="b bad discard-yes"
+                                                disabled={busy()}
+                                                onClick={() => {
+                                                    discard(draft().updatedAt).catch(() => {
+                                                        setBusy(false);
+                                                    });
+                                                }}
+                                            >
+                                                Yes, discard my changes
+                                            </button>
+                                            <button
+                                                class="b"
+                                                onClick={() => setConfirmDiscard(false)}
+                                            >
+                                                Keep them
+                                            </button>
+                                        </Show>
                                     </Show>
-                                </Show>
-                            </PageHeader>
-                            <div class="home">
+                                </PageHeader>
                                 <div class="stack">
                                     <Show when={draft().page.unreadable?.length}>
                                         <p class="notice" role="status" data-unreadable>
@@ -331,17 +338,20 @@ export function HomePage(props: { account: Account }) {
                                     </Show>
                                 </div>
                                 <aside class="pv">
-                                    <Card title="Your page">
-                                        <div class="pv-in">
-                                            <div class="dev">
-                                                <iframe
-                                                    title="Your page"
-                                                    sandbox="allow-popups"
-                                                    srcdoc={preview(draft())}
-                                                />
-                                            </div>
-                                        </div>
-                                    </Card>
+                                    <div
+                                        class="pv-art"
+                                        aria-hidden="true"
+                                        ref={(node) => {
+                                            node.innerHTML = PHONE_ART;
+                                        }}
+                                    />
+                                    <div class="dev">
+                                        <iframe
+                                            title="Your page"
+                                            sandbox="allow-popups"
+                                            srcdoc={preview(draft())}
+                                        />
+                                    </div>
                                 </aside>
                             </div>
                         </>
