@@ -1,4 +1,4 @@
-import { findSection, publishIssues, publishWarnings } from "@tondo/page";
+import { findSection, pageHash, publishIssues, publishWarnings } from "@tondo/page";
 import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
@@ -6,6 +6,8 @@ import type { JSX } from "solid-js";
 import { loadStats, publish } from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
 import type { Account } from "../lib/account";
+import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
+import type { Backup } from "../state/storage";
 import { createEditor, HEADER } from "../state/document";
 import { Canvas } from "./Canvas";
 import { LookTiles, MakeItYours } from "./LookPanel";
@@ -83,7 +85,12 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     const editor = untrack(() =>
         createEditor({
             handle: props.account.handle,
-            page: props.draft.page,
+            // Dates on the page follow this person's clock. It's saved with their next change.
+            page: {
+                ...props.draft.page,
+                timeZone:
+                    props.draft.page.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+            },
             updatedAt: props.draft.updatedAt,
             changed: props.draft.changed,
             onLoggedOut: toLogin,
@@ -120,6 +127,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             setView({
                 state: "live",
                 url: pageUrl(props.account.handle),
+                handle: props.account.handle,
                 stats: await loadStats(),
             });
         } else {
@@ -328,7 +336,56 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         }
     };
 
+    const openIssue = (target: string, item?: string) => {
+        setAskedItem(item ?? target);
+        editor.select(
+            target === HEADER ? HEADER : (findSection(editor.page(), target)?.section.id ?? null),
+        );
+        revealAsked(item, target);
+    };
+
+    // Home links straight to the thing to fix. A link only ever opens the panel, never publishes.
+    const openAsked = () => {
+        const asked = new URLSearchParams(location.search);
+        const panel = asked.get("panel");
+        const section = asked.get("section");
+        if (!panel && !section) return;
+        history.replaceState(null, "", location.pathname);
+        if (panel === "publish") {
+            const issues = publishIssues(editor.page());
+            setView(
+                issues.length
+                    ? { state: "issues", issues }
+                    : { state: "warnings", warnings: publishWarnings(editor.page()) },
+            );
+            showPublish();
+        } else if (panel === "look") {
+            openLook();
+        } else if (panel === "add") {
+            openAdd();
+        } else if (section) {
+            openIssue(section, asked.get("item") ?? undefined);
+        }
+    };
+
+    const [stale, setStale] = createSignal(
+        untrack(() => {
+            const found = loadStaleBackup(props.account.handle, props.draft.updatedAt);
+            if (found && pageHash(found.page) === pageHash(props.draft.page)) {
+                dropBackup(found.key);
+                return null;
+            }
+            return found;
+        }),
+    );
+    const restoreStale = async (backup: Backup) => {
+        await editor.saver.keepMine(backup.page);
+        dropBackup(backup.key);
+        location.reload();
+    };
+
     onMount(() => {
+        openAsked();
         window.addEventListener("keydown", onKey);
         onCleanup(() => {
             window.removeEventListener("keydown", onKey);
@@ -361,6 +418,49 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
             data-sheet={sheet() ?? undefined}
             classList={{ previewing: previewing() }}
         >
+            <div class="recovers">
+                <Show when={stale()}>
+                    {(backup) => (
+                        <div class="recover" role="alert">
+                            <p>This browser has unsaved work on an older version of your page.</p>
+                            <button
+                                type="button"
+                                class="recover-restore"
+                                onClick={() => {
+                                    restoreStale(backup()).catch(() => undefined);
+                                }}
+                            >
+                                Restore it
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    downloadPage(backup().page, props.account.handle);
+                                }}
+                            >
+                                Download it
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    dropBackup(backup().key);
+                                    setStale(null);
+                                }}
+                            >
+                                Discard it
+                            </button>
+                        </div>
+                    )}
+                </Show>
+                <Show when={editor.page().unreadable?.length}>
+                    <div class="recover" role="status" data-unreadable>
+                        <p>
+                            Part of your page couldn't be read, so it's off your live page. It's
+                            kept safe. Email support and we'll get it back for you.
+                        </p>
+                    </div>
+                </Show>
+            </div>
             <main class="stage">
                 <div class="wash" aria-hidden="true" ref={setWash} />
                 <TopBar
@@ -529,14 +629,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                                     openAdd();
                                     return;
                                 }
-                                setAskedItem(issue.item ?? issue.target);
-                                editor.select(
-                                    issue.target === HEADER
-                                        ? HEADER
-                                        : (findSection(editor.page(), issue.target)?.section.id ??
-                                              null),
-                                );
-                                revealAsked(issue.item, issue.target);
+                                openIssue(issue.target, issue.item);
                             }}
                             onPublishAnyway={() => {
                                 runPublish().catch(() => {

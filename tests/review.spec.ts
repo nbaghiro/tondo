@@ -119,7 +119,7 @@ test("a lone tab's content goes live without a tab bar, and the page loads", asy
     await page.waitForTimeout(800);
     const go = page.locator(".pub .go");
     if (await go.isVisible()) await go.click();
-    await expect(page.locator(".pub-link")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".pub-address")).toBeVisible({ timeout: 20_000 });
     const res = await page.request.get(`/${handle}`);
     expect(res.status()).toBe(200);
     const html = await res.text();
@@ -163,7 +163,7 @@ test("a page with only its top can publish", async ({ page }) => {
     await canvas(page).locator("#t-header").click();
     await panel(page).locator('[data-ask="bio"] textarea').fill("Just a line about me");
     await page.getByRole("button", { name: "Publish", exact: true }).click();
-    await expect(page.locator(".pub-link, .pub .go").first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".pub-address, .pub .go").first()).toBeVisible({ timeout: 20_000 });
     await expect(page.locator(".pub-issues")).toHaveCount(0);
 });
 

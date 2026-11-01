@@ -1,7 +1,9 @@
 import { routes } from "@tondo/contract";
 import type {
+    DeleteAccountResponse,
     DraftResponse,
     ErrorResponse,
+    HandleResponse,
     IssuesResponse,
     PhotosResponse,
     SaveResponse,
@@ -34,9 +36,17 @@ export type SaveResult =
     | { state: "saved"; updatedAt: string }
     | { state: "conflict" | "refused" | "logged-out" | "failed"; message?: string };
 
-export async function saveDraft(page: Page, updatedAt: string): Promise<SaveResult> {
+export async function saveDraft(
+    page: Page,
+    updatedAt: string,
+    previous: string | null,
+): Promise<SaveResult> {
     try {
-        const res = await send("PUT", routes.draft, { page, updatedAt });
+        const res = await send("PUT", routes.draft, {
+            page,
+            updatedAt,
+            ...(previous ? { previous } : {}),
+        });
         if (res.ok) {
             const saved = (await res.json()) as SaveResponse;
             return { state: "saved", updatedAt: saved.updatedAt };
@@ -77,9 +87,52 @@ export async function publish(updatedAt: string): Promise<PublishResult> {
     }
 }
 
-export async function loadStats(): Promise<StatsResponse | null> {
-    const res = await fetch(routes.stats).catch(() => null);
+export async function loadStats(days = 30): Promise<StatsResponse | null> {
+    const res = await fetch(`${routes.stats}?days=${String(days)}`).catch(() => null);
     return res?.ok ? ((await res.json()) as StatsResponse) : null;
+}
+
+const postEmpty = (path: string) => send("POST", path, {});
+const problemIn = async (res: Response) => {
+    const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    return body.error ?? body.message ?? "That didn't work. Please try again.";
+};
+
+/** Each of these returns what went wrong, or null if it worked. */
+export async function unpublish(): Promise<string | null> {
+    const res = await postEmpty(routes.unpublish).catch(() => null);
+    return res?.ok ? null : "That didn't work. Check your connection and try again.";
+}
+
+export async function changeAddress(handle: string): Promise<string | null> {
+    const res = await send("PATCH", routes.claim, { handle }).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    return res.ok ? null : problemIn(res);
+}
+
+export async function changePassword(
+    currentPassword: string,
+    newPassword: string,
+): Promise<string | null> {
+    const res = await send("POST", routes.changePassword, {
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+    }).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    if (res.ok) return null;
+    return res.status === 400 ? "That current password isn't right." : problemIn(res);
+}
+
+export async function deleteAccount(handle: string): Promise<DeleteAccountResponse | string> {
+    const res = await send("DELETE", routes.me, { handle }).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    return res.ok ? ((await res.json()) as DeleteAccountResponse) : problemIn(res);
+}
+
+export async function checkAddress(handle: string): Promise<HandleResponse | null> {
+    const res = await fetch(routes.handleCheck(handle)).catch(() => null);
+    return res?.ok ? ((await res.json()) as HandleResponse) : null;
 }
 
 export async function loadPhotos(): Promise<string[]> {

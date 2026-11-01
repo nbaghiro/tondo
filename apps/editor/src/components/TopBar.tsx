@@ -1,7 +1,8 @@
 import { Show } from "solid-js";
-import { logOut, pageUrl } from "../lib/account";
+import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import type { EditorState } from "../state/document";
+import { downloadPage } from "../state/storage";
 import { paint } from "@tondo/render";
 import { Glyph } from "./Panels";
 
@@ -31,14 +32,15 @@ export function TopBar(props: TopBarProps) {
     return (
         <header class="topbar">
             <div class="tgroup tl">
-                <span class="tlogo">
+                <a class="tlogo tohome" href={appPath("/")} aria-label="Back to Home">
                     <i
                         ref={(el) => {
                             el.innerHTML = LOGO;
                         }}
                     />
-                    Tondo
-                </span>
+                    <span class="tohome-word">Tondo</span>
+                    <small class="tohome-back">Home</small>
+                </a>
                 <a
                     class="url address"
                     href={pageUrl(props.account.handle)}
@@ -59,7 +61,25 @@ export function TopBar(props: TopBarProps) {
                                 location.reload();
                             }}
                         >
-                            Reload
+                            Use the latest
+                        </button>{" "}
+                        <button
+                            class="status-reload"
+                            onClick={() => {
+                                saver()
+                                    .keepMine(props.editor.page())
+                                    .catch(() => undefined);
+                            }}
+                        >
+                            Keep mine
+                        </button>{" "}
+                        <button
+                            class="status-reload"
+                            onClick={() => {
+                                downloadPage(props.editor.page(), props.account.handle);
+                            }}
+                        >
+                            Download mine
                         </button>
                     </Show>
                 </span>
@@ -103,9 +123,6 @@ export function TopBar(props: TopBarProps) {
                         : props.editor.changed()
                           ? "Publish"
                           : "Published"}
-                </button>
-                <button class="prev logout" onClick={logOut}>
-                    Log out
                 </button>
             </div>
         </header>

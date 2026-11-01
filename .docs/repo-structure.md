@@ -27,6 +27,18 @@ tondo/
 
 We chose this over a single package, as in Galleo and Lumischool, because `render` has to stay free of editor and server code to keep public pages small. Each package declaring its own dependencies makes that easier to enforce. We chose it over a finer split because looks and art change along with `render` today. Art is the likeliest package to split out, once it needs server-side image rendering.
 
+## The app
+
+`apps/editor` is one Vite app with two modes that load separately, so neither carries the other's code or styles. `main.tsx` picks one from the address:
+
+| Address | Opens | Code |
+|---|---|---|
+| `/app`, `/app/analytics`, `/app/settings`, `/app/account` | Dashboard | `app/dashboard.tsx`, `components/Shell.tsx`, `styles/shell.css` |
+| `/app/edit` | Builder | `app/builder.tsx`, `components/Editor.tsx`, `styles/builder.css` |
+| `/app/start` | Start flow | `app/builder.tsx`, `components/StartFlow.tsx` |
+
+To add a dashboard page: one line in `app/nav.ts`, one case in `Shell.tsx`, one file in `components/`. The router is `app/router.ts`, about 25 lines, so no routing library was added. Moving between dashboard and builder is a full page load.
+
 ## Naming
 
 Each folder uses one naming style, and `pnpm check:naming` enforces it. `components/` and `layouts/` hold PascalCase UI files. Everything else is lowercase with hyphens, and CSS lives only in `styles/`. `README.md` and `AGENTS.md` at the root are the only exceptions.

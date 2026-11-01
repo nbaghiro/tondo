@@ -11,7 +11,8 @@ Beautiful design and ease of use come first. A new person should be able to clai
 | Surface | Address | Purpose |
 |---|---|---|
 | Marketing | `tondo.page` | Explains the product and lets someone claim a name |
-| Editor | `tondo.page/app` | Edits pages, looks, team members and domains. It has to work well on a phone |
+| Dashboard | `tondo.page/app` | Home, Analytics, Page settings and Account, on a left sidebar. A bottom bar on phones |
+| Builder | `tondo.page/app/edit` | Edits the page and its look. It has to work well on a phone. Today it doesn't cover team members or domains |
 | Public page | `tondo.page/maya` or a custom domain | Server-rendered HTML and CSS, with no framework sent to the visitor |
 
 ## How a page is made
@@ -71,7 +72,8 @@ Not built yet: password reset and email verification screens, and terms and priv
 ## Handles and abuse
 
 - Handles are lowercase, normalised and checked against a reserved list that includes every top-level route.
-- Link pages attract phishing, so destination URLs are checked against a threat list on publish, with a report link on every free page.
+- Link pages attract phishing. Today, links are checked on publish against a list we set ourselves (`BLOCKED_HOSTS`), and a live page has a report link that opens an email. No threat feed is connected yet.
+- A suspended page stops being served. `pnpm --filter @tondo/db suspend <handle>` does it, and there's no admin screen.
 - New accounts have limits on page count and form submissions until they've built up some history.
 
 ## Teams

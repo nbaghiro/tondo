@@ -6,7 +6,7 @@ export type Account = MeResponse & { handle: string };
 /** Null handle means this person still needs the start flow. */
 export type LoadedAccount = MeResponse;
 
-const SITE_URL =
+export const SITE_URL =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ??
     (import.meta.env.DEV ? "http://localhost:8103" : "");
 
@@ -23,6 +23,10 @@ export async function loadAccount(): Promise<LoadedAccount | null> {
 /** Where a published page lives. In development, the server is on its own port. */
 export const pageUrl = (handle: string): string =>
     import.meta.env.DEV ? `http://localhost:8101/${handle}` : `/${handle}`;
+
+/** An address inside the app, which sits at /app in production and at the root in development. */
+export const appPath = (path: string): string =>
+    `${import.meta.env.BASE_URL.replace(/\/$/, "")}${path}`;
 
 export const toLogin = (): void => {
     location.assign(`${SITE_URL}/login`);

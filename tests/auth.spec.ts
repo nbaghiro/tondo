@@ -27,6 +27,7 @@ test("log out ends the session", async ({ page }) => {
     await signUpToEditor(page);
     const tab = page.locator(".tabbar button", { hasText: "Sections" });
     if (await tab.isVisible()) await tab.click();
+    await page.goto("/app/account");
     await page.locator(".logout:visible").click();
     await page.waitForURL((url) => url.pathname === "/");
     await page.goto("/app");

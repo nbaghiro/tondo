@@ -14,6 +14,10 @@ One Hono server serves the marketing site, the editor at `/app`, public pages, a
 | `NODE_ENV`, `HOST` | Set in `render.yaml` | Yes |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION` | Cloudflare R2: create a bucket and an API token, and use `https://<account-id>.r2.cloudflarestorage.com` with region `auto`. Without them, uploads say they aren't set up | For uploads |
 | `SITE_URL`, `EDITOR_URL` | Leave unset in production, where they default to the same origin | No |
+| `PUBLIC_ORIGIN` | The address used in share tags, such as `https://tondo.page`. Falls back to the request's own | No |
+| `BLOCKED_HOSTS` | Comma-separated hosts that can't be linked from a published page. This is the phishing hook, and there's no threat feed behind it yet | No |
+| `RATE_LIMIT_SCALE` | Multiplies every rate limit. Only the tests change it | No |
+| `COUNT_FLUSH_MS` | How often waiting view and click counts are written. Defaults to 5 seconds | No |
 
 ## Set up Neon
 
@@ -76,3 +80,19 @@ Set `NEON_AUTH_BASE_URL` to the `dev` branch's Auth URL, and `NEON_AUTH_COOKIE_S
 ## Trying it on a phone
 
 `pnpm --filter @tondo/editor dev --host` and the same for marketing expose the dev servers on your network, which is only sensible on a network you trust. A phone needs the same address for each app, and Neon's cookies are marked Secure, so sign-in on a phone is most reliable once deployed on HTTPS.
+
+## Limits of running one process
+
+Rate limits, the upload cap, the 15 second page cache and waiting counts all live in the server's memory. That's fine on one instance. With more than one:
+
+- Each instance counts its own limits, so the real limit is the number shown times the number of instances.
+- Publishing on one instance leaves the old page cached on the others for up to 15 seconds.
+- Counts waiting at a crash are lost. A normal deploy sends SIGTERM, which writes them first.
+
+Rate limits read the client address from the left of `X-Forwarded-For`. This hasn't been checked behind Render or Cloudflare. Sign-in also limits per email, so a forged header doesn't get past that one.
+
+## Before launch
+
+- Create `report@tondo.page`. The report page sends mail there.
+- Deleting an account asks Neon to delete the user, and that hasn't been tried against real Neon. If Neon refuses, the person is told their sign-in is still stored.
+- To hide a page for abuse: `pnpm --filter @tondo/db suspend <handle>`.

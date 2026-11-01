@@ -1792,8 +1792,12 @@ small.todo::before {
         padding: 0 0 0 12px;
         min-width: 0;
     }
-    .tlogo {
+    .tlogo i,
+    .tohome-word {
         display: none;
+    }
+    .tohome-back {
+        margin-left: 0;
     }
     .topbar .url {
         background: none;
@@ -2097,9 +2101,86 @@ small.todo::before {
 .pub-issues button:hover {
     border-color: var(--ink);
 }
-.pub-link {
+.tohome,
+.pub-address a,
+.pub-open {
+    color: var(--ink);
+    text-decoration: none;
+}
+.pub-address {
+    font-size: 17px;
+    overflow-wrap: anywhere;
+}
+.pub-address a:hover {
+    text-decoration: underline;
+}
+.pub-actions {
+    display: grid;
+    gap: 8px;
+}
+.pub-actions .go {
+    width: 100%;
+}
+.pub-open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    border: 1px solid var(--line2, #dcd6d9);
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 14px;
+}
+.pub-open:hover {
+    background: #f7f5f6;
+}
+.tohome-back {
+    margin-left: 4px;
+    padding: 3px 8px;
+    border: 1px solid #dcd6d9;
+    border-radius: 7px;
+    font:
+        700 12.5px Mulish,
+        sans-serif;
+    letter-spacing: 0;
+}
+.tohome:hover .tohome-back {
+    background: #f7f5f6;
+}
+.recovers {
+    position: fixed;
+    left: 50%;
+    bottom: 76px;
+    z-index: 80;
+    display: grid;
+    gap: 8px;
+    width: min(640px, calc(100vw - 24px));
+    transform: translateX(-50%);
+}
+.recovers:empty {
+    display: none;
+}
+.recover {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    padding: 9px 13px;
+    border: 1px solid #e9d8b5;
+    border-radius: 10px;
+    background: #fbf7ee;
+    font-size: 13.5px;
+}
+.recover p {
+    flex: 1;
+    min-width: 220px;
+    margin: 0;
+    font-weight: 600;
+}
+.recover button {
     font-weight: 700;
     text-decoration: underline;
+    text-underline-offset: 3px;
 }
 .pub-stats {
     color: var(--soft);

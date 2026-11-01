@@ -14,7 +14,7 @@ export async function signUpToStart(page: Page, handle = unique()): Promise<stri
     await page.waitForURL(/\/verify/);
     await page.locator("input[name=code]").fill(TEST_CODE);
     await page.locator(".auth-submit").click();
-    await page.waitForURL(/\/app/);
+    await page.waitForURL(/\/app\/start/);
     await expect(page.locator("#start-name")).toBeVisible();
     return handle;
 }

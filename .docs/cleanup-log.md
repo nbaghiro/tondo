@@ -46,6 +46,9 @@ Every request from the design cleanup round, so none get lost. It started on 202
 | Done | Review groups 1 and 2: broken panels, misleading live pages | See `review-2026-10-31.md`. Groups 3 to 5 are still open |
 | Done | Readable text in every unchanged look | Surf, Riso, Cutout, Comet, Trail, Smile and Bloom now pass 4.5:1, and the test covers all 50 looks with no exception |
 | Done | Fix what the re-walk found: live page crash, sample content, publish lists | Sample content is now checked field by field. See `review-2026-10-31.md` |
+| Done | Home, Analytics, Page settings and Account in the real app, on a left sidebar | `apps/editor/src/app/nav.ts` is the registry. Home is `/app`, the builder is `/app/edit`, the start flow is `/app/start` |
+| Done | Review group 3: saves, unreadable blocks, Neon outages, limits, handles, unpublish, delete, report, time zones | See `review-2026-10-31.md` and the limits in `deploy.md` |
+| Done | Look tiles redrawn from the real renderer | `pnpm looks:images` |
 
 The site changes are in `apps/marketing`.
 | Done | Move the approved builder into the real app | `apps/editor`, `packages/page/src/sections.ts`, `packages/render/src/style.ts`. See `builder-v2-port.md` |

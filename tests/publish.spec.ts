@@ -15,7 +15,7 @@ test("a draft survives a reload, and stays private until published", async ({ pa
     await saved(page);
     await page.reload();
     await expect(canvas(page).locator("a.b-btn")).toHaveCount(3);
-    const visitor = await page.context().browser()?.newContext();
+    const visitor = await page.context().browser()?.newContext({ userAgent: "Mozilla/5.0" });
     const other = await visitor?.newPage();
     const res = await other?.goto(new URL(`/${handle}`, page.url()).href);
     expect(res?.status()).toBe(404);
@@ -40,7 +40,7 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
     await expect(page.locator(".publish")).toHaveText("Published");
     await page.keyboard.press("Escape");
 
-    const visitor = await page.context().browser()?.newContext();
+    const visitor = await page.context().browser()?.newContext({ userAgent: "Mozilla/5.0" });
     const other = await visitor?.newPage();
     if (!other) throw new Error("No visitor page.");
     const url = new URL(`/${handle}`, page.url()).href;
@@ -60,12 +60,14 @@ test("publishing checks the page, then it opens logged out and counts clicks", a
     expect(made.status()).toBe(404);
     await visitor?.close();
 
-    const stats = (await (await page.request.get("/api/v1/me/stats")).json()) as {
-        views: number;
-        clicks: number;
-    };
-    expect(stats.clicks).toBe(1);
-    expect(stats.views).toBeGreaterThanOrEqual(1);
+    // Counts are written in batches, so they arrive a moment later.
+    const readStats = async () =>
+        (await (await page.request.get("/api/v1/me/stats")).json()) as {
+            views: number;
+            clicks: number;
+        };
+    await expect.poll(async () => (await readStats()).clicks).toBe(1);
+    expect((await readStats()).views).toBeGreaterThanOrEqual(1);
 
     // A later edit stays private until the next publish.
     await canvas(page).locator("a.b-btn").first().click();
@@ -82,7 +84,7 @@ test("a second tab can't overwrite newer work", async ({ page, context }) => {
     await saved(page);
     await addButton(second);
     await expect(second.locator(".status")).toHaveAttribute("data-state", "conflict");
-    await expect(second.locator(".status-reload")).toBeVisible();
+    await expect(second.getByRole("button", { name: "Keep mine" })).toBeVisible();
     await second.close();
 });
 

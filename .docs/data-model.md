@@ -31,7 +31,7 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 
 | Table | Columns | What it's for |
 |---|---|---|
-| `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address |
+| `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address. `suspended_at`, when set, stops their page being served |
 | `pages` | id, user_id, slug, draft, published, updated_at | The page being edited and its live copy, each one JSONB document. The empty slug is the main page |
 
 | `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
@@ -126,7 +126,12 @@ Tables only needed for much later features are `links` (standalone QR codes and 
 7. **Limits live in the schema:** 200 blocks, text lengths and list sizes, which also keeps a document to a modest size.
 8. **Dates come in two kinds.** Schedules ("show until") are exact instants in UTC. Events are local times, such as "2026-11-14T10:00", with the page's time zone, because a 10 am class stays at 10 am when the clocks change.
 
+Two optional fields sit at the top of the document. `timeZone` is the person's IANA zone, set from their browser, and event and countdown logic use it. `unreadable` holds blocks that no longer match any schema: `readPage` sets them aside one by one and logs them, so the page still renders. They stay in the editor's document and never reach the live page.
+
 ## Saving
+
+- **Lost responses:** a save sends a hash of the version it was based on. If the server's copy matches that hash, the earlier save did arrive, so it counts as this person's own save and not a conflict. Nothing else about conflicts changed: there's no revision column.
+- **Backups:** each tab keeps its own in `localStorage`. Work based on an older version is offered back to the person to restore, download or discard.
 
 - **Autosave:** the editor sends the whole document about a second after the last change. A typical page is small, so this is simple and cheap.
 - **Two tabs or two teammates:** each save sends the `updated_at` it started from. If someone else saved first, the server refuses and the editor says so, instead of quietly overwriting their work.

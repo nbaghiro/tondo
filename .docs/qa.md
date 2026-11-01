@@ -2,6 +2,22 @@
 
 This is what to walk through now that the builder is in the real app. Everything marked "needs you" hasn't been tried by anyone yet. The automated tests run in Chrome with phone emulation, against a local stand-in for Neon and for object storage.
 
+## Ready to test: Home and the dashboard
+
+Start the servers (`pnpm services:up`, `pnpm db:migrate`, `pnpm dev`), then open http://localhost:8103. Check at 1440, 1100 and on a real phone.
+
+1. **Sign up.** You land on the five-step start flow at `/start`. Finishing it opens the builder at `/edit`.
+2. **Go to Home.** Use the Home button beside the logo in the builder. You should see "Not live yet", your address, a real phone preview and five checklist items.
+3. **Follow each checklist item.** Each should open the builder at that exact field. "Publish your page" opens the panel and doesn't publish until you press the button.
+4. **Publish.** The panel shows your address, Copy link, Open your page and Back to Home.
+5. **Check the numbers.** Home shows Live and the last 30 days. Open your page in another browser and wait a few seconds: views go up. Press a link: clicks and Analytics' Top links go up. Analytics has 7, 30 and 90 days, a Views or Link clicks toggle, and a table view.
+6. **Make a change in the builder and go back to Home.** It says "Live, with unpublished changes" and offers Publish.
+7. **Page settings.** Change the title and description, then publish and paste your link into a chat to see the preview. Change your address and check the old one is a 404. Take the page down.
+8. **Account.** Change your password, log out, log back in. Log in lands on Home. Delete the account with a throwaway one.
+9. **Phone.** The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
+10. **Two tabs.** Edit in both. The second gets the conflict bar with Use the latest, Keep mine and Download mine.
+11. **Report link.** A live free page has a small Report link at the bottom. It opens `/report`.
+
 ## Starting up
 
 ```sh
@@ -30,7 +46,7 @@ In development the marketing site and published pages are on different ports. In
 - [ ] The code arrives, a wrong code is refused, "Send a new code" works
 - [ ] After the code, the start flow opens: name, sections, logo, look, address. The page fills in beside each step. A taken or reserved address is refused
 - [ ] Sign up without an address from the marketing box. The last step suggests one from the name
-- [ ] Log out and back in. You go straight to the editor, not the start flow
+- [ ] Log out and back in. You land on Home, not the start flow
 - [ ] Log out, then log in. A wrong password is refused
 - [ ] Forgot password: the code arrives, the new password works and the old one doesn't. **Needs you: never tried with a real code**
 - [ ] An unverified account that logs in is sent to `/verify`
@@ -114,7 +130,7 @@ These are expected, so they don't need reporting.
 - **Connected accounts** don't exist, so gallery and video sources are typed in.
 - **Editing before signing up:** the start flow runs after sign-up and verification. Whether someone can build first is a future decision.
 - **Paint swatches** recolour the painting and not the rest of the page. Art is drawn on the visitor's phone, not rasterised.
-- **Share images** aren't made, and a published page has no social preview picture.
+- **Share images** aren't generated. A published page uses its header photo if it has one, and otherwise shares with text only.
 - **Rollback:** publishing overwrites the live copy, by design for now.
-- **Deleting an account** isn't built. Neither are real legal and support pages.
+- **Real legal and support pages** aren't written yet. Deleting an account is built, see below for what it can't remove.
 - **Production:** nothing is deployed, Neon's production branch still has verification off, and R2 hasn't been set up.

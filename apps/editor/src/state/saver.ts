@@ -1,6 +1,7 @@
+import { pageHash } from "@tondo/page";
 import type { Page } from "@tondo/page";
 import { createSignal } from "solid-js";
-import { saveDraft } from "../lib/api";
+import { loadDraft, saveDraft } from "../lib/api";
 import { clearBackup, saveBackup } from "./storage";
 
 export type SaveState = "saved" | "saving" | "retrying" | "conflict" | "refused";
@@ -21,6 +22,8 @@ export function createSaver(options: {
     let waiting: Page | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let running: Promise<void> | null = null;
+    // A save that may have landed even though its answer never came back.
+    let unconfirmed: string | null = null;
 
     // Changes can arrive while a save is running, so this reads the latest value each time.
     const pending = (): Page | null => waiting;
@@ -30,8 +33,10 @@ export function createSaver(options: {
         if (!page || state() === "conflict") return;
         waiting = null;
         setState("saving");
-        const result = await saveDraft(page, updatedAt);
+        const result = await saveDraft(page, updatedAt, unconfirmed);
+        if (result.state === "failed") unconfirmed = pageHash(page);
         if (result.state === "saved") {
+            unconfirmed = null;
             updatedAt = result.updatedAt;
             if (pending()) {
                 await run();
@@ -75,6 +80,15 @@ export function createSaver(options: {
             if (state() === "saved") setState("saving");
             clearTimeout(timer);
             timer = setTimeout(startSoon, WAIT_MS);
+        },
+        /** After a conflict: this version wins, saved on top of whatever is there now. */
+        async keepMine(page: Page): Promise<void> {
+            const latest = await loadDraft();
+            updatedAt = latest.updatedAt;
+            waiting = page;
+            saveBackup(handle, page, updatedAt);
+            setState("saving");
+            await start();
         },
         /** Saves anything outstanding now. True once the server has everything. */
         async flush(): Promise<boolean> {

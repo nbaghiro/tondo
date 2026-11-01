@@ -1,10 +1,16 @@
 import type { PublishIssue } from "@tondo/page";
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import { appPath } from "../lib/account";
 
 export type PublishView =
     | { state: "issues"; issues: PublishIssue[] }
     | { state: "warnings"; warnings: PublishIssue[] }
-    | { state: "live"; url: string; stats: { views: number; clicks: number } | null }
+    | {
+          state: "live";
+          url: string;
+          handle: string;
+          stats: { views: number; clicks: number } | null;
+      }
     | { state: "failed"; message: string };
 
 function IssueList(props: { issues: PublishIssue[]; onOpen: (issue: PublishIssue) => void }) {
@@ -33,6 +39,7 @@ export function PublishPanel(props: {
     onOpen: (issue: PublishIssue) => void;
     onPublishAnyway: () => void;
 }) {
+    const [copied, setCopied] = createSignal(false);
     return (
         <div class="pub" aria-label="Publish">
             <Show when={props.view.state === "issues" && props.view}>
@@ -71,11 +78,31 @@ export function PublishPanel(props: {
             <Show when={props.view.state === "live" && props.view}>
                 {(view) => (
                     <>
-                        <p>
-                            <a class="pub-link" href={view().url} target="_blank" rel="noreferrer">
-                                Open your page
+                        <p class="pub-address">
+                            <a href={view().url} target="_blank" rel="noreferrer">
+                                tondo.page/<b>{view().handle}</b>
                             </a>
                         </p>
+                        <div class="pub-actions">
+                            <button
+                                type="button"
+                                class="go"
+                                onClick={() => {
+                                    navigator.clipboard
+                                        .writeText(`https://tondo.page/${view().handle}`)
+                                        .then(() => setCopied(true))
+                                        .catch(() => undefined);
+                                }}
+                            >
+                                {copied() ? "Copied" : "Copy link"}
+                            </button>
+                            <a class="pub-open" href={view().url} target="_blank" rel="noreferrer">
+                                Open your page
+                            </a>
+                            <a class="pub-open" href={appPath("/")}>
+                                Back to Home
+                            </a>
+                        </div>
                         <Show when={view().stats}>
                             {(stats) => (
                                 <p class="pub-stats">
