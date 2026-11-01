@@ -1,92 +1,19 @@
-import { allBlocks, findSection } from "@tondo/page";
-import type { Page, PublishIssue } from "@tondo/page";
+import { limitsFor, PLANS } from "@tondo/page";
+import type { Account, AccountLimits } from "@tondo/page";
 
-// Every plan limit is checked here, so paid plans only have to change this file.
-export interface Limits {
-    photos: number;
-    /** Help me credits each month. */
-    credits: number;
+export const plansOn = (): boolean => process.env["PLANS_ON"] === "true";
+
+// Until checkout works, asking for a payment would be a dead end, so everyone behaves as Pro. Help me
+// costs money per use, so its credits don't rise with that, unless set locally to try other limits.
+export function limitsOf(account: Account, now = new Date()): AccountLimits {
+    if (plansOn()) return limitsFor(account, now);
+    const credits = process.env["TONDO_PLAN"] === "pro" ? PLANS.pro.credits : PLANS.free.credits;
+    return { ...PLANS.pro, credits, designUntil: null };
 }
 
-export type Plan = "free" | "pro";
+export const photoLimitMessage = ({ photos }: { photos: number }): string =>
+    photos < PLANS.pro.photos
+        ? `You've used your ${String(photos)} photos. Remove one, or get ${PLANS.pro.photos.toLocaleString("en")} with Pro.`
+        : `You've used your ${photos.toLocaleString("en")} photos. Remove one to add another.`;
 
-const PLANS: Readonly<Record<Plan, Limits>> = {
-    free: { photos: 200, credits: 15 },
-    pro: { photos: 200, credits: 100 },
-};
-
-// Everyone is on Free until plans are built, with a local override for trying other limits.
-const planOf = (_userId: string): Plan => (process.env["TONDO_PLAN"] === "pro" ? "pro" : "free");
-
-export const limitsFor = (userId: string): Limits => PLANS[planOf(userId)];
-
-// A hook for a phishing check. Today it's a list set by the operator. A threat feed can replace it.
-const blockedHosts = (process.env["BLOCKED_HOSTS"] ?? "")
-    .split(",")
-    .map((host) => hostOf(`https://${host.trim()}`))
-    .filter((host): host is string => Boolean(host));
-
-// The URL parser lowers case, drops the port and turns international names into punycode. A final
-// dot is the same host too, and would otherwise slip past the list.
-function hostOf(url: string): string | null {
-    if (!URL.canParse(url)) return null;
-    return new URL(url).hostname.toLowerCase().replace(/\.+$/, "") || null;
-}
-
-const withScheme = (url: string) => (/^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : `https://${url}`);
-
-export function isBlockedLink(url: string, blocked: readonly string[] = blockedHosts): boolean {
-    const host = hostOf(withScheme(url));
-    return host !== null && blocked.some((bad) => host === bad || host.endsWith(`.${bad}`));
-}
-
-function linksIn(value: unknown): string[] {
-    // Any word can be an address, because a page shows the address even in a sentence.
-    if (typeof value === "string") {
-        return value
-            .split(/\s+/)
-            .map((word) => word.replace(/^[("'[]+|[)"'\],;:!?]+$/g, ""))
-            .filter(Boolean);
-    }
-    if (Array.isArray(value)) return value.flatMap(linksIn);
-    if (typeof value === "object" && value !== null) return Object.values(value).flatMap(linksIn);
-    return [];
-}
-
-export function blockedLinks(page: Page, blocked: readonly string[] = blockedHosts): string[] {
-    return linksIn(page).filter((url) => isBlockedLink(url, blocked));
-}
-
-/** Says where each blocked link is, so the person can go straight to it. */
-export function blockedIssues(
-    page: Page,
-    blocked: readonly string[] = blockedHosts,
-): PublishIssue[] {
-    const refused = (url: string, where: string) =>
-        `${where}: this link can't be used on Tondo (${hostOf(withScheme(url)) ?? url}). Change or remove it.`;
-    const header = linksIn(page.header)
-        .filter((url) => isBlockedLink(url, blocked))
-        .map((url) => ({
-            target: "header",
-            url,
-            message: refused(url, "Top of the page"),
-        }));
-    const blocks = allBlocks(page.blocks).flatMap((block) =>
-        block.type === "tabs"
-            ? []
-            : linksIn(block)
-                  .filter((url) => isBlockedLink(url, blocked))
-                  .map((url) => ({
-                      target: block.id,
-                      url,
-                      message: refused(
-                          url,
-                          findSection(page, block.id)?.section.definition.name ?? "A section",
-                      ),
-                  })),
-    );
-    return [...header, ...blocks];
-}
-
-/** Anything a page can't do on this plan. Nothing yet, because there's only one plan. */
-export const planIssues = (_page: Page): string[] => [];
+export type LimitsOfPerson = (userId: string) => Promise<AccountLimits>;

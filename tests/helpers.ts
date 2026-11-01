@@ -1,6 +1,18 @@
 import { expect } from "@playwright/test";
 import type { FrameLocator, Page } from "@playwright/test";
+import postgres from "postgres";
+import { PORTS } from "../scripts/ports";
 import { TEST_CODE } from "./test-code";
+
+const database = () =>
+    postgres(`postgres://tondo:tondo@127.0.0.1:${String(PORTS.postgres)}/tondo_test`, { max: 1 });
+
+/** Changes someone's plan straight in the test database. Ending in the past means it has ended. */
+export async function setPlan(handle: string, plan: string, endsAt: Date | null = null) {
+    const sql = database();
+    await sql`update users set plan = ${plan}, ends_at = ${endsAt} where handle = ${handle}`;
+    await sql.end();
+}
 
 let count = 0;
 const unique = () => `t${Date.now().toString(36)}${String(count++)}${String(process.pid)}`;
@@ -19,8 +31,13 @@ export async function signUpToStart(page: Page, handle = unique()): Promise<stri
     return handle;
 }
 
-/** Walks the start flow with the sections given, and lands in the editor. */
-export async function finishStart(page: Page, handle: string, sections: string[] = []) {
+/** Walks the start flow with the sections given, and lands in the editor, on Pro unless told. */
+export async function finishStart(
+    page: Page,
+    handle: string,
+    sections: string[] = [],
+    { plan = "pro" }: { plan?: string } = {},
+) {
     await page.locator("#start-name").fill("Maya Okafor");
     await page.locator("[data-next]").click();
     const defaults = ["about", "links", "photos"];
@@ -37,12 +54,21 @@ export async function finishStart(page: Page, handle: string, sections: string[]
     await expect(page.locator("#start-note")).toHaveClass(/ok/);
     await page.locator("[data-next]").click();
     await expect(page.locator(".address")).toContainText(handle);
+    if (plan !== "free") {
+        await setPlan(handle, plan);
+        await page.reload();
+        await expect(page.locator(".address")).toContainText(handle);
+    }
 }
 
 /** Signs up a new person and lands in the editor with an empty page. */
-export async function signUpToEditor(page: Page, sections: string[] = []): Promise<string> {
+export async function signUpToEditor(
+    page: Page,
+    sections: string[] = [],
+    options: { plan?: string } = {},
+): Promise<string> {
     const handle = await signUpToStart(page);
-    await finishStart(page, handle, sections);
+    await finishStart(page, handle, sections, options);
     return handle;
 }
 

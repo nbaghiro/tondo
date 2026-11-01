@@ -31,7 +31,7 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 
 | Table | Columns | What it's for |
 |---|---|---|
-| `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address. `suspended_at`, when set, stops their page being served |
+| `users` | id, handle | One person and their address. `id` is Neon Auth's user id. A row appears when they claim an address. `suspended_at`, when set, stops their page being served. `plan`, `stripe_id` and `ends_at` hold their plan, see [plans-implementation.md](plans-implementation.md) |
 | `pages` | id, user_id, slug, draft, published, updated_at | The page being edited and its live copy, each one JSONB document. The empty slug is the main page |
 
 | `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
@@ -43,7 +43,7 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 | `contacts` | id, user_id, email, entries, unsubscribed_at, created_at | Sign-ups and forms |
 | `connections` | id, user_id, provider, credentials, items, fetched_at | Connected accounts |
 
-**Columns that arrive later on `users`:** `plan` and `stripe_id` with paid plans, and `domain` with custom domains. `plan` is a copy of what Stripe knows, because asking Stripe on every page load would be too slow.
+**Columns that arrive later on `users`:** `domain` with custom domains. `plan` is a copy of what Stripe knows, because asking Stripe on every page load would be too slow.
 
 Tables only needed for much later features are `links` (standalone QR codes and short links, phase 4), `products` and `orders` (selling, phase 6) and `bookings` (Tondo booking, phase 8).
 

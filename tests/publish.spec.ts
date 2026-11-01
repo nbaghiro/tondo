@@ -108,7 +108,7 @@ test("an uploaded photo is cropped, saved and shown in the picker", async ({ pag
     expect(loaded).toBe(1);
 
     await panel(page).locator(".ph .mini").first().click();
-    await expect(page.locator(".pick-mine button")).toHaveCount(1);
+    await expect(page.locator(".pick-mine .mine")).toHaveCount(1);
     await page.locator(".upload input").setInputFiles({
         name: "bad.svg",
         mimeType: "image/svg+xml",

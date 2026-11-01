@@ -1,6 +1,7 @@
 import "@tondo/brand/tokens.css";
 import { inAppPath } from "./app/router";
 import { appPath, followLogOut, loadAccount, UNREACHABLE } from "./lib/account";
+import { setPlan } from "./state/plan";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("The page has no #root element.");
@@ -10,6 +11,7 @@ async function open(here: HTMLElement): Promise<void> {
     // Null means the browser is already on its way to the login page.
     const account = await loadAccount();
     if (!account) return;
+    setPlan(account);
     followLogOut();
     const path = inAppPath();
     if (!account.handle) {

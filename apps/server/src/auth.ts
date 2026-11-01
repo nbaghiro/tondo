@@ -22,6 +22,7 @@ import {
 } from "@neon/auth/server";
 import type { Context, Hono, MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { limitsOf, plansOn } from "./limits";
 import { clientIp, createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 
@@ -130,6 +131,21 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     };
 
     const nameOf = (person: Person) => person.name || (person.email.split("@")[0] ?? person.email);
+    // Everything the editor knows about this person, from one place.
+    const meOf = async (person: Person, handle: string | null): Promise<MeResponse> => {
+        const account = await store.findPlan(person.id);
+        const { designUntil, ...limits } = limitsOf(account);
+        return {
+            email: person.email,
+            name: nameOf(person),
+            handle,
+            plan: account.plan,
+            limits,
+            endsAt: account.endsAt?.toISOString() ?? null,
+            designUntil: designUntil?.toISOString() ?? null,
+            billing: plansOn(),
+        };
+    };
     const claim = (person: Person, handle: string, page?: Page) =>
         isReservedHandle(handle)
             ? Promise.resolve(false)
@@ -219,11 +235,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         c.header("Cache-Control", "no-store");
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        return c.json<MeResponse>({
-            email: person.email,
-            name: nameOf(person),
-            handle: await store.findHandle(person.id),
-        });
+        return c.json<MeResponse>(await meOf(person, await store.findHandle(person.id)));
     });
 
     app.get(routes.handleCheck(":handle").replace("%3A", ":"), async (c) => {
@@ -268,7 +280,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             if (!(await claim(person, handle, parsed.data.page))) {
                 return fail(c, 409, "That address is taken. Try another one.");
             }
-            return c.json<MeResponse>({ email: person.email, name: nameOf(person), handle });
+            return c.json<MeResponse>(await meOf(person, handle));
         },
     );
 
@@ -293,7 +305,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             return fail(c, 409, "That address is taken. Try another one.");
         }
         config.onHandleChange?.(before, handle);
-        return c.json<MeResponse>({ email: person.email, name: nameOf(person), handle });
+        return c.json<MeResponse>(await meOf(person, handle));
     });
 
     // Photos go first, because that can be tried again. If they can't be removed, the page and sign-in

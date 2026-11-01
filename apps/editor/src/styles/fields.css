@@ -514,3 +514,31 @@ textarea.in {
     margin-top: 6px;
     color: #8c1d2f;
 }
+
+.mine {
+    position: relative;
+    display: block;
+}
+.mine > button:first-child {
+    width: 100%;
+}
+.pick .mine-x {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 24px;
+    height: 24px;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(29 26 23 / 0.75);
+    color: #fff;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+.photo-count {
+    margin-left: 6px;
+    font-weight: 400;
+    color: var(--faint);
+}

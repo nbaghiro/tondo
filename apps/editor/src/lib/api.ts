@@ -170,6 +170,14 @@ export async function loadPhotos(): Promise<string[]> {
     return res?.ok ? ((await res.json()) as PhotosResponse).files : [];
 }
 
+/** Returns what went wrong, or null if the photo's gone. */
+export async function removePhoto(file: string): Promise<string | null> {
+    const name = file.split("/").pop() ?? file;
+    const res = await send("DELETE", routes.photo(name), {}).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    return res.ok ? null : problemIn(res);
+}
+
 /** Returns the saved file's name, or a message saying why it was refused. */
 export async function uploadPhoto(file: File): Promise<{ file: string } | { error: string }> {
     const body = new FormData();

@@ -19,6 +19,8 @@ services:
             value: "1"
           - key: HOST
             value: 0.0.0.0
+          - key: PLANS_ON
+            value: "false"
           - key: NEON_AUTH_COOKIE_SECRET
             generateValue: true
           # Set these in the Render dashboard. They are never committed.

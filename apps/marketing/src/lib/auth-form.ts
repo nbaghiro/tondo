@@ -36,7 +36,7 @@ const showError = (message: string) => {
 const preview = import.meta.env.DEV && params.has("preview");
 
 // The editor runs the start flow for someone with no address yet, and checks the one they asked for.
-const goOn = (account: MeResponse, handle?: string) => {
+const goOn = (account: Pick<MeResponse, "handle">, handle?: string) => {
     const asked = !account.handle && handle ? `?handle=${encodeURIComponent(handle)}` : "";
     const next = `${EDITOR_URL}${asked}`;
     if (preview) window.parent.postMessage({ tondoGoTo: next }, "*");
@@ -140,13 +140,13 @@ async function signUp(email: string, password: string, handle: string): Promise<
         goTo("/verify");
         return null;
     }
-    await continueAs(email, name, handle);
+    await continueAs(handle);
     return null;
 }
 
-async function continueAs(email: string, name: string, handle: string | undefined): Promise<void> {
+async function continueAs(handle: string | undefined): Promise<void> {
     const me = await fetch(routes.me);
-    goOn(me.ok ? ((await me.json()) as MeResponse) : { email, name, handle: null }, handle);
+    goOn(me.ok ? ((await me.json()) as MeResponse) : { handle: null }, handle);
 }
 
 const sendCode = (email: string) =>
@@ -184,7 +184,7 @@ async function verify(code: string): Promise<string | null> {
         return null;
     }
     const account = (await me.json()) as MeResponse;
-    await continueAs(account.email, account.name, account.handle ? undefined : pending.handle);
+    await continueAs(account.handle ? undefined : pending.handle);
     return null;
 }
 

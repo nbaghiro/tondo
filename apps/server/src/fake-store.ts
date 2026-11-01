@@ -1,14 +1,20 @@
 import { summarise } from "@tondo/db";
 import type { AccountStore, Draft, PageStore } from "@tondo/db";
-import type { Page } from "@tondo/page";
+import type { Page, Plan } from "@tondo/page";
 
 /** Keeps addresses in memory, for tests. */
-export function createFakeStore(): AccountStore & { suspend: (userId: string) => void } {
+export function createFakeStore(): AccountStore & {
+    suspend: (userId: string) => void;
+    plans: Map<string, { plan: Plan; endsAt: Date | null }>;
+} {
     const owners = new Map<string, string>();
+    const plans = new Map<string, { plan: Plan; endsAt: Date | null }>();
     const suspended = new Set<string>();
     const handleOf = (userId: string) =>
         [...owners].find(([, owner]) => owner === userId)?.[0] ?? null;
     return {
+        plans,
+        findPlan: (userId) => Promise.resolve(plans.get(userId) ?? { plan: "free", endsAt: null }),
         findHandle: (userId) => Promise.resolve(handleOf(userId)),
         handleTaken: (handle) => Promise.resolve(owners.has(handle)),
         claimHandle: (userId, handle) => {
@@ -118,5 +124,9 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
         const row = rows.get(userId);
         if (row) row.suspended = true;
     };
-    return { store, counts, addUser, suspend };
+    const setDraft = (userId: string, page: Page) => {
+        const row = rows.get(userId);
+        if (row) row.draft = page;
+    };
+    return { store, counts, addUser, suspend, setDraft };
 }

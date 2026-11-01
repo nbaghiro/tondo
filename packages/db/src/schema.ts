@@ -1,4 +1,4 @@
-import type { Page } from "@tondo/page";
+import type { Page, Plan } from "@tondo/page";
 import {
     date,
     integer,
@@ -18,6 +18,10 @@ export const users = pgTable("users", {
     handle: text("handle").notNull().unique(),
     /** Set when a page is taken down for abuse. It stops being served, and the account stays. */
     suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+    plan: text("plan").$type<Plan>().notNull().default("free"),
+    stripeId: text("stripe_id").unique(),
+    /** When the plan stops, or stopped. Null means it carries on. */
+    endsAt: timestamp("ends_at", { withTimezone: true }),
 });
 
 // A user has a main page, with an empty slug, and can gain sub-pages. Editing changes the draft, and

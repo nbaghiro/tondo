@@ -1,11 +1,14 @@
 import { createHash } from "node:crypto";
 import { routes } from "@tondo/contract";
+import type { PageStore } from "@tondo/db";
+import { photosIn } from "@tondo/page";
 import type { ErrorResponse, PhotosResponse } from "@tondo/contract";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import sharp from "sharp";
 import type { CurrentPerson } from "./auth";
-import { limitsFor } from "./limits";
+import { photoLimitMessage } from "./limits";
+import type { LimitsOfPerson } from "./limits";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 import type { Storage } from "./storage";
@@ -72,10 +75,18 @@ export function mountPhotos(
     app: Hono,
     storage: Storage | null,
     currentPerson: CurrentPerson,
-    scale: Scale,
+    {
+        scale,
+        pages,
+        limitsOfPerson,
+    }: { scale: Scale; pages: PageStore; limitsOfPerson: LimitsOfPerson },
 ): void {
-    const fail = (c: Context, status: 400 | 401 | 403 | 413 | 415 | 429 | 503, error: string) =>
-        c.json<ErrorResponse>({ error }, status);
+    const fail = (
+        c: Context,
+        status: 400 | 401 | 403 | 404 | 409 | 413 | 415 | 429 | 503,
+        error: string,
+        code?: string,
+    ) => c.json<ErrorResponse>({ error, ...(code ? { code } : {}) }, status);
     const NOT_SET_UP = "Photo uploads aren't set up here yet.";
     const allowUpload = createLimiter(scale(30), 60_000);
 
@@ -128,8 +139,9 @@ export function mountPhotos(
 
             const folder = folderFor(person.id);
             const existing = await storage.list(folder);
-            if (existing.length >= limitsFor(person.id).photos) {
-                return fail(c, 413, "You've reached the limit for photos.");
+            const limits = await limitsOfPerson(person.id);
+            if (existing.length >= limits.photos) {
+                return fail(c, 413, photoLimitMessage(limits), "plan_limit");
             }
 
             if (isBusy()) {
@@ -140,4 +152,29 @@ export function mountPhotos(
             return c.json({ file }, 201);
         },
     );
+
+    app.delete(routes.photo(":file").replace("%3A", ":"), async (c) => {
+        if (!c.req.header("content-type")?.startsWith("application/json")) {
+            return fail(c, 415, "Send this as JSON.");
+        }
+        const origin = c.req.header("origin");
+        if (origin && hostOf(origin) !== c.req.header("host")) {
+            return fail(c, 403, "This request came from another site.");
+        }
+        const person = await currentPerson(c);
+        if (!person) return fail(c, 401, "You're not logged in.");
+        if (!storage) return fail(c, 503, NOT_SET_UP);
+        if (!allowUpload(person.id)) {
+            return fail(c, 429, "That's a lot of photos at once. Wait a little and try again.");
+        }
+        const key = `${folderFor(person.id)}${c.req.param("file")}`;
+        if (!UPLOAD_KEY.test(key)) return fail(c, 404, "We couldn't find that photo.");
+        const draft = await pages.findDraft(person.id);
+        const live = await pages.findOwnLive(person.id);
+        if (photosIn([draft?.page, live]).some((photo) => photo.file === key)) {
+            return fail(c, 409, "This photo is on your page. Take it off first.");
+        }
+        await storage.remove(key);
+        return c.body(null, 204);
+    });
 }

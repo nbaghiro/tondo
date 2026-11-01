@@ -27,7 +27,7 @@ const draft = (page: Page) =>
     );
 
 test("one request edits the page, and one undo restores it", async ({ page }) => {
-    await signUpToEditor(page);
+    await signUpToEditor(page, [], { plan: "free" });
     await openHelp(page);
     await expect(page.locator(".help-first")).toContainText("nothing goes live until you publish");
     await ask(page, "make the buttons softer");
@@ -41,7 +41,7 @@ test("one request edits the page, and one undo restores it", async ({ page }) =>
 });
 
 test("the page is locked during a turn, and Stop changes nothing", async ({ page }) => {
-    await signUpToEditor(page);
+    await signUpToEditor(page, [], { plan: "free" });
     await openHelp(page);
     await ask(page, "something slow please");
     await expect(page.locator(".build.locked")).toBeVisible();
@@ -157,7 +157,7 @@ test("a stock photo is added only when picked, with its credit", async ({ page }
 });
 
 test("a generated image shows its cost first, and costs nothing until agreed", async ({ page }) => {
-    await signUpToEditor(page);
+    await signUpToEditor(page, [], { plan: "free" });
     await openHelp(page);
     await ask(page, "make me a simple logo");
     const card = page.locator(".help-card").first();

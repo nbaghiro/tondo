@@ -1,4 +1,7 @@
 ---
+import { isFreeLook, lookNames } from "@tondo/page";
+import { looks } from "@tondo/render";
+
 interface Props {
     id: string;
     handle: string;
@@ -8,6 +11,7 @@ interface Props {
 }
 
 const { id, handle, name, role, look } = Astro.props;
+const isPro = lookNames.some((key) => looks[key].label === look && !isFreeLook(key));
 ---
 
 <a
@@ -27,6 +31,7 @@ const { id, handle, name, role, look } = Astro.props;
             <b>{name}</b>
             <span>
                 {role.charAt(0).toUpperCase() + role.slice(1)}. {look} look.
+                {isPro ? <small class="ex-pro">Pro</small> : null}
             </span>
         </figcaption>
     </figure>

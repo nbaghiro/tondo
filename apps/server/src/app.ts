@@ -9,7 +9,8 @@ import { mountAssistant } from "./assistant";
 import type { AssistantDeps } from "./assistant";
 import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
-import { isBlockedLink } from "./limits";
+import { isBlockedLink } from "./blocked";
+import { limitsOf } from "./limits";
 import { mountPages } from "./pages";
 import { folderFor, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
@@ -111,6 +112,7 @@ export function createApp({
 
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
+    const limitsOfPerson = async (userId: string) => limitsOf(await auth.store.findPlan(userId));
     const currentPerson = mountAuth(app, {
         ...auth,
         scale,
@@ -127,17 +129,19 @@ export function createApp({
     // Publishing has to show straight away, so it clears this person's page from the cache.
     mountPages(app, pages, currentPerson, {
         scale,
+        limitsOfPerson,
         onPublishChange: async (userId) => {
             const handle = await pages.handleOf(userId);
             if (handle) cache.drop(handle);
         },
     });
-    mountPhotos(app, storage ?? null, currentPerson, scale);
+    mountPhotos(app, storage ?? null, currentPerson, { scale, pages, limitsOfPerson });
     mountAssistant(
         app,
         assistant ? { ...assistant, storage: storage ?? null } : null,
         currentPerson,
         scale,
+        limitsOfPerson,
     );
     if (photos) app.get("/photos/*", photos);
 

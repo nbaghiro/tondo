@@ -26,6 +26,7 @@ export const routes = {
     unpublish: "/api/v1/me/page/unpublish",
     stats: "/api/v1/me/stats",
     photos: "/api/v1/me/photos",
+    photo: (file: string) => `/api/v1/me/photos/${encodeURIComponent(file)}`,
     assistant: "/api/v1/me/assistant",
     assistantTurn: "/api/v1/me/assistant/turn",
     assistantImage: "/api/v1/me/assistant/image",
@@ -34,17 +35,35 @@ export const routes = {
 } as const;
 
 export const healthResponse = z.strictObject({ status: z.literal("ok") });
-export const errorResponse = z.strictObject({ error: z.string() });
+export const errorResponse = z.strictObject({ error: z.string(), code: z.string().optional() });
 
 const handle = z.string().transform(normaliseHandle).pipe(handleSchema);
 
 /** The address, and optionally the page the start flow built. */
 export const claimRequest = z.strictObject({ handle, page: pageSchema.optional() });
 export const handleResponse = z.strictObject({ available: z.boolean(), message: z.string() });
+const limits = z.strictObject({
+    pages: z.number(),
+    sections: z.number().nullable(),
+    photos: z.number(),
+    credits: z.number(),
+    statsDays: z.number(),
+    design: z.boolean(),
+    business: z.boolean(),
+    mark: z.boolean(),
+});
 export const meResponse = z.strictObject({
     email: z.string(),
     name: z.string(),
     handle: z.string().nullable(),
+    plan: z.enum(["free", "pro", "team"]),
+    limits,
+    /** When a plan ended or will end, as an ISO date. */
+    endsAt: z.string().nullable(),
+    /** After a plan ends, when its design steps down on the live page. */
+    designUntil: z.string().nullable(),
+    /** Whether plans are switched on here. While it's false, nothing mentions them. */
+    billing: z.boolean(),
 });
 
 export const liveResponse = z.strictObject({ page: pageSchema });
@@ -88,6 +107,8 @@ export const statsResponse = z.strictObject({
     links: z.array(z.strictObject({ url: z.string(), clicks: z.number() })),
     /** Clicks on links that are no longer on the page, so the list still adds up to the total. */
     earlierClicks: z.number(),
+    /** The days this answer covers, which can be fewer than were asked for. */
+    range: z.number(),
 });
 export const publishCheckResponse = z.strictObject({ issues: issuesResponse.shape.issues });
 export type PublishCheckResponse = z.infer<typeof publishCheckResponse>;

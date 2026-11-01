@@ -121,7 +121,7 @@ export function publishIssues(page: Page): PublishIssue[] {
     return issues;
 }
 
-function photosIn(value: unknown): Photo[] {
+export function photosIn(value: unknown): Photo[] {
     if (Array.isArray(value)) return value.flatMap(photosIn);
     if (typeof value !== "object" || value === null) return [];
     const file = (value as { file?: unknown }).file;

@@ -194,7 +194,11 @@ export function summarise(
 export async function seedUser(db: Db, handle: string, page: Page): Promise<void> {
     const userId = `seed-${handle}`;
     await db.transaction(async (tx) => {
-        await tx.insert(users).values({ id: userId, handle }).onConflictDoNothing();
+        // Example pages carry no mark.
+        await tx
+            .insert(users)
+            .values({ id: userId, handle, plan: "pro" })
+            .onConflictDoUpdate({ target: users.id, set: { plan: "pro" } });
         await tx
             .insert(pages)
             .values({ userId, slug: MAIN_PAGE, draft: page, published: page })

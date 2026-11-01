@@ -8,7 +8,8 @@ import type {
     SourceOption,
 } from "@tondo/page";
 import { createEffect, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
-import { loadPhotos, uploadPhoto } from "../lib/api";
+import { loadPhotos, removePhoto, uploadPhoto } from "../lib/api";
+import { plan } from "../state/plan";
 import { Icon } from "./Icon";
 
 /** Sets a value on whatever owns these fields. False means it wasn't allowed. */
@@ -206,6 +207,17 @@ function PhotoGrid(props: {
                 setError("That photo didn't upload. Please try again.");
             });
     };
+    const remove = (file: string) => {
+        setError("");
+        removePhoto(file)
+            .then((problem) => {
+                if (problem) setError(problem);
+                else setMyPhotos((was) => was.filter((other) => other !== file));
+            })
+            .catch(() => {
+                setError("That didn't work. Check your connection and try again.");
+            });
+    };
     onMount(() => {
         if (photosLoaded) return;
         photosLoaded = true;
@@ -236,9 +248,33 @@ function PhotoGrid(props: {
                 </small>
             </Show>
             <Show when={myPhotos().length}>
-                <h4 class="picker-h">Your photos</h4>
+                <h4 class="picker-h">
+                    Your photos
+                    <Show when={plan()?.billing}>
+                        <small class="photo-count">
+                            {myPhotos().length.toLocaleString("en")} of{" "}
+                            {plan()?.limits.photos.toLocaleString("en")}
+                        </small>
+                    </Show>
+                </h4>
                 <div class="pick pick-mine">
-                    <For each={myPhotos()}>{(file) => tile(file, "Use one of your photos")}</For>
+                    <For each={myPhotos()}>
+                        {(file) => (
+                            <span class="mine">
+                                {tile(file, "Use one of your photos")}
+                                <button
+                                    type="button"
+                                    class="mine-x"
+                                    aria-label="Remove this photo from your photos"
+                                    onClick={() => {
+                                        remove(file);
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        )}
+                    </For>
                 </div>
             </Show>
             <h4 class="picker-h">Library</h4>

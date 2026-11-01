@@ -295,3 +295,13 @@ test.describe("the filmstrip", () => {
         });
     });
 });
+
+test("the gallery says which looks need Pro", async ({ page }) => {
+    await page.goto("/gallery");
+    await expect(
+        page.locator(".ex", { hasText: "Bakehouse look" }).first().locator(".ex-pro"),
+    ).toHaveText("Pro");
+    await expect(
+        page.locator(".ex", { hasText: "Madder look" }).first().locator(".ex-pro"),
+    ).toHaveCount(0);
+});

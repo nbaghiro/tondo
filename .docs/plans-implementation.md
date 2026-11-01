@@ -2,7 +2,7 @@
 
 This plan builds the plan the owner chose in [plans.md](plans.md).
 
-**Status:** M0 is done. M1 to M5 are being built in order. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
+**Status:** M0 and M1 are done. M2 to M5 are being built in order. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
 
 It was first checked against the working tree and Stripe's docs on 2026-11-01, while other agents were changing `apps/` and `.docs/`, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. I haven't tried any of this against a real Stripe account.
 
@@ -695,6 +695,19 @@ Shared files to take turns on: `apps/server/src/app.ts` (B and C), `packages/con
 4. Tax confirmed, or a written decision from the accountant.
 5. Terms and Privacy approved, and the production check for gating done.
 6. Rollback known: `PLANS_ON=false` removes all gates at once, without touching anyone's subscription. Paying people should then be told, and Stripe stays the record of who pays.
+
+## What changed while building
+
+Where the code or a later decision differed from the plan above, this is what was done.
+
+- **Migration number.** Help me's `usage` table took `0003`, so the plan's columns are `0004`. It only adds columns, with defaults, so existing rows stay.
+- **Help me credits are in `Limits`.** They arrived after the plan was written: 15 on Free and 100 on paid plans. While `PLANS_ON` is off, everyone behaves as Pro apart from credits, which stay at 15, because they cost money per use. `TONDO_PLAN=pro` still raises them locally.
+- **Help me's photo routes count too.** Picking a stock photo and making images store files, so both check the same photo limit. Making images wasn't limited before.
+- **Page limits are one number.** With multiple pages on hold, `Limits` has `pages` and nothing else about them: no `drafts`, `canAddPage`, `canPublishPage` or `isReadOnly`. The pricing table doesn't state pages per plan yet.
+- **`Draft` isn't given the plan.** Routes ask `findPlan` once, through `limitsOfPerson`, so only `LivePage` gains the plan (with the mark).
+- **`/me` also returns `endsAt`,** which Account's private release line and Home's notices need.
+- **`limitsFor` accepts any plan text** and treats one it doesn't know as Free, so a bad value in the database can't break a page.
+- **The state of the plan is one signal in the editor,** `state/plan.ts`, set when the account loads, so panels don't pass it down.
 
 ## Decisions still open
 

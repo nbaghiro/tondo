@@ -17,7 +17,9 @@ import { IMAGE_MODEL, ModelError } from "./assistant-model";
 import type { Model } from "./assistant-model";
 import type { CurrentPerson } from "./auth";
 import { imageRefusal } from "./image-make";
-import { isBlockedLink, limitsFor } from "./limits";
+import { isBlockedLink } from "./blocked";
+import { limitsOf, photoLimitMessage } from "./limits";
+import type { LimitsOfPerson } from "./limits";
 import { folderFor, isBusy, storePhoto } from "./photos";
 import type { Storage } from "./storage";
 import { createLimiter } from "./traffic";
@@ -54,9 +56,15 @@ export function mountAssistant(
     deps: AssistantDeps | null,
     currentPerson: CurrentPerson,
     scale: Scale,
+    limitsOfPerson: LimitsOfPerson = () =>
+        Promise.resolve(limitsOf({ plan: "free", endsAt: null })),
 ): void {
-    const fail = (c: Context, status: 400 | 401 | 402 | 413 | 415 | 429 | 503, error: string) =>
-        c.json<ErrorResponse>({ error }, status);
+    const fail = (
+        c: Context,
+        status: 400 | 401 | 402 | 413 | 415 | 429 | 503,
+        error: string,
+        code?: string,
+    ) => c.json<ErrorResponse>({ error, ...(code ? { code } : {}) }, status);
     const isJson = (c: Context) => c.req.header("content-type")?.startsWith("application/json");
     const allowTurn = createLimiter(scale(12), 60_000);
     const allowImage = createLimiter(scale(10), 3_600_000);
@@ -72,7 +80,7 @@ export function mountAssistant(
     };
 
     const creditsOf = async (userId: string) => {
-        const credits = limitsFor(userId).credits;
+        const { credits } = await limitsOfPerson(userId);
         const spent = deps ? await deps.usage.spentThisMonth(userId, monthOf(new Date())) : 0;
         return { credits, left: Math.max(0, credits - spent) };
     };
@@ -160,11 +168,12 @@ export function mountAssistant(
                     const charge =
                         (result.setup ? CREDITS.setup : CREDITS.turn) +
                         result.sitesRead * CREDITS.site;
+                    const { credits } = await limitsOfPerson(userId);
                     const total = await usage.spend(
                         userId,
                         monthOf(new Date()),
                         Math.min(charge, left),
-                        limitsFor(userId).credits,
+                        credits,
                     );
                     emit({
                         type: "done",
@@ -172,8 +181,7 @@ export function mountAssistant(
                         reply: result.reply,
                         changes: result.changes,
                         partial: result.partial,
-                        creditsLeft:
-                            total === null ? 0 : Math.max(0, limitsFor(userId).credits - total),
+                        creditsLeft: total === null ? 0 : Math.max(0, credits - total),
                     });
                 } catch (error) {
                     if (!stopping.signal.aborted) {
@@ -227,6 +235,11 @@ export function mountAssistant(
                 `That needs ${String(cost)} credits, and you have ${String(left)}.`,
             );
         }
+        const limits = await limitsOfPerson(person.id);
+        const stored = await storage.list(folderFor(person.id));
+        if (stored.length + count > limits.photos) {
+            return fail(c, 413, photoLimitMessage(limits), "plan_limit");
+        }
         const signal = AbortSignal.timeout(IMAGE_MS);
         const framed = `${kind === "logo" ? "A simple, flat logo on a plain background:" : kind === "art" ? "An illustration:" : "A natural photograph:"} ${prompt}`;
         const made = await Promise.all(
@@ -262,8 +275,9 @@ export function mountAssistant(
         if (!allowPick(person.id)) return fail(c, 429, "That's a lot of photos. Try again later.");
         if (isBusy()) return fail(c, 503, "We're busy with other photos. Try again in a moment.");
         const existing = await storage.list(folderFor(person.id));
-        if (existing.length >= limitsFor(person.id).photos) {
-            return fail(c, 413, "You've reached the limit for photos.");
+        const limits = await limitsOfPerson(person.id);
+        if (existing.length >= limits.photos) {
+            return fail(c, 413, photoLimitMessage(limits), "plan_limit");
         }
         const bytes = await download(parsed.data.url, AbortSignal.timeout(IMAGE_MS)).catch(
             () => null,

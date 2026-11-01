@@ -1,4 +1,4 @@
-import type { Page } from "@tondo/page";
+import type { Page, Plan } from "@tondo/page";
 import { and, eq, ne } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, usage, users } from "./schema";
@@ -14,6 +14,8 @@ export interface AccountStore {
     changeHandle: (userId: string, handle: string) => Promise<boolean>;
     /** Whether this person's page has been taken down. */
     isSuspended: (userId: string) => Promise<boolean>;
+    /** Someone with no row yet, such as a person in the start flow, is on Free. */
+    findPlan: (userId: string) => Promise<{ plan: Plan; endsAt: Date | null }>;
     /** Removes the person's address, pages and counts. A suspended address stays out of use. */
     removeUser: (userId: string) => Promise<void>;
 }
@@ -69,6 +71,13 @@ export function createAccountStore(db: Db): AccountStore {
                 .from(users)
                 .where(eq(users.id, userId));
             return Boolean(row?.suspendedAt);
+        },
+        findPlan: async (userId) => {
+            const [row] = await db
+                .select({ plan: users.plan, endsAt: users.endsAt })
+                .from(users)
+                .where(eq(users.id, userId));
+            return row ?? { plan: "free", endsAt: null };
         },
         removeUser: async (userId) => {
             await db.transaction(async (tx) => {

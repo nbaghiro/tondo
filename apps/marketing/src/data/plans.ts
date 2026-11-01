@@ -1,3 +1,5 @@
+import { FREE_LOOKS, lookNames, PLANS, PRICES, TEAM_MINIMUM } from "@tondo/page";
+
 // Every "yes" here has to work today, and every "coming" has to be true of production.
 export type Cell = "yes" | "coming" | "no" | { value: string; coming?: boolean };
 
@@ -16,8 +18,16 @@ const TEAM_LATER: [Cell, Cell, Cell] = ["no", "no", "coming"];
 
 export const heads = [
     { name: "Free", price: "$0", note: "Available today" },
-    { name: "Pro", price: "$6 a month or $60 a year", note: "Planned" },
-    { name: "Team", price: "$4 a person, from 3 people", note: "Planned" },
+    {
+        name: "Pro",
+        price: `$${String(PRICES.pro.month)} a month or $${String(PRICES.pro.year)} a year`,
+        note: "Planned",
+    },
+    {
+        name: "Team",
+        price: `$${String(PRICES.team.month)} a person, from ${String(TEAM_MINIMUM)} people`,
+        note: "Planned",
+    },
 ];
 
 export const groups: { name: string; rows: PlanRow[] }[] = [
@@ -28,7 +38,11 @@ export const groups: { name: string; rows: PlanRow[] }[] = [
             { label: "Publishing and a preview before you do", cells: SAME },
             {
                 label: "Sections on a page",
-                cells: [{ value: "6" }, { value: "No limit" }, { value: "No limit" }],
+                cells: [
+                    { value: String(PLANS.free.sections) },
+                    { value: "No limit" },
+                    { value: "No limit" },
+                ],
             },
             {
                 label: "Links, photos, video, music, events, questions and more",
@@ -51,7 +65,11 @@ export const groups: { name: string; rows: PlanRow[] }[] = [
         rows: [
             {
                 label: "Looks",
-                cells: [{ value: "12" }, { value: "All 50" }, { value: "All 50" }],
+                cells: [
+                    { value: String(FREE_LOOKS.length) },
+                    { value: `All ${String(lookNames.length)}` },
+                    { value: `All ${String(lookNames.length)}` },
+                ],
             },
             { label: "Each look's own colours, plain white and dark", cells: SAME },
             { label: "Each look's own fonts", cells: SAME },
@@ -62,7 +80,11 @@ export const groups: { name: string; rows: PlanRow[] }[] = [
             { label: "A photo as your background", cells: PAID },
             {
                 label: "Uploaded photos",
-                cells: [{ value: "25" }, { value: "2,000" }, { value: "2,000 a person" }],
+                cells: [
+                    { value: String(PLANS.free.photos) },
+                    { value: PLANS.pro.photos.toLocaleString("en") },
+                    { value: `${PLANS.team.photos.toLocaleString("en")} a person` },
+                ],
             },
             {
                 label: "Remove Tondo branding",
@@ -88,7 +110,11 @@ export const groups: { name: string; rows: PlanRow[] }[] = [
             { label: "Page views and link clicks", cells: SAME },
             {
                 label: "Days you can look back",
-                cells: [{ value: "7" }, { value: "90" }, { value: "90" }],
+                cells: [
+                    { value: String(PLANS.free.statsDays) },
+                    { value: String(PLANS.pro.statsDays) },
+                    { value: String(PLANS.team.statsDays) },
+                ],
             },
             { label: "All-time and custom date ranges", cells: PAID_LATER },
             { label: "Traffic sources", cells: PAID_LATER },

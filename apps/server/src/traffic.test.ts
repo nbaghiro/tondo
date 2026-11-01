@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { isReservedHandle } from "@tondo/page";
 import { describe, expect, it, vi } from "vitest";
-import { blockedIssues, blockedLinks, isBlockedLink } from "./limits";
+import { blockedIssues, blockedLinks, isBlockedLink } from "./blocked";
 import { samplePage } from "@tondo/page";
 import { createCache, createCounter, createLimiter, pickIp } from "./traffic";
 

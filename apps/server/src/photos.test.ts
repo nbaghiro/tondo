@@ -2,6 +2,7 @@ import { starterPage } from "@tondo/page";
 import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
+import { folderFor } from "./photos";
 import { createFakePages, createFakeStore } from "./fake-store";
 import { createMemoryStorage } from "./storage";
 
@@ -56,7 +57,7 @@ function setup() {
             body: form,
         });
     };
-    return { app, upload, storage };
+    return { app, upload, storage, pages };
 }
 
 const png = () =>
@@ -115,5 +116,54 @@ describe("photo uploads", () => {
         expect(
             (await app.request("/photos/uploads/0123456789abcdef/..%2f..%2fsecret.webp")).status,
         ).toBe(404);
+    });
+});
+
+describe("plans and photos", () => {
+    const remove = (app: ReturnType<typeof createApp>, file: string, who = "june") =>
+        app.request(`http://localhost/api/v1/me/photos/${file}`, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+                cookie: `__Secure-neon-auth.session_token=${who}`,
+            },
+            body: "{}",
+        });
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it("stops a 26th photo on Free, with a code the editor can read", async () => {
+        vi.stubEnv("PLANS_ON", "true");
+        const { upload, storage } = setup();
+        for (let i = 0; i < 25; i++) {
+            await storage.put(
+                `${folderFor("june")}${String(i).padStart(32, "0")}.webp`,
+                new Uint8Array(1),
+                "image/webp",
+            );
+        }
+        const res = await upload(await png());
+        expect(res.status).toBe(413);
+        expect(await res.json()).toMatchObject({
+            code: "plan_limit",
+            error: expect.stringContaining("25 photos") as string,
+        });
+    });
+
+    it("removes only a person's own photo that's not in use", async () => {
+        const { app, upload, pages, storage } = setup();
+        const { file } = (await (await upload(await png())).json()) as { file: string };
+        const name = file.split("/").pop() ?? "";
+        await remove(app, name, "maya");
+        expect(await storage.get(file)).not.toBeNull();
+        pages.setDraft("june", {
+            ...starterPage("June"),
+            header: { ...starterPage("June").header, photo: { file } },
+        });
+        expect((await remove(app, name)).status).toBe(409);
+        pages.setDraft("june", starterPage("June"));
+        expect((await remove(app, name)).status).toBe(204);
+        expect((await remove(app, "../../etc")).status).toBe(404);
     });
 });

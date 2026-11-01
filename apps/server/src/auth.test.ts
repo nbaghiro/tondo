@@ -142,7 +142,7 @@ describe("who's logged in", () => {
         fakeNeon(sessionFor);
         const app = setup();
         const headers = { cookie: SESSION };
-        expect(await (await app.request("/api/v1/me", { headers })).json()).toEqual({
+        expect(await (await app.request("/api/v1/me", { headers })).json()).toMatchObject({
             email: june.email,
             name: june.name,
             handle: null,

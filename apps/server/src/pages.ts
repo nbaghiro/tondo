@@ -15,7 +15,8 @@ import { linkTargets } from "@tondo/render";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
-import { blockedIssues, planIssues } from "./limits";
+import { blockedIssues } from "./blocked";
+import type { LimitsOfPerson } from "./limits";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 
@@ -31,9 +32,13 @@ export function mountPages(
     app: Hono,
     store: PageStore,
     currentPerson: CurrentPerson,
-    options: { scale: Scale; onPublishChange: (userId: string) => Promise<void> },
+    options: {
+        scale: Scale;
+        limitsOfPerson: LimitsOfPerson;
+        onPublishChange: (userId: string) => Promise<void>;
+    },
 ): void {
-    const { scale, onPublishChange } = options;
+    const { scale, limitsOfPerson, onPublishChange } = options;
     const fail = (c: Context, status: 400 | 401 | 404 | 409 | 413 | 415 | 429, error: string) =>
         c.json<ErrorResponse>({ error }, status);
     const conflict = (c: Context) =>
@@ -86,7 +91,6 @@ export function mountPages(
     // What only the server can know. The editor adds these to its own list before anyone presses Publish.
     const serverIssues = (draft: Draft): PublishIssue[] => [
         ...(draft.suspended ? [{ target: "page", message: SUSPENDED }] : []),
-        ...planIssues(draft.page).map((message) => ({ target: "page", message })),
         ...blockedIssues(draft.page),
     ];
 
@@ -139,7 +143,8 @@ export function mountPages(
         if (!person) return fail(c, 401, "You're not logged in.");
         if (!allowStats(person.id)) return slowDown(c);
         const asked = Number(c.req.query("days") ?? STATS_DAYS);
-        const days = STAT_RANGES.includes(asked) ? asked : STATS_DAYS;
+        const { statsDays } = await limitsOfPerson(person.id);
+        const days = Math.min(STAT_RANGES.includes(asked) ? asked : STATS_DAYS, statsDays);
         const stats = await store.statsFor(person.id, days);
         const live = await store.findOwnLive(person.id);
         const urls = live ? linkTargets(live) : {};
@@ -154,6 +159,7 @@ export function mountPages(
             earlierClicks: stats.targets
                 .filter(({ target }) => !urls[target])
                 .reduce((sum, { clicks }) => sum + clicks, 0),
+            range: days,
         });
     });
 }

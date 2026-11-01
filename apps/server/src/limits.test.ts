@@ -1,32 +1,25 @@
-import { samplePage } from "@tondo/page";
-import type { Page } from "@tondo/page";
-import { describe, expect, it } from "vitest";
-import { blockedIssues, isBlockedLink } from "./limits";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { limitsOf } from "./limits";
 
-const BAD = ["bad.example"];
-const withText = (text: string): Page => ({
-    ...samplePage,
-    blocks: [{ id: "a", type: "text", variant: "plain", section: "a", text }],
-});
+const free = { plan: "free", endsAt: null };
 
-describe("blocked links", () => {
-    it.each([
-        "Go to https://bad.example/win now",
-        "Go to bad.example.",
-        "(see www.bad.example/win), thanks",
-        "Mail win@bad.example",
-    ])("finds one in a sentence: %s", (text) => {
-        const [issue] = blockedIssues(withText(text), BAD);
-        expect(issue?.target).toBe("a");
-        expect(issue?.message).toContain("bad.example");
+describe("plans being switched on", () => {
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
-    it("leaves ordinary sentences and other sites alone", () => {
-        const page = withText("Not bad, example: see good.example and notbad.example today.");
-        expect(blockedIssues(page, BAD)).toEqual([]);
+    it("treats everyone as Pro while off, without raising Help me's credits", () => {
+        expect(limitsOf(free)).toMatchObject({ mark: false, design: true, credits: 15 });
     });
 
-    it("still reads a whole link", () => {
-        expect(isBlockedLink("http://BAD.example.:80/x", BAD)).toBe(true);
+    it("keeps the local credit override", () => {
+        vi.stubEnv("TONDO_PLAN", "pro");
+        expect(limitsOf(free).credits).toBe(100);
+    });
+
+    it("uses the account's plan once on", () => {
+        vi.stubEnv("PLANS_ON", "true");
+        expect(limitsOf(free)).toMatchObject({ mark: true, design: false, photos: 25 });
+        expect(limitsOf({ plan: "pro", endsAt: null }).mark).toBe(false);
     });
 });
