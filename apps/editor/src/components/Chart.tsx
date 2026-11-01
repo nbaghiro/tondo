@@ -1,11 +1,10 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, For, onCleanup, Show } from "solid-js";
 
 export interface ChartPoint {
     day: string;
     value: number;
 }
 
-const W = 720;
 const H = 220;
 const PAD = { left: 38, right: 10, top: 12, bottom: 26 };
 const LINE = "#a42a55";
@@ -27,27 +26,41 @@ export const shortDate = (day: string) =>
 /** One measure over time: a thin line, a quiet grid, and exact values on hover. */
 export function LineChart(props: { points: ChartPoint[]; label: string }) {
     const [hover, setHover] = createSignal<number | null>(null);
+    // Drawn at its real width, so the labels stay readable on a phone instead of shrinking with it.
+    const [width, setWidth] = createSignal(720);
+    const W = () => Math.max(240, width());
+    const watch = (el: HTMLElement) => {
+        const observer = new ResizeObserver(([entry]) => {
+            if (entry) setWidth(entry.contentRect.width);
+        });
+        observer.observe(el);
+        onCleanup(() => {
+            observer.disconnect();
+        });
+    };
     const max = () => niceMax(Math.max(0, ...props.points.map((point) => point.value)));
     const x = (i: number) =>
-        PAD.left + (i * (W - PAD.left - PAD.right)) / Math.max(1, props.points.length - 1);
+        PAD.left + (i * (W() - PAD.left - PAD.right)) / Math.max(1, props.points.length - 1);
     const y = (value: number) => H - PAD.bottom - (value / max()) * (H - PAD.top - PAD.bottom);
     const line = () =>
         props.points.map((point, i) => `${String(x(i))},${String(y(point.value))}`).join(" ");
-    const every = () => Math.max(1, Math.ceil(props.points.length / 6));
+    const every = () =>
+        Math.max(1, Math.ceil(props.points.length / Math.max(2, Math.floor(W() / 110))));
     const shown = () => {
         const at = hover();
         return at === null ? null : (props.points[at] ?? null);
     };
     return (
-        <div class="chart">
+        <div class="chart" ref={watch}>
             <svg
-                viewBox={`0 0 ${String(W)} ${String(H)}`}
+                viewBox={`0 0 ${String(W())} ${String(H)}`}
                 role="img"
                 aria-label={`${props.label} per day`}
                 onPointerMove={(e) => {
                     const box = e.currentTarget.getBoundingClientRect();
-                    const across = ((e.clientX - box.left) / box.width) * W;
-                    const step = (W - PAD.left - PAD.right) / Math.max(1, props.points.length - 1);
+                    const across = ((e.clientX - box.left) / box.width) * W();
+                    const step =
+                        (W() - PAD.left - PAD.right) / Math.max(1, props.points.length - 1);
                     const at = Math.round((across - PAD.left) / step);
                     setHover(Math.min(props.points.length - 1, Math.max(0, at)));
                 }}
@@ -60,7 +73,7 @@ export function LineChart(props: { points: ChartPoint[]; label: string }) {
                             <>
                                 <line
                                     x1={PAD.left}
-                                    x2={W - PAD.right}
+                                    x2={W() - PAD.right}
                                     y1={y(value())}
                                     y2={y(value())}
                                     stroke="#ece8ea"
@@ -109,7 +122,7 @@ export function LineChart(props: { points: ChartPoint[]; label: string }) {
                     <div
                         class="tip"
                         style={{
-                            left: `${String(Math.min(82, (x(hover() ?? 0) / W) * 100))}%`,
+                            left: `${String(Math.min(82, (x(hover() ?? 0) / W()) * 100))}%`,
                         }}
                     >
                         <b>{shortDate(point().day)}</b>

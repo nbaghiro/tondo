@@ -12,7 +12,9 @@ export interface AccountStore {
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
     /** False if the address is taken. */
     changeHandle: (userId: string, handle: string) => Promise<boolean>;
-    /** Removes the person's address, pages and counts. */
+    /** Whether this person's page has been taken down. */
+    isSuspended: (userId: string) => Promise<boolean>;
+    /** Removes the person's address, pages and counts. A suspended address stays out of use. */
     removeUser: (userId: string) => Promise<void>;
 }
 
@@ -61,8 +63,28 @@ export function createAccountStore(db: Db): AccountStore {
                 .catch(() => []);
             return rows.length > 0;
         },
+        isSuspended: async (userId) => {
+            const [row] = await db
+                .select({ suspendedAt: users.suspendedAt })
+                .from(users)
+                .where(eq(users.id, userId));
+            return Boolean(row?.suspendedAt);
+        },
         removeUser: async (userId) => {
-            await db.delete(users).where(eq(users.id, userId));
+            await db.transaction(async (tx) => {
+                const [gone] = await tx
+                    .delete(users)
+                    .where(eq(users.id, userId))
+                    .returning({ handle: users.handle, suspendedAt: users.suspendedAt });
+                // Otherwise deleting the account and signing up again would bring the page back.
+                if (gone?.suspendedAt) {
+                    await tx.insert(users).values({
+                        id: `removed:${gone.handle}`,
+                        handle: gone.handle,
+                        suspendedAt: gone.suspendedAt,
+                    });
+                }
+            });
         },
     };
 }

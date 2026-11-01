@@ -136,6 +136,10 @@ export function createEditor(start: Start) {
         markPublished() {
             setChanged(false);
         },
+        /** What's live may have changed elsewhere, such as taking the page down in another tab. */
+        syncLive(published: boolean, draftChanged: boolean) {
+            setChanged(!published || draftChanged);
+        },
         select: setSelected,
         /** True once after a section is added, so the panel can focus its first field. */
         takeJustAdded() {

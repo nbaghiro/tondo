@@ -8,6 +8,26 @@ import InfoLayout from "../layouts/InfoLayout.astro";
         harmful, please tell us. Include the page's address and what's wrong with it.
     </p>
     <p>
-        <a href="mailto:report@tondo.page">Email report@tondo.page</a>
+        <a href="mailto:report@tondo.page" data-report>
+            Email report@tondo.page
+        </a>
     </p>
+    <p data-report-page hidden></p>
+    <script>
+        // A live page's report link names the page, so nobody has to find its address again.
+        const named = new URLSearchParams(location.search).get("page")?.trim().toLowerCase() ?? "";
+        if (/^[a-z0-9-]{1,30}$/.test(named)) {
+            const line = document.querySelector<HTMLElement>("[data-report-page]");
+            if (line) {
+                line.textContent = `You're reporting tondo.page/${named}.`;
+                line.hidden = false;
+            }
+            document
+                .querySelector("[data-report]")
+                ?.setAttribute(
+                    "href",
+                    `mailto:report@tondo.page?subject=${encodeURIComponent(`Report: tondo.page/${named}`)}`,
+                );
+        }
+    </script>
 </InfoLayout>

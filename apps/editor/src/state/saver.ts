@@ -8,6 +8,7 @@ export type SaveState = "saved" | "saving" | "retrying" | "conflict" | "refused"
 
 const WAIT_MS = 1000;
 const RETRY_MS = 5000;
+const MAX_UNCONFIRMED = 20;
 
 /** Saves about a second after the last change. Work is kept in the browser until the server has it. */
 export function createSaver(options: {
@@ -22,8 +23,9 @@ export function createSaver(options: {
     let waiting: Page | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let running: Promise<void> | null = null;
-    // A save that may have landed even though its answer never came back.
-    let unconfirmed: string | null = null;
+    // Saves that may have landed even though their answers never came back. Any one of them could be
+    // what the server has, so all are kept until a save is confirmed.
+    let unconfirmed: string[] = [];
 
     // Changes can arrive while a save is running, so this reads the latest value each time.
     const pending = (): Page | null => waiting;
@@ -34,11 +36,16 @@ export function createSaver(options: {
         waiting = null;
         setState("saving");
         const result = await saveDraft(page, updatedAt, unconfirmed);
-        if (result.state === "failed") unconfirmed = pageHash(page);
+        if (result.state === "failed") {
+            unconfirmed = [...unconfirmed, pageHash(page)].slice(-MAX_UNCONFIRMED);
+        }
         if (result.state === "saved") {
-            unconfirmed = null;
+            unconfirmed = [];
             updatedAt = result.updatedAt;
-            if (pending()) {
+            const next = pending();
+            if (next) {
+                // The copy kept in the browser has to say which version it's now on top of.
+                saveBackup(handle, next, updatedAt);
                 await run();
                 return;
             }

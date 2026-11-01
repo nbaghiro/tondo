@@ -10,6 +10,7 @@ export function AccountPage(props: { account: Account }) {
     const [problem, setProblem] = createSignal("");
     const [confirm, setConfirm] = createSignal("");
     const [deleteProblem, setDeleteProblem] = createSignal("");
+    const [deleting, setDeleting] = createSignal(false);
     const [deleted, setDeleted] = createSignal<"all" | "signin-left" | null>(null);
     const toast = createToast();
 
@@ -29,7 +30,11 @@ export function AccountPage(props: { account: Account }) {
     };
     const remove = async (e: Event) => {
         e.preventDefault();
-        const result = await deleteAccount(props.account.handle);
+        setDeleting(true);
+        setDeleteProblem("");
+        const result = await deleteAccount(props.account.handle).finally(() => {
+            setDeleting(false);
+        });
         if (typeof result === "string") {
             setDeleteProblem(result);
             return;
@@ -139,9 +144,9 @@ export function AccountPage(props: { account: Account }) {
                     <button
                         class="b bad delete-account"
                         type="submit"
-                        disabled={confirm().trim() !== props.account.handle}
+                        disabled={deleting() || confirm().trim() !== props.account.handle}
                     >
-                        Delete my account
+                        {deleting() ? "Deleting" : "Delete my account"}
                     </button>
                 </form>
             </SettingsSection>

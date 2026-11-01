@@ -13,7 +13,7 @@ async function loadOwnDraft(): Promise<DraftResponse> {
     return (await res.json()) as DraftResponse;
 }
 
-export function SettingsPage(props: { account: Account }) {
+export function SettingsPage(props: { account: Account; onAddress: (handle: string) => void }) {
     const [draft, { refetch }] = createResource(loadOwnDraft);
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
@@ -21,12 +21,18 @@ export function SettingsPage(props: { account: Account }) {
     const [handle, setHandle] = createSignal(untrack(() => props.account.handle));
     const [current, setCurrent] = createSignal(untrack(() => props.account.handle));
     const [addressNote, setAddressNote] = createSignal("");
+    const [confirmDown, setConfirmDown] = createSignal(false);
+    // A conflict brings in the latest page, and what someone typed has to stay in the boxes.
+    let keepTyped = false;
     const toast = createToast();
     const here = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     createEffect(() => {
         const loaded = draft();
-        if (!loaded) return;
+        if (!loaded || keepTyped) {
+            keepTyped = false;
+            return;
+        }
         setTitle(loaded.page.title ?? "");
         setDescription(loaded.page.description ?? "");
         setTimeZone(loaded.page.timeZone ?? "");
@@ -48,8 +54,11 @@ export function SettingsPage(props: { account: Account }) {
             toast.say("Saved");
             await refetch();
         } else if (result.state === "conflict") {
-            toast.say("Your page changed somewhere else. Reloaded the latest, so try again.");
+            keepTyped = true;
             await refetch();
+            toast.say(
+                "Your page changed somewhere else. We kept what you typed, so press Save again.",
+            );
         } else {
             toast.say(result.message ?? "That didn't save. Check your connection and try again.");
         }
@@ -78,6 +87,7 @@ export function SettingsPage(props: { account: Account }) {
             return;
         }
         setCurrent(next);
+        props.onAddress(next);
         setAddressNote("");
         toast.say(`Your address is now tondo.page/${next}`);
     };
@@ -195,27 +205,53 @@ export function SettingsPage(props: { account: Account }) {
                         <SettingsSection
                             title="Publishing"
                             lead={
-                                loaded().published
-                                    ? "Your page is live. You can take it down and publish it again later."
-                                    : "Your page isn't live. Publish it from the page editor."
+                                loaded().suspended
+                                    ? "This page was taken down for breaking our rules, so visitors can't see it. Contact support if you think that's a mistake."
+                                    : loaded().published
+                                      ? "Your page is live. You can take it down and publish it again later."
+                                      : "Your page isn't live. Publish it from the page editor."
                             }
                         >
-                            <Show
-                                when={loaded().published}
-                                fallback={
-                                    <a class="b" href={appPath("/edit?panel=publish")}>
-                                        Go to publish
-                                    </a>
-                                }
-                            >
-                                <button
-                                    class="b bad unpublish"
-                                    onClick={() => {
-                                        takeDown().catch(() => undefined);
-                                    }}
+                            <Show when={!loaded().suspended}>
+                                <Show
+                                    when={loaded().published}
+                                    fallback={
+                                        <a class="b" href={appPath("/edit?panel=publish")}>
+                                            Go to publish
+                                        </a>
+                                    }
                                 >
-                                    Take my page down
-                                </button>
+                                    <Show
+                                        when={confirmDown()}
+                                        fallback={
+                                            <button
+                                                class="b bad unpublish"
+                                                onClick={() => setConfirmDown(true)}
+                                            >
+                                                Take my page down
+                                            </button>
+                                        }
+                                    >
+                                        <p class="note">
+                                            Visitors will stop seeing your page straight away. You
+                                            can publish it again whenever you like.
+                                        </p>
+                                        <div class="acts">
+                                            <button
+                                                class="b bad unpublish-yes"
+                                                onClick={() => {
+                                                    setConfirmDown(false);
+                                                    takeDown().catch(() => undefined);
+                                                }}
+                                            >
+                                                Yes, take it down
+                                            </button>
+                                            <button class="b" onClick={() => setConfirmDown(false)}>
+                                                Keep it live
+                                            </button>
+                                        </div>
+                                    </Show>
+                                </Show>
                             </Show>
                         </SettingsSection>
                     </div>

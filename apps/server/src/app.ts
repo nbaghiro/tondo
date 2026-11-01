@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
 import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
+import { isBlockedLink } from "./limits";
 import { mountPages } from "./pages";
 import { folderFor, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
@@ -98,6 +99,11 @@ export function createApp({
         return undefined;
     });
 
+    app.use(async (c, next) => {
+        await next();
+        c.header("X-Content-Type-Options", "nosniff");
+    });
+
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
     const currentPerson = mountAuth(app, {
@@ -131,7 +137,8 @@ export function createApp({
         const found = await live(c.req.param("handle"));
         const target = c.req.param("target");
         const url = found ? findLink(found.page, target) : null;
-        if (!found || !url) return c.text(notFound.error, 404);
+        // A link added to the blocklist after publishing stops working straight away.
+        if (!found || !url || isBlockedLink(url)) return c.text(notFound.error, 404);
         if (countsAsVisit(c)) add(found.id, target);
         c.header("Cache-Control", "no-store");
         return c.redirect(url, 302);

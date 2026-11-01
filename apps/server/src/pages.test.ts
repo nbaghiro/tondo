@@ -1,4 +1,4 @@
-import { samplePage, starterPage } from "@tondo/page";
+import { pageHash, samplePage, starterPage } from "@tondo/page";
 import { linkId } from "@tondo/render";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
@@ -222,5 +222,73 @@ describe("keeping a page under control", () => {
         expect(html).toContain('property="og:title"');
         expect(html).toContain("twitter:card");
         expect(html).toContain("/report?page=june");
+    });
+
+    it("tells a suspended owner, and refuses to publish", async () => {
+        const { app, call, pages } = setup();
+        pages.suspend("june");
+        const draft = (await (await call("june", "GET", "/api/v1/me/page")).json()) as {
+            suspended: boolean;
+            updatedAt: string;
+        };
+        expect(draft.suspended).toBe(true);
+        const check = (await (await call("june", "GET", "/api/v1/me/page/check")).json()) as {
+            issues: { message: string }[];
+        };
+        expect(check.issues[0]?.message).toContain("taken down");
+        const res = await call("june", "POST", "/api/v1/me/page/publish", {
+            updatedAt: draft.updatedAt,
+        });
+        expect(res.status).toBe(422);
+        expect((await app.request("/june")).status).toBe(404);
+    });
+
+    it("keeps a retry from being a conflict when an older lost save is what landed", async () => {
+        const { call } = setup();
+        const draft = (await (await call("june", "GET", "/api/v1/me/page")).json()) as {
+            updatedAt: string;
+        };
+        const landed = starterPage("Landed");
+        await call("june", "PUT", "/api/v1/me/page", {
+            page: landed,
+            updatedAt: draft.updatedAt,
+        });
+        const res = await call("june", "PUT", "/api/v1/me/page", {
+            page: starterPage("Later"),
+            updatedAt: draft.updatedAt,
+            previous: ["somethingthatneverarrived", pageHash(landed)],
+        });
+        expect(res.status).toBe(200);
+    });
+
+    it("refuses oversized address changes and deletions", async () => {
+        const { call } = setup();
+        const huge = { handle: "x".repeat(10_000) };
+        expect((await call("june", "PATCH", "/api/v1/me/handle", huge)).status).toBe(413);
+        expect((await call("june", "DELETE", "/api/v1/me", huge)).status).toBe(413);
+    });
+
+    it("limits taking a page down and reading numbers", async () => {
+        const { call } = setup();
+        let last = 0;
+        for (let i = 0; i < 25; i++) {
+            last = (await call("june", "POST", "/api/v1/me/page/unpublish", {})).status;
+        }
+        expect(last).toBe(429);
+    });
+
+    it("adds up clicks on links that have since been replaced", async () => {
+        const { app, call, pages } = setup();
+        await publish(call);
+        await app.request("/june", { headers: { "user-agent": "Mozilla/5.0" } });
+        pages.counts.push({ pageId: "june", target: "gone" });
+        const stats = (await (await call("june", "GET", "/api/v1/me/stats")).json()) as {
+            clicks: number;
+            links: unknown[];
+            earlierClicks: number;
+        };
+        expect(stats.clicks).toBe(1);
+        expect(stats.links).toEqual([]);
+        expect(stats.earlierClicks).toBe(1);
     });
 });

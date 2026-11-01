@@ -10,13 +10,18 @@ export const SITE_URL =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ??
     (import.meta.env.DEV ? "http://localhost:8103" : "");
 
+export const UNREACHABLE = "We couldn't reach Tondo. Reload this page to try again.";
+
 export async function loadAccount(): Promise<LoadedAccount | null> {
     const res = await fetch(routes.me);
     if (res.status === 401) {
         location.assign(`${SITE_URL}/login`);
         return null;
     }
-    if (!res.ok) throw new Error("The account couldn't be loaded.");
+    if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error ?? UNREACHABLE);
+    }
     return (await res.json()) as MeResponse;
 }
 

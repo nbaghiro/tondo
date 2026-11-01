@@ -6,10 +6,13 @@ import type {
     HandleResponse,
     IssuesResponse,
     PhotosResponse,
+    PublishCheckResponse,
     SaveResponse,
     StatsResponse,
 } from "@tondo/contract";
+import { pageHash } from "@tondo/page";
 import type { Page, PublishIssue } from "@tondo/page";
+import { clearBackup, loadBackup } from "../state/storage";
 
 const send = (method: string, path: string, body: object) =>
     fetch(path, {
@@ -39,13 +42,13 @@ export type SaveResult =
 export async function saveDraft(
     page: Page,
     updatedAt: string,
-    previous: string | null,
+    previous: readonly string[] | null,
 ): Promise<SaveResult> {
     try {
         const res = await send("PUT", routes.draft, {
             page,
             updatedAt,
-            ...(previous ? { previous } : {}),
+            ...(previous?.length ? { previous } : {}),
         });
         if (res.ok) {
             const saved = (await res.json()) as SaveResponse;
@@ -85,6 +88,12 @@ export async function publish(updatedAt: string): Promise<PublishResult> {
     } catch {
         return { state: "failed", message: failed };
     }
+}
+
+/** What only the server can check before publishing, such as a link it won't allow. */
+export async function loadPublishChecks(): Promise<PublishIssue[]> {
+    const res = await fetch(routes.publishCheck).catch(() => null);
+    return res?.ok ? ((await res.json()) as PublishCheckResponse).issues : [];
 }
 
 export async function loadStats(days = 30): Promise<StatsResponse | null> {
@@ -128,6 +137,19 @@ export async function deleteAccount(handle: string): Promise<DeleteAccountRespon
     const res = await send("DELETE", routes.me, { handle }).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? ((await res.json()) as DeleteAccountResponse) : problemIn(res);
+}
+
+/** Saves work the builder left in this browser, so what's shown here includes it. */
+export async function savePendingWork(
+    handle: string,
+    draft: DraftResponse,
+): Promise<DraftResponse> {
+    const waiting = loadBackup(handle, draft.updatedAt);
+    if (!waiting || pageHash(waiting) === pageHash(draft.page)) return draft;
+    const saved = await saveDraft(waiting, draft.updatedAt, null);
+    if (saved.state !== "saved") return draft;
+    clearBackup(handle);
+    return loadDraft();
 }
 
 export async function checkAddress(handle: string): Promise<HandleResponse | null> {

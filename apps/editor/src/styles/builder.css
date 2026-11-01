@@ -2312,3 +2312,28 @@ small.todo::before {
 .social-row {
     scroll-margin-top: 8px;
 }
+.asked {
+    border-radius: 10px;
+    animation: asked 2.2s ease-out;
+}
+@keyframes asked {
+    0%,
+    60% {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--madder) 45%, transparent);
+    }
+    100% {
+        box-shadow: 0 0 0 3px transparent;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .asked {
+        animation: none;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--madder) 45%, transparent);
+    }
+}
+@media (max-width: 860px) {
+    .recovers {
+        top: 64px;
+        bottom: auto;
+    }
+}

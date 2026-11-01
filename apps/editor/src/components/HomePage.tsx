@@ -6,13 +6,20 @@ import { renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
-import { loadStats, publish } from "../lib/api";
+import { loadStats, publish, savePendingWork } from "../lib/api";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
 
-async function loadHome(): Promise<{ draft: DraftResponse; stats: StatsResponse | null }> {
+async function loadHome(
+    handle: string,
+): Promise<{ draft: DraftResponse; stats: StatsResponse | null }> {
     const res = await fetch(routes.draft);
-    if (!res.ok) throw new Error("The page couldn't be loaded.");
-    return { draft: (await res.json()) as DraftResponse, stats: await loadStats(30) };
+    if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error ?? "We couldn't load your page. Reload to try again.");
+    }
+    // Leaving the builder straight after typing leaves that work in this browser, so it's saved first.
+    const draft = await savePendingWork(handle, (await res.json()) as DraftResponse);
+    return { draft, stats: await loadStats(30) };
 }
 
 function checklistLink(item: ChecklistItem): string {
@@ -105,7 +112,7 @@ function Numbers(props: { stats: StatsResponse | null }) {
 }
 
 export function HomePage(props: { account: Account }) {
-    const [data, { refetch }] = createResource(loadHome);
+    const [data, { refetch }] = createResource(() => props.account.handle, loadHome);
     const [busy, setBusy] = createSignal(false);
     const toast = createToast();
     const address = () => `tondo.page/${props.account.handle}`;
@@ -164,37 +171,49 @@ export function HomePage(props: { account: Account }) {
                         when={Boolean(data.error)}
                         fallback={<p class="emptyline">Loading your page</p>}
                     >
-                        <p class="emptyline">
-                            We couldn't load your page. Check your connection and reload.
-                        </p>
+                        <p class="emptyline">{(data.error as Error).message}</p>
                     </Show>
                 }
             >
                 {(loaded) => {
                     const draft = () => loaded().draft;
                     const status = () =>
-                        !draft().published
-                            ? { tone: "", label: "Not live yet", line: "Only you can see it." }
-                            : draft().changed
-                              ? {
-                                    tone: "warn",
-                                    label: "Live, with unpublished changes",
-                                    line: "Visitors see the last version you published.",
-                                }
-                              : {
-                                    tone: "ok",
-                                    label: "Live",
-                                    line: "Anyone with your link can see it.",
-                                };
+                        draft().suspended
+                            ? {
+                                  tone: "warn",
+                                  label: "Taken down",
+                                  line: "This page was taken down for breaking our rules, so visitors can't see it.",
+                              }
+                            : !draft().published
+                              ? { tone: "", label: "Not live yet", line: "Only you can see it." }
+                              : draft().changed
+                                ? {
+                                      tone: "warn",
+                                      label: "Live, with unpublished changes",
+                                      line: "Visitors see the last version you published.",
+                                  }
+                                : {
+                                      tone: "ok",
+                                      label: "Live",
+                                      line: "Anyone with your link can see it.",
+                                  };
                     return (
                         <>
                             <PageHeader
-                                title={`Hello, ${draft().page.header.name}`}
+                                title={
+                                    draft().page.header.name.trim()
+                                        ? `Hello, ${draft().page.header.name}`
+                                        : "Hello"
+                                }
                                 lead={status().line}
                             >
-                                <Show when={draft().published && draft().changed}>
+                                <Show
+                                    when={
+                                        draft().published && draft().changed && !draft().suspended
+                                    }
+                                >
                                     <button
-                                        class="b pub"
+                                        class="b p pub"
                                         disabled={busy()}
                                         onClick={() => {
                                             goLive(draft().updatedAt).catch(() => {
@@ -205,12 +224,23 @@ export function HomePage(props: { account: Account }) {
                                         {busy() ? "Publishing" : "Publish"}
                                     </button>
                                 </Show>
-                                <a class="b p home-edit" href={appPath("/edit")}>
-                                    Edit page
-                                </a>
                             </PageHeader>
                             <div class="home">
                                 <div class="stack">
+                                    <Show when={draft().page.unreadable?.length}>
+                                        <p class="notice" role="status" data-unreadable>
+                                            Part of your page couldn't be read, so it's off your
+                                            live page. It's kept safe. Email support and we'll get
+                                            it back for you.
+                                        </p>
+                                    </Show>
+                                    <Show when={draft().suspended}>
+                                        <p class="notice bad" role="alert" data-suspended>
+                                            Your page was taken down for breaking our rules. It
+                                            can't go live, and its address can't be changed. Contact
+                                            support if you think that's a mistake.
+                                        </p>
+                                    </Show>
                                     <Card>
                                         <div class="status">
                                             <span class={`tag ${status().tone}`}>
@@ -251,6 +281,7 @@ export function HomePage(props: { account: Account }) {
                                     <Checklist
                                         items={setupChecklist(draft().page, {
                                             published: draft().published,
+                                            suspended: draft().suspended,
                                         })}
                                     />
                                     <Show when={draft().published}>

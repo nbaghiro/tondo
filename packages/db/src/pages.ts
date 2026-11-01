@@ -13,6 +13,7 @@ export interface Draft {
     published: boolean;
     /** True when the draft differs from what's live. */
     changed: boolean;
+    suspended: boolean;
 }
 
 export interface LivePage {
@@ -86,8 +87,14 @@ export function createPageStore(db: Db): PageStore {
         },
         findDraft: async (userId) => {
             const [row] = await db
-                .select({ draft: pages.draft, published: pages.published, updatedAt: stamp })
+                .select({
+                    draft: pages.draft,
+                    published: pages.published,
+                    updatedAt: stamp,
+                    suspendedAt: users.suspendedAt,
+                })
                 .from(pages)
+                .innerJoin(users, eq(pages.userId, users.id))
                 .where(mainPageOf(userId))
                 .limit(1);
             if (!row) return null;
@@ -98,6 +105,7 @@ export function createPageStore(db: Db): PageStore {
                 published: row.published !== null,
                 changed:
                     row.published === null || pageHash(page) !== pageHash(readPage(row.published)),
+                suspended: row.suspendedAt !== null,
             };
         },
         saveDraft: async (userId, page, updatedAt) => {

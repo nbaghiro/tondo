@@ -137,7 +137,8 @@ test("publish, numbers, take down and a new address all work from the dashboard"
     expect((await request.get(`/${next}`)).status()).toBe(200);
 
     await page.locator(".unpublish").click();
-    await expect(page.locator(".unpublish")).toHaveCount(0);
+    await page.locator(".unpublish-yes").click();
+    await expect(page.locator(".unpublish-yes, .unpublish")).toHaveCount(0);
     expect((await request.get(`/${next}`)).status()).toBe(404);
 });
 

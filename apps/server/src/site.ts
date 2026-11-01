@@ -21,6 +21,13 @@ export function mountSite(app: Hono): void {
     });
     app.use("/app/*", serveStatic({ root: editor, rewriteRequestPath: strip }));
     app.use("/app", serveStatic({ root: editor, rewriteRequestPath: strip }));
+    // A missing file is a 404. Only addresses within the app fall back to its page.
+    app.get("/app/assets/*", (c) => c.text("Not found.", 404));
+    app.get("/app/*", async (c, next) => {
+        if (/\.[a-z0-9]+$/i.test(c.req.path)) return c.text("Not found.", 404);
+        await next();
+        return undefined;
+    });
     app.get("/app/*", serveStatic({ path: `${editor}/index.html` }));
     app.use("*", serveStatic({ root: "../marketing/dist" }));
 }

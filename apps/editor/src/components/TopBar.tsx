@@ -2,7 +2,7 @@ import { Show } from "solid-js";
 import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import type { EditorState } from "../state/document";
-import { downloadPage } from "../state/storage";
+import { clearBackup, downloadPage } from "../state/storage";
 import { paint } from "@tondo/render";
 import { Glyph } from "./Panels";
 
@@ -14,6 +14,8 @@ interface TopBarProps {
     onPreview: () => void;
     onPublish: () => void;
     publishing: boolean;
+    /** Taken down for breaking the rules. Pressing Publish explains why. */
+    suspended: boolean;
 }
 
 const STATUS = {
@@ -32,7 +34,20 @@ export function TopBar(props: TopBarProps) {
     return (
         <header class="topbar">
             <div class="tgroup tl">
-                <a class="tlogo tohome" href={appPath("/")} aria-label="Back to Home">
+                <a
+                    class="tlogo tohome"
+                    href={appPath("/")}
+                    aria-label="Back to Home"
+                    onClick={(e) => {
+                        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                        e.preventDefault();
+                        // Home shows what the server has, so this tab's edits go there first.
+                        const go = () => {
+                            location.assign(appPath("/"));
+                        };
+                        saver().flush().then(go, go);
+                    }}
+                >
                     <i
                         ref={(el) => {
                             el.innerHTML = LOGO;
@@ -58,6 +73,8 @@ export function TopBar(props: TopBarProps) {
                         <button
                             class="status-reload"
                             onClick={() => {
+                                // Choosing the latest means this tab's copy isn't wanted any more.
+                                clearBackup(props.account.handle);
                                 location.reload();
                             }}
                         >
@@ -113,16 +130,18 @@ export function TopBar(props: TopBarProps) {
                 </button>
                 <button
                     class="pub-go publish"
-                    disabled={props.publishing || !props.editor.changed()}
+                    disabled={props.publishing || (!props.editor.changed() && !props.suspended)}
                     onClick={() => {
                         props.onPublish();
                     }}
                 >
                     {props.publishing
                         ? "Publishing"
-                        : props.editor.changed()
-                          ? "Publish"
-                          : "Published"}
+                        : props.suspended
+                          ? "Taken down"
+                          : props.editor.changed()
+                            ? "Publish"
+                            : "Published"}
                 </button>
             </div>
         </header>

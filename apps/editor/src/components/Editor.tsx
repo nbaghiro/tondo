@@ -1,9 +1,10 @@
 import { findSection, pageHash, publishIssues, publishWarnings } from "@tondo/page";
+import type { PublishIssue } from "@tondo/page";
 import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
 import type { JSX } from "solid-js";
-import { loadStats, publish } from "../lib/api";
+import { loadDraft, loadPublishChecks, loadStats, publish } from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
 import type { Account } from "../lib/account";
 import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
@@ -97,6 +98,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         }),
     );
     const [publishing, setPublishing] = createSignal(false);
+    const [serverIssues, setServerIssues] = createSignal<PublishIssue[]>([]);
     const [view, setView] = createSignal<PublishView | null>(null);
     const [frame, setFrame] = createSignal<HTMLIFrameElement>();
     const [left, setLeft] = createSignal<Left>("page");
@@ -130,36 +132,47 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                 handle: props.account.handle,
                 stats: await loadStats(),
             });
+        } else if (result.state === "issues") {
+            // Everything the server refused stays listed until it's fixed.
+            const known = publishIssues(editor.page()).map((issue) => issue.message);
+            setServerIssues(result.issues.filter((issue) => !known.includes(issue.message)));
+            setView(listView());
         } else {
             setView(result);
         }
         showPublish();
     };
+    // Only the server knows some problems. A refused link clears once it's gone from the page.
+    const stillApplies = (issue: PublishIssue) =>
+        !issue.url ||
+        JSON.stringify(editor.page()).includes(JSON.stringify(issue.url).slice(1, -1));
+    const listView = (): PublishView => {
+        const issues = [...serverIssues().filter(stillApplies), ...publishIssues(editor.page())];
+        return issues.length
+            ? { state: "issues", issues }
+            : { state: "warnings", warnings: publishWarnings(editor.page()) };
+    };
+    const openPublishList = async () => {
+        if (await editor.saver.flush()) setServerIssues(await loadPublishChecks());
+        setView(listView());
+        showPublish();
+    };
     const startPublish = () => {
-        const issues = publishIssues(editor.page());
-        const warnings = publishWarnings(editor.page());
-        if (issues.length) {
-            setView({ state: "issues", issues });
-            showPublish();
-            return;
-        }
-        if (warnings.length) {
-            setView({ state: "warnings", warnings });
-            showPublish();
-            return;
-        }
-        runPublish().catch(() => {
-            setPublishing(false);
-        });
+        openPublishList()
+            .then(() => {
+                const shown = view();
+                if (shown?.state === "warnings" && !shown.warnings.length) return runPublish();
+                return undefined;
+            })
+            .catch(() => {
+                setPublishing(false);
+            });
     };
     // The list follows the page, so it stays right while things get fixed.
     const shownView = (): PublishView | null => {
         const current = view();
         if (current?.state !== "issues" && current?.state !== "warnings") return current;
-        const issues = publishIssues(editor.page());
-        return issues.length
-            ? { state: "issues", issues }
-            : { state: "warnings", warnings: publishWarnings(editor.page()) };
+        return listView();
     };
     const fixing = () => (view() && view()?.state !== "live" ? shownView() : null);
 
@@ -337,6 +350,8 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
     };
 
     const openIssue = (target: string, item?: string) => {
+        // Nothing to go to: a problem with the page as a whole.
+        if (target === "page") return;
         setAskedItem(item ?? target);
         editor.select(
             target === HEADER ? HEADER : (findSection(editor.page(), target)?.section.id ?? null),
@@ -352,13 +367,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         if (!panel && !section) return;
         history.replaceState(null, "", location.pathname);
         if (panel === "publish") {
-            const issues = publishIssues(editor.page());
-            setView(
-                issues.length
-                    ? { state: "issues", issues }
-                    : { state: "warnings", warnings: publishWarnings(editor.page()) },
-            );
-            showPublish();
+            openPublishList().catch(() => undefined);
         } else if (panel === "look") {
             openLook();
         } else if (panel === "add") {
@@ -384,8 +393,22 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         location.reload();
     };
 
+    // Another tab or the dashboard can take the page down, so coming back here checks.
+    const checkLive = () => {
+        if (document.visibilityState !== "visible") return;
+        loadDraft()
+            .then((latest) => {
+                editor.syncLive(latest.published, latest.changed);
+            })
+            .catch(() => undefined);
+    };
+
     onMount(() => {
         openAsked();
+        document.addEventListener("visibilitychange", checkLive);
+        onCleanup(() => {
+            document.removeEventListener("visibilitychange", checkLive);
+        });
         window.addEventListener("keydown", onKey);
         onCleanup(() => {
             window.removeEventListener("keydown", onKey);
@@ -469,6 +492,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     onPreview={() => setPreviewing(true)}
                     publishing={publishing()}
                     onPublish={startPublish}
+                    suspended={props.draft.suspended}
                 />
                 <div class="phone" id="phone">
                     <Canvas

@@ -1,5 +1,5 @@
 import { paint } from "@tondo/render";
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show, untrack } from "solid-js";
 import { groupsInOrder, NAV } from "../app/nav";
 import type { NavItem } from "../app/nav";
 import { follow, path } from "../app/router";
@@ -57,8 +57,32 @@ function NavLink(props: { item: NavItem; onGo?: () => void }) {
     );
 }
 
+function NotFoundPage() {
+    return (
+        <div class="empty">
+            <h2>There's nothing here</h2>
+            <p>This address isn't part of Tondo, or it has moved.</p>
+            <a
+                class="b"
+                href={appPath("/")}
+                onClick={(e) => {
+                    follow(e, "/");
+                }}
+            >
+                Go to Home
+            </a>
+        </div>
+    );
+}
+
 export function Shell(props: { account: Account }) {
     const [more, setMore] = createSignal(false);
+    // Changing the address has to reach every page at once, so it's held here.
+    const [account, setAccount] = createSignal(untrack(() => props.account));
+    createEffect(() => {
+        const here = NAV.find((item) => item.path === path());
+        document.title = `${here?.label ?? "Not found"} | Tondo`;
+    });
     const groups = groupsInOrder(NAV);
     const bottom = NAV.filter((item) => item.group === "bottom");
     const inMore = NAV.filter((item) => item.id !== "home" && item.id !== "analytics");
@@ -67,11 +91,20 @@ export function Shell(props: { account: Account }) {
             case "/analytics":
                 return <AnalyticsPage />;
             case "/settings":
-                return <SettingsPage account={props.account} />;
+                return (
+                    <SettingsPage
+                        account={account()}
+                        onAddress={(handle) => {
+                            setAccount({ ...account(), handle });
+                        }}
+                    />
+                );
             case "/account":
-                return <AccountPage account={props.account} />;
+                return <AccountPage account={account()} />;
+            case "/":
+                return <HomePage account={account()} />;
             default:
-                return <HomePage account={props.account} />;
+                return <NotFoundPage />;
         }
     };
     return (
@@ -103,7 +136,7 @@ export function Shell(props: { account: Account }) {
             <div class="main">
                 <header class="bar">
                     <Logo />
-                    <span class="bar-address">tondo.page/{props.account.handle}</span>
+                    <span class="bar-address">tondo.page/{account().handle}</span>
                 </header>
                 <main class="wrap">{page()}</main>
             </div>

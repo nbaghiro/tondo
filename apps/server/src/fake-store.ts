@@ -3,8 +3,9 @@ import type { AccountStore, Draft, PageStore } from "@tondo/db";
 import type { Page } from "@tondo/page";
 
 /** Keeps addresses in memory, for tests. */
-export function createFakeStore(): AccountStore {
+export function createFakeStore(): AccountStore & { suspend: (userId: string) => void } {
     const owners = new Map<string, string>();
+    const suspended = new Set<string>();
     const handleOf = (userId: string) =>
         [...owners].find(([, owner]) => owner === userId)?.[0] ?? null;
     return {
@@ -24,9 +25,14 @@ export function createFakeStore(): AccountStore {
             owners.set(handle, userId);
             return Promise.resolve(true);
         },
+        isSuspended: (userId) => Promise.resolve(suspended.has(userId)),
+        suspend: (userId) => {
+            suspended.add(userId);
+        },
         removeUser: (userId) => {
             const before = handleOf(userId);
-            if (before) owners.delete(before);
+            if (before && suspended.has(userId)) owners.set(before, `removed:${before}`);
+            else if (before) owners.delete(before);
             return Promise.resolve();
         },
     };
@@ -37,6 +43,7 @@ interface Row {
     draft: Page;
     published: Page | null;
     updatedAt: number;
+    suspended?: boolean;
 }
 
 /** Keeps pages in memory, for tests. */
@@ -53,12 +60,15 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
         updatedAt: String(row.updatedAt),
         published: row.published !== null,
         changed: JSON.stringify(row.draft) !== JSON.stringify(row.published),
+        suspended: row.suspended === true,
     });
     const store: PageStore = {
         findLive: (handle) => {
             const row = [...rows].find(([, other]) => other.handle === handle);
             return Promise.resolve(
-                row?.[1].published ? { id: row[0], page: row[1].published } : null,
+                row?.[1].published && !row[1].suspended
+                    ? { id: row[0], page: row[1].published }
+                    : null,
             );
         },
         handleOf: (userId) => Promise.resolve(rows.get(userId)?.handle ?? null),
@@ -104,5 +114,9 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
     const addUser = (userId: string, handle: string, page: Page) => {
         rows.set(userId, { handle, draft: page, published: null, updatedAt: 1 });
     };
-    return { store, counts, addUser };
+    const suspend = (userId: string) => {
+        const row = rows.get(userId);
+        if (row) row.suspended = true;
+    };
+    return { store, counts, addUser, suspend };
 }

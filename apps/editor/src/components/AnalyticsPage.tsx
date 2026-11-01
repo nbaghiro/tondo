@@ -112,14 +112,24 @@ export function AnalyticsPage() {
                         </Card>
                         <Card title="Top links">
                             <Show
-                                when={data().links.length}
+                                when={data().links.length || data().earlierClicks}
                                 fallback={<EmptyLine>No link clicks in this range yet.</EmptyLine>}
                             >
                                 <BarRows
-                                    rows={data().links.map((link) => ({
-                                        label: readable(link.url),
-                                        value: link.clicks,
-                                    }))}
+                                    rows={[
+                                        ...data().links.map((link) => ({
+                                            label: readable(link.url),
+                                            value: link.clicks,
+                                        })),
+                                        ...(data().earlierClicks
+                                            ? [
+                                                  {
+                                                      label: "Links no longer on your page",
+                                                      value: data().earlierClicks,
+                                                  },
+                                              ]
+                                            : []),
+                                    ]}
                                 />
                             </Show>
                         </Card>

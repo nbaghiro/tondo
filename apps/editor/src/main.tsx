@@ -1,6 +1,6 @@
 import "@tondo/brand/tokens.css";
 import { inAppPath } from "./app/router";
-import { appPath, loadAccount } from "./lib/account";
+import { appPath, loadAccount, UNREACHABLE } from "./lib/account";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("The page has no #root element.");
@@ -16,6 +16,7 @@ async function open(here: HTMLElement): Promise<void> {
             location.replace(`${appPath("/start")}${location.search}`);
             return;
         }
+        document.title = "Make your page | Tondo";
         const { mountStart } = await import("./app/builder");
         mountStart(here, account);
         return;
@@ -26,6 +27,7 @@ async function open(here: HTMLElement): Promise<void> {
         return;
     }
     if (path === "/edit") {
+        document.title = "Edit page | Tondo";
         const { mountEditor } = await import("./app/builder");
         await mountEditor(here, known);
         return;
@@ -41,6 +43,8 @@ async function openLab(here: HTMLElement, lab: string): Promise<void> {
 
 const lab = import.meta.env.DEV ? location.search.slice(1) : "";
 const opening = lab === "fields" || lab === "blocks" ? openLab(root, lab) : open(root);
-opening.catch(() => {
-    root.textContent = "We couldn't reach Tondo. Check your connection and reload this page.";
+opening.catch((error: unknown) => {
+    // The server says what's wrong when it can. A failed fetch has no message worth showing.
+    const said = error instanceof TypeError || !(error instanceof Error) ? "" : error.message;
+    root.textContent = said || UNREACHABLE;
 });

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
 import type { AuthConfig } from "./auth";
 import { createFakePages, createFakeStore } from "./fake-store";
+import type { Storage } from "./storage";
 
 // This runs Neon's real toolkit, and replaces only the network call it makes to Neon.
 const neon = {
@@ -36,6 +37,13 @@ function fakeNeon(respond: (url: string, init?: RequestInit) => Response) {
     });
     return calls;
 }
+
+const brokenStorage: Storage = {
+    list: () => Promise.reject(new Error("storage is down")),
+    put: () => Promise.reject(new Error("storage is down")),
+    get: () => Promise.reject(new Error("storage is down")),
+    remove: () => Promise.reject(new Error("storage is down")),
+};
 
 function setup(extra: Partial<AuthConfig> = {}) {
     return createApp({
@@ -236,5 +244,97 @@ describe("the limits on sign-in", () => {
         }
         expect(statuses[0]).toBe(200);
         expect(statuses).toContain(429);
+    });
+
+    it("doesn't let a stranger lock the owner out of their password", async () => {
+        fakeNeon(() => Response.json({ code: "INVALID_EMAIL_OR_PASSWORD" }, { status: 401 }));
+        const app = setup();
+        const signIn = (ip: string) =>
+            app.request("/api/auth/sign-in/email", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    "x-forwarded-for": ip,
+                },
+                body: JSON.stringify({ email: "owner@example.com", password: "wrong" }),
+            });
+        vi.stubEnv("TRUSTED_PROXY_HOPS", "1");
+        for (let i = 0; i < 9; i++) await signIn("6.6.6.6");
+        expect((await signIn("6.6.6.6")).status).toBe(429);
+        expect((await signIn("7.7.7.7")).status).toBe(401);
+        vi.unstubAllEnvs();
+    });
+
+    it("keeps the account when photos can't be removed, and says what happened", async () => {
+        const calls = fakeNeon(() => Response.json(session));
+        const store = createFakeStore();
+        await store.claimHandle(june.id, "june", starterPage("June"));
+        const app = createApp({
+            pages: createFakePages().store,
+            storage: brokenStorage,
+            auth: { store, siteUrl: "http://site", editorUrl: "http://editor", neon },
+        });
+        const res = await app.request("/api/v1/me", {
+            method: "DELETE",
+            headers: { "content-type": "application/json", cookie: SESSION },
+            body: JSON.stringify({ handle: "june" }),
+        });
+        expect(res.status).toBe(503);
+        expect(await res.json()).toMatchObject({ pageRemoved: false, signInRemoved: false });
+        expect(await store.findHandle(june.id)).toBe("june");
+        expect(calls.some((call) => call.url.includes("delete-user"))).toBe(false);
+    });
+
+    it("stops waiting for storage that never answers", async () => {
+        fakeNeon(() => Response.json(session));
+        const store = createFakeStore();
+        await store.claimHandle(june.id, "june", starterPage("June"));
+        const app = createApp({
+            pages: createFakePages().store,
+            storage: { ...brokenStorage, list: () => new Promise(() => undefined) },
+            auth: {
+                store,
+                siteUrl: "http://site",
+                editorUrl: "http://editor",
+                neon,
+                removeFilesWaitMs: 5,
+            },
+        });
+        const res = await app.request("/api/v1/me", {
+            method: "DELETE",
+            headers: { "content-type": "application/json", cookie: SESSION },
+            body: JSON.stringify({ handle: "june" }),
+        });
+        expect(res.status).toBe(503);
+        expect(await store.findHandle(june.id)).toBe("june");
+    });
+
+    it("keeps a suspended address out of use after the account is deleted", async () => {
+        fakeNeon(() => Response.json(session));
+        const store = createFakeStore();
+        await store.claimHandle(june.id, "june", starterPage("June"));
+        store.suspend(june.id);
+        const app = setup({ store });
+        const res = await app.request("/api/v1/me", {
+            method: "DELETE",
+            headers: { "content-type": "application/json", cookie: SESSION },
+            body: JSON.stringify({ handle: "june" }),
+        });
+        expect(res.status).toBe(200);
+        expect(await store.handleTaken("june")).toBe(true);
+    });
+
+    it("won't change a suspended page's address", async () => {
+        fakeNeon(() => Response.json(session));
+        const store = createFakeStore();
+        await store.claimHandle(june.id, "june", starterPage("June"));
+        store.suspend(june.id);
+        const res = await setup({ store }).request("/api/v1/me/handle", {
+            method: "PATCH",
+            headers: { "content-type": "application/json", cookie: SESSION },
+            body: JSON.stringify({ handle: "fresh" }),
+        });
+        expect(res.status).toBe(403);
+        expect(await store.findHandle(june.id)).toBe("june");
     });
 });

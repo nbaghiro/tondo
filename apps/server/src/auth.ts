@@ -36,6 +36,8 @@ export interface AuthConfig {
     onHandleChange?: (before: string | null, after: string | null) => void;
     /** Removes a person's stored files when they delete their account. */
     removeFiles?: (userId: string) => Promise<void>;
+    /** How long to wait for storage before saying so. */
+    removeFilesWaitMs?: number;
 }
 
 export interface Person {
@@ -52,14 +54,32 @@ export class AuthUnavailable extends Error {}
 const SEND_PATHS =
     /^(sign-up\/email|sign-in\/email|email-otp\/send-verification-otp|email-otp\/request-password-reset|email-otp\/reset-password|email-otp\/verify-email|change-password)$/;
 const MAX_AUTH_BODY = 64 * 1024;
+const GUESS_DELAY_MS = 2000;
 
 export type CurrentPerson = (c: Context) => Promise<Person | null>;
+
+const REMOVE_FILES_WAIT_MS = 10_000;
+
+async function beforeDeadline(work: Promise<void> | undefined, ms: number): Promise<void> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const late = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+            reject(new Error("Storage took too long."));
+        }, ms);
+    });
+    await Promise.race([work, late]).finally(() => {
+        clearTimeout(timer);
+    });
+}
 
 export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     const { store, siteUrl, editorUrl, neon } = config;
 
-    const fail = (c: Context, status: 400 | 401 | 409 | 413 | 415 | 503, error: string) =>
-        c.json<ErrorResponse>({ error }, status);
+    const fail = (
+        c: Context,
+        status: 400 | 401 | 403 | 409 | 413 | 415 | 429 | 503,
+        error: string,
+    ) => c.json<ErrorResponse>({ error }, status);
 
     // Neon's toolkit caches the session in a signed cookie, so most requests don't reach Neon.
     const currentPerson: CurrentPerson = async (c) => {
@@ -94,11 +114,17 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             ? Promise.resolve(false)
             : store.claimHandle(person.id, handle, page ?? starterPage(nameOf(person)));
 
-    // Sending codes and trying passwords are limited by address, and by the email they're aimed at, so
-    // nobody can flood someone's inbox or guess at one account from many places.
+    // Sending codes is limited by address and by the email it's aimed at, so nobody can flood an inbox.
+    // Passwords differ: a limit on the email alone would let a stranger lock its owner out. So guesses
+    // are counted by email and address together, and past a higher ceiling on the email they're only
+    // slowed down, which keeps guessing from many addresses slow without ever refusing the owner.
     const scale = config.scale ?? ((max: number) => max);
     const allowIp = createLimiter(scale(30), 60_000);
     const allowEmail = createLimiter(scale(8), 15 * 60_000);
+    const allowGuess = createLimiter(scale(8), 15 * 60_000);
+    const unhurried = createLimiter(scale(30), 15 * 60_000);
+    const tooMany = (c: Context) =>
+        c.json({ code: "TOO_MANY", message: "Too many tries. Wait a little and try again." }, 429);
     const limitAuth: MiddlewareHandler = async (c, next) => {
         const path = c.req.path.slice(routes.auth.length + 1);
         if (c.req.method === "POST" && SEND_PATHS.test(path)) {
@@ -107,18 +133,26 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
                 .json()
                 .catch(() => null)) as { email?: unknown } | null;
             const email = typeof body?.email === "string" ? body.email.toLowerCase() : "";
-            const over =
-                !allowIp(`${path}|${clientIp(c)}`) || (email && !allowEmail(`${path}|${email}`));
-            if (over) {
-                return c.json(
-                    { code: "TOO_MANY", message: "Too many tries. Wait a little and try again." },
-                    429,
-                );
+            const ip = clientIp(c);
+            if (!allowIp(`${path}|${ip}`)) return tooMany(c);
+            if (email && path === "sign-in/email") {
+                if (!allowGuess(`${email}|${ip}`)) return tooMany(c);
+                if (!unhurried(email))
+                    await new Promise((done) => setTimeout(done, GUESS_DELAY_MS));
+            } else if (email && !allowEmail(`${path}|${email}`)) {
+                return tooMany(c);
             }
         }
         await next();
         return undefined;
     };
+
+    const smallBody = bodyLimit({
+        maxSize: 4096,
+        onError: (c) => fail(c, 413, "That's too long."),
+    });
+    const allowChange = createLimiter(scale(10), 60_000);
+    const allowCheck = createLimiter(scale(60), 60_000);
 
     app.use(
         `${routes.auth}/*`,
@@ -152,6 +186,8 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     app.get(routes.handleCheck(":handle").replace("%3A", ":"), async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
+        if (!allowCheck(person.id))
+            return fail(c, 429, "Too many tries. Wait a little and try again.");
         const handle = normaliseHandle(c.req.param("handle") ?? "");
         const free = { available: true, message: "That address is free." };
         const taken = { available: false, message: "That address is taken. Try another one." };
@@ -193,12 +229,17 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         },
     );
 
-    app.patch(routes.claim, async (c) => {
+    app.patch(routes.claim, smallBody, async (c) => {
         if (!c.req.header("content-type")?.startsWith("application/json")) {
             return fail(c, 415, "Send this as JSON.");
         }
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
+        if (!allowChange(person.id))
+            return fail(c, 429, "Too many tries. Wait a little and try again.");
+        if (await store.isSuspended(person.id)) {
+            return fail(c, 403, "This page was taken down, so its address can't be changed.");
+        }
         const parsed = changeHandleRequest.safeParse(await c.req.json<unknown>().catch(() => null));
         if (!parsed.success) {
             return fail(c, 400, "Use 1 to 30 lowercase letters, numbers or hyphens.");
@@ -212,7 +253,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         return c.json<MeResponse>({ email: person.email, name: nameOf(person), handle });
     });
 
-    app.delete(routes.me, async (c) => {
+    // Photos go first, because that can be tried again. If they can't be removed, the page and sign-in
+    // stay too, so the person can still come back and finish. Once the page is gone, the sign-in is
+    // always attempted, and the answer says exactly what went.
+    app.delete(routes.me, smallBody, async (c) => {
         if (!c.req.header("content-type")?.startsWith("application/json")) {
             return fail(c, 415, "Send this as JSON.");
         }
@@ -225,9 +269,32 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         if (handle && parsed?.handle !== handle) {
             return fail(c, 400, "Type your address to confirm.");
         }
-        await store.removeUser(person.id);
+        const stoppedAt = (error: unknown, what: string, photosRemoved: boolean) => {
+            process.stderr.write(`Couldn't delete ${what}: ${String(error)}\n`);
+            return c.json(
+                {
+                    error: `We couldn't remove your ${what}, so your account is still here. Please try again.`,
+                    photosRemoved,
+                    pageRemoved: false,
+                    signInRemoved: false,
+                },
+                503,
+            );
+        };
+        try {
+            await beforeDeadline(
+                config.removeFiles?.(person.id),
+                config.removeFilesWaitMs ?? REMOVE_FILES_WAIT_MS,
+            );
+        } catch (error) {
+            return stoppedAt(error, "photos", false);
+        }
+        try {
+            await store.removeUser(person.id);
+        } catch (error) {
+            return stoppedAt(error, "page", true);
+        }
         config.onHandleChange?.(handle, null);
-        await config.removeFiles?.(person.id);
         // Neon only allows this if deleting users is switched on, so the answer says how it went.
         const removed = neon
             ? await handleAuthProxyRequest({
@@ -251,7 +318,11 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
                   })
                   .catch(() => false)
             : false;
-        return c.json<DeleteAccountResponse>({ signInRemoved: removed });
+        return c.json<DeleteAccountResponse>({
+            photosRemoved: true,
+            pageRemoved: true,
+            signInRemoved: removed,
+        });
     });
 
     // Google returns here. The first visit swaps Neon's verifier for a session cookie and comes

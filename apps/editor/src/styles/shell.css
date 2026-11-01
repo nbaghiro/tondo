@@ -851,3 +851,17 @@ th.n {
         transition: none !important;
     }
 }
+.notice {
+    margin: 0;
+    padding: 12px 15px;
+    border: 1px solid #e9d8b5;
+    border-radius: 10px;
+    background: #fbf7ee;
+    font-size: 14.5px;
+    font-weight: 600;
+}
+.notice.bad {
+    border-color: #eec3c3;
+    background: #fbeeee;
+    color: #7c1d2c;
+}

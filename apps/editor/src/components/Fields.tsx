@@ -901,6 +901,12 @@ export function revealAsked(item: string | undefined, block: string): void {
                 ? found
                 : found.querySelector<HTMLElement>("input, textarea"));
         (field ?? found).scrollIntoView({ block: "center" });
+        // A phone can't take focus without opening the keyboard, so the field also says it's the one.
+        const mark = field?.closest<HTMLElement>(".fd-wrap") ?? found;
+        mark.classList.add("asked");
+        window.setTimeout(() => {
+            mark.classList.remove("asked");
+        }, 2200);
         if (field && window.matchMedia("(pointer: fine)").matches)
             field.focus({ preventScroll: true });
     }, 160);

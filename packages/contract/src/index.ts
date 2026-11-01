@@ -21,6 +21,7 @@ export const routes = {
     handleCheck: (value: string) => `/api/v1/handles/${encodeURIComponent(value)}`,
     draft: "/api/v1/me/page",
     publish: "/api/v1/me/page/publish",
+    publishCheck: "/api/v1/me/page/check",
     unpublish: "/api/v1/me/page/unpublish",
     stats: "/api/v1/me/stats",
     photos: "/api/v1/me/photos",
@@ -45,6 +46,8 @@ export const draftResponse = z.strictObject({
     updatedAt: z.string(),
     published: z.boolean(),
     changed: z.boolean(),
+    /** Taken down for breaking the rules. It can't go live, and the person is told why. */
+    suspended: z.boolean(),
 });
 // Always the text the server sent back. Anything else is refused before it reaches the database.
 const stamp = z
@@ -54,8 +57,8 @@ const stamp = z
 export const saveRequest = z.strictObject({
     page: pageSchema,
     updatedAt: stamp,
-    /** A save whose answer never arrived. If it did land, this retry isn't a conflict. */
-    previous: z.string().max(40).optional(),
+    /** Saves whose answers never arrived. If one of them landed, this retry isn't a conflict. */
+    previous: z.array(z.string().max(40)).max(20).optional(),
 });
 export const publishRequest = z.strictObject({ updatedAt: stamp });
 export const changeHandleRequest = z.strictObject({ handle });
@@ -67,6 +70,7 @@ export const issuesResponse = z.strictObject({
             target: z.string(),
             item: z.string().optional(),
             message: z.string(),
+            url: z.string().optional(),
         }),
     ),
 });
@@ -75,10 +79,18 @@ export const statsResponse = z.strictObject({
     clicks: z.number(),
     days: z.array(z.strictObject({ day: z.string(), views: z.number(), clicks: z.number() })),
     links: z.array(z.strictObject({ url: z.string(), clicks: z.number() })),
+    /** Clicks on links that are no longer on the page, so the list still adds up to the total. */
+    earlierClicks: z.number(),
 });
+export const publishCheckResponse = z.strictObject({ issues: issuesResponse.shape.issues });
+export type PublishCheckResponse = z.infer<typeof publishCheckResponse>;
 export const photosResponse = z.strictObject({ files: z.array(z.string()) });
 
-export const deleteAccountResponse = z.strictObject({ signInRemoved: z.boolean() });
+export const deleteAccountResponse = z.strictObject({
+    photosRemoved: z.boolean(),
+    pageRemoved: z.boolean(),
+    signInRemoved: z.boolean(),
+});
 export type DeleteAccountResponse = z.infer<typeof deleteAccountResponse>;
 export type DraftResponse = z.infer<typeof draftResponse>;
 export type SaveRequest = z.infer<typeof saveRequest>;
