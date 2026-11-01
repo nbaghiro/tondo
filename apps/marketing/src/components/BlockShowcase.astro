@@ -12,7 +12,7 @@ const shown: {
     handle: string;
     type: Parameters<typeof firstBlock>[1];
 }[] = [
-    { caption: "Music player", look: "shelf", handle: "noorhaddad", type: "music" },
+    { caption: "Music", look: "shelf", handle: "noorhaddad", type: "music" },
     { caption: "Products", look: "madder", handle: "mayaokafor", type: "products" },
     { caption: "Booking", look: "atelier", handle: "priyaraman", type: "booking" },
     { caption: "Events", look: "vellum", handle: "mayaokafor", type: "events" },
@@ -45,8 +45,8 @@ const fonts = lookNames.map((look) => fontsHref({ ...examplePage("mayaokafor"), 
     <div class="wrap">
         <h2>More than a list of buttons</h2>
         <p class="sub">
-            Add a player, a booking calendar, a shop or your opening hours. Each block picks up your
-            look.
+            Add your music, a booking calendar, a shop or your opening hours. Each block picks up
+            your look.
         </p>
         <div class="bks">
             {cards.map((card) => (

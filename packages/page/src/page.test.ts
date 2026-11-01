@@ -1,3 +1,6 @@
+import { drawBlock } from "./blocks";
+import type { Block } from "./blocks";
+import { newBlock } from "./operations";
 import { PAGE_VERSION } from "./schema";
 import { describe, expect, it } from "vitest";
 import {
@@ -149,5 +152,30 @@ describe("review fixes", () => {
         const messages = publishWarnings(unread).map((issue) => issue.message);
         expect(messages.some((message) => message.includes("a Music section"))).toBe(true);
         expect(new Set(messages).size).toBe(messages.length);
+    });
+});
+
+describe("music", () => {
+    const ctx = { assetBase: "/photos/", editable: false };
+    const song = (url: string, variant: "compact" | "full") =>
+        drawBlock({ ...newBlock("music", "a"), url, variant } as Block, ctx);
+
+    it.each([
+        ["https://open.spotify.com/album/1", "Open in Spotify"],
+        ["https://music.apple.com/album/1", "Open in Apple Music"],
+        ["https://soundcloud.com/a", "Open in SoundCloud"],
+        ["https://example.com/a", "Listen"],
+    ])("opens %s with its own name", (url, label) => {
+        for (const variant of ["compact", "full"] as const) {
+            expect(song(url, variant)).toContain(label);
+        }
+    });
+
+    it("has no controls that pretend to play", () => {
+        for (const variant of ["compact", "full"] as const) {
+            expect(song("https://open.spotify.com/album/1", variant)).not.toMatch(
+                /b-ctl|b-mplay|<ol>|<svg/,
+            );
+        }
     });
 });
