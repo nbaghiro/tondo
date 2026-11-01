@@ -12,6 +12,7 @@ One Hono server serves the marketing site, the editor at `/app`, public pages, a
 | `NEON_AUTH_BASE_URL` | Neon console, Auth URL of the branch | For sign-in |
 | `NEON_AUTH_COOKIE_SECRET` | Render generates it. Locally: `openssl rand -base64 32`. At least 32 characters | For sign-in |
 | `NODE_ENV`, `HOST` | Set in `render.yaml` | Yes |
+| `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION` | Cloudflare R2: create a bucket and an API token, and use `https://<account-id>.r2.cloudflarestorage.com` with region `auto`. Without them, uploads say they aren't set up | For uploads |
 | `SITE_URL`, `EDITOR_URL` | Leave unset in production, where they default to the same origin | No |
 
 ## Set up Neon

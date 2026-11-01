@@ -15,7 +15,9 @@
         "@tondo/db": "workspace:*",
         "@tondo/page": "workspace:*",
         "@tondo/render": "workspace:*",
-        "hono": "^4.13.14"
+        "aws4fetch": "^1.0.20",
+        "hono": "^4.13.14",
+        "sharp": "^0.35.5"
     },
     "devDependencies": {
         "tsx": "catalog:"

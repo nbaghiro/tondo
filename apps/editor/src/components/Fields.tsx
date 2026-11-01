@@ -7,7 +7,8 @@ import type {
     Photo,
     SourceOption,
 } from "@tondo/page";
-import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
+import { createEffect, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
+import { loadPhotos, uploadPhoto } from "../lib/api";
 import { Icon } from "./Icon";
 
 /** Sets a value on whatever owns these fields. False means it wasn't allowed. */
@@ -22,6 +23,10 @@ export interface FieldProps {
     /** Where photos are served from. */
     assets: string;
 }
+
+// One list for every picker on the screen, so a new upload appears in all of them.
+const [myPhotos, setMyPhotos] = createSignal<string[]>([]);
+let photosLoaded = false;
 
 const asText = (value: unknown) => (typeof value === "string" ? value : "");
 const asList = <T,>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
@@ -153,21 +158,79 @@ function PhotoGrid(props: {
     current?: string | undefined;
     onPick: (file: string) => void;
 }) {
+    const [uploading, setUploading] = createSignal(false);
+    const [error, setError] = createSignal("");
+    const tile = (file: string, label: string) => (
+        <button
+            type="button"
+            aria-label={label}
+            classList={{ on: props.current === file }}
+            style={{ "background-image": `url(${props.assets}${file})` }}
+            onClick={() => {
+                props.onPick(file);
+            }}
+        />
+    );
+    const onFile = (file: File | undefined) => {
+        if (!file) return;
+        setUploading(true);
+        setError("");
+        uploadPhoto(file)
+            .then((result) => {
+                setUploading(false);
+                if ("error" in result) {
+                    setError(result.error);
+                    return;
+                }
+                setMyPhotos((was) => [result.file, ...was.filter((f) => f !== result.file)]);
+                props.onPick(result.file);
+            })
+            .catch(() => {
+                setUploading(false);
+                setError("That photo didn't upload. Please try again.");
+            });
+    };
+    onMount(() => {
+        if (photosLoaded) return;
+        photosLoaded = true;
+        loadPhotos()
+            .then((files) => setMyPhotos(files))
+            .catch(() => {
+                photosLoaded = false;
+            });
+    });
     return (
-        <div class="pick">
-            <For each={demoPhotos}>
-                {(file) => (
-                    <button
-                        type="button"
-                        aria-label={`Use photo ${file.replace(".jpg", "")}`}
-                        classList={{ on: props.current === file }}
-                        style={{ "background-image": `url(${props.assets}${file})` }}
-                        onClick={() => {
-                            props.onPick(file);
-                        }}
-                    />
-                )}
-            </For>
+        <div class="picker">
+            <label class="mini upload" classList={{ busy: uploading() }}>
+                {uploading() ? "Uploading" : "Upload a photo"}
+                <input
+                    class="sr"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={uploading()}
+                    onChange={(e) => {
+                        onFile(e.currentTarget.files?.[0]);
+                        e.currentTarget.value = "";
+                    }}
+                />
+            </label>
+            <Show when={error()}>
+                <small class="fd-e" role="alert">
+                    {error()}
+                </small>
+            </Show>
+            <Show when={myPhotos().length}>
+                <h4 class="picker-h">Your photos</h4>
+                <div class="pick pick-mine">
+                    <For each={myPhotos()}>{(file) => tile(file, "Use one of your photos")}</For>
+                </div>
+            </Show>
+            <h4 class="picker-h">Library</h4>
+            <div class="pick">
+                <For each={demoPhotos}>
+                    {(file) => tile(file, `Use photo ${file.replace(".jpg", "")}`)}
+                </For>
+            </div>
         </div>
     );
 }

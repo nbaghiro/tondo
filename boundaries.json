@@ -10,7 +10,7 @@
     },
     "apps/server": {
         "internal": ["@tondo/page", "@tondo/render", "@tondo/contract", "@tondo/db"],
-        "external": ["hono", "@hono/node-server", "@neon/auth"],
+        "external": ["hono", "@hono/node-server", "@neon/auth", "sharp", "aws4fetch"],
         "node": true
     },
     "apps/editor": {

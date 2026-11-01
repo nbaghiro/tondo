@@ -8,10 +8,14 @@ import type { MiddlewareHandler } from "hono";
 import { mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { mountPages } from "./pages";
+import { mountPhotos } from "./photos";
+import type { Storage } from "./storage";
 
 export interface AppDeps {
     pages: PageStore;
     photos?: MiddlewareHandler;
+    /** Where uploads go. Without this, uploads explain that they aren't set up. */
+    storage?: Storage | null | undefined;
     /** Serves the built marketing site and editor, in production. */
     mountSite?: ((app: Hono) => void) | undefined;
     auth: AuthConfig;
@@ -34,7 +38,7 @@ const counted = (work: Promise<void>) => {
     });
 };
 
-export function createApp({ pages, photos, mountSite, auth }: AppDeps) {
+export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
     const live = (raw: string) => {
@@ -54,11 +58,12 @@ export function createApp({ pages, photos, mountSite, auth }: AppDeps) {
         return undefined;
     });
 
-    if (photos) app.get("/photos/*", photos);
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
     const currentPerson = mountAuth(app, auth);
     mountPages(app, pages, currentPerson);
+    mountPhotos(app, storage ?? null, currentPerson);
+    if (photos) app.get("/photos/*", photos);
 
     app.get(routes.page(":handle").replace("%3A", ":"), async (c) => {
         const found = await live(c.req.param("handle") ?? "");

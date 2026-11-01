@@ -21,7 +21,7 @@ services:
             timeout: 5s
             retries: 10
 
-    # Nothing uses this yet. Art, share images and uploads will. It speaks the S3 API. MinIO no longer
+    # Holds photo uploads. It speaks the S3 API, as Cloudflare R2 does in production. MinIO no longer
     # publishes free images, so this is the RustFS image Clientbridge pins.
     object-storage:
         image: rustfs/rustfs@sha256:1803faef57627e2d9c2e7d89d655d712ddded5389040054987163043fecb6a3c

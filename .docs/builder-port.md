@@ -258,6 +258,8 @@ Done.
 
 ### 7. Saving and publishing: **Review**
 
+Done.
+
 - Drafts save to the server about a second after a change, with `updated_at` refusing to overwrite a newer save. The status line says what happened, and a failed save keeps the work in the browser and retries.
 - A Publish button runs the strict checks, including that links are filled and safe, and lists what to fix.
 - `/handle` serves the published page. Dated blocks and countdowns are worked out when it's rendered, so cached copies stay short-lived.
@@ -267,6 +269,8 @@ Done.
 Finished when a new account can make a page, publish it and open it logged out.
 
 ### 8. Photos
+
+Done. Works with local RustFS, and with R2 through environment variables. R2 itself hasn't been tried.
 
 - Uploads go straight to object storage (RustFS locally), resized and checked for type and size on the server.
 - The picker has uploads and a demo photo library, and a crop point on every photo.

@@ -47,12 +47,37 @@ function signIn(person: Person): { cookie: string; token: string } {
 
 const tokenIn = (header: string | undefined) => /session_token=([^;]+)/.exec(header ?? "")?.[1];
 
+// A stand-in for object storage on the same port. It speaks just enough of S3 for uploads.
+const files = new Map<string, Buffer>();
+function standInStorage(method: string, url: string, bytes: Buffer, res: ServerResponse): void {
+    const { pathname, searchParams } = new URL(url, "http://stand-in");
+    const key = pathname.split("/").slice(3).join("/");
+    if (method === "PUT") {
+        files.set(key, bytes);
+        res.writeHead(200).end();
+    } else if (!key) {
+        const prefix = searchParams.get("prefix") ?? "";
+        const keys = [...files.keys()].filter((name) => name.startsWith(prefix));
+        res.writeHead(200).end(keys.map((name) => `<Key>${name}</Key>`).join(""));
+    } else {
+        const found = files.get(key);
+        if (found) res.writeHead(200).end(found);
+        else res.writeHead(404).end();
+    }
+}
+
 const server = createServer((req, res) => {
-    let raw = "";
+    const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => {
-        raw += chunk.toString();
+        chunks.push(chunk);
     });
     req.on("end", () => {
+        const bytes = Buffer.concat(chunks);
+        const raw = bytes.toString();
+        if (req.url?.startsWith("/s3/")) {
+            standInStorage(req.method ?? "GET", req.url, bytes, res);
+            return;
+        }
         const path = new URL(req.url ?? "/", "http://stand-in").pathname.replace("/auth/", "");
         const body = (raw ? JSON.parse(raw) : {}) as Record<string, string>;
         const email = body["email"] ?? "";

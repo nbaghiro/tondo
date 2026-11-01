@@ -42,7 +42,11 @@ const percent = z.number().min(0).max(100);
 
 /** A photo and the point its frame crops around. Centred and unzoomed values are left out. */
 export const photoValue = z.strictObject({
-    file: z.string().min(1).max(200),
+    // A demo photo's name, or an upload's path. Never a full address, so no page loads images elsewhere.
+    file: z
+        .string()
+        .max(200)
+        .regex(/^[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*$/i),
     x: percent.optional(),
     y: percent.optional(),
     zoom: z.number().min(1).max(3).optional(),

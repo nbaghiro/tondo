@@ -87,3 +87,32 @@ test("a second tab can't overwrite newer work", async ({ page, context }, info) 
     await expect(second.locator(".status-reload")).toBeVisible();
     await second.close();
 });
+
+const ONE_PIXEL = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg==",
+    "base64",
+);
+
+test("an uploaded photo is cropped, saved and shown in the picker", async ({ page }) => {
+    await signUpToEditor(page);
+    await canvas(page).locator("#t-header").click();
+    await page.locator(".side .ph-empty").first().click();
+    await page.locator(".upload input").setInputFiles({
+        name: "me.png",
+        mimeType: "image/png",
+        buffer: ONE_PIXEL,
+    });
+    const image = canvas(page).locator("#t-header img");
+    await expect(image).toHaveAttribute("src", /^\/photos\/uploads\/.+\.webp$/);
+    const loaded = await image.evaluate((node) => (node as HTMLImageElement).naturalWidth);
+    expect(loaded).toBe(1);
+
+    await page.locator(".side .ph .mini").first().click();
+    await expect(page.locator(".pick-mine button")).toHaveCount(1);
+    await page.locator(".upload input").setInputFiles({
+        name: "bad.svg",
+        mimeType: "image/svg+xml",
+        buffer: Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'><script/></svg>"),
+    });
+    await expect(page.locator(".picker .fd-e")).toContainText("JPEG, PNG or WebP");
+});

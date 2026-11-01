@@ -24,3 +24,9 @@ services:
             sync: false
           - key: NEON_AUTH_BASE_URL # the Auth URL from the Neon console
             sync: false
+          - key: S3_ENDPOINT # Cloudflare R2, for photo uploads
+            sync: false
+          - key: S3_ACCESS_KEY
+            sync: false
+          - key: S3_SECRET_KEY
+            sync: false
