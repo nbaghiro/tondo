@@ -7,7 +7,7 @@
 :root {
     --rule: var(--line);
     --white: #fff;
-    --amber: #a8631a;
+    --amber: #97570f;
 }
 html,
 body,
@@ -933,10 +933,28 @@ h2 {
 .pub-go:hover {
     background: #2a0e19;
 }
+/* Announced to screen readers always, and shown only when there's a problem. */
 .saved {
-    font-size: 13px;
-    color: var(--faint);
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.saved[data-state="retrying"],
+.saved[data-state="refused"],
+.saved[data-state="conflict"] {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
     margin-right: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber);
 }
 .stage.withbar {
     padding-top: 68px;
@@ -1054,9 +1072,6 @@ h2 {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-    .saved {
-        display: none;
     }
     .pub-go {
         padding: 8px 15px;
@@ -2194,7 +2209,7 @@ small.todo::before {
     background: var(--band);
 }
 .bg-gradient {
-    background: linear-gradient(#f0d0d6, var(--band) 70%);
+    background: linear-gradient(#e0dadc, var(--band) 70%);
 }
 .bg-photo {
     background: #e0dadc;
@@ -2236,9 +2251,6 @@ small.todo::before {
         grid-template-columns: repeat(4, 1fr);
     }
     .logout,
-    .saved {
-        display: none;
-    }
     .preview-frame {
         width: 100%;
         max-height: none;
@@ -2285,10 +2297,10 @@ small.todo::before {
     .saved[data-state="refused"],
     .saved[data-state="conflict"] {
         display: block;
-        position: fixed;
-        left: 10px;
-        right: 10px;
-        top: 62px;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        width: calc(100vw - 20px);
         z-index: 7;
         padding: 9px 12px;
         font-size: 13.5px;

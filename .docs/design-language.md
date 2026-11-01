@@ -29,17 +29,21 @@ Tondo's brand comes from the Wash direction with the Madder palette, on a pure w
 |---|---|---|
 | Paper | `#FFFFFF` | Page background |
 | Plum ink | `#3B1222` | Text and primary buttons |
+| Soft | `#6E505B` | Secondary text |
+| Faint | `#7E6570` | Quiet text such as "Saved". The lightest text colour that reaches 4.5:1 on every app surface |
 | Madder | `#A42A55` | Accent and links |
 | Coral | `#E8876A` | Paint only |
 | Sienna | `#F2B56B` | Paint only |
 | Band | `#FAF6F7` | Quiet panels and bands |
 | Line | `#E7E3E4` | Borders and rules |
 
-Coral and sienna appear in paint and not in text, because they don't have enough contrast on paper. Colour comes from the paint and the example pages, not from the page background.
+Coral and sienna appear in paint and not in text, because they don't have enough contrast on paper. Colour comes from the paint and the example pages, not from the page background. `scripts/contrast.test.ts` calculates these pairs and `tests/contrast.spec.ts` measures the text on the real pages, and both require 4.5:1.
 
 **Type.** Fraunces at a soft, medium weight sets headlines. Mulish sets everything else. Headlines use sentence case.
 
 **Shape.** Circles are for art and avatars. Buttons are pills. Panels have 28 px corners, and page mockups have 36 px corners. Shadows are soft and tinted plum.
+
+**Home.** A large phone holding the person's page leads Home, with a painting behind it, and the address, checklist and numbers support it. The phone carries no buttons: Edit page is in the sidebar, and in the bottom bar at phone width.
 
 **Motion.** The page has one moment of motion: the pages fan out around the painting when the page loads. It's turned off for people who ask for reduced motion.
 

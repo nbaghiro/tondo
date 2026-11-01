@@ -55,3 +55,7 @@ The site changes are in `apps/marketing`.
 | Done | Rename Find me to Socials and contact, findable by instagram, social, socials, icons and contact | `packages/page/src/sections.ts` |
 | Done | Give the header's links their own Social icons row, opened by tapping the icons | `SectionPanel.tsx`, `Canvas.tsx` |
 | Done | Make Porcelain the default for the marketing site and the whole app | `packages/brand/styles/tokens.css` is the source. See `design-language.md`. Example pages keep their own looks |
+| Done | Lead Home with a large phone that has no buttons on it | `HomePage.tsx`, `shell.css`. Edit page stays in the sidebar and the bottom bar |
+| Done | Keep the builder phone in proportion, and let short windows scroll to all of it | `builder.css`, with a test in `tests/editor.spec.ts` |
+| Done | Remove "Saved" from the builder bar | It stays as a hidden status announcement, and problems still show |
+| Done | Bring all Tondo text to 4.5:1, and remove blush tints and navy shadows from the app | Faint and amber are darker. `scripts/contrast.test.ts` and `tests/contrast.spec.ts` check it. The dashboard now uses the shared soft, faint and line tokens |

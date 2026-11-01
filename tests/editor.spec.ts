@@ -167,3 +167,11 @@ test("a short window keeps the phone's proportions, scrolls to all of it and dra
     await page.mouse.up();
     await expect(page.locator("#rows .row").last()).toContainText("Links");
 });
+
+test("a normal save shows no word in the bar, and still announces it", async ({ page }) => {
+    await addSection(page, "links");
+    const status = page.locator(".status[role=status]");
+    await expect(status).toHaveText("Saved");
+    const box = await status.boundingBox();
+    expect(box?.width ?? 0).toBeLessThanOrEqual(1);
+});

@@ -54,7 +54,7 @@ textarea.in {
     border-radius: 20px;
 }
 .mini:hover {
-    background: #f3d3c6;
+    background: #efebec;
 }
 .mini.quiet {
     padding-inline: 7px;
@@ -132,7 +132,7 @@ textarea.in {
     font-size: 13px;
     font-weight: 700;
     background: none;
-    border: 1.5px dashed #d9b8ac;
+    border: 1.5px dashed #cfc7ca;
     border-radius: 12px;
 }
 .ph-empty:hover {
@@ -181,7 +181,7 @@ textarea.in {
     place-items: center;
     padding: 0;
     background: none;
-    border: 1.5px dashed #d9b8ac;
+    border: 1.5px dashed #cfc7ca;
     border-radius: 9px;
 }
 .phs-open {
@@ -217,7 +217,7 @@ textarea.in {
     height: 22px;
     margin: 0;
     appearance: none;
-    background: #dcc7c0;
+    background: #d8d1d3;
     border-radius: 20px;
     cursor: inherit;
     transition: background 0.15s;
@@ -271,7 +271,7 @@ textarea.in {
     border-radius: 11px;
 }
 .ls-i.open {
-    border-color: #d9b8ac;
+    border-color: #cfc7ca;
 }
 .ls-h {
     display: flex;
@@ -283,7 +283,7 @@ textarea.in {
     place-items: center;
     width: 28px;
     height: 36px;
-    color: #b89a9f;
+    color: #bdb3b7;
     cursor: grab;
     touch-action: none;
 }
@@ -326,7 +326,7 @@ textarea.in {
     font-size: 13px;
     font-weight: 700;
     background: none;
-    border: 1.5px dashed #d9b8ac;
+    border: 1.5px dashed #cfc7ca;
     border-radius: 11px;
 }
 .ls-add:hover:not(:disabled) {

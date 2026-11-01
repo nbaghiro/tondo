@@ -7,14 +7,14 @@ This is what to walk through now that the builder is in the real app. Everything
 Start the servers (`pnpm services:up`, `pnpm db:migrate`, `pnpm dev`), then open http://localhost:8103. Check at 1440, 1100 and on a real phone.
 
 1. **Sign up.** You land on the five-step start flow at `/start`. Finishing it opens the builder at `/edit`.
-2. **Go to Home.** Use the Home button beside the logo in the builder. You should see "Not live yet", your address, a real phone preview and five checklist items.
+2. **Go to Home.** Use the Home button beside the logo in the builder. You should see "Not live yet", your address, a large phone showing your page as the main thing on the screen, and five checklist items. The phone has no buttons on it: Edit page is in the sidebar.
 3. **Follow each checklist item.** Each should open the builder at that exact field. "Publish your page" opens the panel and doesn't publish until you press the button.
 4. **Publish.** The panel shows your address, Copy link, Open your page and Back to Home.
 5. **Check the numbers.** Home shows Live and the last 30 days. Open your page in another browser and wait a few seconds: views go up. Press a link: clicks and Analytics' Top links go up. Analytics has 7, 30 and 90 days, a Views or Link clicks toggle, and a table view.
 6. **Make a change in the builder and go back to Home.** It says "Live, with unpublished changes" and offers Publish.
 7. **Page settings.** Change the title and description, then publish and paste your link into a chat to see the preview. Change your address and check the old one is a 404. Take the page down.
 8. **Account.** Change your password, log out, log back in. Log in lands on Home. Delete the account with a throwaway one.
-9. **Phone.** The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
+9. **Phone.** Home shows the phone below your name, then your address and checklist. The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
 10. **Two tabs.** Edit in both. The second gets the conflict bar with Use the latest, Keep mine and Download mine.
 11. **Report link.** A live free page has a small Report link at the bottom. It opens `/report`.
 
@@ -60,6 +60,7 @@ In development the marketing site and published pages are on different ports. In
 - [ ] After the code, the start flow opens: name, sections, logo, look, address. The page fills in beside each step. A taken or reserved address is refused
 - [ ] Sign up without an address from the marketing box. The last step suggests one from the name
 - [ ] Log out and back in. You land on Home, not the start flow
+- [ ] Make the builder window short. The phone keeps its proportions down to a 320 px screen, then the workspace scrolls to the rest of it, and dragging a section still lands where you drop it
 - [ ] Log out, then log in. A wrong password is refused
 - [ ] Forgot password: the code arrives, the new password works and the old one doesn't. **Needs you: never tried with a real code**
 - [ ] An unverified account that logs in is sent to `/verify`
@@ -89,7 +90,7 @@ In development the marketing site and published pages are on different ports. In
 
 ## Saving
 
-- [ ] The status goes from Saving to Saved. Reload, and your work is there
+- [ ] Normal saves show nothing in the top bar. Reload, and your work is there. Go offline and make a change: a message appears, and it clears once you reconnect
 - [ ] Stop the server (or go offline), edit, and see the warning. Bring it back, and it saves by itself
 - [ ] Edit in two tabs. The second should say the page changed and offer Reload
 - [ ] Open the editor in another browser while logged in as the same person
