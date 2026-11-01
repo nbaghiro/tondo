@@ -1,7 +1,7 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { LivePage, PageStore } from "@tondo/db";
-import { handleSchema, normaliseHandle } from "@tondo/page";
+import { handleSchema, normaliseHandle, stepDown } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
@@ -167,13 +167,17 @@ export function createApp({
         if (!found) return c.text(notFound.error, 404);
         if (countsAsVisit(c)) add(found.id, "");
         const origin = publicOrigin ?? new URL(c.req.url).origin;
+        // Worked out per request from the cached plan, so a date passes when it should.
+        const limits = limitsOf(found);
+        const page = limits.design ? found.page : stepDown(found.page, { keepContent: true });
         return c.html(
-            renderDocument(found.page, {
-                title: found.page.header.name,
+            renderDocument(page, {
+                title: page.header.name,
                 assetBase: "/photos/",
                 editable: false,
                 live: true,
                 trackAs: handle,
+                mark: limits.mark,
                 shareUrl: `${origin}/${handle}`,
                 onDrawError: (type, error) => {
                     process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);

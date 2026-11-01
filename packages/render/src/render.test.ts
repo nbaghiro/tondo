@@ -25,6 +25,30 @@ import {
 const ctx = { assetBase: "/photos/", editable: false };
 const options = { ...ctx, title: "Maya" };
 
+describe("the Tondo mark", () => {
+    const draw = (mark: boolean) =>
+        renderDocument(samplePage, {
+            title: "A",
+            assetBase: "/photos/",
+            editable: false,
+            live: true,
+            trackAs: "maya",
+            mark,
+        });
+
+    it("shows only when asked, above the report link, with no script", () => {
+        const html = draw(true);
+        expect(html).toContain("Made with Tondo");
+        expect(html.indexOf("Made with Tondo")).toBeLessThan(html.indexOf("Report this page"));
+        expect(html).not.toContain("<script");
+        expect(draw(false)).not.toContain("Made with Tondo");
+    });
+
+    it("isn't a tracked link", () => {
+        expect(draw(true)).toContain('href="https://tondo.page"');
+    });
+});
+
 describe("renderDocument", () => {
     it("renders the header and every block", () => {
         const html = renderDocument(samplePage, options);

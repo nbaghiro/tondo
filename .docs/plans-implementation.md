@@ -2,7 +2,7 @@
 
 This plan builds the plan the owner chose in [plans.md](plans.md).
 
-**Status:** M0 to M3 are done. M4 and M5 are being built in order. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
+**Status:** M0 to M4 are done. M5 is being built. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
 
 It was first checked against the working tree and Stripe's docs on 2026-11-01, while other agents were changing `apps/` and `.docs/`, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. I haven't tried any of this against a real Stripe account.
 

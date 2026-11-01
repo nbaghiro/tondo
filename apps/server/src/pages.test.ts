@@ -346,3 +346,40 @@ describe("publishing and plans", () => {
         expect(body.days).toHaveLength(7);
     });
 });
+
+describe("the live page and plans", () => {
+    const DAY = 86_400_000;
+    const live = async (plan: { plan: "free" | "pro"; endsAt: Date | null }) => {
+        vi.stubEnv("PLANS_ON", "true");
+        const { app, pages } = setup();
+        pages.addUser("noor", "noor", { ...samplePage, look: "bake" });
+        await pages.store.publish("noor", "1");
+        pages.setPlan("noor", plan);
+        return (await app.request("/noor")).text();
+    };
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it("shows the mark on Free and not on Pro", async () => {
+        expect(await live({ plan: "free", endsAt: null })).toContain("Made with Tondo");
+        expect(await live({ plan: "pro", endsAt: null })).not.toContain("Made with Tondo");
+    });
+
+    it("keeps the design for 30 days after a plan ends, then steps down", async () => {
+        const ten = await live({ plan: "pro", endsAt: new Date(Date.now() - 10 * DAY) });
+        expect(ten).toContain("Made with Tondo");
+        expect(ten).toContain('class="look bake"');
+        const later = await live({ plan: "pro", endsAt: new Date(Date.now() - 31 * DAY) });
+        expect(later).toContain('class="look sap"');
+    });
+
+    it("draws neither while plans are off", async () => {
+        const { app, pages } = setup();
+        pages.addUser("noor", "noor", { ...samplePage, look: "bake" });
+        await pages.store.publish("noor", "1");
+        const html = await (await app.request("/noor")).text();
+        expect(html).not.toContain("Made with Tondo");
+        expect(html).toContain('class="look bake"');
+    });
+});

@@ -50,7 +50,10 @@ interface Row {
     published: Page | null;
     updatedAt: number;
     suspended?: boolean;
+    plan?: { plan: Plan; endsAt: Date | null };
 }
+
+const FREE = { plan: "free" as const, endsAt: null };
 
 /** Keeps pages in memory, for tests. */
 export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
@@ -73,7 +76,7 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             const row = [...rows].find(([, other]) => other.handle === handle);
             return Promise.resolve(
                 row?.[1].published && !row[1].suspended
-                    ? { id: row[0], page: row[1].published }
+                    ? { id: row[0], page: row[1].published, ...(row[1].plan ?? FREE) }
                     : null,
             );
         },
@@ -124,9 +127,13 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
         const row = rows.get(userId);
         if (row) row.suspended = true;
     };
+    const setPlan = (userId: string, plan: { plan: Plan; endsAt: Date | null }) => {
+        const row = rows.get(userId);
+        if (row) row.plan = plan;
+    };
     const setDraft = (userId: string, page: Page) => {
         const row = rows.get(userId);
         if (row) row.draft = page;
     };
-    return { store, counts, addUser, suspend, setDraft };
+    return { store, counts, addUser, suspend, setDraft, setPlan };
 }

@@ -1,5 +1,5 @@
 import { pageHash, readPage } from "@tondo/page";
-import type { Page } from "@tondo/page";
+import type { Page, Plan } from "@tondo/page";
 import { and, eq, gte, isNull, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, stats, users } from "./schema";
@@ -19,6 +19,8 @@ export interface Draft {
 export interface LivePage {
     id: string;
     page: Page;
+    plan: Plan;
+    endsAt: Date | null;
 }
 
 export interface PageStats {
@@ -65,7 +67,12 @@ export function createPageStore(db: Db): PageStore {
     return {
         findLive: async (handle) => {
             const [row] = await db
-                .select({ id: pages.id, published: pages.published })
+                .select({
+                    id: pages.id,
+                    published: pages.published,
+                    plan: users.plan,
+                    endsAt: users.endsAt,
+                })
                 .from(pages)
                 .innerJoin(users, eq(pages.userId, users.id))
                 .where(
@@ -76,7 +83,9 @@ export function createPageStore(db: Db): PageStore {
                     ),
                 )
                 .limit(1);
-            return row?.published ? { id: row.id, page: read(row.published) } : null;
+            return row?.published
+                ? { id: row.id, page: read(row.published), plan: row.plan, endsAt: row.endsAt }
+                : null;
         },
         handleOf: async (userId) => {
             const [row] = await db

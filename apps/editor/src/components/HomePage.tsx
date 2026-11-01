@@ -205,6 +205,7 @@ export function HomePage(props: { account: Account }) {
             assetBase: "/photos/",
             editable: false,
             live: true,
+            mark: Boolean(plan()?.billing && plan()?.limits.mark),
         }).replace("<head>", '<head><base target="_blank">');
 
     return (

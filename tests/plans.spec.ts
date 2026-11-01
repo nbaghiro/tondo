@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { lookNames, samplePage } from "@tondo/page";
+import { renderDocument } from "@tondo/render";
 import { addSection, canvas, openLook, panel, setPlan, signUpToEditor } from "./helpers";
 
 // A page with something of its own on it, so publishing has nothing else to ask about.
@@ -23,6 +25,15 @@ const withWords = async (page: Page, options: { plan?: string } = {}) => {
     await page.reload();
     await expect(page.locator(".address")).toContainText(handle);
     return handle;
+};
+
+const DAY = 86_400_000;
+// How long a visitor's page can come from the cache, plus a little.
+const CACHE_MS = 16_000;
+
+const publishFromPanel = async (page: Page) => {
+    await page.locator(".publish").click();
+    await expect(page.locator(".pub-address")).toBeVisible();
 };
 
 const ONE_PIXEL = Buffer.from(
@@ -172,4 +183,79 @@ test("a tab that hasn't heard about the plan shows the same panel after a refusa
     await setPlan(handle, "free");
     await page.locator(".publish").click();
     await expect(page.locator("[data-plan-panel]")).toContainText("Bakehouse");
+});
+
+test("a plan ending keeps the page online, returns the mark and steps down after 30 days", async ({
+    page,
+}) => {
+    test.setTimeout(90_000);
+    const handle = await withWords(page);
+    await openLook(page);
+    await page.locator(".tile[data-look=bake]").click();
+    await page.keyboard.press("Escape");
+    await publishFromPanel(page);
+    const html = async () => await (await page.request.get(`/${handle}`)).text();
+    expect(await html()).not.toContain("Made with Tondo");
+
+    await setPlan(handle, "pro", new Date(Date.now() - 10 * DAY));
+    await page.waitForTimeout(CACHE_MS);
+    const kept = await html();
+    expect(kept).toContain("Made with Tondo");
+    expect(kept).toContain('class="look bake"');
+    await page.goto("/app");
+    await expect(page.locator("[data-plan-notice]")).toContainText("It keeps Bakehouse until");
+
+    await setPlan(handle, "pro", new Date(Date.now() - 31 * DAY));
+    await page.waitForTimeout(CACHE_MS);
+    const stepped = await html();
+    expect(stepped).toContain('class="look sap"');
+    expect(stepped).not.toContain("<script");
+    await page.goto("/app");
+    await expect(page.locator("[data-plan-notice]")).toContainText("Your page now uses Sap.");
+    const draft = await page.evaluate(async () => {
+        const res = await fetch("/api/v1/me/page");
+        return ((await res.json()) as { page: { look: string } }).page.look;
+    });
+    expect(draft).toBe("bake");
+
+    await setPlan(handle, "pro");
+    await page.waitForTimeout(CACHE_MS);
+    expect(await html()).toContain('class="look bake"');
+});
+
+test("the mark can be read on every look", async ({ page }) => {
+    const low: string[] = [];
+    for (const look of lookNames) {
+        await page.setContent(
+            renderDocument(
+                { ...samplePage, look },
+                { title: "A", assetBase: "/photos/", editable: false, live: true, mark: true },
+            ),
+        );
+        const ratio = await page.locator("[data-mark] a").evaluate((link) => {
+            const parse = (value: string) => (value.match(/[\d.]+/g) ?? []).map(Number);
+            const lum = ([r = 0, g = 0, b = 0]: number[]) => {
+                const at = (v: number) => {
+                    const s = v / 255;
+                    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+                };
+                return 0.2126 * at(r) + 0.7152 * at(g) + 0.0722 * at(b);
+            };
+            let behind = "rgb(255, 255, 255)";
+            for (let at: Element | null = link; at; at = at.parentElement) {
+                const colour = getComputedStyle(at).backgroundColor;
+                const [, , , alpha = 1] = parse(colour);
+                if (alpha === 1) {
+                    behind = colour;
+                    break;
+                }
+            }
+            const [a, b] = [lum(parse(getComputedStyle(link).color)), lum(parse(behind))].sort(
+                (x, y) => y - x,
+            );
+            return ((a ?? 0) + 0.05) / ((b ?? 0) + 0.05);
+        });
+        if (ratio < 4.5) low.push(`${look} ${ratio.toFixed(2)}`);
+    }
+    expect(low).toEqual([]);
 });

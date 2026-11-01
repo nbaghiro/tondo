@@ -1,6 +1,7 @@
 import type { Page } from "@tondo/page";
 import { renderDocument } from "@tondo/render";
 import { For, onCleanup, Show } from "solid-js";
+import { plan } from "../state/plan";
 import { Glyph } from "./Panels";
 import { Phone } from "./Phone";
 
@@ -17,6 +18,7 @@ export function Preview(props: {
             assetBase: "/photos/",
             editable: false,
             live: true,
+            mark: Boolean(plan()?.billing && plan()?.limits.mark),
         }).replace("<head>", '<head><base target="_blank">');
     const onKey = (e: KeyboardEvent) => {
         if (e.key === "Escape") props.onClose();

@@ -21,6 +21,7 @@ export function PlanLab() {
             editable: false,
             live: true,
             trackAs: "maya",
+            mark: true,
         });
     return (
         <div style={{ display: "grid", "grid-template-columns": "180px 320px 390px 390px" }}>
