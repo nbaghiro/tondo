@@ -73,3 +73,5 @@ The site changes are in `apps/marketing`.
 | Done | Cleaner way out of Preview | A small x at the top right, and Escape, so the phone sits centred on its own |
 | Done | Say what's decided about plans on the pricing page and Home | `data/plans.ts` holds the table. Free, Pro and Team now show the decided limits, the page says paid plans can't be bought yet and everything that works today stays open until they can. Pages per plan isn't advertised while the owner settles how multiple pages work |
 | Done | Let people remove a photo from Your photos, and say Pro in the gallery | The picker has a small x on each of your photos, refused with a clear line while the photo is on your page. `gallery.astro` marks example pages using a Pro look |
+| Done | App logo goes to the site, and the site offers Go to app when signed in | `Shell.tsx`, `Nav.astro`. The builder's logo still goes to Home |
+| Done | One address for the site and the app, no subdomains needed | Already how production works. `deploy.md` says so, and the e2e suite runs against that one server |

@@ -44,7 +44,9 @@ const columns = [
                 <nav class="foot-col" aria-label={column.title}>
                     <h2>{column.title}</h2>
                     {column.links.map(([label, href]) => (
-                        <a href={href}>{label}</a>
+                        <a href={href} data-guest={href === "/login" ? "" : undefined}>
+                            {label}
+                        </a>
                     ))}
                 </nav>
             ))}

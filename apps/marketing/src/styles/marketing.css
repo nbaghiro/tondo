@@ -71,6 +71,10 @@ body {
 .logo span {
     width: 30px;
 }
+.member [data-guest],
+html:not(.member) [data-member] {
+    display: none !important;
+}
 .mbtn {
     display: inline-block;
     background: var(--ink);

@@ -1,5 +1,10 @@
 ---
+import { routes } from "@tondo/contract";
 import Art from "./Art.astro";
+
+const editorUrl =
+    (import.meta.env["PUBLIC_EDITOR_URL"] as string | undefined) ??
+    (import.meta.env.DEV ? "http://localhost:8100" : "/app");
 ---
 
 <nav>
@@ -18,8 +23,34 @@ import Art from "./Art.astro";
     <a class="navlink" href="/pricing">
         Pricing
     </a>
-    <a href="/login">Log in</a>
-    <a class="mbtn" href="/signup">
+    <a data-guest href="/login">
+        Log in
+    </a>
+    <a data-guest class="mbtn" href="/signup">
         Get started
     </a>
+    <a data-member class="mbtn" href={editorUrl}>
+        Go to app
+    </a>
 </nav>
+<script define:vars={{ me: routes.me }}>
+    // Remembered so a returning person doesn't see the wrong buttons first. The server has the final say.
+    (() => {
+        const KEY = "tondo:signed-in";
+        const show = (on) => {
+            document.documentElement.classList.toggle("member", on);
+            try {
+                if (on) localStorage.setItem(KEY, "1");
+                else localStorage.removeItem(KEY);
+            } catch {}
+        };
+        try {
+            show(localStorage.getItem(KEY) === "1");
+        } catch {}
+        fetch(me)
+            .then((res) => {
+                if (res.ok || res.status === 401) show(res.ok);
+            })
+            .catch(() => {});
+    })();
+</script>

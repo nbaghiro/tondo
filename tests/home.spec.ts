@@ -248,3 +248,22 @@ test("Home, the builder and the preview show the phone at the same size", async 
     expect(home?.width).toBe(builder?.width);
     expect(preview?.height).toBe(builder?.height);
 });
+
+test("the app's logo leads to the site, which offers the way back", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("nav a[data-guest]", { hasText: "Log in" }).first()).toBeVisible();
+    await expect(page.locator("nav a", { hasText: "Go to app" })).toBeHidden();
+
+    await signUpToEditor(page);
+    await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+    await page.goto("/app");
+    await page.locator("a.logo:visible").click();
+    await expect(page).toHaveURL(/\/$/);
+    const back = page.locator("nav a", { hasText: "Go to app" });
+    await expect(back).toBeVisible();
+    await expect(page.locator("a[data-guest]:visible", { hasText: "Log in" })).toHaveCount(0);
+    await expect(page.locator("nav a[data-guest]", { hasText: "Get started" })).toBeHidden();
+
+    await back.click();
+    await expect(page).toHaveURL(/\/app\/?$/);
+});

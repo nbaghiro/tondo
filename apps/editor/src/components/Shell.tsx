@@ -15,14 +15,14 @@ const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('cla
 
 function Logo() {
     return (
-        <span class="logo">
+        <a class="logo" href={SITE_URL || "/"}>
             <span
                 ref={(el) => {
                     el.innerHTML = LOGO;
                 }}
             />
             Tondo
-        </span>
+        </a>
     );
 }
 

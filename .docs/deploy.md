@@ -4,7 +4,7 @@ Tondo runs as one web service on Render, with Postgres and sign-in on Neon. This
 
 ## How it fits together
 
-One Hono server serves the marketing site, the editor at `/app`, public pages, and `/api`. Neon's docs say separate frontend and backend deployments aren't supported, because its cookies can't be shared safely across domains. So the server proxies `/api/auth/*` to Neon, and the cookies stay on our domain.
+One Hono server serves the marketing site, the editor at `/app`, public pages, and `/api`, all on `tondo.page` with no subdomains. DNS only needs that one domain pointed at Render. Neon's docs say separate frontend and backend deployments aren't supported, because its cookies can't be shared safely across domains. So the server proxies `/api/auth/*` to Neon, and the cookies stay on our domain.
 
 | Variable | Where it comes from | Needed |
 |---|---|---|
