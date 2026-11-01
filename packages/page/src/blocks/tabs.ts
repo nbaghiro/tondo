@@ -7,7 +7,12 @@ import type { LeafBlock } from "./leaves";
 
 export function drawLeaf(block: LeafBlock, ctx: RenderContext): string {
     const definition = leafDefinitions[block.type];
-    return wrapBlock(block, definition.name, definition.draw(block, ctx), ctx);
+    try {
+        return wrapBlock(block, definition.name, definition.draw(block, ctx), ctx);
+    } catch (error) {
+        ctx.onDrawError?.(block.type, error);
+        return "";
+    }
 }
 
 /** Works without a script, using a radio button per tab. */

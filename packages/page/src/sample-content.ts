@@ -161,7 +161,9 @@ function trimBlocks(blocks: readonly Block[], leftOut: LeftOut[]): Block[] {
                     blocks: trimBlocks(tab.blocks, leftOut) as typeof tab.blocks,
                 }))
                 .filter((tab) => tab.blocks.length);
-            return tabs.length ? [{ ...block, tabs }] : [];
+            // Tabs need at least two, so one left over is just its blocks, with no tab bar.
+            if (tabs.length < 2) return tabs.flatMap((tab) => tab.blocks);
+            return [{ ...block, tabs }];
         });
         if (!kept.length) return [];
         return section.title ? [section.title, ...kept] : kept;

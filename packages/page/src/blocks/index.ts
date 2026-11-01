@@ -25,9 +25,15 @@ export const blockTypes = Object.keys(blockDefinitions).filter(
 /** What the shelf offers. Held blocks still render, because saved pages may use them. */
 export const availableBlockTypes = blockTypes.filter((type) => !blockDefinitions[type].held);
 
+/** One block that can't be drawn is left out, so it can never take the whole page down. */
 export function drawBlock(block: Block, ctx: RenderContext): string {
     const definition = blockDefinitions[block.type];
-    return wrapBlock(block, definition.name, definition.draw(block, ctx), ctx);
+    try {
+        return wrapBlock(block, definition.name, definition.draw(block, ctx), ctx);
+    } catch (error) {
+        ctx.onDrawError?.(block.type, error);
+        return "";
+    }
 }
 
 /** Every block on the page, including those inside tabs. */

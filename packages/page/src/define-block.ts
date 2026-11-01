@@ -7,6 +7,8 @@ export interface RenderContext {
     assetBase: string;
     /** Adds the attributes the editor needs. Published pages leave them out. */
     editable: boolean;
+    /** Told when a block couldn't be drawn and was left out. */
+    onDrawError?: (type: string, error: unknown) => void;
     now?: Date | undefined;
     /** Draws a painted placeholder photo. The renderer fills this in, since it knows the page. */
     placeholder?: ((n: number) => string) | undefined;

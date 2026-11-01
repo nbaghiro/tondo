@@ -90,6 +90,9 @@ export function createApp({ pages, photos, storage, mountSite, auth }: AppDeps) 
                 editable: false,
                 live: true,
                 trackAs: handle,
+                onDrawError: (type, error) => {
+                    process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);
+                },
             }),
             200,
             PAGE_HEADERS,

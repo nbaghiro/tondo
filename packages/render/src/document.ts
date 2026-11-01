@@ -68,12 +68,13 @@ export interface DocumentOptions extends RenderContext {
     trackAs?: string;
     /** Draws what a visitor sees, leaving out sample content and empty tabs. */
     live?: boolean;
+    onDrawError?: (type: string, error: unknown) => void;
 }
 
 export function renderDocument(saved: Page, options: DocumentOptions): string {
-    const { title, editorCss = "", now, assetBase, editable, trackAs, live } = options;
+    const { title, editorCss = "", now, assetBase, editable, trackAs, live, onDrawError } = options;
     const page = live ? liveContent(saved).page : saved;
-    const ctx = { assetBase, editable };
+    const ctx = { assetBase, editable, ...(onDrawError ? { onDrawError } : {}) };
     const body = renderBody(page, ctx, now);
     const description = page.description
         ? `<meta name="description" content="${escapeHtml(page.description)}">`
