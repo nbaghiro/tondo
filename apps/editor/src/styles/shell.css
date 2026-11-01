@@ -298,20 +298,26 @@ svg.i {
     background: #d59a22;
 }
 .wrap:has(.home) {
-    max-width: 1240px;
-    padding-top: 28px;
+    max-width: none;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-block: 28px;
 }
+/* The phone and its details sit together as a pair, each centred vertically. A window too short for the phone starts at the top and scrolls. */
 .home {
+    flex: 1;
     display: grid;
-    grid-template-columns: 430px minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    column-gap: 44px;
-    align-items: start;
+    grid-template-columns: auto minmax(0, 620px);
+    justify-content: center;
+    column-gap: 72px;
+    align-items: safe center;
 }
-.home > .ph,
-.home > .stack {
+.home-side {
     grid-column: 2;
-    min-width: 0;
+    grid-row: 1;
+    width: 100%;
+    max-width: 620px;
 }
 .status {
     display: flex;
@@ -356,6 +362,9 @@ svg.i {
 }
 .check li:first-child a {
     border-top: 0;
+}
+.check li:last-child a {
+    border-radius: 0 0 11px 11px;
 }
 .check a:hover {
     background: var(--hover);
@@ -432,12 +441,10 @@ button.tile[aria-pressed="true"] {
     box-shadow: inset 0 -2px 0 var(--madder);
 }
 .pv {
-    --ph-h: clamp(560px, calc(100vh - 56px), 760px);
-    --s: 0.92;
-    position: sticky;
-    top: 28px;
+    position: relative;
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 1;
+    width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
@@ -449,30 +456,13 @@ button.tile[aria-pressed="true"] {
 }
 .pv-art {
     z-index: -1;
+    position: absolute;
+    left: 50%;
+    top: 50%;
     width: 520px;
+    transform: translate(-50%, -50%);
     opacity: 0.42;
     pointer-events: none;
-}
-.dev {
-    width: calc(412px * var(--s) + 20px);
-    height: var(--ph-h);
-    padding: 10px;
-    border-radius: 50px;
-    overflow: hidden;
-    background: #2a0e19;
-    box-shadow:
-        0 30px 60px rgba(59, 18, 34, 0.28),
-        0 6px 14px rgba(59, 18, 34, 0.14);
-}
-.dev iframe {
-    display: block;
-    width: 412px;
-    height: calc((var(--ph-h) - 20px) / var(--s));
-    border: 0;
-    border-radius: 44px;
-    background: #fff;
-    transform: scale(var(--s));
-    transform-origin: 0 0;
 }
 .emptyline {
     margin: 0;
@@ -733,21 +723,30 @@ th.n {
     opacity: 1;
     transform: translate(-50%, 0);
 }
-@media (max-width: 1120px) {
+/* Stacks before the phone would have to shrink, so it stays the builder's size on a computer. */
+@media (max-width: 1240px) {
+    .wrap:has(.home) {
+        display: block;
+        min-height: 0;
+    }
     .home {
         display: flex;
         flex-direction: column;
         align-items: stretch;
         gap: 16px;
     }
-    .home > .ph {
+    .home-side {
+        display: contents;
+    }
+    .home-side > .ph {
         order: -2;
         margin-bottom: 0;
     }
     .pv {
         order: -1;
-        position: relative;
-        top: 0;
+    }
+    .pv-art {
+        width: 100%;
     }
 }
 @media (max-width: 1020px) {
@@ -809,22 +808,6 @@ th.n {
     .ph .acts .b {
         flex: 1;
     }
-    .pv {
-        --ph-h: 500px;
-        --s: 0.78;
-    }
-    .pv-art {
-        width: 100%;
-    }
-    .dev {
-        width: calc(412px * var(--s) + 16px);
-        padding: 8px;
-        border-radius: 40px;
-    }
-    .dev iframe {
-        height: calc((var(--ph-h) - 16px) / var(--s));
-        border-radius: 40px;
-    }
     .status {
         gap: 8px;
         padding: 10px 12px;
@@ -882,8 +865,29 @@ th.n {
         bottom: 84px;
     }
 }
+/* On a real phone, Home shows a smaller framed page. The builder's phone fills the screen instead. */
+@media (max-width: 860px) {
+    .pv .phone {
+        --s: 0.78;
+        width: calc(412px * var(--s) + 16px);
+        height: 500px;
+        padding: 8px;
+        border-radius: 40px;
+        background: #2a0e19;
+        box-shadow:
+            0 30px 60px rgba(59, 18, 34, 0.28),
+            0 6px 14px rgba(59, 18, 34, 0.14);
+    }
+    .pv .phone iframe {
+        width: 412px;
+        height: calc((500px - 16px) / var(--s));
+        border-radius: 40px;
+        transform: scale(var(--s));
+        transform-origin: 0 0;
+    }
+}
 @media (max-width: 370px) {
-    .pv {
+    .pv .phone {
         --s: 0.68;
     }
 }

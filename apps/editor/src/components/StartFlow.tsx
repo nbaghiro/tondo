@@ -17,6 +17,7 @@ import { GRIP } from "../lib/drawings";
 import { LivePage } from "./LivePage";
 import { LookTiles } from "./LookPanel";
 import { Glyph } from "./Panels";
+import { Phone } from "./Phone";
 
 const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('class="tondo"', "");
 const STEPS = 5;
@@ -423,9 +424,9 @@ export function StartFlow(props: {
                 </div>
             </div>
             <div class="stage">
-                <div class="phone">
+                <Phone>
                     <LivePage page={page()} />
-                </div>
+                </Phone>
             </div>
             <button type="button" class="peek" onClick={() => setPeek((was) => !was)}>
                 {peek() ? "Back" : "See my page"}

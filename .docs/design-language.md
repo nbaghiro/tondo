@@ -43,7 +43,7 @@ Coral and sienna appear in paint and not in text, because they don't have enough
 
 **Shape.** Circles are for art and avatars. Buttons are pills. Panels have 28 px corners, and page mockups have 36 px corners. Shadows are soft and tinted plum.
 
-**Home.** A large phone holding the person's page leads Home, with a painting behind it, and the address, checklist and numbers support it. The phone carries no buttons: Edit page is in the sidebar, and in the bottom bar at phone width.
+**Home.** A large phone holding the person's page leads Home, with a painting behind it, and the greeting, address, checklist and numbers sit beside it with a 72px gap, each vertically centred. It stacks at 1240px or narrower. The phone carries no buttons: Edit page is in the sidebar, and in the bottom bar at phone width.
 
 **Motion.** The page has one moment of motion: the pages fan out around the painting when the page loads. It's turned off for people who ask for reduced motion.
 

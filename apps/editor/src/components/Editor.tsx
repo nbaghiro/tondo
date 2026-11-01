@@ -12,7 +12,8 @@ import type { Backup } from "../state/storage";
 import { createEditor, HEADER } from "../state/document";
 import { Canvas } from "./Canvas";
 import { LookTiles, MakeItYours } from "./LookPanel";
-import { AddList, Glyph, PagePanel } from "./Panels";
+import { AddList, Glyph, PagePanel, Rail } from "./Panels";
+import { Phone } from "./Phone";
 import { Preview } from "./Preview";
 import { revealAsked, setAskedItem } from "./Fields";
 import { PublishPanel, publishTitle } from "./PublishPanel";
@@ -80,6 +81,25 @@ function Panel(props: {
             <div class="side-body">{props.children}</div>
         </aside>
     );
+}
+
+const RAIL_KEY = "tondo:left-panel-minimised";
+
+function readRailed(): boolean {
+    try {
+        return localStorage.getItem(RAIL_KEY) === "1";
+    } catch {
+        return false;
+    }
+}
+
+function keepRailed(on: boolean) {
+    try {
+        if (on) localStorage.setItem(RAIL_KEY, "1");
+        else localStorage.removeItem(RAIL_KEY);
+    } catch {
+        // Private browsing can refuse this, and the panel then just opens expanded next time.
+    }
 }
 
 export function Editor(props: { account: Account; draft: DraftResponse }) {
@@ -210,7 +230,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
         setRight("look");
         setSheet("look");
     };
+    const [railed, setRailed] = createSignal(readRailed());
+    const minimise = (on: boolean) => {
+        setRailed(on);
+        keepRailed(on);
+        queueMicrotask(() => {
+            document.getElementById(on ? "rail-expand" : "panel-minimise")?.focus();
+        });
+    };
     const openAdd = () => {
+        setRailed(false);
         setLeft("add");
         setSheet("add");
     };
@@ -526,7 +555,7 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                     onPublish={startPublish}
                     suspended={props.draft.suspended}
                 />
-                <div class="phone" id="phone">
+                <Phone id="phone">
                     <Canvas
                         editor={editor}
                         ref={setFrame}
@@ -552,14 +581,28 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                             setDragOrder(null);
                         }}
                     />
-                </div>
+                </Phone>
             </main>
             <Show
                 when={left() === "add"}
                 fallback={
                     <Panel
                         title="Your page"
-                        class="lside"
+                        class={railed() ? "lside railed" : "lside"}
+                        extra={
+                            <button
+                                type="button"
+                                class="back minimise"
+                                id="panel-minimise"
+                                aria-label="Minimise panel"
+                                title="Minimise panel"
+                                onClick={() => {
+                                    minimise(true);
+                                }}
+                            >
+                                <Glyph name="back" />
+                            </button>
+                        }
                         open={sheet() === "page"}
                         {...panelBits}
                         tall={tall()}
@@ -706,6 +749,16 @@ export function Editor(props: { account: Account; draft: DraftResponse }) {
                         />
                     </Panel>
                 )}
+            </Show>
+            <Show when={railed() && left() === "page"}>
+                <Rail
+                    editor={editor}
+                    onExpand={() => {
+                        minimise(false);
+                    }}
+                    onOpenLook={openLook}
+                    onAdd={openAdd}
+                />
             </Show>
             <nav class="tabbar" aria-label="Editor">
                 <button

@@ -138,25 +138,6 @@ h2 {
     height: auto;
     overflow: visible;
 }
-.phone {
-    position: relative;
-    width: 390px;
-    max-height: 100%;
-    height: 844px;
-    border-radius: 26px;
-    background: #fff;
-    box-shadow:
-        0 0 0 1px rgba(59, 18, 34, 0.1),
-        0 24px 60px rgba(59, 18, 34, 0.16);
-    overflow: hidden;
-    flex: none;
-}
-.phone iframe {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: 0;
-}
 
 /* Starting flow */
 .flow {
@@ -622,28 +603,18 @@ h2 {
     background: #fff;
 }
 .style-entry {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 9px 12px 9px 9px;
-    border: 1.5px solid var(--rule);
-    border-radius: 12px;
-    text-align: left;
-    margin-bottom: 14px;
-    background: #fff;
+    margin-bottom: 2px;
 }
-.style-entry:hover {
-    border-color: #cfc7ca;
+.look-mini i {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bg) 50%, var(--btn) 50%);
+    box-shadow: 0 0 0 1px rgba(59, 18, 34, 0.2);
 }
-.style-entry .look-mini {
-    width: 38px;
-    height: 46px;
-    border-radius: 7px;
-    background-size: cover;
-    background-position: top;
-    flex: none;
-    box-shadow: 0 0 0 1px rgba(59, 18, 34, 0.09);
+.style-entry > .glyph {
+    color: var(--faint);
 }
 .style-entry b {
     display: block;
@@ -816,7 +787,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: var(--gap-field);
 }
 .st {
     display: block;
@@ -1155,22 +1126,6 @@ h2 {
 }
 
 /* Moving and making it yours */
-.phone::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 22px;
-    z-index: 2;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    background: linear-gradient(rgba(59, 18, 34, 0.12), transparent);
-}
-.phone.scrolled::before {
-    opacity: 1;
-}
 .row small.todo,
 small.todo {
     color: var(--soft);
@@ -1287,6 +1242,10 @@ small.todo::before {
 }
 .mg-b {
     padding: 2px 14px 14px;
+}
+.mg-b > :last-child,
+.item-b > :last-child {
+    margin-bottom: 0;
 }
 .sws {
     display: flex;
@@ -1534,27 +1493,6 @@ small.todo::before {
     transform: translate(-50%, -50%);
     opacity: 0.24;
 }
-.phone {
-    width: 414px;
-    border-radius: 50px;
-    background: #2a0e19;
-    padding: 12px;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-        0 2px 4px rgba(59, 18, 34, 0.2),
-        0 34px 80px rgba(59, 18, 34, 0.26),
-        0 10px 26px rgba(59, 18, 34, 0.14);
-}
-.phone iframe {
-    border-radius: 38px;
-    background: #fff;
-}
-.phone::before {
-    left: 12px;
-    right: 12px;
-    top: 12px;
-    border-radius: 38px 38px 0 0;
-}
 .build {
     position: relative;
     display: block;
@@ -1604,7 +1542,7 @@ small.todo::before {
     font-size: 22px;
 }
 .build .side-body {
-    padding: 8px 16px 18px;
+    padding: 8px 16px 28px;
     border-radius: 0 0 20px 20px;
 }
 .build .close {
@@ -1719,9 +1657,6 @@ small.todo::before {
 .t-view .t-below {
     display: none !important;
 }
-.build .style-entry {
-    background: #fff;
-}
 @media (max-width: 1240px) and (min-width: 861px) {
     .build .side {
         width: 262px;
@@ -1732,9 +1667,6 @@ small.todo::before {
     .tlogo {
         display: none;
     }
-    .phone {
-        width: 380px;
-    }
     .build .tab-seg button {
         padding: 6px 7px;
         font-size: 12.5px;
@@ -1742,22 +1674,6 @@ small.todo::before {
 }
 
 @media (max-width: 860px) {
-    .phone,
-    .build .phone {
-        border-radius: 0;
-        padding: 0;
-        box-shadow: none;
-        background: #fff;
-    }
-    .phone iframe {
-        border-radius: 0;
-    }
-    .phone::before {
-        left: 0;
-        right: 0;
-        top: 0;
-        border-radius: 0;
-    }
     .build .stage {
         inset: 0 0 58px;
         padding: 56px 0 0;
@@ -1945,7 +1861,6 @@ small.todo::before {
     vertical-align: 1px;
 }
 .more {
-    margin-top: 6px;
     border-top: 1px solid var(--rule);
 }
 .more > summary {
@@ -2065,21 +1980,17 @@ small.todo::before {
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    padding: 18px;
+    padding: 14px;
+    overflow-y: auto;
     background: rgba(255, 255, 255, 0.96);
 }
 .preview-back {
     width: auto;
 }
-.preview-frame {
-    height: calc(100% - 66px);
-    max-height: 844px;
-}
-.preview-frame iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
+@media (max-width: 860px) {
+    .preview .preview-frame {
+        height: calc(100% - 66px);
+    }
 }
 .pub p {
     margin: 0 0 12px;
@@ -2251,7 +2162,7 @@ small.todo::before {
         grid-template-columns: repeat(4, 1fr);
     }
     .logout,
-    .preview-frame {
+    .preview .preview-frame {
         width: 100%;
         max-height: none;
         border-radius: 0;
@@ -2350,8 +2261,8 @@ small.todo::before {
     }
 }
 
-.top-art .fd {
-    margin-top: 16px;
+.top-art > :not(summary) + .fd {
+    margin-top: var(--gap-field);
 }
 .paints {
     display: flex;
@@ -2396,17 +2307,7 @@ small.todo::before {
     color: var(--ink);
 }
 @media (min-width: 861px) {
-    /* Short windows shrink the phone evenly, down to a small real phone, then it runs off the bottom. */
-    .build .phone {
-        aspect-ratio: 414 / 868;
-        width: auto;
-        height: clamp(722px, 100%, 868px);
-        max-height: none;
-        max-width: 414px;
-    }
-}
-@media (min-width: 861px) {
-    .build .stage {
+    .stage {
         align-items: safe center;
         overflow: hidden auto;
     }
@@ -2436,5 +2337,120 @@ small.todo::before {
 @media (max-width: 860px) {
     .add-find input {
         font-size: 16px;
+    }
+}
+/* Inspector tiles line up whatever their labels say. */
+.bgs,
+.styles {
+    align-items: start;
+}
+.bg-t,
+.st {
+    white-space: nowrap;
+}
+/* The left panel minimised to icons. Phones keep their sheet. */
+.rail {
+    display: none;
+}
+.minimise {
+    display: none;
+}
+@media (min-width: 861px) {
+    .lside .close {
+        display: none;
+    }
+    .minimise {
+        display: grid;
+        margin-left: auto;
+        margin-right: -6px;
+    }
+    .build .lside.railed {
+        display: none;
+    }
+    .rail {
+        position: absolute;
+        top: 78px;
+        left: 18px;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 56px;
+        max-height: calc(100% - 96px);
+        padding: 8px 0;
+        background: rgba(255, 255, 255, 0.9);
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+        border-radius: 28px;
+        box-shadow:
+            0 0 0 1px rgba(59, 18, 34, 0.06),
+            0 18px 46px rgba(59, 18, 34, 0.13),
+            0 3px 8px rgba(59, 18, 34, 0.05);
+        animation: rail-in 0.18s ease-out;
+    }
+    .rail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+    .rail-b {
+        position: relative;
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        background: none;
+        border: 0;
+        border-radius: 11px;
+        cursor: pointer;
+    }
+    .rail-b .tico {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+    .rail-b .tico .ic {
+        width: 18px;
+        height: 18px;
+    }
+    .rail-b:hover .tico {
+        background: #efebec;
+    }
+    .rail-b[aria-current] {
+        box-shadow: inset 0 0 0 1.5px var(--ink);
+    }
+    .rail-add {
+        background: none;
+    }
+    .rail-open {
+        display: grid;
+        transform: rotate(180deg);
+    }
+    .rail-dot {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 8px;
+        height: 8px;
+        background: #e2a33c;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1.5px #fff;
+    }
+}
+@keyframes rail-in {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .rail {
+        animation: none;
     }
 }

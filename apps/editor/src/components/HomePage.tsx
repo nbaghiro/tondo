@@ -8,6 +8,7 @@ import { appPath, pageUrl } from "../lib/account";
 import type { Account } from "../lib/account";
 import { loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
+import { Phone } from "./Phone";
 
 const PHONE_ART = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 3);
 
@@ -217,125 +218,127 @@ export function HomePage(props: { account: Account }) {
                     return (
                         <>
                             <div class="home">
-                                <PageHeader
-                                    title={
-                                        draft().page.header.name.trim()
-                                            ? `Hello, ${draft().page.header.name}`
-                                            : "Hello"
-                                    }
-                                    lead={status().line}
-                                >
-                                    <Show
-                                        when={
-                                            draft().published &&
-                                            draft().changed &&
-                                            !draft().suspended
+                                <div class="home-side">
+                                    <PageHeader
+                                        title={
+                                            draft().page.header.name.trim()
+                                                ? `Hello, ${draft().page.header.name}`
+                                                : "Hello"
                                         }
+                                        lead={status().line}
                                     >
-                                        <button
-                                            class="b p pub"
-                                            disabled={busy()}
-                                            onClick={() => {
-                                                goLive(draft().updatedAt).catch(() => {
-                                                    setBusy(false);
-                                                });
-                                            }}
-                                        >
-                                            {busy() ? "Publishing" : "Publish"}
-                                        </button>
                                         <Show
-                                            when={confirmDiscard()}
-                                            fallback={
-                                                <button
-                                                    class="b discard"
-                                                    disabled={busy()}
-                                                    onClick={() => setConfirmDiscard(true)}
-                                                >
-                                                    Discard changes, back to live
-                                                </button>
+                                            when={
+                                                draft().published &&
+                                                draft().changed &&
+                                                !draft().suspended
                                             }
                                         >
                                             <button
-                                                class="b bad discard-yes"
+                                                class="b p pub"
                                                 disabled={busy()}
                                                 onClick={() => {
-                                                    discard(draft().updatedAt).catch(() => {
+                                                    goLive(draft().updatedAt).catch(() => {
                                                         setBusy(false);
                                                     });
                                                 }}
                                             >
-                                                Yes, discard my changes
+                                                {busy() ? "Publishing" : "Publish"}
                                             </button>
-                                            <button
-                                                class="b"
-                                                onClick={() => setConfirmDiscard(false)}
+                                            <Show
+                                                when={confirmDiscard()}
+                                                fallback={
+                                                    <button
+                                                        class="b discard"
+                                                        disabled={busy()}
+                                                        onClick={() => setConfirmDiscard(true)}
+                                                    >
+                                                        Discard changes, back to live
+                                                    </button>
+                                                }
                                             >
-                                                Keep them
-                                            </button>
-                                        </Show>
-                                    </Show>
-                                </PageHeader>
-                                <div class="stack">
-                                    <Show when={draft().page.unreadable?.length}>
-                                        <p class="notice" role="status" data-unreadable>
-                                            Part of your page couldn't be read, so it's off your
-                                            live page. It's kept safe. Email support and we'll get
-                                            it back for you.
-                                        </p>
-                                    </Show>
-                                    <Show when={draft().suspended}>
-                                        <p class="notice bad" role="alert" data-suspended>
-                                            Your page was taken down for breaking our rules. It
-                                            can't go live, and its address can't be changed. Contact
-                                            support if you think that's a mistake.
-                                        </p>
-                                    </Show>
-                                    <Card>
-                                        <div class="status">
-                                            <span class={`tag ${status().tone}`}>
-                                                <i />
-                                                {status().label}
-                                            </span>
-                                            <a
-                                                class="addr"
-                                                href={pageUrl(props.account.handle)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                            >
-                                                {address()}
-                                            </a>
-                                            <span class="status-acts">
                                                 <button
-                                                    class="ib"
-                                                    aria-label="Copy link"
-                                                    onClick={copy}
+                                                    class="b bad discard-yes"
+                                                    disabled={busy()}
+                                                    onClick={() => {
+                                                        discard(draft().updatedAt).catch(() => {
+                                                            setBusy(false);
+                                                        });
+                                                    }}
                                                 >
-                                                    <NavIcon name="copy" />
+                                                    Yes, discard my changes
                                                 </button>
+                                                <button
+                                                    class="b"
+                                                    onClick={() => setConfirmDiscard(false)}
+                                                >
+                                                    Keep them
+                                                </button>
+                                            </Show>
+                                        </Show>
+                                    </PageHeader>
+                                    <div class="stack">
+                                        <Show when={draft().page.unreadable?.length}>
+                                            <p class="notice" role="status" data-unreadable>
+                                                Part of your page couldn't be read, so it's off your
+                                                live page. It's kept safe. Email support and we'll
+                                                get it back for you.
+                                            </p>
+                                        </Show>
+                                        <Show when={draft().suspended}>
+                                            <p class="notice bad" role="alert" data-suspended>
+                                                Your page was taken down for breaking our rules. It
+                                                can't go live, and its address can't be changed.
+                                                Contact support if you think that's a mistake.
+                                            </p>
+                                        </Show>
+                                        <Card>
+                                            <div class="status">
+                                                <span class={`tag ${status().tone}`}>
+                                                    <i />
+                                                    {status().label}
+                                                </span>
                                                 <a
-                                                    class="ib"
-                                                    aria-label="Open your page"
+                                                    class="addr"
                                                     href={pageUrl(props.account.handle)}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                 >
-                                                    <NavIcon name="open" />
+                                                    {address()}
                                                 </a>
-                                                <button class="b sm" onClick={share}>
-                                                    Share
-                                                </button>
-                                            </span>
-                                        </div>
-                                    </Card>
-                                    <Checklist
-                                        items={setupChecklist(draft().page, {
-                                            published: draft().published,
-                                            suspended: draft().suspended,
-                                        })}
-                                    />
-                                    <Show when={draft().published}>
-                                        <Numbers stats={loaded().stats} />
-                                    </Show>
+                                                <span class="status-acts">
+                                                    <button
+                                                        class="ib"
+                                                        aria-label="Copy link"
+                                                        onClick={copy}
+                                                    >
+                                                        <NavIcon name="copy" />
+                                                    </button>
+                                                    <a
+                                                        class="ib"
+                                                        aria-label="Open your page"
+                                                        href={pageUrl(props.account.handle)}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                    >
+                                                        <NavIcon name="open" />
+                                                    </a>
+                                                    <button class="b sm" onClick={share}>
+                                                        Share
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </Card>
+                                        <Checklist
+                                            items={setupChecklist(draft().page, {
+                                                published: draft().published,
+                                                suspended: draft().suspended,
+                                            })}
+                                        />
+                                        <Show when={draft().published}>
+                                            <Numbers stats={loaded().stats} />
+                                        </Show>
+                                    </div>
                                 </div>
                                 <aside class="pv">
                                     <div
@@ -345,13 +348,13 @@ export function HomePage(props: { account: Account }) {
                                             node.innerHTML = PHONE_ART;
                                         }}
                                     />
-                                    <div class="dev">
+                                    <Phone>
                                         <iframe
                                             title="Your page"
                                             sandbox="allow-popups"
                                             srcdoc={preview(draft())}
                                         />
-                                    </div>
+                                    </Phone>
                                 </aside>
                             </div>
                         </>

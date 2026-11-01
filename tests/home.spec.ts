@@ -207,7 +207,7 @@ test("the large phone leads Home, with no edit button on it, and Edit stays in r
     await signUpToEditor(page);
     await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
     await page.goto("/app");
-    const phone = await page.locator(".dev").boundingBox();
+    const phone = await page.locator(".pv .phone").boundingBox();
     await expect(page.locator(".pv")).not.toContainText("Edit");
     if (isMobile) {
         expect(phone?.width).toBeGreaterThan(300);
@@ -217,10 +217,34 @@ test("the large phone leads Home, with no edit button on it, and Edit stays in r
         );
         expect(scroll).toBeLessThanOrEqual(0);
     } else {
-        const side = await page.locator(".home > .stack").boundingBox();
-        expect(phone?.width).toBeGreaterThan(380);
-        expect(phone?.height).toBeGreaterThan(700);
-        expect((phone?.x ?? 0) + (phone?.width ?? 0)).toBeLessThan(side?.x ?? 0);
+        const side = await page.locator(".home-side").boundingBox();
+        const home = await page.locator(".home").boundingBox();
+        if (!phone || !side || !home) throw new Error("Home has no size.");
+        expect(phone.width).toBeGreaterThan(380);
+        expect(phone.height).toBeGreaterThan(700);
+        expect(side.x - (phone.x + phone.width)).toBeGreaterThanOrEqual(60);
+        expect(side.width).toBeLessThanOrEqual(620);
+        const middle = home.y + home.height / 2;
+        expect(Math.abs(phone.y + phone.height / 2 - middle)).toBeLessThan(2);
+        expect(Math.abs(side.y + side.height / 2 - middle)).toBeLessThan(2);
+        expect(side.x - (phone.x + phone.width)).toBeLessThanOrEqual(72);
         await expect(page.locator(".side .edit")).toBeVisible();
     }
+});
+
+test("Home, the builder and the preview show the phone at the same size", async ({
+    page,
+    isMobile,
+}) => {
+    test.skip(isMobile, "On a phone, the builder fills the screen.");
+    await signUpToEditor(page);
+    await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+    const builder = await page.locator(".build .phone").boundingBox();
+    await page.locator(".preview-open").click();
+    const preview = await page.locator(".preview .phone").boundingBox();
+    await page.goto("/app");
+    const home = await page.locator(".pv .phone").boundingBox();
+    expect(home?.height).toBe(builder?.height);
+    expect(home?.width).toBe(builder?.width);
+    expect(preview?.height).toBe(builder?.height);
 });

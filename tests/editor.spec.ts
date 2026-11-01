@@ -324,3 +324,207 @@ test("the header's words can go, and the art changes from its own panel", async 
     await open.locator("[data-bg=solid]").click();
     await expect(open.locator("[data-repaint]")).toHaveCount(0);
 });
+
+for (const look of ["bake", "madder", "noir", "riso", "sumi"]) {
+    test(`Add below covers no text in ${look}`, async ({ page }) => {
+        await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+        await page.evaluate(async (chosen) => {
+            const url = "/api/v1/me/page";
+            const draft = (await (await fetch(url)).json()) as {
+                page: { header: Record<string, unknown> };
+                updatedAt: string;
+            };
+            const header = { ...draft.page.header, tagline: "", bio: "Bowls and mugs." };
+            await fetch(url, {
+                method: "PUT",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    page: { ...draft.page, look: chosen, header },
+                    updatedAt: draft.updatedAt,
+                }),
+            });
+        }, look);
+        await page.reload();
+        const covered = () =>
+            canvas(page)
+                .locator("#t-below")
+                .evaluate((pill) => {
+                    const box = pill.getBoundingClientRect();
+                    const hits: string[] = [];
+                    const walker = document.createTreeWalker(
+                        pill.ownerDocument.body,
+                        NodeFilter.SHOW_TEXT,
+                    );
+                    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+                        if (pill.contains(node) || !node.textContent?.trim()) continue;
+                        const range = pill.ownerDocument.createRange();
+                        range.selectNodeContents(node);
+                        for (const rect of range.getClientRects()) {
+                            const apart =
+                                rect.right <= box.left ||
+                                rect.left >= box.right ||
+                                rect.bottom <= box.top ||
+                                rect.top >= box.bottom;
+                            if (!apart) hits.push(node.textContent.trim());
+                        }
+                    }
+                    return hits;
+                });
+
+        await canvas(page)
+            .locator("#t-header")
+            .click({ position: { x: 20, y: 20 } });
+        await expect(canvas(page).locator("#t-below")).toBeVisible();
+        expect(await covered()).toEqual([]);
+        await expect(canvas(page).locator('#t-header [data-field="tagline"]')).toBeHidden();
+
+        await addSection(page, "about");
+        await addSection(page, "links");
+        await canvas(page).locator("#t-blocks > section.t-s").first().click();
+        await expect(canvas(page).locator("#t-below")).toBeVisible();
+        expect(await covered()).toEqual([]);
+    });
+}
+
+test("every panel keeps one rhythm between fields and room at the end", async ({ page }) => {
+    const measure = () =>
+        page.locator(".rside .side-body").evaluate((body) => {
+            const seen = (node: Element) => node.checkVisibility();
+            const fields = [...body.querySelectorAll(".fd")].filter(seen);
+            const between = fields.flatMap((field) => {
+                const next = field.nextElementSibling;
+                return next?.matches(".fd") && seen(next)
+                    ? [next.getBoundingClientRect().top - field.getBoundingClientRect().bottom]
+                    : [];
+            });
+            const labels = fields.flatMap((field) => {
+                const label = field.querySelector(":scope > .fd-l");
+                const control = label?.nextElementSibling;
+                return label && control && seen(control)
+                    ? [control.getBoundingClientRect().top - label.getBoundingClientRect().bottom]
+                    : [];
+            });
+            const hints = [...body.querySelectorAll(".fd > .fd-h")].filter(seen).flatMap((hint) => {
+                const control = hint.previousElementSibling;
+                return control && !control.matches(".fd-l") && seen(control)
+                    ? [hint.getBoundingClientRect().top - control.getBoundingClientRect().bottom]
+                    : [];
+            });
+            const blocks = [...body.children].filter(seen);
+            const gaps = blocks.slice(1).map((block, i) => {
+                const before = blocks[i];
+                return before
+                    ? block.getBoundingClientRect().top - before.getBoundingClientRect().bottom
+                    : 0;
+            });
+            body.scrollTop = body.scrollHeight;
+            const last = blocks.at(-1)?.getBoundingClientRect().bottom ?? 0;
+            return {
+                between,
+                labels,
+                hints,
+                gaps,
+                room: body.getBoundingClientRect().bottom - last,
+            };
+        });
+    const check = async () => {
+        const seen = await measure();
+        for (const gap of seen.between) expect(Math.round(gap)).toBe(20);
+        for (const gap of seen.labels) expect(Math.round(gap)).toBe(6);
+        for (const gap of seen.hints) expect(Math.round(gap)).toBe(4);
+        for (const gap of seen.gaps) expect(gap).toBeGreaterThanOrEqual(0);
+        expect(seen.room).toBeGreaterThanOrEqual(16);
+    };
+
+    await canvas(page)
+        .locator("#t-header")
+        .click({ position: { x: 20, y: 20 } });
+    await expect(panel(page)).toBeVisible();
+    await check();
+    for (const key of ["photos", "shop", "about", "spotlight"]) {
+        await page.keyboard.press("Escape");
+        await addSection(page, key);
+        await expect(panel(page).locator(".fd").first()).toBeVisible();
+        await check();
+    }
+});
+
+test("the Look row matches the section rows and shows the look's colours", async ({
+    page,
+    isMobile,
+}) => {
+    const open = async () => {
+        if (isMobile) await page.locator(".tabbar button", { hasText: "Sections" }).click();
+    };
+    await addSection(page, "about");
+    await page.keyboard.press("Escape");
+    await open();
+    const row = page.locator(".style-entry");
+    await expect(row.locator(".tico")).toHaveCSS("width", "36px");
+    await expect(row.locator("small")).toHaveText("Look");
+    const other = await page.locator("#rows .row").first().boundingBox();
+    const box = await row.boundingBox();
+    expect(Math.abs((box?.height ?? 0) - (other?.height ?? 0))).toBeLessThan(2);
+    const swatch = () =>
+        row.locator(".look-mini i").evaluate((node) => getComputedStyle(node).backgroundImage);
+    const before = await swatch();
+    await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+    await page.evaluate(async () => {
+        const url = "/api/v1/me/page";
+        const draft = (await (await fetch(url)).json()) as { page: object; updatedAt: string };
+        await fetch(url, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                page: { ...draft.page, look: "noir" },
+                updatedAt: draft.updatedAt,
+            }),
+        });
+    });
+    await page.reload();
+    await open();
+    await expect(row.locator("b")).toHaveText("Noir");
+    expect(await swatch()).not.toBe(before);
+});
+
+test("the left panel minimises to icons that open sections, and stays that way", async ({
+    page,
+}, info) => {
+    desktopOnly(info.project.name);
+    await addSection(page, "about");
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: "Minimise panel" }).click();
+    const rail = page.getByRole("navigation", { name: "Your page, minimised" });
+    await expect(rail).toBeVisible();
+    await expect(page.locator(".lside")).toBeHidden();
+    await expect(page.getByRole("button", { name: "Expand panel" })).toBeFocused();
+
+    await expect(rail.locator("[data-rail] .rail-dot")).toHaveCount(1);
+    await rail.locator("[data-rail]").first().click();
+    await expect(panel(page)).toBeVisible();
+    await expect(page.locator(".lside")).toBeHidden();
+    await expect(rail.locator("[data-rail]").first()).toHaveAttribute("aria-current", "true");
+
+    await page.reload();
+    await expect(rail).toBeVisible();
+    await page.getByRole("button", { name: "Expand panel" }).click();
+    await expect(page.locator(".lside")).toBeVisible();
+    await expect(rail).toHaveCount(0);
+});
+
+test("a phone keeps its sheet, with no rail or minimise control", async ({ page }, info) => {
+    test.skip(info.project.name !== "phone", "Checks the phone's sheet");
+    await page.locator(".tabbar button", { hasText: "Sections" }).click();
+    await expect(page.locator(".lside.open")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Minimise panel" })).toBeHidden();
+    await expect(page.locator(".lside .close")).toBeVisible();
+});
+
+test("the art tiles keep their labels on one line and aligned", async ({ page }) => {
+    await canvas(page).locator("#t-header h1").click();
+    await panel(page).locator(".top-art summary").click();
+    const heights = await panel(page)
+        .locator(".bgs .bg-t")
+        .evaluateAll((tiles) => tiles.map((tile) => tile.getBoundingClientRect().height));
+    expect(new Set(heights).size).toBe(1);
+});

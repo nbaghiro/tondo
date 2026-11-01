@@ -93,7 +93,15 @@ In development the marketing site and published pages are on different ports. In
 - [ ] In Your name and links, the × clears the name, short line and About, and empty ones don't show on the live page. "Show my name" off hides the name on the page and keeps it as the page title
 - [ ] Top of the page changes the art: Paint it again, paint colours, None, Soft fade or A photo. It matches Make it yours. Looks whose header is drawn without a painting don't offer painting or None
 
+## Panels
+
+- [ ] Every panel has the same space between fields, labels and hints, and nothing is clipped when you scroll to the end, on a computer and a phone
+- [ ] The Look row looks like the section rows below it, with a small chip of your look's background and button colours that follows Make it yours
+- [ ] On a computer, the left panel's arrow minimises it to icons. They select sections without expanding it, a dot marks a to-do, and it stays minimised after a reload. Phones don't change
+
 ## Selecting
+
+- [ ] "Add below" sits in its own space under the selected section or header, and never covers text
 
 - [ ] Click the background around the phone, or empty page inside it. The selected section deselects and the right panel closes, and text you were typing is kept. Clicks in the panels and top bar, a drag, and selecting text don't close it. On a phone, tapping empty page above the sheet closes it
 

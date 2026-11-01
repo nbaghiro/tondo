@@ -118,7 +118,7 @@ a {
 .t-below {
     position: absolute;
     left: 50%;
-    bottom: -14px;
+    bottom: 5px;
     transform: translateX(-50%);
     z-index: 9;
     display: flex;
@@ -144,6 +144,11 @@ a {
 }
 .t-sel {
     z-index: 7;
+}
+/* Room for "Add below", in the editor only, so it never sits on anything. */
+#t-header:has(> .t-below),
+.t-s.t-sel:has(> .t-below) {
+    padding-bottom: 40px;
 }
 .t-dragging,
 .t-dragging * {
@@ -232,6 +237,10 @@ a {
 }
 .t-sel [data-field]:empty::before {
     content: "Add text";
+}
+/* The header's empty fields are in the panel, so its canvas stays as visitors will see it. */
+#t-header [data-field]:empty {
+    display: none;
 }
 .t-off > :not(.t-badge) {
     opacity: 0.38;

@@ -1,5 +1,6 @@
 import type { Page } from "@tondo/page";
 import { renderDocument } from "@tondo/render";
+import { Phone } from "./Phone";
 
 /** The page as visitors see it, with links opening elsewhere. */
 export function Preview(props: { page: Page; onClose: () => void }) {
@@ -20,9 +21,9 @@ export function Preview(props: { page: Page; onClose: () => void }) {
             >
                 Back to editing
             </button>
-            <div class="phone preview-frame">
+            <Phone class="preview-frame">
                 <iframe class="canvas" title="Preview" sandbox="allow-popups" srcdoc={html()} />
-            </div>
+            </Phone>
         </div>
     );
 }

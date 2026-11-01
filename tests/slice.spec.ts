@@ -53,10 +53,10 @@ test("the toolbar moves, copies and removes", async ({ page }) => {
     await expect(sections).toHaveCount(2);
 });
 
-test("the header has no empty placeholders until it's selected", async ({ page }) => {
+test("the header draws no empty placeholders, selected or not", async ({ page }) => {
     await expect(canvas(page).locator("#t-header .p-tag")).toBeHidden();
     await canvas(page).locator("#t-header h1").click();
-    await expect(canvas(page).locator("#t-header .p-tag")).toBeVisible();
+    await expect(canvas(page).locator("#t-header .p-tag")).toBeHidden();
     await expect(panel(page).locator("[data-layout]")).toHaveCount(6);
 });
 

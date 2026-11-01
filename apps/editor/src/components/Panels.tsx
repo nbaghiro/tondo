@@ -8,7 +8,7 @@ import {
     sectionStatus,
 } from "@tondo/page";
 import type { Section, SectionDefinition } from "@tondo/page";
-import { looks } from "@tondo/render";
+import { looks, lookVars, themeOf } from "@tondo/render";
 import { createSignal, For, Show } from "solid-js";
 import { logOut } from "../lib/account";
 import { iconHtml, GRIP } from "../lib/drawings";
@@ -23,8 +23,6 @@ export const Glyph = (props: { name: string }) => (
         }}
     />
 );
-
-const LOOK_TILES = "/photos/looks/";
 
 /** One choice in the add list. On a computer it can also be dragged to a spot on the page. */
 function Pick(props: {
@@ -280,6 +278,102 @@ function Row(props: {
     );
 }
 
+/** The page's sections as icons, for when the panel is minimised. A computer only: see the CSS. */
+export function Rail(props: {
+    editor: EditorState;
+    onExpand: () => void;
+    onOpenLook: () => void;
+    onAdd: () => void;
+}) {
+    const sections = () => sectionsOf(props.editor.page().blocks);
+    return (
+        <nav class="rail" aria-label="Your page, minimised">
+            <button
+                type="button"
+                class="rail-b"
+                id="rail-expand"
+                aria-label="Expand panel"
+                title="Expand panel"
+                onClick={() => {
+                    props.onExpand();
+                }}
+            >
+                <span class="rail-open">
+                    <Glyph name="back" />
+                </span>
+            </button>
+            <button
+                type="button"
+                class="rail-b"
+                aria-label={`Look: ${looks[props.editor.page().look].label}`}
+                title={looks[props.editor.page().look].label}
+                onClick={() => {
+                    props.onOpenLook();
+                }}
+            >
+                <LookMini editor={props.editor} />
+            </button>
+            <button
+                type="button"
+                class="rail-b"
+                aria-label="Your name, photo and links"
+                title="Your name, photo and links"
+                aria-current={props.editor.selected() === HEADER ? "true" : undefined}
+                onClick={() => {
+                    props.editor.select(HEADER);
+                }}
+            >
+                <span class="tico">
+                    <Glyph name="hand" />
+                </span>
+            </button>
+            <div class="rail-list">
+                <For each={sections()}>
+                    {(section) => (
+                        <button
+                            type="button"
+                            class="rail-b"
+                            data-rail={section.id}
+                            aria-label={
+                                sectionStatus(section)
+                                    ? `${section.definition.name}: ${sectionStatus(section) ?? ""}`
+                                    : section.definition.name
+                            }
+                            title={section.definition.name}
+                            aria-current={
+                                props.editor.selected() === section.id ? "true" : undefined
+                            }
+                            onClick={() => {
+                                props.editor.select(section.id);
+                            }}
+                        >
+                            <span class="tico">
+                                <Glyph name={section.definition.icon} />
+                            </span>
+                            <Show when={sectionStatus(section)}>
+                                <i class="rail-dot" />
+                            </Show>
+                        </button>
+                    )}
+                </For>
+            </div>
+            <button
+                type="button"
+                class="rail-b"
+                aria-label="Add a section"
+                title="Add a section"
+                onClick={() => {
+                    props.onAdd();
+                }}
+            >
+                <span class="tico rail-add">
+                    <Glyph name="plus" />
+                </span>
+            </button>
+        </nav>
+    );
+}
+
 /** The list of what's on the page, plus the one box for adding by pasting or searching. */
 export function PagePanel(props: {
     editor: EditorState;
@@ -377,15 +471,16 @@ export function PagePanel(props: {
                     <>
                         <button
                             type="button"
-                            class="style-entry"
+                            class="row style-entry"
                             onClick={() => {
                                 props.onOpenLook();
                             }}
                         >
+                            <span />
                             <LookMini editor={props.editor} />
-                            <span>
-                                <b>Look</b>
-                                <small>{look().label}</small>
+                            <span class="row-t">
+                                <b>{look().label}</b>
+                                <small>Look</small>
                             </span>
                             <Glyph name="back" />
                         </button>
@@ -464,11 +559,15 @@ export function PagePanel(props: {
     );
 }
 
+/** The chosen look as a quiet two-tone chip: its page background and its button colour. */
 export function LookMini(props: { editor: EditorState }) {
+    const vars = () => {
+        const page = props.editor.page();
+        return { ...lookVars(page.look, looks[page.look]), ...(themeOf(page)?.vars ?? {}) };
+    };
     return (
-        <span
-            class="look-mini"
-            style={{ "background-image": `url(${LOOK_TILES}${props.editor.page().look}.jpg)` }}
-        />
+        <span class="tico look-mini" aria-hidden="true">
+            <i style={vars()} />
+        </span>
     );
 }

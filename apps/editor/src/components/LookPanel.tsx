@@ -208,7 +208,7 @@ export function TopArt(props: { editor: EditorState }) {
                     }}
                 >
                     <i style={{ "background-image": `url(${TILES}${look()}.jpg)` }} />
-                    The look's art
+                    Look's art
                 </button>
                 <For each={options()}>
                     {([id, label]) => (
@@ -342,7 +342,7 @@ export function MakeItYours(props: { editor: EditorState }) {
         ({ solid: "None", gradient: "Soft fade", photo: "A photo" })[style().bg ?? "solid"] &&
         style().bg
             ? { solid: "None", gradient: "Soft fade", photo: "A photo" }[style().bg ?? "solid"]
-            : "The look's art";
+            : "Look's art";
     const changed = () => Object.keys(style()).length > 0;
     return (
         <>

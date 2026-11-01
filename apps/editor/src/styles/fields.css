@@ -1,13 +1,19 @@
 /* The field types, shared by every panel. */
 /* Fields */
-.fd {
-    margin-bottom: 12px;
+/* One vertical rhythm for every panel. Fields and groups use these, not margins of their own. */
+.side-body {
+    --gap-label: 6px;
+    --gap-hint: 4px;
+    --gap-field: 20px;
 }
-.rside .fd {
-    margin-bottom: 16px;
+.fd {
+    margin-bottom: var(--gap-field);
 }
 .in-wrap {
     position: relative;
+}
+.in-wrap .in {
+    display: block;
 }
 .in-wrap.clearable .in {
     padding-right: 34px;
@@ -35,15 +41,12 @@
     width: 14px;
     height: 14px;
 }
-.fd:last-child {
-    margin-bottom: 0;
-}
 .fd-l {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: var(--gap-label);
     font-size: 13px;
     font-weight: 700;
 }
@@ -53,7 +56,7 @@
     color: var(--soft);
 }
 .fd-h {
-    margin: 5px 1px 0;
+    margin: var(--gap-hint) 1px 0;
     font-size: 12.5px;
     line-height: 1.35;
     color: var(--soft);
