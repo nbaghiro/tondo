@@ -2,7 +2,6 @@ import { createSignal, Show } from "solid-js";
 import type { JSX } from "solid-js";
 
 const ICONS: Record<string, string> = {
-    spark: '<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8z"/>',
     home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
     chart: '<path d="M4 19h16M7 16v-5M12 16V7M17 16v-8"/>',
     sliders:

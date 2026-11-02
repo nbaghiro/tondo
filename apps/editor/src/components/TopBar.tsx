@@ -8,6 +8,7 @@ import { appPath, newPagePath, onPage, ownPageCount, pageUrl } from "../lib/acco
 import type { EditorState } from "../state/document";
 import { clearBackup, downloadPage } from "../state/storage";
 import { paint } from "@tondo/render";
+import { HelpMark } from "./HelpMark";
 import { Glyph } from "./Panels";
 
 const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('class="tondo"', "");
@@ -175,7 +176,7 @@ export function TopBar(props: TopBarProps) {
                             props.onHelp?.();
                         }}
                     >
-                        <Glyph name="spark" />
+                        <HelpMark />
                         Help me
                     </button>
                 </Show>

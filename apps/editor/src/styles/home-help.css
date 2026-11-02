@@ -15,11 +15,6 @@
     width: 20px;
     height: 20px;
     flex: none;
-    color: var(--madder);
-}
-.home-help-mark svg.i {
-    width: 18px;
-    height: 18px;
 }
 .home-help b {
     display: block;

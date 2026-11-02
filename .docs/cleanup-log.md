@@ -94,3 +94,4 @@ The site changes are in `apps/marketing`.
 | Done | Page avatars in the switcher looked like the Tondo logo | A rounded square with the page's header photo, or its look's art with the first letter of its name, in the sidebar, phone bar and builder |
 | Open before launch | The site sells your own domain on Pro | Not built yet. Queued after teams |
 | Done | New page goes through the same full-screen onboarding as a new sign-up, and the small modal is removed | `StartFlow.tsx` at `/app/start?page=<id>&back=<screen>`, with Cancel for people who have pages. The limit prompt is `PageLimitPrompt.tsx`, and Copy this page has its own form in Page settings, `CopyPageForm.tsx` |
+| Done | A more visible Help me icon | A painted roundel with a white star, `HelpMark.tsx`, on Home and in the builder bar. The pressed button gets a pale fill |

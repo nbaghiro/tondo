@@ -9,6 +9,7 @@ import { loadBilling, loadLive, loadStats, publish, saveDraft, savePendingWork }
 import { loadAssistant } from "../lib/assistant-stream";
 import { longDate } from "../lib/plan-copy";
 import { plan } from "../state/plan";
+import { HelpMark } from "./HelpMark";
 import { Card, createToast, EmptyLine, NavIcon, PageHeader } from "./Parts";
 import { Phone } from "./Phone";
 
@@ -404,7 +405,7 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                                 data-home-help
                                             >
                                                 <span class="home-help-mark">
-                                                    <NavIcon name="spark" />
+                                                    <HelpMark />
                                                 </span>
                                                 <span>
                                                     <b>Help me</b>
