@@ -1,6 +1,6 @@
 # Schema options for teams
 
-**Decided on 2026-11-01: option E, below.** The build plan is in [teams-implementation.md](teams-implementation.md), and nothing is built yet. Options A to D and the recommendation for C are kept as history of how this was weighed, and they don't describe what's being built.
+**Decided on 2026-11-01: option E, one `teams` table.** The build plan is in [teams-implementation.md](teams-implementation.md), and that's where the current shape is. Two later decisions changed the diff below: each page now has its own address, so `teams.handle` is gone, and team features are part of flat Pro, so `plan` and `stripe_id` are gone from `teams`. `users.team_id` went too, because a person's team can be derived from their joined page. Options A to D and the recommendation for C are kept as history of how this was weighed, and they don't describe what's being built.
 
 ## Option E: one `teams` table (the decision)
 
