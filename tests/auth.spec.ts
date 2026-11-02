@@ -2,12 +2,26 @@ import { expect, test } from "@playwright/test";
 import { createServer, request } from "node:http";
 import type { AddressInfo } from "node:net";
 import { PORTS } from "../scripts/ports";
-import { signUpToEditor } from "./helpers";
+import { signUpToEditor, signUpToStart } from "./helpers";
 
 test("sign-up verifies the email, then reaches the editor at the chosen address", async ({
     page,
 }) => {
     await signUpToEditor(page);
+});
+
+test("someone already signed in at the code screen keeps the address they chose", async ({
+    page,
+}) => {
+    await signUpToStart(page);
+    await page.evaluate(() => {
+        sessionStorage.setItem(
+            "tondo-pending",
+            JSON.stringify({ email: "a@example.com", handle: "chosenaddress" }),
+        );
+    });
+    await page.goto("/verify");
+    await page.waitForURL(/\/app\/start\?handle=chosenaddress/);
 });
 
 test("a wrong code is refused, with a clear message", async ({ page }) => {

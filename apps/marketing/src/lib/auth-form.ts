@@ -128,7 +128,9 @@ fetch(routes.me)
         }
         if (kind === "reset") return;
         const account = (await res.json()) as MeResponse;
-        if (!preview) goOn(account, wanted);
+        sessionStorage.removeItem(PENDING);
+        // Neon can sign someone in before their email is verified, so /verify may lead straight on.
+        if (!preview) goOn(account, wanted ?? pending?.handle);
     })
     .catch(() => {
         showError(UNREACHABLE);
