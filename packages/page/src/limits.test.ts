@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { canAddPage, canPublishPage, isOnline, limitsFor, PLANS, PRICES } from "./limits";
+import {
+    canAddPage,
+    canPublishPage,
+    canPublishStanding,
+    isOnline,
+    isPageOnline,
+    limitsFor,
+    PLANS,
+    PRICES,
+    TEAM_PAGES,
+} from "./limits";
+import type { Account, Standing } from "./limits";
 
 const NOW = new Date("2026-11-01T12:00:00Z");
 const DAY = 86_400_000;
@@ -7,9 +18,11 @@ const ago = (days: number) => new Date(NOW.getTime() - days * DAY);
 
 describe("the plans", () => {
     it("has the decided numbers", () => {
-        expect(PLANS.free).toEqual({ pages: 1, live: 0, photos: 25, credits: 15 });
+        expect(PLANS.free).toEqual({ pages: 1, live: 0, photos: 25, credits: 15, people: 0 });
         expect(PLANS.starter).toMatchObject({ live: 1, photos: 2000, credits: 100 });
-        expect(PLANS.pro).toMatchObject({ live: 5, photos: 2000, credits: 300 });
+        expect(PLANS.pro).toMatchObject({ live: 5, photos: 2000, credits: 300, people: 10 });
+        expect(PLANS.starter.people).toBe(0);
+        expect(TEAM_PAGES).toBe(5);
         expect(PRICES).toEqual({
             starter: { month: 4, year: 40 },
             pro: { month: 10, year: 100 },
@@ -62,5 +75,75 @@ describe("how many pages", () => {
         expect(isOnline(PLANS.starter, 1)).toBe(false);
         expect(isOnline(PLANS.pro, 4)).toBe(true);
         expect(isOnline(PLANS.pro, 5)).toBe(false);
+    });
+});
+
+describe("which pages stay online on a team", () => {
+    const limitsOf = (account: Account) => limitsFor(account, NOW);
+    const paying: Account = { plan: "pro", endsAt: null };
+    const ended: Account = { plan: "pro", endsAt: ago(1) };
+    const free: Account = { plan: "free", endsAt: null };
+    const starter: Account = { plan: "starter", endsAt: null };
+    const standing = (over: Partial<Standing>): Standing => ({
+        kind: "personal",
+        account: free,
+        team: null,
+        rank: 0,
+        joinedOlder: false,
+        personalLive: 0,
+        joinedLive: false,
+        published: true,
+        ...over,
+    });
+    const online = (over: Partial<Standing>) => isPageOnline(standing(over), limitsOf);
+
+    it("keeps a team's own pages online only while the owner's plan covers it", () => {
+        expect(online({ kind: "team", account: paying, team: paying })).toBe(true);
+        expect(online({ kind: "team", account: ended, team: ended })).toBe(false);
+        expect(online({ kind: "team", account: starter, team: starter })).toBe(false);
+    });
+
+    it("covers a joined page whatever the person's own plan is", () => {
+        expect(online({ kind: "joined", account: free, team: paying })).toBe(true);
+        expect(online({ kind: "joined", account: starter, team: paying, rank: 3 })).toBe(true);
+    });
+
+    it("doesn't count a covered joined page against the person's other pages", () => {
+        const other = { account: starter, team: paying, joinedOlder: true, joinedLive: true };
+        expect(online(other)).toBe(true);
+    });
+
+    it("sends a joined page offline with the plan, for a member on Free", () => {
+        expect(online({ kind: "joined", account: free, team: ended })).toBe(false);
+    });
+
+    it("counts a joined page oldest first once the plan ends, for a member on Starter", () => {
+        expect(online({ kind: "joined", account: starter, team: ended })).toBe(true);
+        expect(online({ account: starter, team: ended, joinedOlder: true })).toBe(false);
+        expect(online({ kind: "joined", account: starter, team: ended, rank: 1 })).toBe(false);
+        expect(online({ account: starter, team: ended })).toBe(true);
+    });
+
+    it("keeps a member's pages online on their own Pro after the plan ends", () => {
+        expect(online({ kind: "joined", account: paying, team: ended, rank: 2 })).toBe(true);
+        expect(online({ account: paying, team: ended, joinedOlder: true })).toBe(true);
+    });
+
+    it("has a page with no team follow its person's plan, as it always has", () => {
+        expect(online({ account: starter })).toBe(true);
+        expect(online({ account: starter, rank: 1 })).toBe(false);
+        expect(online({ account: free })).toBe(false);
+    });
+
+    it("decides publishing by the same rule", () => {
+        const publishing = (over: Partial<Standing>) =>
+            canPublishStanding(standing({ published: false, ...over }), limitsOf);
+        expect(publishing({ kind: "team", account: free, team: free })).toBe(false);
+        expect(publishing({ kind: "team", account: paying, team: paying })).toBe(true);
+        expect(publishing({ kind: "joined", account: free, team: paying })).toBe(true);
+        expect(publishing({ kind: "joined", account: free, team: ended })).toBe(false);
+        expect(publishing({ account: starter, team: paying, joinedLive: true })).toBe(true);
+        expect(publishing({ account: starter, team: ended, joinedLive: true })).toBe(false);
+        expect(publishing({ account: starter, personalLive: 1 })).toBe(false);
     });
 });

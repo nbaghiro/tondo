@@ -55,6 +55,7 @@ const limits = z.strictObject({
     live: z.number(),
     photos: z.number(),
     credits: z.number(),
+    people: z.number(),
 });
 export const pageSummary = z.strictObject({
     id: z.string(),
