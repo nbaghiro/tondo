@@ -1,4 +1,4 @@
-import { handleSchema, lookNames, normaliseHandle, pageSchema } from "@tondo/page";
+import { handleSchema, normaliseHandle, pageSchema } from "@tondo/page";
 import { z } from "zod";
 
 export const routes = {
@@ -55,7 +55,6 @@ export const healthResponse = z.strictObject({ status: z.literal("ok") });
 export const errorResponse = z.strictObject({ error: z.string(), code: z.string().optional() });
 
 const handle = z.string().transform(normaliseHandle).pipe(handleSchema);
-const lookNameSchema = z.enum(lookNames);
 
 /** The address, and optionally the page the start flow built. */
 export const claimRequest = z.strictObject({ handle, page: pageSchema.optional() });
@@ -237,13 +236,16 @@ export const publishRequest = z.strictObject({
 });
 export const changeHandleRequest = z.strictObject({ handle });
 export const deleteAccountRequest = z.strictObject({ email: z.string().max(320) });
-export const newPageRequest = z.strictObject({
-    name: z.string().trim().min(1).max(80),
-    handle,
-    look: lookNameSchema.optional(),
-    /** One of the person's pages to start from, instead of a blank one. */
-    from: z.string().max(40).optional(),
-});
+export const newPageRequest = z.union([
+    /** The page the start flow built. */
+    z.strictObject({ handle, page: pageSchema }),
+    z.strictObject({
+        name: z.string().trim().min(1).max(80),
+        handle,
+        /** One of the person's pages to start from, instead of a blank one. */
+        from: z.string().max(40).optional(),
+    }),
+]);
 export type NewPageRequest = z.input<typeof newPageRequest>;
 export const newPageResponse = z.strictObject({ id: z.string() });
 export type NewPageResponse = z.infer<typeof newPageResponse>;

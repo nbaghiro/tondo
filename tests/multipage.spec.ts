@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import postgres from "postgres";
-import { canvas, signUpToEditor, setPlan } from "./helpers";
+import { addSection, canvas, draftUrl, signUpToEditor, setPlan } from "./helpers";
 import { TEST_DATABASE } from "./setup-database";
 
 const PAGES = "/api/v1/me/pages";
@@ -150,16 +150,190 @@ test("a suspended person's addresses stay taken after they delete the account", 
     expect(held[0]?.user_id).toMatch(/^removed:/);
 });
 
-const addFromMenu = async (page: Page, name: string, handle: string) => {
+const pressNewPage = async (page: Page) => {
     await page.locator("[data-page-switcher]:visible").click();
     await page.locator("[data-new-page]").click();
-    await page.locator("[name=page-name]").fill(name);
-    await page.locator("[name=page-address]").fill(handle);
-    await expect(page.locator("[data-address-note]")).toContainText("free");
-    await page.locator("[data-create-page]").click();
+    await page.waitForURL(/\/app\/start\?page=/);
+    await expect(page.locator("#start-name")).toBeVisible();
+};
+
+/** From the first step of the start flow to the address step. */
+const walkToAddress = async (page: Page, name: string) => {
+    await page.locator("#start-name").fill(name);
+    for (let i = 0; i < 4; i++) await page.locator("[data-next]").click();
+    await expect(page.locator("#start-handle")).toBeVisible();
+};
+
+const finishWalk = async (page: Page, handle: string) => {
+    await page.locator("#start-handle").fill(handle);
+    await expect(page.locator("#start-note")).toHaveClass(/ok/);
+    await page.locator("[data-next]").click();
     await page.waitForURL(/\/app\/edit\?page=/);
     await expect(page.locator(".address")).toContainText(handle);
 };
+
+const addFromMenu = async (page: Page, name: string, handle: string) => {
+    await pressNewPage(page);
+    await walkToAddress(page, name);
+    await finishWalk(page, handle);
+};
+
+const handles = async (page: Page) => {
+    const list = (await (await page.request.get(PAGES)).json()) as {
+        pages: { handle: string }[];
+    };
+    return list.pages.map((other) => other.handle);
+};
+
+test("New page goes through the start flow and leaves the other page alone", async ({ page }) => {
+    const first = await signUpToEditor(page);
+    const before = await (await page.request.get(await draftUrl(page))).text();
+    await page.goto("/app/");
+    await expect(page.locator(".pv iframe")).toBeVisible();
+    await pressNewPage(page);
+    await expect(page.locator(".flow h1")).toHaveText("Let's make your page");
+    await expect(page.locator(".page-limit")).toHaveCount(0);
+    if (isDesktop(page)) await expect(page.locator(".stage .phone")).toBeVisible();
+
+    await page.locator("#start-name").fill("The Low Notes");
+    await page.locator(".chip", { hasText: "A shop" }).click();
+    await page.locator("[data-next]").click();
+    await page.locator("[data-next]").click();
+    await page.locator(".mark-t[data-mark=poster]").click();
+    await page.locator("[data-next]").click();
+    await page.locator(".tile[data-look=noir]").click();
+    await page.locator("[data-next]").click();
+
+    const box = page.locator("#start-handle");
+    const note = page.locator("#start-note");
+    await expect(box).toHaveValue("thelownotes");
+    await box.fill(first);
+    await expect(note).toHaveClass(/bad/);
+    await expect(page.locator("[data-next]")).toBeDisabled();
+    await box.fill("login");
+    await expect(note).toHaveClass(/bad/);
+    await expect(page.locator("[data-next]")).toBeDisabled();
+    expect(await handles(page)).toEqual([first]);
+
+    const second = unique("flow");
+    await finishWalk(page, second);
+    const frame = canvas(page);
+    await expect(frame.locator("html")).toHaveClass(/noir/);
+    await expect(frame.locator("#t-header h1")).toHaveAttribute("aria-label", "The Low Notes");
+    await expect(frame.locator("#t-header .wm-poster")).toHaveCount(1);
+    expect(await handles(page)).toEqual([first, second]);
+    const me = (await (await page.request.get("/api/v1/me")).json()) as {
+        pages: { id: string; handle: string }[];
+    };
+    const made = me.pages.find((other) => other.handle === second);
+    expect(page.url()).toContain(`page=${made?.id ?? "missing"}`);
+    const draft = (await (await page.request.get(`${PAGES}/${made?.id ?? ""}`)).json()) as {
+        page: { timeZone?: string };
+    };
+    expect(draft.page.timeZone).toBeTruthy();
+    expect(await (await page.request.get(await draftUrl(page))).text()).toBe(before);
+});
+
+test("Cancel returns to where New page was pressed, at any step, and adds nothing", async ({
+    page,
+}) => {
+    const first = await signUpToEditor(page);
+    await page.goto("/app/settings");
+    await expect(page.locator("input[name=address]")).toHaveValue(first);
+    await pressNewPage(page);
+    await page.locator("[data-leave-flow]").click();
+    await page.waitForURL(/\/app\/settings\?page=/);
+    await expect(page.locator("input[name=address]")).toHaveValue(first);
+
+    await page.goto("/app/");
+    await expect(page.locator(".pv iframe")).toBeVisible();
+    await pressNewPage(page);
+    await walkToAddress(page, "Left halfway");
+    await page.locator("[data-leave-flow]").click();
+    await page.waitForURL(/\/app\/?\?page=/);
+    await expect(page.locator(".addr")).toContainText(first);
+    expect(await handles(page)).toEqual([first]);
+});
+
+test("New page in the builder saves first, and Cancel returns to the builder", async ({ page }) => {
+    const first = await signUpToEditor(page);
+    await page.goto("/app/edit");
+    await expect(page.locator(".address")).toContainText(first);
+    await addSection(page, "about");
+    await page.locator("[data-page-switcher]:visible").click();
+    await page.locator("[data-new-page]").click();
+    await page.waitForURL(/\/app\/start\?page=.*back=%2Fedit/);
+    await expect(page.locator("#start-name")).toBeVisible();
+    const saved = (await (await page.request.get(await draftUrl(page))).json()) as {
+        page: { blocks: object[] };
+    };
+    expect(saved.page.blocks.length).toBeGreaterThan(0);
+    await page.locator("[data-leave-flow]").click();
+    await page.waitForURL(/\/app\/edit\?page=/);
+    await expect(page.locator(".address")).toContainText(first);
+    expect(await handles(page)).toEqual([first]);
+});
+
+test("Back and reload in the start flow don't add a second page", async ({ page }) => {
+    const first = await signUpToEditor(page);
+    await page.goto("/app/");
+    await expect(page.locator(".pv iframe")).toBeVisible();
+    await pressNewPage(page);
+    await walkToAddress(page, "Twice");
+    await page.reload();
+    await expect(page.locator("#start-name")).toBeVisible();
+    expect(await handles(page)).toEqual([first]);
+
+    await walkToAddress(page, "Twice");
+    const second = unique("once");
+    await finishWalk(page, second);
+    await page.reload();
+    await expect(page.locator(".address")).toContainText(second);
+    await page.goBack();
+    await page.waitForURL((url) => url.pathname.replace(/\/$/, "") === "/app");
+    await expect(page.locator("#start-name")).toHaveCount(0);
+    expect(await handles(page)).toEqual([first, second]);
+});
+
+test("someone with pages who opens the start flow's address directly goes to Home", async ({
+    page,
+}) => {
+    await signUpToEditor(page);
+    for (const search of ["", "?page=not-a-page", "?handle=something"]) {
+        await page.goto(`/app/start${search}`);
+        await page.waitForURL((url) => url.pathname.replace(/\/$/, "") === "/app");
+        await expect(page.locator(".ph h1")).toBeVisible();
+        await expect(page.locator(".page-limit")).toHaveCount(0);
+    }
+});
+
+test("the start flow can't get round the limit", async ({ page }) => {
+    const handle = await signUpToEditor(page, [], { plan: "free" });
+    const me = (await (await page.request.get("/api/v1/me")).json()) as { pages: { id: string }[] };
+    const id = me.pages[0]?.id ?? "";
+
+    await page.goto(`/app/start?page=${id}&back=%2F`);
+    await expect(page.locator("[data-page-limit=plan]")).toBeVisible();
+    await expect(page.locator("#start-name")).toHaveCount(0);
+    expect(page.url()).not.toContain("limit=");
+
+    await page.goto("/app/settings");
+    await page.locator("[data-copy-page]").click();
+    await expect(page.locator("[data-page-limit=plan]")).toBeVisible();
+    await page.locator("[data-keep-editing]").click();
+    await expect(page.locator("[name=page-address]")).toHaveCount(0);
+
+    await setPlan(handle, "pro");
+    await page.goto(`/app/start?page=${id}&back=%2F`);
+    await walkToAddress(page, "Too late");
+    await setPlan(handle, "free");
+    await page.locator("#start-handle").fill(unique("late"));
+    await expect(page.locator("#start-note")).toHaveClass(/ok/);
+    await page.locator("[data-next]").click();
+    await expect(page.locator("#start-note")).toContainText("all the pages your plan allows");
+    await expect(page.locator("[data-next]")).toBeDisabled();
+    expect(await handles(page)).toEqual([handle]);
+});
 
 test("the switcher adds and moves between pages, and the screens follow it", async ({ page }) => {
     const first = await signUpToEditor(page);
@@ -219,7 +393,8 @@ test("New page on Free offers a plan, and at the limit says to delete one", asyn
     await expect(page.locator("[data-page-limit=plan]")).toContainText("free to keep building");
     await expect(page.locator("[data-plan=starter]")).toBeVisible();
     await page.locator("[data-keep-editing]").click();
-    await expect(page.locator(".page-modal")).toHaveCount(0);
+    await expect(page.locator(".page-limit")).toHaveCount(0);
+    await expect(page.locator("#start-name")).toHaveCount(0);
 
     await setPlan(handle, "pro");
     for (const word of ["two", "three", "four", "five"]) {
@@ -245,6 +420,7 @@ test("Page settings copies and deletes this page", async ({ page }) => {
     await page.locator("[data-create-page]").click();
     await page.waitForURL(/\/app\/edit\?page=/);
     await expect(page.locator(".address")).toContainText(copy);
+    await expect(canvas(page).locator("#t-header h1")).toContainText("Maya Okafor");
 
     const settings = page.url().replace("/edit?", "/settings?");
     await page.goto(settings);
@@ -386,8 +562,14 @@ test("the switcher shows each page by its photo, or its look and first letter", 
     });
     expect(saved.ok()).toBe(true);
     const second = unique("loud");
-    await page.request.post(PAGES, {
-        data: { name: "The Low Notes", handle: second, look: "signal" },
+    const made = await addPage(page, second);
+    const { id } = (await made.json()) as { id: string };
+    const loud = (await (await page.request.get(`${PAGES}/${id}`)).json()) as {
+        page: object;
+        updatedAt: string;
+    };
+    await page.request.put(`${PAGES}/${id}`, {
+        data: { updatedAt: loud.updatedAt, page: { ...loud.page, look: "signal" } },
     });
     await page.goto("/app/");
     const switcher = page.locator("[data-page-switcher]:visible");

@@ -25,7 +25,8 @@ async function open(here: HTMLElement): Promise<void> {
         return;
     }
     if (path === "/start") {
-        location.replace(appPath("/"));
+        const { mountNewPage } = await import("./app/builder");
+        mountNewPage(here, account);
         return;
     }
     if (path === "/edit") {

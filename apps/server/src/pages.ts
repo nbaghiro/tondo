@@ -148,7 +148,8 @@ export function mountPages(
                 "Give your page a name, and an address of 1 to 30 lowercase letters, numbers or hyphens.",
             );
         }
-        const { name, handle, look, from } = parsed.data;
+        const asked = parsed.data;
+        const { handle } = asked;
         const own = await store.listPages(person.id);
         if (!own.length) return fail(c, 409, "Choose your first address first.");
         // A joined page is paid for by the team, so it doesn't use one of this person's.
@@ -156,17 +157,19 @@ export function mountPages(
         if (!canAddPage(await limitsOfPerson(person.id), personal)) {
             return fail(c, 403, "You're using all the pages your plan allows.", "plan_limit");
         }
-        const source = from ? await store.findDraft(person.id, from) : null;
-        if (from && !source) return missing(c);
-        const blank = starterPage(name);
-        const made: Page = source
-            ? { ...source.page, header: { ...source.page.header, name } }
-            : { ...blank, look: look ?? blank.look };
         const newId = crypto.randomUUID();
-        const page =
-            source && source.userId !== person.id && copyPhotos
-                ? await copyPhotos(made, newId)
-                : made;
+        let page: Page;
+        if ("page" in asked) {
+            page = asked.page;
+        } else if (asked.from) {
+            const source = await store.findDraft(person.id, asked.from);
+            if (!source) return missing(c);
+            const named = { ...source.page, header: { ...source.page.header, name: asked.name } };
+            page =
+                source.userId !== person.id && copyPhotos ? await copyPhotos(named, newId) : named;
+        } else {
+            page = starterPage(asked.name);
+        }
         const id = await store.createPage(person.id, handle, page, newId);
         if (!id) return fail(c, 409, TAKEN);
         onHandleChange(null, handle);

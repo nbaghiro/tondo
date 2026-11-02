@@ -20,9 +20,30 @@ export function chosenPage(
     );
 }
 
+/** How many pages count against this person's plan. Team pages are paid for by the team. */
+export const ownPageCount = (pages: readonly PageSummary[]): number =>
+    pages.filter((page) => page.side === "own").length;
+
 /** An address inside the app that stays on this page. */
 export const onPage = (path: string, pageId: string): string =>
     `${path}${path.includes("?") ? "&" : "?"}page=${pageId}`;
+
+const SCREENS = ["/", "/analytics", "/settings", "/account", "/edit"];
+
+/** Where New page goes. It names the page and screen that Cancel returns to. */
+export const newPagePath = (pageId: string, screen: string): string =>
+    `/start?page=${pageId}&back=${encodeURIComponent(screen)}`;
+
+/** The page and screen New page was pressed on. Null if this visit didn't come from New page. */
+export function newPageOrigin(
+    pages: readonly PageSummary[],
+): { pageId: string; screen: string } | null {
+    const asked = new URLSearchParams(location.search);
+    const page = pages.find((other) => other.id === asked.get("page"));
+    if (!page) return null;
+    const back = asked.get("back") ?? "/";
+    return { pageId: page.id, screen: SCREENS.includes(back) ? back : "/" };
+}
 
 export const SITE_URL =
     (import.meta.env["VITE_SITE_URL"] as string | undefined) ??

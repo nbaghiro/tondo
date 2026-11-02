@@ -1,16 +1,17 @@
+import { canAddPage } from "@tondo/page";
 import { paint } from "@tondo/render";
 import { createEffect, createMemo, createSignal, For, onMount, Show, untrack } from "solid-js";
 import { groupsInOrder, NAV } from "../app/nav";
 import type { NavItem } from "../app/nav";
 import { askedPage, follow, navigate, path } from "../app/router";
-import { appPath, chosenPage, onPage, SITE_URL } from "../lib/account";
+import { appPath, chosenPage, newPagePath, onPage, ownPageCount, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
 import type { PageSummary } from "@tondo/contract";
 import { AccountPage } from "./AccountPage";
 import { AnalyticsPage } from "./AnalyticsPage";
 import { loadPages } from "../lib/api";
 import { HomePage } from "./HomePage";
-import { NewPageModal } from "./NewPageModal";
+import { PageLimitPrompt } from "./PageLimitPrompt";
 import { PageSwitcher } from "./PageSwitcher";
 import { planName } from "../lib/plan-copy";
 import { plan } from "../state/plan";
@@ -112,14 +113,15 @@ export function Shell(props: { account: Account }) {
     };
     // Only the id, so a fresh list of pages doesn't start the current screen again.
     const pageId = createMemo(() => chosen().id);
-    // Null is closed. A page means the dialog starts as a copy of it.
-    const [adding, setAdding] = createSignal<{ from: PageSummary | null } | null>(null);
+    const [atLimit, setAtLimit] = createSignal(false);
+    const canAdd = () => canAddPage(account().limits, ownPageCount(account().pages));
+    // The builder and the start flow send people here to see the limit prompt.
     onMount(() => {
         const asked = new URLSearchParams(location.search);
-        if (!asked.get("new")) return;
-        asked.delete("new");
+        if (!asked.get("limit")) return;
+        asked.delete("limit");
         history.replaceState(null, "", `${location.pathname}?${asked.toString()}`);
-        setAdding({ from: null });
+        setAtLimit(!canAdd());
     });
     const refreshPages = async () => {
         const pages = await loadPages();
@@ -137,7 +139,10 @@ export function Shell(props: { account: Account }) {
                 refreshPages().catch(() => undefined);
             }}
             onPick={pickPage}
-            onNew={() => setAdding({ from: null })}
+            onNew={() => {
+                if (canAdd()) location.assign(appPath(newPagePath(pageId(), path())));
+                else setAtLimit(true);
+            }}
         />
     );
     // Reads the chosen page, so choosing another starts each screen again with its own data.
@@ -159,7 +164,8 @@ export function Shell(props: { account: Account }) {
                             });
                         }}
                         canDelete={account().pages.length > 1}
-                        onCopy={() => setAdding({ from: chosen() })}
+                        canAddPage={canAdd()}
+                        onPageLimit={() => setAtLimit(true)}
                         onDeleted={() => {
                             const left = account().pages.filter((other) => other.id !== pageId());
                             setAccount({ ...account(), pages: left });
@@ -244,14 +250,8 @@ export function Shell(props: { account: Account }) {
                     More
                 </button>
             </nav>
-            <Show when={adding()}>
-                {(open) => (
-                    <NewPageModal
-                        account={account()}
-                        from={open().from}
-                        onClose={() => setAdding(null)}
-                    />
-                )}
+            <Show when={atLimit()}>
+                <PageLimitPrompt account={account()} onClose={() => setAtLimit(false)} />
             </Show>
             <Show when={more()}>
                 <div

@@ -491,7 +491,7 @@ describe("several pages", () => {
 
     it("adds a page with its own address, draft and list entry", async () => {
         const { call } = setup();
-        const res = await add(call, "the-low-notes", { look: "sap" });
+        const res = await add(call, "the-low-notes");
         expect(res.status).toBe(201);
         const { id } = (await res.json()) as { id: string };
         const draft = (await (await call("june", "GET", `/api/v1/me/pages/${id}`)).json()) as {
@@ -499,12 +499,36 @@ describe("several pages", () => {
             page: Page;
         };
         expect(draft.handle).toBe("the-low-notes");
-        expect(draft.page.look).toBe("sap");
         expect(draft.page.header.name).toBe("Band");
         const list = (await (await call("june", "GET", "/api/v1/me/pages")).json()) as {
             pages: { handle: string }[];
         };
         expect(list.pages.map((page) => page.handle)).toEqual(["june", "the-low-notes"]);
+    });
+
+    it("adds the page the start flow built, as sent", async () => {
+        const { call } = setup();
+        const res = await call("june", "POST", "/api/v1/me/pages", {
+            handle: "the-low-notes",
+            page: { ...withButton, look: "sap" },
+        });
+        expect(res.status).toBe(201);
+        const { id } = (await res.json()) as { id: string };
+        const draft = (await (await call("june", "GET", `/api/v1/me/pages/${id}`)).json()) as {
+            page: Page;
+        };
+        expect(draft.page).toEqual({ ...withButton, look: "sap" });
+    });
+
+    it("refuses a built page that isn't a page, or one past the limit", async () => {
+        const { call } = setup();
+        const bad = await call("june", "POST", "/api/v1/me/pages", {
+            handle: "the-low-notes",
+            page: { ...withButton, look: "nope" },
+        });
+        expect(bad.status).toBe(400);
+        const looks = await add(call, "other-notes", { look: "sap" });
+        expect(looks.status).toBe(400);
     });
 
     it("refuses an address that's taken or reserved", async () => {

@@ -1,9 +1,10 @@
 import type { PageSummary } from "@tondo/contract";
+import { canAddPage } from "@tondo/page";
 import type { Limits } from "@tondo/page";
 import { createSignal, Show, untrack } from "solid-js";
 import { loadPages } from "../lib/api";
 import { PageSwitcher } from "./PageSwitcher";
-import { appPath, onPage, pageUrl } from "../lib/account";
+import { appPath, newPagePath, onPage, ownPageCount, pageUrl } from "../lib/account";
 import type { EditorState } from "../state/document";
 import { clearBackup, downloadPage } from "../state/storage";
 import { paint } from "@tondo/render";
@@ -109,7 +110,11 @@ export function TopBar(props: TopBarProps) {
                         if (next.id !== props.pageId) leaveTo(onPage("/edit", next.id));
                     }}
                     onNew={() => {
-                        leaveTo(onPage("/?new=1", props.pageId));
+                        leaveTo(
+                            canAddPage(props.limits, ownPageCount(pages()))
+                                ? newPagePath(props.pageId, "/edit")
+                                : onPage("/?limit=1", props.pageId),
+                        );
                     }}
                 />
                 <Show when={props.onOpenPanel}>

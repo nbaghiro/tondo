@@ -384,6 +384,15 @@ In P5:
 - **Marketing pages aren't in the sitemap.** It lists live pages only, as planned.
 - **Pricing and Terms weren't changed here,** since the plans work already rewrote pricing and Terms are out of scope. The Terms' line about changing an address still says "your account", and it needs the owner before charging.
 
+After P5:
+
+- **New page now uses the start flow, and `NewPageModal.tsx` is gone.** The owner asked for the same full-screen steps a new sign-up gets. Pressing New page opens `/app/start?page=<id>&back=<screen>` with the same `StartFlow` component. This replaces the P3 notes above about the dialog and the plain list of looks.
+- **`page` and `back` say the visit came from New page.** They name the page and screen Cancel returns to, and `back` only accepts the app's own screens. A person with pages who opens `/app/start` without a page of theirs in the address goes to Home, as before.
+- **Nothing is created until the last step.** Finishing sends `POST /me/pages` with the page the flow built, then replaces the flow in the browser's history, so Back from the builder doesn't return to it. Reloading restarts the flow at its first step, as it does for a first page.
+- **`POST /me/pages` takes `page`, or `name` with an optional `from`.** `look` is removed, since only the dialog sent it. A request with just `name` still makes a blank page, which the API and its tests use and the interface doesn't.
+- **The limit prompt stays a small dialog, in `PageLimitPrompt.tsx`.** The browser checks the limit when New page is pressed and when `/app/start` opens, and goes to Home with `?limit=1` to show the prompt. If the limit is reached during the flow, the server refuses and the address step shows its message.
+- **Copy this page is now a small form inside its Page settings section,** in `CopyPageForm.tsx`, because it relied on the dialog. It asks for a name and an address, and shows the limit prompt at the limit.
+
 ## Decisions that would change this plan
 
 These stay working defaults, numbered as in [multi-page.md](multi-page.md).

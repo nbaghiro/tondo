@@ -53,6 +53,8 @@ const MARK_ROOM = 300;
 export function StartFlow(props: {
     wanted: string;
     onDone: (handle: string, page: Page) => Promise<string | null>;
+    /** Where Cancel goes. Left out for a first page, which has nowhere to return to. */
+    leave?: { href: string; pageName: string };
 }) {
     const [step, setStep] = createSignal(0);
     const [name, setName] = createSignal("");
@@ -212,8 +214,9 @@ export function StartFlow(props: {
         props
             .onDone(normaliseHandle(handle()), page())
             .then((problem) => {
-                setBusy(false);
+                // With no problem, the browser is already on its way to the builder.
                 if (problem) {
+                    setBusy(false);
                     setFree(false);
                     setNote({ tone: "bad", text: problem });
                 }
@@ -278,6 +281,18 @@ export function StartFlow(props: {
                     <div class="bar">
                         <i style={{ width: `${String(((step() + 1) / STEPS) * 100)}%` }} />
                     </div>
+                    <Show when={props.leave}>
+                        {(leave) => (
+                            <a
+                                class="ghost-b flow-leave"
+                                data-leave-flow
+                                href={leave().href}
+                                aria-label={`Cancel and go back to ${leave().pageName}`}
+                            >
+                                Cancel
+                            </a>
+                        )}
+                    </Show>
                 </div>
                 <div class="step-body">
                     <div class="step-in">

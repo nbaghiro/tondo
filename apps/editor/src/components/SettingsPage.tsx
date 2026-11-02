@@ -10,13 +10,15 @@ import {
     saveDraft,
     unpublish,
 } from "../lib/api";
+import { CopyPageForm } from "./CopyPageForm";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
 
 export function SettingsPage(props: {
     page: PageSummary;
     onAddress: (handle: string) => void;
     canDelete: boolean;
-    onCopy: () => void;
+    canAddPage: boolean;
+    onPageLimit: () => void;
     onDeleted: () => void;
 }) {
     const [draft, { refetch }] = createResource(() => props.page.id, loadDraft);
@@ -27,6 +29,7 @@ export function SettingsPage(props: {
     const [current, setCurrent] = createSignal(untrack(() => props.page.handle));
     const [addressNote, setAddressNote] = createSignal("");
     const [confirmDown, setConfirmDown] = createSignal(false);
+    const [copying, setCopying] = createSignal(false);
     const [confirmDelete, setConfirmDelete] = createSignal(false);
     const [deleteProblem, setDeleteProblem] = createSignal("");
     // A conflict brings in the latest page, and what someone typed has to stay in the boxes.
@@ -286,15 +289,23 @@ export function SettingsPage(props: {
                             title="Copy this page"
                             lead="Starts a new page with this one's look and sections, and its own address."
                         >
-                            <button
-                                class="b"
-                                data-copy-page
-                                onClick={() => {
-                                    props.onCopy();
-                                }}
+                            <Show
+                                when={copying()}
+                                fallback={
+                                    <button
+                                        class="b"
+                                        data-copy-page
+                                        onClick={() => {
+                                            if (props.canAddPage) setCopying(true);
+                                            else props.onPageLimit();
+                                        }}
+                                    >
+                                        Copy this page
+                                    </button>
+                                }
                             >
-                                Copy this page
-                            </button>
+                                <CopyPageForm page={props.page} onClose={() => setCopying(false)} />
+                            </Show>
                         </SettingsSection>
                         <SettingsSection
                             title="Delete this page"

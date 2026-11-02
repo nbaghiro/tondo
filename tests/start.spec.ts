@@ -7,6 +7,7 @@ test("the start flow builds the page, step by step, with the address from the ma
     const handle = `s${Date.now().toString(36)}${info.project.name[0] ?? ""}`;
     await signUpToStart(page, handle);
     await expect(page.locator("[data-next]")).toBeDisabled();
+    await expect(page.locator("[data-leave-flow]")).toHaveCount(0);
     await page.locator("#start-name").fill("Tide Bakery");
     await page.locator(".chip", { hasText: "A shop" }).click();
     await page.locator("[data-next]").click();
