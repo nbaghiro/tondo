@@ -1,27 +1,35 @@
 import type { PageSummary } from "@tondo/contract";
-import { lookNames } from "@tondo/page";
-import type { Limits, LookName } from "@tondo/page";
-import { looks, paint } from "@tondo/render";
+import type { Limits } from "@tondo/page";
 import { createSignal, For, onCleanup, Show } from "solid-js";
 import "../styles/pages.css";
 
-const lookOf = (look: string): LookName =>
-    (lookNames as readonly string[]).includes(look) ? (look as LookName) : "madder";
-
-/** A small painting in the page's own colours. */
-export function PageSwatch(props: { page: Pick<PageSummary, "look" | "seed"> }) {
+/**
+ * Stands for one page, so it can't be read as the round logo beside it: the page's own photo, or its
+ * look's art with the first letter of its name.
+ */
+export function PageTile(props: { page: Pick<PageSummary, "look" | "photo" | "name" | "handle"> }) {
+    const letter = () => (props.page.name || props.page.handle).slice(0, 1).toUpperCase();
     return (
-        <span
-            class="psw-dot"
-            aria-hidden="true"
-            ref={(el) => {
-                const look = looks[lookOf(props.page.look)];
-                el.innerHTML = paint(look.palette, props.page.seed ?? look.seed).replace(
-                    'class="tondo"',
-                    "",
-                );
-            }}
-        />
+        <Show
+            when={props.page.photo}
+            fallback={
+                <span
+                    class="psw-tile"
+                    aria-hidden="true"
+                    style={{ "background-image": `url(/photos/looks/${props.page.look}.jpg)` }}
+                >
+                    <em>{letter()}</em>
+                </span>
+            }
+        >
+            {(photo) => (
+                <span
+                    class="psw-tile"
+                    aria-hidden="true"
+                    style={{ "background-image": `url(/photos/${photo()})` }}
+                />
+            )}
+        </Show>
     );
 }
 
@@ -90,7 +98,7 @@ export function PageSwitcher(props: {
                 }}
             >
                 <Show when={!props.compact}>
-                    <PageSwatch page={props.current} />
+                    <PageTile page={props.current} />
                     <b>{props.current.name || props.current.handle}</b>
                 </Show>
                 <svg class="psw-chev" viewBox="0 0 24 24" aria-hidden="true">
@@ -114,7 +122,7 @@ export function PageSwitcher(props: {
                                         props.onPick(page);
                                     }}
                                 >
-                                    <PageSwatch page={page} />
+                                    <PageTile page={page} />
                                     <span class="psw-text">
                                         <b>{page.name || page.handle}</b>
                                         <small>tondo.page/{page.handle}</small>

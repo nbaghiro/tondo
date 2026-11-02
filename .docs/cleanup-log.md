@@ -91,3 +91,5 @@ The site changes are in `apps/marketing`.
 | Done | Keep each page's photos in its own folder | Image addresses no longer connect a person's pages, unless one photo is used on both. Your photos lists all of them, and the limit counts them together |
 | Done | List live pages for search engines | `/sitemap.xml` and `robots.txt` |
 | Done | Move Home's edit pencil next to the copy and open buttons | `.status-acts` in `HomePage.tsx`. A phone still uses its bottom bar |
+| Done | Page avatars in the switcher looked like the Tondo logo | A rounded square with the page's header photo, or its look's art with the first letter of its name, in the sidebar, phone bar and builder |
+| Open before launch | The site sells your own domain on Pro | Not built yet. Queued after teams |

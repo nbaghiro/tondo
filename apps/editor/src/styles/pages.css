@@ -51,18 +51,29 @@
     border-radius: 50%;
     background: transparent;
 }
-.psw-dot {
+.psw-tile {
     flex: none;
-    display: block;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    overflow: hidden;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 26px;
+    height: 26px;
+    border: 1px solid rgba(29, 26, 23, 0.16);
+    border-radius: 8px;
+    background: var(--on) center / cover no-repeat;
 }
-.psw-dot svg {
-    display: block;
-    width: 100%;
-    height: 100%;
+.psw-tile em {
+    display: grid;
+    place-items: center;
+    width: 62%;
+    height: 62%;
+    border-radius: 30%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1d1a17;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1;
 }
 .psw-menu {
     position: absolute;
@@ -103,9 +114,13 @@
 .psw-item[aria-current="true"] {
     background: #f3f0f1;
 }
-.psw-item .psw-dot {
-    width: 30px;
-    height: 30px;
+.psw-item .psw-tile {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+}
+.psw-item .psw-tile em {
+    font-size: 13px;
 }
 .psw-text {
     flex: 1;

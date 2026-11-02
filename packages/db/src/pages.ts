@@ -1,4 +1,4 @@
-import { pageHash, readPage, teamLookOf } from "@tondo/page";
+import { isPlaceholder, pageHash, readPage, teamLookOf } from "@tondo/page";
 import type { Page, Standing, TeamLook } from "@tondo/page";
 import { and, asc, eq, exists, gte, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
@@ -63,6 +63,7 @@ export interface PageSummary {
     name: string;
     look: string;
     seed: number | null;
+    photo: string | null;
     live: boolean;
     changed: boolean;
     updatedAt: string;
@@ -264,6 +265,7 @@ const summaryOf = (row: PageRow, userId: string): PageSummary => {
         name: page.header.name,
         look: page.look,
         seed: page.seed ?? null,
+        photo: isPlaceholder(page.header.photo) ? null : (page.header.photo?.file ?? null),
         live: row.published !== null,
         changed: row.published === null || pageHash(page) !== pageHash(readPage(row.published)),
         updatedAt: row.updatedAt,

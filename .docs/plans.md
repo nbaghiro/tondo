@@ -1,6 +1,28 @@
 # Plans proposal
 
-**Current plans, decided on 2026-11-01. This replaces option A below and the older decision that follows it.** Free has no live page, and paying is what puts a page online. Design and sections are no longer limited on any plan. This is built behind `PLANS_ON`, see [plans-implementation.md](plans-implementation.md).
+**Current plans, decided on 2026-11-01. This replaces everything below, including the Free, Starter and Pro table that follows.** The owner removed the Free plan and asked for plans that work the way Liinks does. Anyone can sign up, build and preview without paying, and that isn't sold as a plan. A subscription is what puts a page online, and the first one starts with a 14-day trial. The code doesn't match this yet.
+
+| | Starter | Pro |
+|---|---|---|
+| Price | $5 a month or $48 a year | $12 a month or $120 a year |
+| Live pages | 1 | 5 |
+| Your own domain | No | Yes |
+| More pages or a team | No | Add 5 more pages for $12, up to 100, and invite people to edit them |
+| Design, sections and statistics | Everything | Everything |
+| Team features | No | Yes |
+| Help me credits a month | 100 | 300, and 300 more with each added 5 pages |
+| Photos | 2,000 | 2,000 |
+| Trial | 14 days, starting when you go live | 14 days, starting when you go live |
+
+Before subscribing, an account has 1 page, 25 photos and 15 Help me credits in total, not each month. Someone needing a second page moves to Pro.
+
+The owner chose these: no Free plan, Liinks' prices and pack structure, and pages going offline when a subscription or trial ends. Where this differs from Liinks on purpose: Help me is on Starter, which the owner asked for earlier, while Liinks keeps AI chat for Pro. QR codes, links to a tab and custom share previews are on Liinks' plans and aren't built here, so the site doesn't list them. Solo people are the core users, so Pro is sold on more pages and your own domain, and teams get one line under the cards and their own page. The cards don't use the word pack or show "$12+". Custom domains aren't built yet and need to be before launch.
+
+These are working defaults, and the owner can change them: a card is needed to start a trial (Liinks doesn't say), trials are once per account, the credit and photo numbers, a team having no limit on people beyond its pages, and a "Made with Tondo" badge on by default that any subscriber can hide, as at Liinks.
+
+Comparing Liinks: both have a 14-day trial, and its annual saving is $12 and $24 a year. Liinks prices were read from its pricing page on 2026-11-01.
+
+**An earlier decision from 2026-11-01, kept as history.** Free has no live page, and paying is what puts a page online. Design and sections are no longer limited on any plan. This is built behind `PLANS_ON`, see [plans-implementation.md](plans-implementation.md).
 
 | | Free | Starter, $4 a month or $40 a year | Pro, $10 a month or $100 a year |
 |---|---|---|---|

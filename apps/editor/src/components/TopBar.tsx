@@ -49,6 +49,7 @@ export function TopBar(props: TopBarProps) {
             live: false,
             changed: true,
             updatedAt: "",
+            photo: null,
             side: "own" as const,
             offline: false,
         };

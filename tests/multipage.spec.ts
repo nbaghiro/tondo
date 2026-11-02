@@ -362,3 +362,41 @@ test("changing a page's address leaves the other working", async ({ page, reques
     expect((await request.get(`/${b}`)).status()).toBe(404);
     expect((await request.get(`/${next}`)).status()).toBe(200);
 });
+
+test("the switcher shows each page by its photo, or its look and first letter", async ({
+    page,
+}) => {
+    const first = await signUpToEditor(page);
+    const me = (await (await page.request.get("/api/v1/me")).json()) as {
+        pages: { id: string }[];
+    };
+    const url = `${PAGES}/${me.pages[0]?.id ?? ""}`;
+    const draft = (await (await page.request.get(url)).json()) as {
+        page: { header: object };
+        updatedAt: string;
+    };
+    const saved = await page.request.put(url, {
+        data: {
+            updatedAt: draft.updatedAt,
+            page: {
+                ...draft.page,
+                header: { ...draft.page.header, photo: { file: "woman23.jpg" } },
+            },
+        },
+    });
+    expect(saved.ok()).toBe(true);
+    const second = unique("loud");
+    await page.request.post(PAGES, {
+        data: { name: "The Low Notes", handle: second, look: "signal" },
+    });
+    await page.goto("/app/");
+    const switcher = page.locator("[data-page-switcher]:visible");
+    await switcher.click();
+    const tile = (handle: string) => page.locator(`[data-page-item="${handle}"]:visible .psw-tile`);
+    await expect(tile(first)).toHaveCSS("background-image", /woman23\.jpg/);
+    await expect(tile(first).locator("em")).toHaveCount(0);
+    await expect(tile(second)).toHaveCSS("background-image", /looks\/signal\.jpg/);
+    await expect(tile(second).locator("em")).toHaveText("T");
+    await expect(tile(second)).toHaveCSS("border-radius", "10px");
+    await expect(tile(second)).toHaveCSS("border-top-width", "1px");
+});

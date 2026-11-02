@@ -73,6 +73,8 @@ export const pageSummary = z.strictObject({
     name: z.string(),
     look: z.string(),
     seed: z.number().nullable(),
+    /** The page's own header photo, if it has one. */
+    photo: z.string().nullable(),
     live: z.boolean(),
     changed: z.boolean(),
     updatedAt: z.string(),
