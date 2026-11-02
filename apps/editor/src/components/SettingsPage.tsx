@@ -2,10 +2,23 @@ import type { PageSummary } from "@tondo/contract";
 import { isReservedHandle, isValidHandle, normaliseHandle } from "@tondo/page";
 import { createEffect, createResource, createSignal, Show, untrack } from "solid-js";
 import { appPath, onPage } from "../lib/account";
-import { changeAddress, checkAddress, loadDraft, saveDraft, unpublish } from "../lib/api";
+import {
+    changeAddress,
+    checkAddress,
+    deletePage,
+    loadDraft,
+    saveDraft,
+    unpublish,
+} from "../lib/api";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
 
-export function SettingsPage(props: { page: PageSummary; onAddress: (handle: string) => void }) {
+export function SettingsPage(props: {
+    page: PageSummary;
+    onAddress: (handle: string) => void;
+    canDelete: boolean;
+    onCopy: () => void;
+    onDeleted: () => void;
+}) {
     const [draft, { refetch }] = createResource(() => props.page.id, loadDraft);
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
@@ -14,6 +27,8 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
     const [current, setCurrent] = createSignal(untrack(() => props.page.handle));
     const [addressNote, setAddressNote] = createSignal("");
     const [confirmDown, setConfirmDown] = createSignal(false);
+    const [confirmDelete, setConfirmDelete] = createSignal(false);
+    const [deleteProblem, setDeleteProblem] = createSignal("");
     // A conflict brings in the latest page, and what someone typed has to stay in the boxes.
     let keepTyped = false;
     const toast = createToast();
@@ -84,6 +99,16 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
         toast.say(`Your address is now tondo.page/${next}`);
     };
 
+    const removePage = async () => {
+        setDeleteProblem("");
+        const problem = await deletePage(props.page.id);
+        if (problem) {
+            setDeleteProblem(problem);
+            return;
+        }
+        props.onDeleted();
+    };
+
     const takeDown = async () => {
         const problem = await unpublish(props.page.id);
         toast.say(problem ?? "Your page isn't live any more");
@@ -94,8 +119,12 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
         <>
             <PageHeader
                 title="Page settings"
-                lead="Your address, and how your page appears elsewhere."
-            />
+                lead="This page's address, and how it appears elsewhere."
+            >
+                <a class="b" data-edit-page href={appPath(onPage("/edit", props.page.id))}>
+                    Edit page
+                </a>
+            </PageHeader>
             <Show when={draft()} fallback={<p class="emptyline">Loading your settings</p>}>
                 {(loaded) => (
                     <div>
@@ -126,8 +155,8 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
                                     </span>
                                 </label>
                                 <p class="note">
-                                    Changing this breaks any links you've already shared, and
-                                    someone else could claim your old address.
+                                    The old address stops working at once and someone else can claim
+                                    it. Links and QR codes using it will stop working.
                                 </p>
                                 <Show when={addressNote()}>
                                     <p class="bad-note" role="alert">
@@ -250,6 +279,63 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
                                             </button>
                                         </div>
                                     </Show>
+                                </Show>
+                            </Show>
+                        </SettingsSection>
+                        <SettingsSection
+                            title="Copy this page"
+                            lead="Starts a new page with this one's look and sections, and its own address."
+                        >
+                            <button
+                                class="b"
+                                data-copy-page
+                                onClick={() => {
+                                    props.onCopy();
+                                }}
+                            >
+                                Copy this page
+                            </button>
+                        </SettingsSection>
+                        <SettingsSection
+                            title="Delete this page"
+                            lead={
+                                props.canDelete
+                                    ? `This removes the page and its numbers, and frees tondo.page/${props.page.handle} for someone else to claim. It can't be undone.`
+                                    : "This is your only page. To remove it, delete your account."
+                            }
+                        >
+                            <Show when={props.canDelete}>
+                                <Show when={deleteProblem()}>
+                                    <p class="bad-note" role="alert">
+                                        {deleteProblem()}
+                                    </p>
+                                </Show>
+                                <Show
+                                    when={confirmDelete()}
+                                    fallback={
+                                        <button
+                                            class="b bad"
+                                            data-delete-page
+                                            onClick={() => setConfirmDelete(true)}
+                                        >
+                                            Delete this page
+                                        </button>
+                                    }
+                                >
+                                    <div class="acts">
+                                        <button
+                                            class="b bad"
+                                            data-delete-page-yes
+                                            onClick={() => {
+                                                removePage().catch(() => undefined);
+                                            }}
+                                        >
+                                            Yes, delete it
+                                        </button>
+                                        <button class="b" onClick={() => setConfirmDelete(false)}>
+                                            Keep it
+                                        </button>
+                                    </div>
                                 </Show>
                             </Show>
                         </SettingsSection>

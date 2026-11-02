@@ -375,16 +375,21 @@ export function PagePanel(props: {
                     <>
                         <button
                             type="button"
-                            class="row style-entry"
+                            class="style-entry"
                             onClick={() => {
                                 props.onOpenLook();
                             }}
                         >
-                            <span />
-                            <LookMini editor={props.editor} />
-                            <span class="row-t">
-                                <b>{look().label}</b>
-                                <small>Look</small>
+                            <span
+                                class="look-tile"
+                                aria-hidden="true"
+                                style={{
+                                    "background-image": `url(/photos/looks/${props.editor.page().look}.jpg)`,
+                                }}
+                            />
+                            <span>
+                                <b>Look</b>
+                                <small>{look().label}</small>
                             </span>
                             <Glyph name="back" />
                         </button>

@@ -7,14 +7,15 @@ This is what to walk through now that the builder is in the real app. Everything
 Start the servers (`pnpm services:up`, `pnpm db:migrate`, `pnpm dev`), then open http://localhost:8103. Check at 1440, 1100 and on a real phone.
 
 1. **Sign up.** You land on the five-step start flow at `/start`. Finishing it opens the builder at `/edit`.
-2. **Go to Home.** Use the Home button beside the logo in the builder. You should see "Not live yet", your address, a large phone showing your page as the main thing on the screen, and five checklist items. The phone has no buttons on it: Edit page is in the sidebar.
+2. **Go to Home.** Use the Home button beside the logo in the builder. You should see "Not live yet", your address, a large phone showing your page as the main thing on the screen, and five checklist items. The phone has no buttons on it: Edit page is a pencil beside it, and the page switcher is in the sidebar.
 3. **Follow each checklist item.** Each should open the builder at that exact field. "Publish your page" opens the panel and doesn't publish until you press the button.
 4. **Publish.** The panel shows your address, Copy link, Open your page and Back to Home.
 5. **Check the numbers.** Home shows Live and the last 30 days. Open your page in another browser and wait a few seconds: views go up. Press a link: clicks and Analytics' Top links go up. Analytics has 7, 30 and 90 days, a Views or Link clicks toggle, and a table view.
 6. **Make a change in the builder and go back to Home.** It says "Live, with unpublished changes" and offers Publish.
 7. **Page settings.** Change the title and description, then publish and paste your link into a chat to see the preview. Change your address and check the old one is a 404. Take the page down.
 8. **Account.** Change your password, log out, log back in. Log in lands on Home. Delete the account with a throwaway one, typing its email to confirm.
-9. **Phone.** Home shows the phone below your name, then your address and checklist. The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
+9. **More pages.** On a paid plan, open the switcher and add a page with New page. It should open in the builder. Publish it, visit both addresses, and check Home, Analytics and Page settings follow the switcher. Copy and delete a page in Page settings. On Free, New page offers a plan.
+10. **Phone.** Home shows the phone below your name, then your address and checklist. The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
 10. **Two tabs.** Edit in both. The second gets the conflict bar with Use the latest, Keep mine and Download mine.
 11. **Report link.** A live page has a small Report link at the bottom. It opens `/report`.
 

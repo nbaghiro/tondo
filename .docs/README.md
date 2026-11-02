@@ -16,7 +16,7 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [plans.md](plans.md) | The current plans decided on 2026-11-01 at the top: Free with no live page, Starter and Pro. Below that, the earlier proposal with competitor prices, as history |
 | [plans-implementation.md](plans-implementation.md) | What's built for the current plans, off until `PLANS_ON`, with no Stripe account yet: rules, what was removed, what the owner must create in Stripe and testing. The earlier plan follows as history |
 | [multi-page.md](multi-page.md) | The decision on several pages: own address per page (option 2), with the other options, competitors, Home design and working defaults |
-| [multi-page-implementation.md](multi-page-implementation.md) | Plan: P1 and P2 are built (one address per page, routes and editor by page id), and the simplified plans changed the Free draft and downgrade parts. Home's switcher, photos and the rest are next |
+| [multi-page-implementation.md](multi-page-implementation.md) | Plan: P1 to P3 are built (one address per page, routes and editor by page id, the switcher and New page). Photos by page and the sitemap are next |
 | [ai-chat.md](ai-chat.md) | Help me, the AI chat for setting up and editing a page: what's built, architecture, UX, safety, costs, evals and what's left |
 | [ai-blocks.md](ai-blocks.md) | Reference for AI chat: every block, section, header field, look and style choice, what the model may change and how a person asks |
 | [inspector-design.md](inspector-design.md) | The original inspector design. `builder-port.md` is what was built |

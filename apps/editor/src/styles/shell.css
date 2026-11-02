@@ -91,21 +91,6 @@ svg.i {
     height: auto;
     overflow: visible;
 }
-.edit {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 38px;
-    border-radius: 9px;
-    background: var(--ink);
-    color: #fff;
-    font-weight: 700;
-    font-size: 14px;
-}
-.edit:hover {
-    background: #2a0c18;
-}
 .nav {
     flex: 1;
     overflow-y: auto;
@@ -454,6 +439,27 @@ button.tile[aria-pressed="true"] {
 .pv > * {
     grid-area: 1 / 1;
 }
+.pv-phone {
+    position: relative;
+}
+/* Beside the phone, in the gap before Home's other column, and never on the phone itself. */
+.pen {
+    position: absolute;
+    left: calc(100% + 14px);
+    top: 40px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--line2);
+    box-shadow: 0 6px 18px rgba(59, 18, 34, 0.12);
+    color: var(--ink);
+}
+.pen:hover {
+    background: var(--hover);
+}
 .pv-art {
     z-index: -1;
     position: absolute;
@@ -783,15 +789,8 @@ th.n {
     .bar .logo span {
         width: 22px;
     }
-    .bar-address {
-        flex: 1;
-        min-width: 0;
-        text-align: right;
-        font-weight: 600;
-        font-size: 13px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .pen {
+        display: none;
     }
     .wrap {
         padding: 20px 16px 110px;

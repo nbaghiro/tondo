@@ -254,7 +254,11 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                   address: `tondo.page/${props.draft.handle}`,
                   ...(checkoutProblem() ? { problem: checkoutProblem() } : {}),
               }
-            : { state: "warnings", warnings: publishWarnings(editor.page()) };
+            : {
+                  state: "warnings",
+                  warnings: publishWarnings(editor.page()),
+                  address: `tondo.page/${props.draft.handle}`,
+              };
     };
     const openPublishList = async () => {
         if (await editor.saver.flush()) setServerIssues(await loadPublishChecks(props.pageId));
@@ -644,6 +648,8 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                     editor={editor}
                     pageId={props.pageId}
                     handle={props.draft.handle}
+                    pages={props.account.pages}
+                    limits={props.account.limits}
                     onPreview={() => setPreviewing(true)}
                     publishing={publishing()}
                     onPublish={startPublish}

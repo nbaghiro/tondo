@@ -111,6 +111,8 @@ export function AccountPage(props: { account: Account }) {
     const [deleting, setDeleting] = createSignal(false);
     const [deleted, setDeleted] = createSignal<"all" | "signin-left" | null>(null);
     const toast = createToast();
+    const addresses = () =>
+        props.account.pages.map((page) => `tondo.page/${page.handle}`).join(", ");
 
     const savePassword = async (e: Event) => {
         e.preventDefault();
@@ -145,11 +147,11 @@ export function AccountPage(props: { account: Account }) {
             when={!deleted()}
             fallback={
                 <div class="empty">
-                    <h2>Your page is gone</h2>
+                    <h2>Your account is gone</h2>
                     <p>
                         {deleted() === "all"
-                            ? "Your account, page and photos have been deleted."
-                            : "Your page and photos have been deleted. Your sign-in details are still stored, so email support if you'd like those removed too."}
+                            ? "Your account, pages and photos have been deleted."
+                            : "Your pages and photos have been deleted. Your sign-in details are still stored, so email support if you'd like those removed too."}
                     </p>
                     <button class="b logout" onClick={logOut}>
                         Leave
@@ -219,8 +221,8 @@ export function AccountPage(props: { account: Account }) {
                 title="Delete account"
                 lead={
                     plan()?.billing && plan()?.limits.live
-                        ? "This removes your page, your photos and your numbers, and can't be undone. This also cancels your plan straight away, with no further charges."
-                        : "This removes your page, your photos and your numbers. It can't be undone."
+                        ? `This removes ${addresses()}, your photos and your numbers, and can't be undone. This also cancels your plan straight away, with no further charges.`
+                        : `This removes ${addresses()}, your photos and your numbers. It can't be undone.`
                 }
             >
                 <form

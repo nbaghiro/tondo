@@ -79,7 +79,7 @@ test("a second tab can't overwrite newer work", async ({ page, context }) => {
     await signUpToEditor(page);
     const second = await context.newPage();
     await second.goto(page.url());
-    await expect(second.locator(".address")).toBeVisible();
+    await expect(second.locator(".topbar")).toBeVisible();
     await addButton(page);
     await saved(page);
     await addButton(second);

@@ -316,7 +316,7 @@ test("deleting an account cancels its plan", async ({ page }) => {
     );
     await page.locator("input[name=confirm]").fill(`${handle}@example.com`);
     await page.locator(".delete-account").click();
-    await expect(page.locator(".empty h2")).toHaveText("Your page is gone");
+    await expect(page.locator(".empty h2")).toHaveText("Your account is gone");
     const left = (await (await control("look", customer)).json()) as { active: number };
     expect(left.active).toBe(0);
 });

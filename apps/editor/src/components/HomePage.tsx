@@ -134,7 +134,7 @@ function Numbers(props: { stats: StatsResponse | null; pageId: string }) {
     );
 }
 
-export function HomePage(props: { page: PageSummary }) {
+export function HomePage(props: { page: PageSummary; name: string }) {
     const [data, { refetch }] = createResource(() => props.page.id, loadHome);
     const [assistant] = createResource(loadAssistant);
     const [billing] = createResource(() =>
@@ -255,11 +255,7 @@ export function HomePage(props: { page: PageSummary }) {
                             <div class="home">
                                 <div class="home-side">
                                     <PageHeader
-                                        title={
-                                            draft().page.header.name.trim()
-                                                ? `Hello, ${draft().page.header.name}`
-                                                : "Hello"
-                                        }
+                                        title={props.name.trim() ? `Hello, ${props.name}` : "Hello"}
                                         lead={status().line}
                                     >
                                         <Show
@@ -428,13 +424,23 @@ export function HomePage(props: { page: PageSummary }) {
                                             node.innerHTML = PHONE_ART;
                                         }}
                                     />
-                                    <Phone>
-                                        <iframe
-                                            title="Your page"
-                                            sandbox="allow-popups"
-                                            srcdoc={preview(draft())}
-                                        />
-                                    </Phone>
+                                    <div class="pv-phone">
+                                        <Phone>
+                                            <iframe
+                                                title="Your page"
+                                                sandbox="allow-popups"
+                                                srcdoc={preview(draft())}
+                                            />
+                                        </Phone>
+                                        <a
+                                            class="pen"
+                                            href={appPath(onPage("/edit", props.page.id))}
+                                            aria-label="Edit page"
+                                            title="Edit page"
+                                        >
+                                            <NavIcon name="edit" />
+                                        </a>
+                                    </div>
                                 </aside>
                             </div>
                         </>

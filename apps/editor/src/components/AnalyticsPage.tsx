@@ -1,4 +1,5 @@
 import { createResource, createSignal, For, Show } from "solid-js";
+import { appPath, onPage } from "../lib/account";
 import { loadStats } from "../lib/api";
 import { BarRows, LineChart, shortDate } from "./Chart";
 import { Card, EmptyLine, PageHeader } from "./Parts";
@@ -21,6 +22,9 @@ export function AnalyticsPage(props: { pageId: string }) {
                 title="Analytics"
                 lead="How many people visit your page and what they open."
             >
+                <a class="b" data-edit-page href={appPath(onPage("/edit", props.pageId))}>
+                    Edit page
+                </a>
                 <div class="seg" role="group" aria-label="Date range">
                     <For each={RANGES}>
                         {(days) => (

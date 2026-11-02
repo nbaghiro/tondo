@@ -6,7 +6,7 @@ import { PlanChoice } from "./PlanChoice";
 
 export type PublishView =
     | { state: "issues"; issues: PublishIssue[] }
-    | { state: "warnings"; warnings: PublishIssue[] }
+    | { state: "warnings"; warnings: PublishIssue[]; address: string }
     | { state: "plan"; offer: "any" | "pro"; address: string; problem?: string }
     | {
           state: "live";
@@ -64,11 +64,11 @@ export function PublishPanel(props: {
                     <>
                         <Show
                             when={view().warnings.length}
-                            fallback={<p>Everything's ready to go live.</p>}
+                            fallback={<p>Everything's ready to go live at {view().address}.</p>}
                         >
                             <p>
-                                Your page can go live now. These won't stop it, and you can come
-                                back to them.
+                                Your page can go live at {view().address} now. These won't stop it,
+                                and you can come back to them.
                             </p>
                         </Show>
                         <IssueList issues={view().warnings} onOpen={props.onOpen} />

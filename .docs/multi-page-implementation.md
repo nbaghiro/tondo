@@ -2,7 +2,7 @@
 
 This plan builds option 2 in [multi-page.md](multi-page.md): every page has its own address.
 
-**Status:** P1 and P2 are built: the migration, the stores, routes by page id and the editor by page id. A person can only reach one page in the interface, although the API can add more. P3, P4 and P5 aren't started and are on hold, because the owner has since changed the plans (Free has no live page, a $4 plan has 1 live page, a flat $10 plan has several pages and team features, and pages go offline with their content kept when someone stops paying). Sections below that describe the Free draft, read-only pages and Free's prompts were written before that change, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
+**Status:** P1, P2 and P3 are built: the migration, the stores, routes and editor by page id, the switcher, the pencil and New page. P4 and P5 are next. Sections below that describe the Free draft, read-only pages and Free's prompts were written before the plans changed, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
 
 **Changed by the simplified plans of 2026-11-01** (see [plans-implementation.md](plans-implementation.md)). These parts of this plan no longer apply: the Free draft and `Limits.drafts`, `isReadOnly` and read-only pages, "Publish with free choices" and "Not now" around a page count, and the downgrade decisions. `Limits` now has `pages` (can build) and `live` (can be online). Free builds 1 page and has none live. A person's live pages count oldest first, and those past the plan's `live` number go offline, stay editable and come back when the number allows, which is derived with no column. Publishing past the number offers a plan instead of a plain issue. Starter builds up to 5 pages with 1 live. Coming back from checkout now carries `page`, so it opens the page being published. P3 to P5 are still to do, and the page switcher will need to show which pages are offline, using `offline` on the draft response or the same ranking.
 
@@ -360,6 +360,15 @@ Where the code or a later decision differed from the plan above, this is what wa
 - **Coming back from checkout has no page id,** so it opens the page edited last. I left `billing.ts` alone, as Stripe work is out of scope here. It needs the id once people can reach several pages.
 - **Photos are still in one folder per person,** which is P4. Removing a photo already checks every page's draft and live copy.
 - **Swapping two addresses wasn't built.** Nothing in the interface would use it yet.
+
+In P3:
+
+- **The phone's builder bar shows no address.** There was room for about one letter of it, so the switcher sits beside Home and its menu lists addresses.
+- **New page from the builder saves, then opens the dialog on Home,** so the dialog's form styles load in only one bundle.
+- **The look choice is a plain list.** The builder's look tiles belong to the builder's bundle, and a look can be changed straight after.
+- **A person's list is read again each time the menu opens,** so a page published in another tab shows its status.
+- **Left out:** the line on Home naming other pages that need attention, and the switcher in `labs.tsx`, since the plan lab has been removed. Neither is in a milestone's main files.
+- **Offline pages** show as Offline in the menu, ranked in the browser with the same `isOnline` the server uses.
 
 ## Decisions that would change this plan
 

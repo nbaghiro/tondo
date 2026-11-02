@@ -1,5 +1,5 @@
-// Redraws the picture on each tile in the look picker: the look's header with only a name in it,
-// from the real renderer. Run this with the dev servers up after changing a look: pnpm looks:images
+// Redraws the picture on each tile in the look picker: the look's art with no words on it, from the
+// real renderer. The tile draws its own sample over this, and a name would sit underneath that. Run this with the dev servers up after changing a look: pnpm looks:images
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
 import { starterPage } from "@tondo/page";
@@ -22,7 +22,7 @@ for (const name of Object.keys(looks) as LookName[]) {
         { title: name, assetBase: `${site}/photos/`, editable: false, live: true },
     );
     await tab.setContent(html, { waitUntil: "load" });
-    await tab.addStyleTag({ content: "p, a, ul { visibility: hidden !important; }" });
+    await tab.addStyleTag({ content: "h1, p, a, ul { visibility: hidden !important; }" });
     const png = await tab.screenshot({ type: "png" });
     await sharp(png)
         .jpeg({ quality: 80 })

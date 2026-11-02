@@ -39,7 +39,7 @@ test("a new page lands in the builder, then Home shows what's left to do", async
     await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
 
     await page.goto("/app");
-    await expect(page.locator(".ph h1")).toContainText("Maya Okafor");
+    await expect(page.locator(".ph h1")).toContainText("Hello");
     await expect(page.locator(".tag")).toContainText("Not live yet");
     await expect(page.locator(".addr")).toContainText(handle);
     await expect(page.locator(".check li")).toHaveCount(5);
@@ -159,7 +159,7 @@ test("changing a password and deleting an account work", async ({ page, request 
     await expect(page.locator(".delete-account")).toBeDisabled();
     await page.locator("input[name=confirm]").fill(`${handle}@example.com`);
     await page.locator(".delete-account").click();
-    await expect(page.locator(".empty h2")).toHaveText("Your page is gone");
+    await expect(page.locator(".empty h2")).toHaveText("Your account is gone");
     expect((await request.get(`/${handle}`)).status()).toBe(404);
 });
 
@@ -240,7 +240,9 @@ test("the large phone leads Home, with no edit button on it, and Edit stays in r
         expect(Math.abs(phone.y + phone.height / 2 - middle)).toBeLessThan(2);
         expect(Math.abs(side.y + side.height / 2 - middle)).toBeLessThan(2);
         expect(side.x - (phone.x + phone.width)).toBeLessThanOrEqual(72);
-        await expect(page.locator(".side .edit")).toBeVisible();
+        await expect(page.locator(".side [data-page-switcher]")).toBeVisible();
+        const pencil = await page.locator(".pen").boundingBox();
+        expect(pencil?.x ?? 0).toBeGreaterThanOrEqual(phone.x + phone.width);
     }
 });
 

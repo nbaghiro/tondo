@@ -452,7 +452,7 @@ test("every panel keeps one rhythm between fields and room at the end", async ({
     }
 });
 
-test("the Look row matches the section rows and shows the look's colours", async ({
+test("the Look row is a card with the look's art, its name and a way in", async ({
     page,
     isMobile,
 }) => {
@@ -463,13 +463,14 @@ test("the Look row matches the section rows and shows the look's colours", async
     await page.keyboard.press("Escape");
     await open();
     const row = page.locator(".style-entry");
-    await expect(row.locator(".tico")).toHaveCSS("width", "36px");
-    await expect(row.locator("small")).toHaveText("Look");
+    await expect(row.locator("b")).toHaveText("Look");
+    const tile = await row.locator(".look-tile").boundingBox();
+    expect(tile?.width ?? 0).toBeGreaterThan(tile?.height ?? 0);
     const other = await page.locator("#rows .row").first().boundingBox();
     const box = await row.boundingBox();
-    expect(Math.abs((box?.height ?? 0) - (other?.height ?? 0))).toBeLessThan(2);
+    expect(Math.abs((box?.width ?? 0) - (other?.width ?? 0))).toBeLessThan(2);
     const swatch = () =>
-        row.locator(".look-mini i").evaluate((node) => getComputedStyle(node).backgroundImage);
+        row.locator(".look-tile").evaluate((node) => getComputedStyle(node).backgroundImage);
     const before = await swatch();
     await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
     await page.evaluate(
@@ -491,7 +492,7 @@ test("the Look row matches the section rows and shows the look's colours", async
     );
     await page.reload();
     await open();
-    await expect(row.locator("b")).toHaveText("Noir");
+    await expect(row.locator("small")).toHaveText("Noir");
     expect(await swatch()).not.toBe(before);
 });
 

@@ -8,6 +8,10 @@ import type {
     HandleResponse,
     IssuesResponse,
     LiveResponse,
+    NewPageRequest,
+    NewPageResponse,
+    PagesResponse,
+    PageSummary,
     PhotosResponse,
     PublishCheckResponse,
     SaveResponse,
@@ -126,6 +130,26 @@ export async function unpublish(pageId: string): Promise<string | null> {
 
 export async function changeAddress(pageId: string, handle: string): Promise<string | null> {
     const res = await send("PATCH", routes.pageHandle(pageId), { handle }).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    return res.ok ? null : problemIn(res);
+}
+
+export async function loadPages(): Promise<PageSummary[] | null> {
+    const res = await fetch(routes.pages).catch(() => null);
+    return res?.ok ? ((await res.json()) as PagesResponse).pages : null;
+}
+
+/** Adds a page, and returns its id or what went wrong. */
+export async function createPage(
+    request: NewPageRequest,
+): Promise<{ id: string } | { error: string }> {
+    const res = await send("POST", routes.pages, request).catch(() => null);
+    if (!res) return { error: "That didn't work. Check your connection and try again." };
+    return res.ok ? ((await res.json()) as NewPageResponse) : { error: await problemIn(res) };
+}
+
+export async function deletePage(pageId: string): Promise<string | null> {
+    const res = await send("DELETE", routes.page(pageId), {}).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? null : problemIn(res);
 }

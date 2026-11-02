@@ -1,4 +1,8 @@
-import { Show } from "solid-js";
+import type { PageSummary } from "@tondo/contract";
+import type { Limits } from "@tondo/page";
+import { createSignal, Show, untrack } from "solid-js";
+import { loadPages } from "../lib/api";
+import { PageSwitcher } from "./PageSwitcher";
 import { appPath, onPage, pageUrl } from "../lib/account";
 import type { EditorState } from "../state/document";
 import { clearBackup, downloadPage } from "../state/storage";
@@ -11,6 +15,8 @@ interface TopBarProps {
     editor: EditorState;
     pageId: string;
     handle: string;
+    pages: readonly PageSummary[];
+    limits: Pick<Limits, "pages" | "live">;
     onPreview: () => void;
     onPublish: () => void;
     /** Left out when Help me isn't set up here. */
@@ -32,6 +38,25 @@ const STATUS = {
 
 export function TopBar(props: TopBarProps) {
     const saver = () => props.editor.saver;
+    const [pages, setPages] = createSignal(untrack(() => props.pages));
+    const current = () =>
+        pages().find((page) => page.id === props.pageId) ?? {
+            id: props.pageId,
+            handle: props.handle,
+            name: props.handle,
+            look: props.editor.page().look,
+            seed: null,
+            live: false,
+            changed: true,
+            updatedAt: "",
+        };
+    // Everything typed here goes to the server first, so nothing waits behind in this browser.
+    const leaveTo = (path: string) => {
+        const go = () => {
+            location.assign(appPath(path));
+        };
+        saver().flush().then(go, go);
+    };
     const status = () => {
         const state = saver().state();
         return state === "refused" ? saver().message() : STATUS[state];
@@ -46,11 +71,7 @@ export function TopBar(props: TopBarProps) {
                     onClick={(e) => {
                         if (e.metaKey || e.ctrlKey || e.shiftKey) return;
                         e.preventDefault();
-                        // Home shows what the server has, so this tab's edits go there first.
-                        const go = () => {
-                            location.assign(appPath(onPage("/", props.pageId)));
-                        };
-                        saver().flush().then(go, go);
+                        leaveTo(onPage("/", props.pageId));
                     }}
                 >
                     <i
@@ -69,6 +90,25 @@ export function TopBar(props: TopBarProps) {
                 >
                     tondo.page/<b>{props.handle}</b>
                 </a>
+                <PageSwitcher
+                    compact
+                    pages={pages()}
+                    current={current()}
+                    limits={props.limits}
+                    onOpen={() => {
+                        loadPages()
+                            .then((list) => {
+                                if (list) setPages(list);
+                            })
+                            .catch(() => undefined);
+                    }}
+                    onPick={(next) => {
+                        if (next.id !== props.pageId) leaveTo(onPage("/edit", next.id));
+                    }}
+                    onNew={() => {
+                        leaveTo(onPage("/?new=1", props.pageId));
+                    }}
+                />
                 <Show when={props.onOpenPanel}>
                     <button
                         type="button"

@@ -1,14 +1,17 @@
 import { paint } from "@tondo/render";
-import { createEffect, createSignal, For, Show, untrack } from "solid-js";
+import { createEffect, createMemo, createSignal, For, onMount, Show, untrack } from "solid-js";
 import { groupsInOrder, NAV } from "../app/nav";
 import type { NavItem } from "../app/nav";
-import { follow, path } from "../app/router";
+import { askedPage, follow, navigate, path } from "../app/router";
 import { appPath, chosenPage, onPage, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
 import type { PageSummary } from "@tondo/contract";
 import { AccountPage } from "./AccountPage";
 import { AnalyticsPage } from "./AnalyticsPage";
+import { loadPages } from "../lib/api";
 import { HomePage } from "./HomePage";
+import { NewPageModal } from "./NewPageModal";
+import { PageSwitcher } from "./PageSwitcher";
 import { planName } from "../lib/plan-copy";
 import { plan } from "../state/plan";
 import { NavIcon } from "./Parts";
@@ -103,12 +106,43 @@ export function Shell(props: { account: Account }) {
     const bottom = NAV.filter((item) => item.group === "bottom");
     const inMore = NAV.filter((item) => item.id !== "home" && item.id !== "analytics");
     const chosen = (): PageSummary => {
-        const found = chosenPage(account().pages);
+        const found = chosenPage(account().pages, askedPage());
         if (!found) throw new Error("The page couldn't be loaded.");
         return found;
     };
-    const pageId = () => chosen().id;
+    // Only the id, so a fresh list of pages doesn't start the current screen again.
+    const pageId = createMemo(() => chosen().id);
+    // Null is closed. A page means the dialog starts as a copy of it.
+    const [adding, setAdding] = createSignal<{ from: PageSummary | null } | null>(null);
+    onMount(() => {
+        const asked = new URLSearchParams(location.search);
+        if (!asked.get("new")) return;
+        asked.delete("new");
+        history.replaceState(null, "", `${location.pathname}?${asked.toString()}`);
+        setAdding({ from: null });
+    });
+    const refreshPages = async () => {
+        const pages = await loadPages();
+        if (pages) setAccount({ ...account(), pages });
+    };
+    const pickPage = (next: PageSummary) => {
+        navigate(onPage(path(), next.id));
+    };
+    const switcher = () => (
+        <PageSwitcher
+            pages={account().pages}
+            current={chosen()}
+            limits={account().limits}
+            onOpen={() => {
+                refreshPages().catch(() => undefined);
+            }}
+            onPick={pickPage}
+            onNew={() => setAdding({ from: null })}
+        />
+    );
+    // Reads the chosen page, so choosing another starts each screen again with its own data.
     const page = () => {
+        pageId();
         switch (path()) {
             case "/analytics":
                 return <AnalyticsPage pageId={pageId()} />;
@@ -124,12 +158,19 @@ export function Shell(props: { account: Account }) {
                                 ),
                             });
                         }}
+                        canDelete={account().pages.length > 1}
+                        onCopy={() => setAdding({ from: chosen() })}
+                        onDeleted={() => {
+                            const left = account().pages.filter((other) => other.id !== pageId());
+                            setAccount({ ...account(), pages: left });
+                            navigate("/settings");
+                        }}
                     />
                 );
             case "/account":
                 return <AccountPage account={account()} />;
             case "/":
-                return <HomePage page={chosen()} />;
+                return <HomePage page={chosen()} name={account().name} />;
             default:
                 return <NotFoundPage />;
         }
@@ -139,10 +180,7 @@ export function Shell(props: { account: Account }) {
             <aside class="side">
                 <div class="side-top">
                     <Logo />
-                    <a class="edit" href={appPath(onPage("/edit", pageId()))}>
-                        <NavIcon name="edit" />
-                        Edit page
-                    </a>
+                    {switcher()}
                 </div>
                 <nav class="nav" aria-label="Main">
                     <For each={groups}>
@@ -166,7 +204,7 @@ export function Shell(props: { account: Account }) {
             <div class="main">
                 <header class="bar">
                     <Logo />
-                    <span class="bar-address">tondo.page/{chosen().handle}</span>
+                    {switcher()}
                 </header>
                 <main class="wrap">{page()}</main>
             </div>
@@ -206,6 +244,15 @@ export function Shell(props: { account: Account }) {
                     More
                 </button>
             </nav>
+            <Show when={adding()}>
+                {(open) => (
+                    <NewPageModal
+                        account={account()}
+                        from={open().from}
+                        onClose={() => setAdding(null)}
+                    />
+                )}
+            </Show>
             <Show when={more()}>
                 <div
                     class="scrim"
