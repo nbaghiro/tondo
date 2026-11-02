@@ -578,3 +578,32 @@ describe("several pages", () => {
         expect(await read("june")).toBe(0);
     });
 });
+
+describe("the sitemap", () => {
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    it("lists only what visitors can see", async () => {
+        vi.stubEnv("PLANS_ON", "true");
+        const { app, pages, call } = setup();
+        pages.setPlan("june", { plan: "pro", endsAt: null });
+        pages.addUser("rae2", "rae-two", samplePage);
+        await pages.store.publish("rae2", "rae2", "1");
+        pages.addUser("noor", "noor", samplePage);
+        await pages.store.publish("noor", "noor", "1");
+        pages.setPlan("noor", { plan: "pro", endsAt: null });
+        pages.addUser("sam", "sam", samplePage);
+        await pages.store.publish("sam", "sam", "1");
+        pages.setPlan("sam", { plan: "pro", endsAt: null });
+        pages.suspend("sam");
+        await call("june", "PUT", "/api/v1/me/pages/june", { page: withButton, updatedAt: "1" });
+        const res = await app.request("/sitemap.xml");
+        expect(res.headers.get("content-type")).toContain("xml");
+        const xml = await res.text();
+        expect(xml).toContain("/noor</loc>");
+        expect(xml).not.toContain("/june</loc>");
+        expect(xml).not.toContain("/rae-two</loc>");
+        expect(xml).not.toContain("/sam</loc>");
+    });
+});

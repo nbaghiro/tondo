@@ -111,6 +111,18 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
                 rank,
             });
         },
+        listPublished: () => {
+            const seen = new Map<string, number>();
+            return Promise.resolve(
+                [...rows.values()]
+                    .filter((row) => row.published && !row.suspended)
+                    .map((row) => {
+                        const rank = seen.get(row.userId) ?? 0;
+                        seen.set(row.userId, rank + 1);
+                        return { handle: row.handle, ...(row.plan ?? FREE), rank };
+                    }),
+            );
+        },
         listPages: (userId) =>
             Promise.resolve(
                 ofUser(userId).map(([id, row]) => ({

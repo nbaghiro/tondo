@@ -89,3 +89,4 @@ The site changes are in `apps/marketing`.
 | Done | Look picker tiles had the avatar dot on "Your name", with names cut off behind the sample | The tile pictures now show only the look's art, redrawn with `pnpm looks:images` |
 | Done | Bring back the earlier Look row in the builder's left panel | A bordered card with a wide tile of the look's art, Look with its name, and a chevron. The closed panel's rail keeps its small chip |
 | Done | Keep each page's photos in its own folder | Image addresses no longer connect a person's pages, unless one photo is used on both. Your photos lists all of them, and the limit counts them together |
+| Done | List live pages for search engines | `/sitemap.xml` and `robots.txt` |

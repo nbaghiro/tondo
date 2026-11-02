@@ -17,7 +17,7 @@ Beautiful design and ease of use come first. A new person should be able to clai
 
 ## How a page is made
 
-1. After signing up, someone walks the start flow: name, sections, logo, look and address. Claiming the address creates their user row and that page.
+1. After signing up, someone walks the start flow: name, sections, logo, look and address. Claiming the address creates their user row and that page. They can add more pages later, each with its own address, from the switcher.
 2. They add and fill sections. A section is one or more blocks. Pasting a URL fills in the title and icon where the platform is recognised.
 3. They can change the look, which sets colours, type, shapes and the art recipe together, and adjust any of those in Make it yours.
 4. Publishing copies the draft to the live page, renders its art and share image, and refreshes the cached page.

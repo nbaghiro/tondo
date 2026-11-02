@@ -1,6 +1,6 @@
 import { pageHash, readPage } from "@tondo/page";
 import type { Page, Plan } from "@tondo/page";
-import { and, asc, eq, exists, gte, isNull, ne, sql } from "drizzle-orm";
+import { and, asc, eq, exists, gte, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { pages, stats, users } from "./schema";
 
@@ -44,9 +44,19 @@ export interface PageSummary {
     updatedAt: string;
 }
 
+export interface PublishedPage {
+    handle: string;
+    plan: Plan;
+    endsAt: Date | null;
+    /** How many older live pages the same person has. */
+    rank: number;
+}
+
 /** Everything the page routes need from storage, so they can be tested without a database. */
 export interface PageStore {
     findLive: (handle: string) => Promise<LivePage | null>;
+    /** Every published page of anyone not suspended, with what it takes to tell if it's online. */
+    listPublished: () => Promise<PublishedPage[]>;
     /** Oldest first, so the order never moves. */
     listPages: (userId: string) => Promise<PageSummary[]>;
     findDraft: (userId: string, pageId: string) => Promise<Draft | null>;
@@ -159,6 +169,17 @@ export function createPageStore(db: Db): PageStore {
                   }
                 : null;
         },
+        listPublished: () =>
+            db
+                .select({
+                    handle: pages.handle,
+                    plan: users.plan,
+                    endsAt: users.endsAt,
+                    rank: sql<number>`(row_number() over (partition by ${pages.userId} order by ${pages.createdAt}, ${pages.id}) - 1)::int`,
+                })
+                .from(pages)
+                .innerJoin(users, eq(pages.userId, users.id))
+                .where(and(isNotNull(pages.published), isNull(users.suspendedAt))),
         listPages: (userId) => listPagesOf(db, userId),
         findDraft: async (userId, pageId) => {
             const [row] = await db

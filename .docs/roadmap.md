@@ -8,6 +8,7 @@ This is where things stand on 2026-10-31. The builder is in the real app, and th
 - **Accounts** through Neon Auth: email and password with verification and reset codes, and Google.
 - **Editor** in `apps/editor`: all available blocks, 50 looks, the inspector, tabs, preview, phone layout, photo uploads and server saving.
 - **Publishing:** checks before going live, public pages and click counts.
+- **Several pages:** up to 5, each with its own address, look, publishing and numbers, with a switcher on Home and in the builder. See [multi-page-implementation.md](multi-page-implementation.md).
 
 [builder-port.md](builder-port.md) records how this was built.
 

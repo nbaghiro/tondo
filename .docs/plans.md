@@ -224,6 +224,8 @@ The marketing site has to change with this. `pricing.astro` says "All 50 looks" 
 
 ## Pages per person
 
+**This section is history.** Each page now has its own address, as built from [multi-page-implementation.md](multi-page-implementation.md), and the numbers are in the table at the top of this file.
+
 This is meant to be one of Pro's main selling points, and **it isn't built.** Today there's one page per person, and `findLive` only reads the main page. I'd follow the recommendation in `.scratchpad/multipage/notes.md`: sub-pages under one address, such as `tondo.page/maya/weddings`, before any second address.
 
 | Plan | Pages | Addresses | Notes |

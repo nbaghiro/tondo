@@ -15,6 +15,7 @@ import { mountBilling } from "./billing";
 import { NO_PAGE } from "./no-page";
 import { mountPages } from "./pages";
 import { clearPageFolder, listPhotos, mountPhotos } from "./photos";
+import { sitemapXml } from "./sitemap";
 import type { Storage } from "./storage";
 import type { Payments } from "./stripe";
 import { clientIp, countsAsVisit, createCache, limit } from "./traffic";
@@ -51,6 +52,7 @@ const PAGE_HEADERS = {
 };
 
 const PAGE_CACHE_MS = 15_000;
+const SITEMAP_CACHE_MS = 3_600_000;
 
 export function createApp({
     pages,
@@ -187,6 +189,15 @@ export function createApp({
         if (countsAsVisit(c)) add(found.id, target);
         c.header("Cache-Control", "no-store");
         return c.redirect(url, 302);
+    });
+
+    const sitemap = createCache<string>(SITEMAP_CACHE_MS);
+    app.get("/sitemap.xml", limit(scale(60), byIp), async (c) => {
+        const origin = publicOrigin ?? new URL(c.req.url).origin;
+        const xml = await sitemap.get("all", async () =>
+            sitemapXml(origin, await pages.listPublished()),
+        );
+        return c.body(xml, 200, { "Content-Type": "application/xml; charset=utf-8" });
     });
 
     mountSite?.(app);

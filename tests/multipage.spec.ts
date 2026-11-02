@@ -329,3 +329,38 @@ test("two pages' image addresses have different folders", async ({ page }) => {
     const list = await page.request.get("/api/v1/me/photos");
     expect(((await list.json()) as { files: string[] }).files.sort()).toEqual([one, two].sort());
 });
+
+test("a second page sends no script, and the sitemap lists live pages only", async ({
+    page,
+    request,
+}) => {
+    test.skip(!isDesktop(page), "The API doesn't depend on the screen");
+    const first = await signUpToEditor(page);
+    const second = unique("nojs");
+    const { id } = (await (await addPage(page, second)).json()) as { id: string };
+    await publishWithLink(page, id);
+    const html = await (await request.get(`/${second}`)).text();
+    expect(html).not.toContain("<script");
+    const sitemap = await request.get("/sitemap.xml");
+    expect(sitemap.status()).toBe(200);
+    const xml = await sitemap.text();
+    expect(xml).toContain(`/${second}</loc>`);
+    expect(xml).not.toContain(`/${first}</loc>`);
+    expect(await (await request.get("/robots.txt")).text()).toContain("Sitemap:");
+});
+
+test("changing a page's address leaves the other working", async ({ page, request }) => {
+    test.skip(!isDesktop(page), "The API doesn't depend on the screen");
+    await signUpToEditor(page);
+    const a = unique("keep");
+    const b = unique("old");
+    const one = (await (await addPage(page, a)).json()) as { id: string };
+    const two = (await (await addPage(page, b)).json()) as { id: string };
+    await publishWithLink(page, one.id);
+    await publishWithLink(page, two.id);
+    const next = unique("new");
+    await page.request.patch(`${PAGES}/${two.id}/handle`, { data: { handle: next } });
+    expect((await request.get(`/${a}`)).status()).toBe(200);
+    expect((await request.get(`/${b}`)).status()).toBe(404);
+    expect((await request.get(`/${next}`)).status()).toBe(200);
+});

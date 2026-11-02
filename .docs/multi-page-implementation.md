@@ -2,7 +2,7 @@
 
 This plan builds option 2 in [multi-page.md](multi-page.md): every page has its own address.
 
-**Status:** P1 to P4 are built: the migration, the stores, routes and editor by page id, the switcher, the pencil, New page and photos by page. P5 is next. Sections below that describe the Free draft, read-only pages and Free's prompts were written before the plans changed, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
+**Status:** P1 to P5 are built: the migration, the stores, routes and editor by page id, the switcher, the pencil, New page, photos by page, the sitemap, tests and docs. Copy this page came with P3. Swapping two addresses was cut. Sections below that describe the Free draft, read-only pages and Free's prompts were written before the plans changed, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
 
 **Changed by the simplified plans of 2026-11-01** (see [plans-implementation.md](plans-implementation.md)). These parts of this plan no longer apply: the Free draft and `Limits.drafts`, `isReadOnly` and read-only pages, "Publish with free choices" and "Not now" around a page count, and the downgrade decisions. `Limits` now has `pages` (can build) and `live` (can be online). Free builds 1 page and has none live. A person's live pages count oldest first, and those past the plan's `live` number go offline, stay editable and come back when the number allows, which is derived with no column. Publishing past the number offers a plan instead of a plain issue. Starter builds up to 5 pages with 1 live. Coming back from checkout now carries `page`, so it opens the page being published. P3 to P5 are still to do, and the page switcher will need to show which pages are offline, using `offline` on the draft response or the same ranking.
 
@@ -376,6 +376,13 @@ In P4:
 - **Only a person's own folders are ever listed, removed or counted.** Listing paths found in documents would let someone write another person's photo path into a page and have it deleted with their account.
 - **Removing a photo sends its full path,** since the same photo can sit in two folders.
 - **`documentsOf` and `movePhotos` are new in the page store.** Moving moves `updated_at`, so a tab still holding old paths gets the usual conflict.
+
+In P5:
+
+- **`listPublished` is new in the page store,** so the sitemap uses the same rank and `isOnline` as the public route. An ended plan or a page past the live number stays out.
+- **`robots.txt` names `tondo.page`,** because it's a static file in the marketing site. It also keeps `/app` and `/api` out of search.
+- **Marketing pages aren't in the sitemap.** It lists live pages only, as planned.
+- **Pricing and Terms weren't changed here,** since the plans work already rewrote pricing and Terms are out of scope. The Terms' line about changing an address still says "your account", and it needs the owner before charging.
 
 ## Decisions that would change this plan
 

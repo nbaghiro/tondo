@@ -47,7 +47,6 @@ This is everything Tondo should eventually support, taken from the products in [
 | Price labels on links | Sh | `link-card` field | 1 |
 | Folders that collapse | Li | `section` with collapse | 1 |
 | Tabs | Li | `tabs` | 1 |
-| Sub-pages | Be | Pages under one profile, see "Decisions to protect" | 4 |
 | Multi-page websites | Be | Same as sub-pages, with navigation | 9 |
 | Search on the page | Li | Page option. Needs a small script | 4 |
 | Sections and columns | | Containers | 1 |
@@ -182,7 +181,7 @@ This is everything Tondo should eventually support, taken from the products in [
 
 | Feature | Who has it | How Tondo supports it | Phase |
 |---|---|---|---|
-| Many profiles under one account | Li Sh LT | Workspace with many profiles | 5 |
+| Many profiles under one account | Li Sh LT | Done for people: up to 5 pages, each with its own address. See [multi-page.md](multi-page.md) | Built |
 | Login links for managed profiles | Li | Signed invitation | 5 |
 | Duplicate a profile | Li | Copies page JSON | 5 |
 | Shared themes across profiles | Li (coming soon) | Team look | 5 |
@@ -266,7 +265,7 @@ This is everything Tondo should eventually support, taken from the products in [
 
 These are choices we have to get right early, because each list above depends on them.
 
-1. **User and page.** A user has one address and one or more pages, and a page holds tabs. Blocks belong to a page. Sub-pages, websites and media kits all fit this. Teams and several addresses per person will move the address into its own table, as [data-model.md](data-model.md) describes.
+1. **A page has an address.** A person has one login and one or more pages, each with its own unique address in `pages.handle`, and a page holds tabs. Blocks belong to a page. Addresses stay at the top level, so `/maya/shop` stays free for linking to a tab. Sub-pages could be added later with two nullable columns, as [multi-page.md](multi-page.md) describes.
 2. **One way to track links.** Link clicks, short links, QR codes, redirects and "skip to one link" are all the same thing: an address that counts and forwards. Links on a page are worked out from its live copy, standalone ones get one `links` table in phase 4, and all counts go in `stats`. See [data-model.md](data-model.md).
 3. **One contacts table.** Sign-ups, forms and purchases all add to it, so email, automations and exports have one source.
 4. **Generic feed sources.** Instagram, YouTube, RSS, Shopify and Bandsintown all follow one interface: connect, fetch, save items. Blocks read saved items and don't know the provider.
