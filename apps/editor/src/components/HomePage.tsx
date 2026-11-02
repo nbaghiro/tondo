@@ -356,6 +356,16 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                                     {address()}
                                                 </a>
                                                 <span class="status-acts">
+                                                    <a
+                                                        class="ib pen"
+                                                        href={appPath(
+                                                            onPage("/edit", props.page.id),
+                                                        )}
+                                                        aria-label="Edit page"
+                                                        title="Edit page"
+                                                    >
+                                                        <NavIcon name="edit" />
+                                                    </a>
                                                     <button
                                                         class="ib"
                                                         aria-label="Copy link"
@@ -371,16 +381,6 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                                         rel="noreferrer"
                                                     >
                                                         <NavIcon name="open" />
-                                                    </a>
-                                                    <a
-                                                        class="ib pen"
-                                                        href={appPath(
-                                                            onPage("/edit", props.page.id),
-                                                        )}
-                                                        aria-label="Edit page"
-                                                        title="Edit page"
-                                                    >
-                                                        <NavIcon name="edit" />
                                                     </a>
                                                     <button class="b sm" onClick={share}>
                                                         Share
