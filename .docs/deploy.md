@@ -1,6 +1,6 @@
 # Deploying Tondo
 
-Tondo runs as one web service on Render, with Postgres and sign-in on Neon. This follows Galleo's setup in `galleo/.docs/hosting.md`. Nothing has been deployed yet, and real Neon sign-in hasn't been tried. It's only been tested against a stand-in for Neon's API.
+Tondo runs as one web service on Render, with Postgres and sign-in on Neon. This follows Galleo's setup in `galleo/.docs/hosting.md`. It's deployed at https://tondo-seg1.onrender.com, with `tondo.page` still to be pointed at it.
 
 ## How it fits together
 
@@ -59,11 +59,19 @@ The build runs migrations last, so a failed one leaves the old deploy running.
 
 ## Current setup
 
-The `tondo` Neon project is in AWS `us-east-2`, with Auth on for both the `production` and `dev` branches, so Render should use its Ohio region. Local `.env` points at `dev`. Production still has Neon's shared Google keys and email sender, and no trusted domains.
+The `tondo` Neon project is in AWS `us-east-2`, with Auth on for both the `production` and `dev` branches, so Render should use its Ohio region. Local `.env` points at `dev`. Production still has Neon's shared Google keys and email sender. Its trusted domains are the Render address and `https://tondo.page`, and Allow Localhost is off.
+
+The `tondo` web service (`srv-dbk6lfoae00c73806dr0`) is on the Starter plan in Ohio, in Render's `tondo` project. It was created with the CLI rather than as a Blueprint, so changes to `render.yaml` don't apply by themselves. Its `DATABASE_URL` is the `production` branch's direct connection.
+
+On real Neon, sign-up, publishing and a live page have been tested, with these limits:
+
+- Neon's email verification is off, so nobody is asked for a code and `/verify` leads straight on.
+- Deleting an account removes the person's pages, photos and app data, but Neon refuses `delete-user`, so their sign-in stays. The account screen says so. It needs a fix on our side or removing it by hand with `neonctl neon-auth user delete`.
+- Uploads and Help me are off until the `S3_*` and `GOOGLE_API_KEY` variables are set.
 
 ## Database
 
-`packages/db/migrations` has one baseline migration with the final tables, in [data-model.md](data-model.md). It has been run on local Docker, and not on Neon, where the Render build will run it on first deploy.
+`packages/db/migrations` has one baseline migration with the final tables, in [data-model.md](data-model.md). The Render build runs migrations on Neon.
 
 ## Local development
 
@@ -102,6 +110,5 @@ Rate limits read the client address from the left of `X-Forwarded-For`. This has
 
 - Custom domains are off until `RENDER_API_KEY` is set. Pro is sold with them, so set that and try one real domain before switching plans on. The steps are in [custom-domains.md](custom-domains.md).
 - Create `report@tondo.page`. The report page sends mail there.
-- Deleting an account asks Neon to delete the user, and that hasn't been tried against real Neon. If Neon refuses, the person is told their sign-in is still stored.
 - To hide someone for abuse: `pnpm --filter @tondo/db suspend <handle>`. This takes down all of that person's pages, whichever of their addresses you name.
 - `/sitemap.xml` lists every page visitors can see, cached for an hour per server, and `robots.txt` points to it at `tondo.page`. Change that line if the site moves to another address.
