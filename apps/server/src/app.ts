@@ -1,6 +1,6 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
-import type { LivePage, PageStore } from "@tondo/db";
+import type { LivePage, PageStore, TeamStore } from "@tondo/db";
 import type { Page } from "@tondo/page";
 import { handleSchema, isCovered, isPageOnline, normaliseHandle, withTeamLook } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
@@ -11,12 +11,14 @@ import type { AssistantDeps } from "./assistant";
 import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { isBlockedLink } from "./blocked";
+import { createInvites } from "./invites";
 import { limitsOf } from "./limits";
 import { mountBilling } from "./billing";
 import { NO_PAGE } from "./no-page";
 import { mountPages } from "./pages";
 import { clearPageFolder, copyPhotosInto, listPhotos, mountPhotos, photoScope } from "./photos";
 import { sitemapXml } from "./sitemap";
+import { mountTeams } from "./teams";
 import type { Storage } from "./storage";
 import type { Payments } from "./stripe";
 import { clientIp, countsAsVisit, createCache, limit } from "./traffic";
@@ -24,6 +26,8 @@ import type { Count, Scale } from "./traffic";
 
 export interface AppDeps {
     pages: PageStore;
+    /** Without this, the team routes don't exist. */
+    teams?: TeamStore | null | undefined;
     photos?: MiddlewareHandler;
     /** Where uploads go. Without this, uploads explain that they aren't set up. */
     storage?: Storage | null | undefined;
@@ -57,6 +61,7 @@ const SITEMAP_CACHE_MS = 3_600_000;
 
 export function createApp({
     pages,
+    teams = null,
     photos,
     storage,
     mountSite,
@@ -174,20 +179,47 @@ export function createApp({
             currentPerson,
             scale,
             onPlanChange: dropPagesOf,
-            appUrl: (c) =>
-                new URL(
-                    auth.editorUrl,
-                    auth.siteUrl || (publicOrigin ?? new URL(c.req.url).origin),
-                ).href.replace(/\/$/, ""),
+            appUrl: (c) => appUrl(c),
         });
     }
-    mountPhotos(app, storage ?? null, currentPerson, { scale, pages, limitsOfPerson });
+    // A person on a covered team has at least the owner's photo allowance.
+    const photoLimits = async (userId: string) => {
+        const limits = await limitsOfPerson(userId);
+        const owner = await teams?.ownerOf(userId);
+        return owner && isCovered(owner.account, limitsOf)
+            ? { ...limits, photos: Math.max(limits.photos, limitsOf(owner.account).photos) }
+            : limits;
+    };
+    mountPhotos(app, storage ?? null, currentPerson, {
+        scale,
+        pages,
+        limitsOfPerson: photoLimits,
+    });
+    const appUrl = (c: Context) =>
+        new URL(
+            auth.editorUrl,
+            auth.siteUrl || (publicOrigin ?? new URL(c.req.url).origin),
+        ).href.replace(/\/$/, "");
+    if (teams && auth.neon) {
+        mountTeams(app, {
+            teams,
+            pages,
+            storage: storage ?? null,
+            currentPerson,
+            invites: createInvites(auth.neon.cookieSecret),
+            scale,
+            dropAround: dropPagesOf,
+            dropHandles,
+            appUrl,
+        });
+    }
     mountAssistant(
         app,
         assistant ? { ...assistant, storage: storage ?? null, pages } : null,
         currentPerson,
         scale,
         limitsOfPerson,
+        photoLimits,
     );
     if (photos) app.get("/photos/*", photos);
 

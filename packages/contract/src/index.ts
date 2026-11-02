@@ -34,6 +34,16 @@ export const routes = {
     billingPortal: "/api/v1/me/billing/portal",
     billingSync: "/api/v1/me/billing/sync",
     stripeWebhook: "/api/stripe/webhook",
+    team: "/api/v1/me/team",
+    teamInvites: "/api/v1/me/team/invites",
+    teamPages: "/api/v1/me/team/pages",
+    teamPage: "/api/v1/me/team/page",
+    teamLeave: "/api/v1/me/team/leave",
+    teamJoin: "/api/v1/me/team/join",
+    teamHandover: "/api/v1/me/team/handover",
+    teamTakeover: "/api/v1/me/team/takeover",
+    teamPerson: (value: string) => `/api/v1/me/team/people/${encodeURIComponent(value)}`,
+    invite: (token: string) => `/api/v1/invites/${encodeURIComponent(token)}`,
     assistant: "/api/v1/me/assistant",
     assistantTurn: "/api/v1/me/assistant/turn",
     assistantImage: "/api/v1/me/assistant/image",
@@ -85,6 +95,10 @@ export const meResponse = z.strictObject({
     endsAt: z.string().nullable(),
     /** Whether plans are switched on here. While it's false, nothing mentions them. */
     billing: z.boolean(),
+    /** The team this person is on or owns. */
+    team: z
+        .strictObject({ name: z.string(), role: z.enum(["owner", "editor", "member"]) })
+        .nullable(),
 });
 
 export const checkoutRequest = z.strictObject({
@@ -107,6 +121,76 @@ export const billingResponse = z.strictObject({
 export type BillingUrlResponse = z.infer<typeof billingUrlResponse>;
 export type CheckoutRequest = z.infer<typeof checkoutRequest>;
 export type BillingResponse = z.infer<typeof billingResponse>;
+
+const teamPerson = z.strictObject({
+    pageId: z.string().nullable(),
+    handle: z.string().nullable(),
+    name: z.string(),
+    photo: z.string().nullable(),
+    role: z.enum(["owner", "editor", "member"]),
+    you: z.boolean(),
+    live: z.boolean(),
+});
+export const teamResponse = z.strictObject({
+    id: z.string(),
+    name: z.string(),
+    handle: z.string(),
+    lookPageId: z.string(),
+    lookLive: z.boolean(),
+    role: z.enum(["owner", "editor", "member"]),
+    /** Whether the owner's plan covers the team now. */
+    covered: z.boolean(),
+    /** How many people the plan allows, counting the owner. */
+    most: z.number(),
+    pagesMost: z.number(),
+    ownerSuspended: z.boolean(),
+    myPageId: z.string().nullable(),
+    people: z.array(teamPerson),
+    /** The team's own pages, for the owner and editors. */
+    pages: z.array(pageSummary),
+});
+export type TeamResponse = z.infer<typeof teamResponse>;
+export type TeamPerson = z.infer<typeof teamPerson>;
+export const newTeamRequest = z.strictObject({
+    name: z.string().trim().min(1).max(80),
+    handle,
+    /** One of this person's pages to bring. */
+    join: z.string().max(40).optional(),
+});
+export const deleteTeamRequest = z.strictObject({ handle: z.string().max(40) });
+export const makeInviteRequest = z.strictObject({
+    /** One of the team's own pages, made for whoever opens the link. */
+    page: z.string().max(40).optional(),
+});
+export const madeInviteResponse = z.strictObject({ url: z.string(), until: z.string() });
+export type MadeInviteResponse = z.infer<typeof madeInviteResponse>;
+export const newTeamPageRequest = z.strictObject({
+    name: z.string().trim().min(1).max(80),
+    handle,
+    /** A page to copy, which starts the next person's. */
+    from: z.string().max(40).optional(),
+});
+export const setTeamPageRequest = z.strictObject({ page: z.string().max(40).nullable() });
+export const changeRoleRequest = z.strictObject({ role: z.enum(["editor", "member"]) });
+export const teamPersonRequest = z.strictObject({ handle: z.string().max(40) });
+const inviteToken = z.string().max(1024);
+export const takeoverRequest = z.strictObject({ invite: inviteToken });
+export const joinRequest = z.strictObject({
+    invite: inviteToken,
+    /** One of this person's pages, or "made" for the page the link names. */
+    page: z.string().max(40),
+});
+export const inviteResponse = z.strictObject({
+    kind: z.enum(["join", "takeover"]),
+    name: z.string(),
+    handle: z.string(),
+    until: z.string(),
+    look: pageSchema.pick({ look: true, paint: true, style: true }).nullable(),
+    made: z.strictObject({ id: z.string(), handle: z.string(), name: z.string() }).nullable(),
+    full: z.boolean(),
+    covered: z.boolean(),
+});
+export type InviteResponse = z.infer<typeof inviteResponse>;
 
 export const liveResponse = z.strictObject({ page: pageSchema });
 const draftTeam = z.strictObject({

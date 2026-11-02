@@ -1,6 +1,12 @@
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { createAccountStore, createDb, createPageStore, createUsageStore } from "@tondo/db";
+import {
+    createAccountStore,
+    createDb,
+    createPageStore,
+    createTeamStore,
+    createUsageStore,
+} from "@tondo/db";
 import { createApp } from "./app";
 import { assistantFromEnv } from "./assistant-setup";
 import { mountSite } from "./site";
@@ -56,6 +62,7 @@ const app = createApp({
     },
     mountSite: production ? mountSite : undefined,
     pages,
+    teams: createTeamStore(db),
     // The demo photo library. The server runs from apps/server.
     photos: serveStatic({
         root: "../../packages/brand/photos",

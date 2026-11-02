@@ -1,9 +1,9 @@
-import { starterPage } from "@tondo/page";
+import { readPage, starterPage } from "@tondo/page";
 import type { Page, Plan } from "@tondo/page";
-import { and, eq, isNull, sql, TransactionRollbackError } from "drizzle-orm";
+import { and, asc, eq, isNull, sql, TransactionRollbackError } from "drizzle-orm";
 import type { Db } from "./client";
 import { listPagesOf, listReachableBy } from "./pages";
-import type { PageSummary } from "./pages";
+import type { PageSummary, TeamRole } from "./pages";
 import { pages, teams, usage, users } from "./schema";
 
 /** The parts of an account Tondo keeps. People themselves live in Neon Auth. */
@@ -14,6 +14,8 @@ export interface AccountStore {
     listReachable: (userId: string) => Promise<PageSummary[]>;
     /** Whether they own a team, which has to be handed over or deleted before they can go. */
     ownsTeam: (userId: string) => Promise<boolean>;
+    /** The team they're on, if any, for the app to name. */
+    teamLine: (userId: string) => Promise<{ name: string; role: TeamRole } | null>;
     handleTaken: (handle: string) => Promise<boolean>;
     /** False if the address is taken. Someone who already has pages keeps them. */
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
@@ -44,6 +46,29 @@ export function createAccountStore(db: Db): AccountStore {
                 .from(teams)
                 .where(eq(teams.ownerId, userId));
             return row !== undefined;
+        },
+        teamLine: async (userId) => {
+            const [row] = await db
+                .select({ id: teams.id, ownerId: teams.ownerId, editor: users.editor })
+                .from(teams)
+                .innerJoin(users, eq(users.id, userId))
+                .where(
+                    sql`${teams.ownerId} = ${userId} or ${teams.id} = (
+                        select j.team_id from pages j
+                        where j.user_id = ${userId} and j.team_id is not null
+                    )`,
+                );
+            if (!row) return null;
+            const [look] = await db
+                .select({ draft: pages.draft })
+                .from(pages)
+                .where(and(eq(pages.teamId, row.id), isNull(pages.userId)))
+                .orderBy(asc(pages.createdAt), asc(pages.id))
+                .limit(1);
+            return {
+                name: look ? readPage(look.draft).header.name : "",
+                role: row.ownerId === userId ? "owner" : row.editor ? "editor" : "member",
+            };
         },
         handleTaken: async (handle) => {
             const [row] = await db

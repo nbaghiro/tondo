@@ -68,6 +68,7 @@ export function createFakeStore(): AccountStore & {
         listReachable: listPages,
         ownsTeam: (userId) => Promise.resolve(teamOwners.has(userId)),
         teamOwners,
+        teamLine: () => Promise.resolve(null),
         handleTaken: (handle) => Promise.resolve(owners.has(handle)),
         claimHandle: (userId, handle) => {
             const held = handlesOf(userId);

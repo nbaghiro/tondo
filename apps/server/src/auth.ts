@@ -142,6 +142,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
             limits: limitsOf(account),
             endsAt: account.endsAt?.toISOString() ?? null,
             billing: plansOn(),
+            team: await store.teamLine(person.id),
         };
     };
     const claim = (person: Person, handle: string, page?: Page) =>

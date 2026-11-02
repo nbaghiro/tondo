@@ -36,6 +36,7 @@ export default defineConfig(
             "**/node_modules/**",
             "**/dist/**",
             "**/.astro/**",
+            ".claude/**",
             ".scratchpad/**",
             ".docs/**",
             "packages/db/migrations/**",
