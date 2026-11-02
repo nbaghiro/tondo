@@ -2,7 +2,7 @@
 // Each example page opens at its own address, as a person's page would.
 import { readPage } from "@tondo/page";
 import type { GetStaticPaths } from "astro";
-import { exampleHtml } from "../lib/pages";
+import { exampleDocument } from "../lib/pages";
 
 const files = import.meta.glob<unknown>("../data/pages/*.json", { import: "default", eager: true });
 
@@ -12,7 +12,7 @@ export const getStaticPaths = (() =>
     }))) satisfies GetStaticPaths;
 
 const page = readPage(files[`../data/pages/${Astro.params.handle}.json`]);
-const html = exampleHtml(page);
+const html = exampleDocument(page);
 ---
 
 <Fragment set:html={html} />

@@ -27,6 +27,54 @@ test.describe("the gallery", () => {
         await expect(page.locator(".bk")).toHaveCount(9);
         await expect(page.locator(".bk-in .b-player")).toHaveCount(1);
     });
+
+    test("a block preview opens the page it came from", async ({ page }) => {
+        await page.goto("/");
+        await page.locator(".bk", { hasText: "Video" }).locator("a").first().click();
+        await expect(page).toHaveURL(/\/smallrooms$/);
+    });
+
+    test("an example page's made-up links stay put and say why", async ({ page }) => {
+        await page.goto("/mayaokafor");
+        await expect(page.locator("#example-note")).toBeHidden();
+        await page.locator('a[href="#"]').first().click();
+        await expect(page.locator("#example-note")).toContainText("example page");
+        await expect(page).toHaveURL(/\/mayaokafor#?$/);
+    });
+
+    test("every link and image on the site works", async ({ request }) => {
+        const seen = new Set<string>();
+        const waiting = ["/"];
+        const problems: string[] = [];
+        const bodies = new Map<string, string>();
+        const fragments: [string, string][] = [];
+        for (let path = waiting.pop(); path !== undefined; path = waiting.pop()) {
+            if (seen.has(path)) continue;
+            seen.add(path);
+            const res = await request.get(path);
+            if (!res.ok()) problems.push(`${path} answers ${String(res.status())}`);
+            if (!res.headers()["content-type"]?.includes("html")) continue;
+            const body = await res.text();
+            bodies.set(path, body);
+            for (const [, href = ""] of body.matchAll(/<a\b[^>]*?\bhref="([^"]*)"/g)) {
+                if (/^mailto:[a-z]+@tondo\.page$/.test(href) || href === "#") continue;
+                const [address = "", fragment] = href.split("#");
+                if (address && !address.startsWith("/")) problems.push(`${path} links to ${href}`);
+                else if (address) waiting.push(address);
+                if (fragment) fragments.push([address || path, fragment]);
+            }
+            for (const [, src = ""] of body.matchAll(/<img\b[^>]*?\bsrc="(\/[^"]*)"/g)) {
+                waiting.push(src);
+            }
+        }
+        for (const [path, fragment] of fragments) {
+            if (!bodies.get(path)?.includes(`id="${fragment}"`)) {
+                problems.push(`${path} has nothing at #${fragment}`);
+            }
+        }
+        expect(problems).toEqual([]);
+        expect(seen.size).toBeGreaterThan(90);
+    });
 });
 
 test("example pages keep everything, even words that match a section's sample", async ({

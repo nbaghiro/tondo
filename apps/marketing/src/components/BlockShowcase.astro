@@ -2,7 +2,7 @@
 import { blockDefinitions, drawBlock } from "@tondo/page";
 import type { LookName } from "@tondo/page";
 import { baseCss, fontsHref, looks } from "@tondo/render";
-import { examplePage, firstBlock, GALLERY_DATE } from "../lib/pages";
+import { examplePage, firstBlock, GALLERY_DATE, linksTo } from "../lib/pages";
 
 const CTX = { assetBase: "/photos/", editable: false, now: GALLERY_DATE };
 
@@ -25,7 +25,7 @@ const shown: {
 const cards = shown.map(({ caption, look, handle, type }) => ({
     caption,
     look,
-    html: drawBlock(firstBlock(handle, type), CTX),
+    html: linksTo(drawBlock(firstBlock(handle, type), CTX), handle),
 }));
 const lookNames = [...new Set(shown.map((item) => item.look))];
 const types = [...new Set(shown.map((item) => item.type))];
