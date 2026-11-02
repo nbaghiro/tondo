@@ -117,9 +117,13 @@ export {
     isOnline,
     isPageOnline,
     limitsFor,
+    MOST_PACKS,
+    PACK_PAGES,
     PLANS,
     PRICES,
-    TEAM_PAGES,
+    proLimits,
+    teamRoom,
+    TRIAL_DAYS,
 } from "./limits";
 export type { Account, Limits, LimitsOf, PaidPlan, Period, Plan, Standing } from "./limits";
 export { sameTeamLook, teamLookOf, withTeamLook } from "./team-look";

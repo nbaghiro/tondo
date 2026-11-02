@@ -1,8 +1,10 @@
 import { createResource, createSignal, Show } from "solid-js";
+import { MOST_PACKS, PACK_PAGES, PRICES } from "@tondo/page";
 import type { PaidPlan, Period } from "@tondo/page";
 import { logOut, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
 import {
+    changePacks,
     changePassword,
     deleteAccount,
     loadBilling,
@@ -42,17 +44,21 @@ function PlanSection() {
         return until && !onFree() ? until : null;
     };
     const paid = () => billing()?.period;
+    const packs = () => (plan()?.limits.live ?? PACK_PAGES) / PACK_PAGES;
     const line = () => {
         const until = given();
         if (until) return `You have ${name()} for free until ${longDate(until)}.`;
         if (onFree()) {
             return plan()?.endsAt
-                ? "Your plan has ended, so you're on Free and your pages are offline. Their content is kept, and you can still edit them. Choose a plan and they come back online."
-                : "You're on Free. You can build and preview a page, and a plan puts it online.";
+                ? "Your plan has ended, so your pages are offline. Their content is kept, and you can still edit them. Choose a plan and they come back online."
+                : "You can build and preview a page for free, and a plan puts it online. Your first subscription starts with 14 free days, and you add a card to start it.";
         }
         const current = billing();
         if (!current?.period || !current.until) return `You're on ${name()}.`;
         const date = longDate(current.until);
+        if (current.trialUntil && !current.cancelling) {
+            return `You're trying ${name()} for free until ${longDate(current.trialUntil)}, when your card is charged. If you cancel before then, your pages go offline that day and you pay nothing.`;
+        }
         return current.cancelling
             ? `You're on ${name()} until ${date}, and it won't renew. After that your pages go offline, and their content stays.`
             : `You're on ${name()}, paid each ${current.period}. It renews on ${date}.`;
@@ -81,6 +87,36 @@ function PlanSection() {
                 </Show>
                 <Show when={plan()?.plan === "starter" && !onFree() && !given() && paid()}>
                     <PlanChoice offer="pro" onChoose={choose} />
+                </Show>
+                <Show when={plan()?.plan === "pro" && !onFree() && paid()}>
+                    <div class="acts" data-pages-plan>
+                        <p class="note">
+                            You have {plan()?.limits.live} live pages. {PACK_PAGES} more costs $
+                            {PRICES.pro.month} a month, or ${PRICES.pro.year} a year if you pay
+                            yearly.
+                        </p>
+                        <button
+                            class="b"
+                            data-add-pages
+                            disabled={packs() >= MOST_PACKS}
+                            onClick={() => {
+                                go(changePacks(packs() + 1)).catch(() => undefined);
+                            }}
+                        >
+                            Add {PACK_PAGES} more pages
+                        </button>
+                        <Show when={packs() > 1}>
+                            <button
+                                class="b"
+                                data-remove-pages
+                                onClick={() => {
+                                    go(changePacks(packs() - 1)).catch(() => undefined);
+                                }}
+                            >
+                                Remove {PACK_PAGES} pages
+                            </button>
+                        </Show>
+                    </div>
                 </Show>
                 <Show when={paid()}>
                     <div class="acts">

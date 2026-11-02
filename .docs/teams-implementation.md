@@ -6,7 +6,7 @@ This plan builds what `apps/marketing/src/pages/teams.astro` promises, on top of
 
 ## What's being built
 
-A team has one owner, who pays, and up to 10 people. Each person brings one of their pages, and the team can also have up to 5 pages of its own. The team's oldest page of its own holds the team's look. When the owner publishes that page, its look reaches every page on the team, with nothing copied into anyone's document.
+A team has one owner, who pays. A team holds as many pages as the owner's Pro has live pages, 5 for each pack, counting its own pages and each person's joined page. There's no limit on people beyond that. Each person brings one of their pages. The team's oldest page of its own holds the team's look. When the owner publishes that page, its look reaches every page on the team, with nothing copied into anyone's document.
 
 | What the site promises | How it's made true |
 |---|---|
@@ -27,10 +27,10 @@ These live in `packages/page/src/limits.ts`, and the owner can change any of the
 
 | Default | Value |
 |---|---|
-| People on a team, counting the owner | 10, as `PLANS.pro.people`. It's 0 on Free and Starter, and that 0 is also what says a plan doesn't cover a team |
-| A team's own pages | 5, as `TEAM_PAGES`. A page waiting for its person counts until they accept |
+| Pages on a team | The owner's live pages: packs times 5, counting the team's own and everyone's joined page. Before the owner pays, there's room to build 5 |
+| People | No limit, as long as there's room for their joined page. An owner with no page on the team uses none |
 | Pages each person brings | 1 |
-| Help me credits | The owner's 300 are shared. See [Help me](#help-me) |
+| Help me credits | The owner's are shared, 300 a pack. See [Help me](#help-me) |
 | How long an invitation lasts | 7 days |
 | Who can create a team's page | Owner and Editor |
 | Editors and the team's look | They can't change it. They can edit the words on the look page |
@@ -77,10 +77,10 @@ One new table and three new columns. `teams.handle`, `handles.ts` and the adviso
 | Who owns a team | `teams.owner_id` |
 | A person's team | The team they own, or the `team_id` of their joined page |
 | A page's kind | `user_id` only: personal. Both: joined. `team_id` only: the team's own |
-| People on a team | The owner, plus joined pages with another person's `user_id` |
+| Pages a team holds | A count of pages with its `team_id` |
 | The look page | The oldest page with `team_id` set and no `user_id` |
 | The team's name | `header.name` on the look page |
-| Whether a team is covered | `limitsOf(owner's plan).people > 0` |
+| Whether a team is covered | `limitsOf(owner's plan).team` |
 | A team page being taken down | The owner's `suspended_at` |
 
 **Migration.** `0007`, generated. It adds to tables and changes no existing row, and every existing page passes the check. It's for the e2e database while this is built. The owner applies it to the dev database when ready, because the QA servers use that one.
@@ -91,8 +91,8 @@ This is the rule, in full. "Covered" means the owner's plan is Pro and hasn't en
 
 **While a team is covered:**
 
-- The team's own pages can be online, up to 5, on the owner's plan. They don't use the owner's 5 live pages.
-- Each person's joined page can be online, whatever that person's own plan is. It doesn't use their plan's live pages, and this includes the owner's joined page.
+- The team's own pages and each person's joined page can be online, oldest first, up to the owner's live pages, whatever each person's own plan is. They're counted separately from the owner's personal pages, so one pack of Pro covers 5 personal pages and 5 on a team. See [Decisions still open](#decisions-still-open).
+- If the owner removes packs, a joined page past that number counts against its person's own plan, and a team's own page past it goes offline.
 - Everyone's other pages stay separate. They follow that person's own plan, counted oldest first, and don't take the look.
 
 **When the owner's plan ends:**
@@ -175,7 +175,7 @@ Signed links with no table, in `apps/server/src/invites.ts`. The key is derived 
 - **It can be used more than once** until then, and the screen says so. A link naming a page works once, because the page then has its person.
 - **Pending invitations can't be listed,** and the screen says that too.
 
-**Accepting**, in one transaction: lock the team row, check the link against `invites_from`, lock the person's row, refuse if they own a team or have a joined page, count people under the lock, then set `team_id` on their chosen page or `user_id` on the page made for them. The team lock is what makes the tenth and eleventh person safe, and the person lock and `pages_one_joined` are what make two invitations at once safe.
+**Accepting**, in one transaction: lock the team row, check the link against `invites_from`, lock the person's row, refuse if they own a team or have a joined page, count people under the lock, then set `team_id` on their chosen page or `user_id` on the page made for them. The team lock is what makes two people taking the last page safe, and the person lock and `pages_one_joined` are what make two invitations at once safe.
 
 **The route through sign-up.** A link is `/app/join?invite=<token>`, with no cookie. Someone not signed in goes to `/signup?invite=<token>`, and sign-up, log-in, the email code and Google's return all carry it, as they do `handle`. Then:
 
@@ -220,7 +220,7 @@ Joining changes a live page at once, with no publish, so the screen says what wi
 Credits belong to a person, so the rule is about who's spending.
 
 - **Someone with their own paid plan** spends their own credits, on any page.
-- **Anyone else on a covered team** spends from the owner's credits, on any page.
+- **Anyone else on a covered team** spends from the owner's credits, 300 a pack, on any page.
 - **Everyone else** spends their own, as today.
 
 The `usage` table doesn't change, because spending from the pool just charges the owner's row. `set_look` and `set_style` refuse on a locked page, with "This page uses your team's look, so it's set on the team's page."
@@ -314,6 +314,7 @@ The old T6 (team statistics) and T7 and T8 (per-seat billing, 25 team pages) are
 ## Decisions still open
 
 1. **The numbers** under [Working defaults](#working-defaults).
+1. **Whether an owner's personal pages share the team's number.** I built what was asked: packs times 5, counting the team's own and joined pages. An owner's personal pages count separately, so one $12 pack gives 5 personal pages and 5 on a team. If they should share 5, it's a change to the rule in `limits.ts` and `pages.ts`.
 2. **Owner's page optional.** An owner can run a team with no page of their own on it. The site's "a page for each person" still holds for everyone who has one. I chose this so an office manager can run a team.
 3. **Editors and the look.** The site gives the look to the Owner, and says Editors edit any page. I read that as Editors changing the look page's words and not its look.
 4. **Credits for members with their own plan.** They spend their own.

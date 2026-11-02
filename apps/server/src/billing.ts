@@ -1,4 +1,4 @@
-import { checkoutRequest, routes } from "@tondo/contract";
+import { checkoutRequest, packsRequest, routes } from "@tondo/contract";
 import type { BillingResponse, BillingUrlResponse, ErrorResponse } from "@tondo/contract";
 import type { AccountStore } from "@tondo/db";
 import type { PaidPlan } from "@tondo/page";
@@ -37,7 +37,12 @@ export async function syncPlan(
     const paid = list.filter((sub) => PAID.has(sub.status));
     if (paid.length > 1) process.stderr.write(`${customer} has more than one paid subscription.\n`);
     const first = paid[0];
-    if (first) return store.setPlan(customer, { plan: planOf(first), endsAt: null });
+    if (first)
+        return store.setPlan(customer, {
+            plan: planOf(first),
+            endsAt: null,
+            packs: first.quantity,
+        });
     const ended = latest(list.filter((sub) => sub.endedAt !== null));
     if (ended) {
         return store.setPlan(customer, {
@@ -103,17 +108,25 @@ export function mountBilling(
             until: null,
             cancelling: false,
             failing: false,
+            trialUntil: null,
+            trialLeft: true,
         };
         if (!customer) return c.json<BillingResponse>(none);
         const list = await payments.subscriptions(customer).catch(() => null);
         if (!list) return fail(c, 503, UNAVAILABLE);
         const sub = list.find((other) => PAID.has(other.status));
-        if (!sub) return c.json<BillingResponse>(none);
+        const trialLeft = list.length === 0;
+        if (!sub) return c.json<BillingResponse>({ ...none, trialLeft });
         return c.json<BillingResponse>({
             period: sub.period,
             until: sub.periodEnd ? new Date(sub.periodEnd * 1000).toISOString() : null,
             cancelling: sub.cancelling,
             failing: sub.status === "past_due",
+            trialUntil:
+                sub.status === "trialing" && sub.trialEnd
+                    ? new Date(sub.trialEnd * 1000).toISOString()
+                    : null,
+            trialLeft,
         });
     });
 
@@ -159,6 +172,7 @@ export function mountBilling(
                     item: current.itemId,
                     plan,
                     period,
+                    quantity: 1,
                     returnUrl: successUrl,
                 });
                 return c.json<BillingUrlResponse>({ url });
@@ -170,10 +184,42 @@ export function mountBilling(
                 successUrl,
                 cancelUrl:
                     from === "edit" ? `${base}/edit?panel=publish${onPage}` : `${base}/account`,
+                // Stripe keeps every subscription a customer has had, so this needs no column.
+                trial: list.length === 0,
             });
             return c.json<BillingUrlResponse>({ url });
         } catch (error) {
             process.stderr.write(`Checkout failed: ${String(error)}\n`);
+            return fail(c, 503, UNAVAILABLE);
+        }
+    });
+
+    // Stripe's page confirms the change and charges or credits for it.
+    app.post(routes.billingPacks, small, async (c) => {
+        const { person, refused } = await allowed(c);
+        if (!person) return refused;
+        const parsed = packsRequest.safeParse(await c.req.json<unknown>().catch(() => null));
+        if (!parsed.success) return fail(c, 400, "That's outside what Pro allows.");
+        const customer = await store.findStripeId(person.id);
+        if (!customer) return fail(c, 404, "You don't have a plan to change.");
+        try {
+            const list = await payments.subscriptions(customer);
+            const current = list.find((sub) => PAID.has(sub.status));
+            if (!current?.itemId || planOf(current) !== "pro" || !current.period) {
+                return fail(c, 409, "Adding pages needs Pro.");
+            }
+            const url = await payments.changeUrl({
+                customer,
+                subscription: current.id,
+                item: current.itemId,
+                plan: "pro",
+                period: current.period,
+                quantity: parsed.data.packs,
+                returnUrl: `${appUrl(c)}/account?paid=1`,
+            });
+            return c.json<BillingUrlResponse>({ url });
+        } catch (error) {
+            process.stderr.write(`Changing pages failed: ${String(error)}\n`);
             return fail(c, 503, UNAVAILABLE);
         }
     });

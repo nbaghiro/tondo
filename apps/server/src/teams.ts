@@ -18,7 +18,15 @@ import type {
     TeamResponse,
 } from "@tondo/contract";
 import type { PageStore, TeamStore, TeamView } from "@tondo/db";
-import { isCovered, starterPage, TEAM_PAGES, teamLookOf, withTeamLook } from "@tondo/page";
+import {
+    isCovered,
+    PACK_PAGES,
+    PRICES,
+    starterPage,
+    teamLookOf,
+    teamRoom,
+    withTeamLook,
+} from "@tondo/page";
 import type { Page } from "@tondo/page";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
@@ -34,6 +42,7 @@ import type { Scale } from "./traffic";
 const ENDED = "This invitation has ended. Ask the team's owner for a new link.";
 const NOT_OWNER = "Only the team's owner can do this.";
 const NEEDS_PRO = "Inviting people to a team needs the owner to be on Pro.";
+const FULL = `This team is using all its pages. Its owner can add ${String(PACK_PAGES)} more for $${String(PRICES.pro.month)} a month in Account.`;
 
 export interface TeamDeps {
     teams: TeamStore;
@@ -94,8 +103,8 @@ export function mountTeams(app: Hono, deps: TeamDeps): void {
         lookLive: view.lookLive,
         role: view.role,
         covered: isCovered(view.owner, limitsOf),
-        most: limitsOf(view.owner).people,
-        pagesMost: TEAM_PAGES,
+        room: teamRoom(view.owner, limitsOf),
+        held: view.held,
         ownerSuspended: view.ownerSuspended,
         myPageId: view.myPageId,
         people: view.people.map((person) => ({
@@ -235,14 +244,13 @@ export function mountTeams(app: Hono, deps: TeamDeps): void {
             // The new page may go to someone else, so it gets its own copies of the photos.
             draft = storage ? await copyPhotosInto(storage, named, id) : named;
         }
-        const added = await teams.addPage(view.id, { id, handle, draft });
+        const added = await teams.addPage(
+            view.id,
+            { id, handle, draft },
+            teamRoom(view.owner, limitsOf),
+        );
         if (added === "full") {
-            return fail(
-                c,
-                409,
-                `A team can have ${String(TEAM_PAGES)} pages of its own.`,
-                "team_pages",
-            );
+            return fail(c, 409, FULL, "team_full");
         }
         if (added === "taken") return fail(c, 409, "That address is taken. Try another one.");
         dropHandles([handle]);
@@ -256,7 +264,14 @@ export function mountTeams(app: Hono, deps: TeamDeps): void {
         if (!view) return noTeam(c);
         const parsed = setTeamPageRequest.safeParse(await body(c));
         if (!parsed.success) return fail(c, 400, "Choose a page.");
-        if (!(await teams.setPage(view.id, person.id, parsed.data.page))) {
+        if (
+            !(await teams.setPage(
+                view.id,
+                person.id,
+                parsed.data.page,
+                teamRoom(view.owner, limitsOf),
+            ))
+        ) {
             return fail(c, 404, "We couldn't find that page.");
         }
         await dropAround(view.ownerId);
@@ -377,14 +392,14 @@ export function mountTeams(app: Hono, deps: TeamDeps): void {
             team.id,
             person.id,
             made && invite.page ? { made: invite.page } : { own: parsed.data.page },
-            limitsOf(team.owner).people,
+            teamRoom(team.owner, limitsOf),
         );
         if (joined === "ended") return fail(c, 410, ENDED);
         if (joined === "on-team") {
             return fail(c, 409, "You're already on a team. Leave it first to join this one.");
         }
         if (joined === "full") {
-            return fail(c, 409, "This team is full. Ask the owner to make room.", "team_full");
+            return fail(c, 409, FULL, "team_full");
         }
         if (joined === "taken") {
             return fail(c, 409, "That page has already been claimed. Choose another.");
@@ -417,7 +432,7 @@ export function mountTeams(app: Hono, deps: TeamDeps): void {
             until: new Date(invite.until).toISOString(),
             look: team.look ? teamLookOf(team.look) : null,
             made: team.made,
-            full: team.peopleCount >= limitsOf(team.owner).people,
+            full: !team.made && team.held >= teamRoom(team.owner, limitsOf),
             covered: isCovered(team.owner, limitsOf),
         });
     });

@@ -1,19 +1,30 @@
 ---
 interface Props {
-    items: readonly { q: string; a: string }[];
+    items: readonly { q: string; a: string; link?: { href: string; text: string } }[];
 }
 
 const { items } = Astro.props;
 ---
 
 <section class="pl-sec pl-faq">
-    <div class="wrap pl-faq-in">
+    <div class="wrap">
         <h2>Questions</h2>
-        <div>
+        <p class="sub pl-faq-lead">
+            For anything else, email <a href="mailto:hello@tondo.page">hello@tondo.page</a>.
+        </p>
+        <div class="pl-faq-grid">
             {items.map((item) => (
                 <details>
                     <summary>{item.q}</summary>
-                    <p>{item.a}</p>
+                    <p>
+                        {item.a}
+                        {item.link ? (
+                            <>
+                                {" "}
+                                <a href={item.link.href}>{item.link.text}</a>
+                            </>
+                        ) : null}
+                    </p>
                 </details>
             ))}
         </div>

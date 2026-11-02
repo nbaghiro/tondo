@@ -49,6 +49,10 @@ export interface AssistantDeps {
     dailyUsd: number;
 }
 
+/** Which row of `usage` these credits count on. An unsubscribed account's never come back. */
+const creditPeriod = (limits: { creditsOnce: boolean }) =>
+    limits.creditsOnce ? "total" : monthOf(new Date());
+
 const firstOfNextMonth = (now: Date) =>
     new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
 
@@ -82,16 +86,19 @@ export function mountAssistant(
     };
 
     const creditsOf = async (userId: string) => {
-        const { credits } = await limitsOfPerson(userId);
-        const spent = deps ? await deps.usage.spentThisMonth(userId, monthOf(new Date())) : 0;
-        return { credits, left: Math.max(0, credits - spent) };
+        const limits = await limitsOfPerson(userId);
+        const { credits, creditsOnce } = limits;
+        const period = creditPeriod(limits);
+        const spent = deps ? await deps.usage.spentThisMonth(userId, period) : 0;
+        return { credits, once: creditsOnce, period, left: Math.max(0, credits - spent) };
     };
 
     app.get(routes.assistant, async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        const { credits, left } = await creditsOf(person.id);
+        const { credits, left, once } = await creditsOf(person.id);
         return c.json<AssistantStatus>({
+            once,
             available: deps !== null,
             credits,
             creditsLeft: left,
@@ -122,12 +129,14 @@ export function mountAssistant(
                 return fail(c, 429, "Help me is busy. Try again in a moment.");
             }
             if (spentToday() >= deps.dailyUsd) return fail(c, 503, UNAVAILABLE);
-            const { left } = await creditsOf(person.id);
+            const { left, once } = await creditsOf(person.id);
             if (left < CREDITS.turn) {
                 return fail(
                     c,
                     402,
-                    `You've used this month's credits. They reset on ${firstOfNextMonth(new Date())}, and everything else in Tondo still works.`,
+                    once
+                        ? "You've used your Help me credits. A plan gives you more each month, and everything else in Tondo still works."
+                        : `You've used this month's credits. They reset on ${firstOfNextMonth(new Date())}, and everything else in Tondo still works.`,
                 );
             }
             const { page, message, history, selected, timeZone } = parsed.data;
@@ -170,10 +179,10 @@ export function mountAssistant(
                     const charge =
                         (result.setup ? CREDITS.setup : CREDITS.turn) +
                         result.sitesRead * CREDITS.site;
-                    const { credits } = await limitsOfPerson(userId);
+                    const { credits, period } = await creditsOf(userId);
                     const total = await usage.spend(
                         userId,
-                        monthOf(new Date()),
+                        period,
                         Math.min(charge, left),
                         credits,
                     );
@@ -229,7 +238,7 @@ export function mountAssistant(
         if (!allowImage(person.id)) return fail(c, 429, "That's a lot of images. Try again later.");
         if (spentToday() >= deps.dailyUsd) return fail(c, 503, UNAVAILABLE);
         const cost = count * CREDITS.image;
-        const { credits, left } = await creditsOf(person.id);
+        const { credits, left, period } = await creditsOf(person.id);
         if (left < cost) {
             return fail(
                 c,
@@ -258,12 +267,7 @@ export function mountAssistant(
             )
         ).filter((file): file is string => file !== null);
         if (!files.length) return fail(c, 503, "No image came back, and no credits were used.");
-        const total = await usage.spend(
-            person.id,
-            monthOf(new Date()),
-            files.length * CREDITS.image,
-            credits,
-        );
+        const total = await usage.spend(person.id, period, files.length * CREDITS.image, credits);
         return c.json({ files, creditsLeft: total === null ? 0 : Math.max(0, credits - total) });
     });
 

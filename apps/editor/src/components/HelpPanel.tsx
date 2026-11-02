@@ -486,9 +486,14 @@ export function HelpPanel(props: {
                 <p class="help-credits" data-help-credits>
                     <Show
                         when={left() > 0}
-                        fallback={`You've used this month's credits. They reset on ${assistant.status()?.resetsOn ?? "the 1st"}, and everything else in Tondo still works.`}
+                        fallback={
+                            assistant.status()?.once
+                                ? "You've used your credits. A plan gives you more each month, and everything else in Tondo still works."
+                                : `You've used this month's credits. They reset on ${assistant.status()?.resetsOn ?? "the 1st"}, and everything else in Tondo still works.`
+                        }
                     >
-                        {left() === 1 ? "1 credit" : `${String(left())} credits`} left this month
+                        {left() === 1 ? "1 credit" : `${String(left())} credits`} left
+                        {assistant.status()?.once ? "" : " this month"}
                     </Show>
                 </p>
             </form>

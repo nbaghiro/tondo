@@ -8,7 +8,8 @@ import {
     limitsFor,
     PLANS,
     PRICES,
-    TEAM_PAGES,
+    MOST_PACKS,
+    PACK_PAGES,
 } from "./limits";
 import type { Account, Standing } from "./limits";
 
@@ -18,14 +19,27 @@ const ago = (days: number) => new Date(NOW.getTime() - days * DAY);
 
 describe("the plans", () => {
     it("has the decided numbers", () => {
-        expect(PLANS.free).toEqual({ pages: 1, live: 0, photos: 25, credits: 15, people: 0 });
+        expect(PLANS.free).toEqual({
+            pages: 1,
+            live: 0,
+            photos: 25,
+            credits: 15,
+            creditsOnce: true,
+            team: false,
+        });
         expect(PLANS.starter).toMatchObject({ live: 1, photos: 2000, credits: 100 });
-        expect(PLANS.pro).toMatchObject({ live: 5, photos: 2000, credits: 300, people: 10 });
-        expect(PLANS.starter.people).toBe(0);
-        expect(TEAM_PAGES).toBe(5);
+        expect(PLANS.pro).toMatchObject({ live: 5, photos: 2000, credits: 300, team: true });
+        expect(PLANS.starter).toMatchObject({ pages: 1, team: false });
+        expect(limitsFor({ plan: "pro", endsAt: null, packs: 3 }, NOW)).toMatchObject({
+            pages: 15,
+            live: 15,
+            credits: 900,
+            photos: 2000,
+        });
+        expect(MOST_PACKS * PACK_PAGES).toBe(100);
         expect(PRICES).toEqual({
-            starter: { month: 4, year: 40 },
-            pro: { month: 10, year: 100 },
+            starter: { month: 5, year: 48 },
+            pro: { month: 12, year: 120 },
         });
     });
 });
@@ -34,11 +48,11 @@ describe("what a plan allows at a moment", () => {
     it("reads each state", () => {
         expect(limitsFor({ plan: "free", endsAt: null }, NOW)).toBe(PLANS.free);
         expect(limitsFor({ plan: "starter", endsAt: null }, NOW)).toBe(PLANS.starter);
-        expect(limitsFor({ plan: "pro", endsAt: ago(-30) }, NOW)).toBe(PLANS.pro);
+        expect(limitsFor({ plan: "pro", endsAt: ago(-30) }, NOW)).toEqual(PLANS.pro);
     });
 
     it("drops to Free at the exact moment a plan ends, with no step in between", () => {
-        expect(limitsFor({ plan: "pro", endsAt: new Date(NOW.getTime() + 1) }, NOW)).toBe(
+        expect(limitsFor({ plan: "pro", endsAt: new Date(NOW.getTime() + 1) }, NOW)).toEqual(
             PLANS.pro,
         );
         expect(limitsFor({ plan: "pro", endsAt: NOW }, NOW)).toBe(PLANS.free);
@@ -54,7 +68,7 @@ describe("how many pages", () => {
     it("builds and publishes from separate numbers", () => {
         expect(canAddPage(PLANS.free, 0)).toBe(true);
         expect(canAddPage(PLANS.free, 1)).toBe(false);
-        expect(canAddPage(PLANS.starter, 1)).toBe(true);
+        expect(canAddPage(PLANS.starter, 1)).toBe(false);
         expect(canPublishPage(PLANS.free, 0, null)).toBe(false);
         expect(canPublishPage(PLANS.starter, 0, null)).toBe(true);
         expect(canPublishPage(PLANS.starter, 1, null)).toBe(false);
@@ -93,6 +107,8 @@ describe("which pages stay online on a team", () => {
         personalLive: 0,
         joinedLive: false,
         published: true,
+        teamRank: 0,
+        teamLive: 1,
         ...over,
     });
     const online = (over: Partial<Standing>) => isPageOnline(standing(over), limitsOf);
@@ -135,11 +151,22 @@ describe("which pages stay online on a team", () => {
         expect(online({ account: free })).toBe(false);
     });
 
+    it("holds a team to the owner's live pages, oldest first", () => {
+        const two: Account = { plan: "pro", endsAt: null, packs: 2 };
+        expect(online({ kind: "team", account: two, team: two, teamRank: 9 })).toBe(true);
+        expect(online({ kind: "team", account: two, team: two, teamRank: 10 })).toBe(false);
+        expect(online({ kind: "joined", account: free, team: paying, teamRank: 5 })).toBe(false);
+        expect(online({ kind: "joined", account: paying, team: paying, teamRank: 5 })).toBe(true);
+    });
+
     it("decides publishing by the same rule", () => {
         const publishing = (over: Partial<Standing>) =>
             canPublishStanding(standing({ published: false, ...over }), limitsOf);
         expect(publishing({ kind: "team", account: free, team: free })).toBe(false);
         expect(publishing({ kind: "team", account: paying, team: paying })).toBe(true);
+        expect(publishing({ kind: "team", account: paying, team: paying, teamLive: 5 })).toBe(
+            false,
+        );
         expect(publishing({ kind: "joined", account: free, team: paying })).toBe(true);
         expect(publishing({ kind: "joined", account: free, team: ended })).toBe(false);
         expect(publishing({ account: starter, team: paying, joinedLive: true })).toBe(true);

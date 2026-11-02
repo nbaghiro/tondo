@@ -1,32 +1,51 @@
 ---
-import { cards } from "../data/plans";
+import { cards, MORE_LINE } from "../data/plans";
 import Art from "./Art.astro";
 import "../styles/plans.css";
 ---
 
-<div class="pc-row">
+<div class="pc-row" data-plan-cards data-period="month">
     <div class="pc-wash" aria-hidden="true">
         <Art seed={37} />
+    </div>
+    <div class="pc-switch" role="group" aria-label="How often to pay">
+        <button type="button" data-set-period="month" aria-pressed="true">
+            Monthly
+        </button>
+        <button type="button" data-set-period="year" aria-pressed="false">
+            Yearly
+        </button>
     </div>
     <div class="pc-cards">
         {cards.map((card) => (
             <article class="pc-card" data-plan-card={card.name}>
-                <h3>
-                    {card.name}
-                    {card.recommended ? <small>Recommended</small> : null}
-                </h3>
-                <strong>{card.price}</strong>
-                <p class="pc-period">{card.period}</p>
+                <h3>{card.name}</h3>
+                <strong class="pc-month">{card.month}</strong>
+                <strong class="pc-year">{card.year}</strong>
                 <ul>
                     {card.features.map((feature) => (
                         <li>{feature}</li>
                     ))}
                 </ul>
-                {card.note ? <p class="pc-note">{card.note}</p> : null}
-                <a class:list={["mbtn", { "pc-quiet": !card.recommended }]} href="/signup">
-                    {card.cta}
+                <a class="mbtn" href="/signup">
+                    Try free for 14 days
                 </a>
             </article>
         ))}
     </div>
+    <p class="pc-more">{MORE_LINE}</p>
 </div>
+
+<script>
+    for (const row of document.querySelectorAll<HTMLElement>("[data-plan-cards]")) {
+        const buttons = row.querySelectorAll<HTMLButtonElement>("[data-set-period]");
+        for (const button of buttons) {
+            button.addEventListener("click", () => {
+                row.dataset["period"] = button.dataset["setPeriod"] ?? "month";
+                for (const other of buttons) {
+                    other.setAttribute("aria-pressed", String(other === button));
+                }
+            });
+        }
+    }
+</script>

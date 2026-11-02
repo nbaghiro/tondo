@@ -384,14 +384,17 @@ test("the pencil sits with the address buttons, and a phone keeps its bottom bar
     await page.waitForURL(/\/app\/edit\?page=/);
 });
 
-test("New page on Free offers a plan, and at the limit says to delete one", async ({ page }) => {
+test("New page without a plan offers Pro, and at the limit offers 5 more pages", async ({
+    page,
+}) => {
     const handle = await signUpToEditor(page, [], { plan: "free" });
     await page.goto("/app/");
     await page.locator("[data-page-switcher]:visible").click();
     await expect(page.locator(".psw-new")).toContainText("1 of 1");
     await page.locator("[data-new-page]").click();
-    await expect(page.locator("[data-page-limit=plan]")).toContainText("free to keep building");
-    await expect(page.locator("[data-plan=starter]")).toBeVisible();
+    await expect(page.locator("[data-page-limit=plan]")).toContainText("Move to Pro");
+    await expect(page.locator("[data-plan=pro]")).toContainText("$12 a month");
+    await expect(page.locator("[data-plan=starter]")).toHaveCount(0);
     await page.locator("[data-keep-editing]").click();
     await expect(page.locator(".page-limit")).toHaveCount(0);
     await expect(page.locator("#start-name")).toHaveCount(0);
@@ -403,8 +406,8 @@ test("New page on Free offers a plan, and at the limit says to delete one", asyn
     await page.reload();
     await page.locator("[data-page-switcher]:visible").click();
     await page.locator("[data-new-page]").click();
-    await expect(page.locator("[data-page-limit=all]")).toContainText(
-        "You're using all 5 pages. Delete one to add another.",
+    await expect(page.locator("[data-page-limit=more]")).toContainText(
+        "You're using all 5 pages. 5 more costs $12 a month",
     );
 });
 
@@ -464,11 +467,12 @@ test("two pages keep their own work, across two tabs", async ({ page, context })
 
 test("a second page on Starter offers Pro when publishing", async ({ page }) => {
     const handle = await signUpToEditor(page);
-    await setPlan(handle, "starter");
     const me = (await (await page.request.get("/api/v1/me")).json()) as { pages: { id: string }[] };
     await publishWithLink(page, me.pages[0]?.id ?? "");
     const { id } = (await (await addPage(page, unique("extra"))).json()) as { id: string };
     await saveWithLink(page, id);
+    // Moved down from Pro, because Starter itself has room for one page.
+    await setPlan(handle, "starter");
     const check = (await (await page.request.get(`${PAGES}/${id}/check`)).json()) as {
         issues: { plan?: string }[];
     };

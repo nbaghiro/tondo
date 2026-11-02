@@ -1,4 +1,5 @@
 ---
+import { PACK_PAGES, PLANS, PRICES } from "@tondo/page";
 import { groups, heads } from "../data/plans";
 import type { Cell } from "../data/plans";
 import AppSide from "../components/AppSide.astro";
@@ -27,43 +28,72 @@ const clicks = [
 
 const faq = [
     {
-        q: "What does it cost to try Tondo?",
-        a: "Nothing. Building and previewing a page is free, and you don't need a card. You pay when you want the page online.",
+        q: "What is Tondo?",
+        a: "Tondo gives you one address, such as tondo.page/maya, for a page of links, photos and details about you or your business, in a look you choose.",
     },
     {
-        q: "What does the free plan include?",
-        a: "Building and previewing one page, with every look, colour, font, background and kind of section, plus 25 photos and 15 Help me credits a month. Your address is held while you build. Putting the page online is what a paid plan adds.",
+        q: "How long does it take to set up?",
+        a: "You make an account, type your name, choose sections and a look, and pick your address. Then you replace the sample content with your own and publish when it's ready.",
     },
     {
-        q: "What's the difference between Starter and Pro?",
-        a: "Starter has 1 live page, 100 Help me credits a month and 2,000 photos. Pro has 5 live pages, 300 credits and 2,000 photos, and includes team features at one price for the account. Design and sections are the same on both.",
+        q: "Can I try it before paying?",
+        a: "Yes. Building and previewing a page costs nothing and needs no card. When you're ready to go online, your first subscription starts with 14 free days, and you add a card to start it.",
     },
     {
-        q: "What do visitors see before I publish?",
-        a: "A short note saying there's no page at that address right now, with a link to log in. It doesn't show your name or anything from your draft.",
+        q: "Why isn't there a free plan?",
+        a: "Paying is what puts a page online. Building and previewing cost nothing, so you can see your whole page before you decide.",
     },
     {
-        q: "How do I cancel?",
-        a: "From the Account page. Your page stays online until the period you paid for ends, and we refund your first payment if you ask within 14 days.",
+        q: "What does it cost?",
+        a: `Starter is $${String(PRICES.starter.month)} a month or $${String(PRICES.starter.year)} a year for 1 live page. Pro is $${String(PRICES.pro.month)} a month or $${String(PRICES.pro.year)} a year for ${String(PLANS.pro.live)} live pages. Prices are in US dollars, before any tax.`,
     },
     {
-        q: "What happens if a plan ends?",
-        a: "Your page goes offline when the paid period ends. Visitors see the same short note, and your content stays. You can still log in and edit, and subscribing again puts the page back online. If a payment fails, the page stays up while the payment is retried, and goes offline only if the subscription ends.",
+        q: "Can I have more than one page?",
+        a: `Yes, on Pro. Each page has its own address and look, and you can add ${String(PACK_PAGES)} more pages for $${String(PRICES.pro.month)} a month, up to 100.`,
+    },
+    {
+        q: "Can I use my own domain?",
+        a: "Yes, on Pro. Your page shows at your domain instead of a tondo.page address.",
+    },
+    {
+        q: "What can I add to my page?",
+        a: "Links, photos, a shop, services and prices, bookings, events, video and music, questions, a team and tabs, among others. You can add as many sections as you need.",
+    },
+    {
+        q: "Can I see how my page is doing?",
+        a: "Yes. Analytics shows views and link clicks over 7, 30 or 90 days, and which links people opened.",
+    },
+    {
+        q: "Can I switch from another link page?",
+        a: "There's no automatic import. You can paste each link and Tondo adds it as a section, and Help me can read your website if you give it the address, and use what it finds to set up your page.",
+    },
+    {
+        q: "Can I cancel at any time? What happens to my page?",
+        a: "Yes, from your Account page. Your page goes offline when the period you've paid for ends, and your content stays. Subscribing again puts it back online.",
+    },
+    {
+        q: "Does Tondo take a cut of my sales?",
+        a: "No. Products on your page link out to wherever you already sell, so Tondo isn't part of the sale.",
+    },
+    {
+        q: "Can I use Tondo with a team?",
+        a: "Yes, on Pro.",
+        link: { href: "/teams", text: "See how teams work." },
     },
 ];
 ---
 
 <BaseLayout
     title="Pricing | Tondo"
-    description="Tondo is free to build, and a paid plan puts your page online. Starter is $4 a month and Pro is $10 a month."
+    description="Building a page on Tondo is free, and a plan puts it online, starting with 14 free days. Starter is $5 a month and Pro is $12 a month."
 >
     <div class="wrap">
         <Nav />
         <header class="r-hero">
-            <h1>Free to build, and paying puts it online</h1>
+            <h1>Build for free, then try it live for 14 days</h1>
             <p class="sub">
-                You can build and preview your page for free, with every look and kind of section. A
-                plan is what puts it online at your address.
+                You can build and preview your page without paying, with every look and kind of
+                section. A plan is what puts it online at your address.
             </p>
             <PlanCards />
         </header>
@@ -72,9 +102,9 @@ const faq = [
     <section class="band pl-sec r-today">
         <div class="wrap r-today-in">
             <div class="r-today-text">
-                <h2>Every plan gets the whole editor</h2>
+                <h2>Both plans get the whole editor</h2>
                 <p class="sub">
-                    Every look, colour, font, background and kind of section is on every plan, with
+                    Every look, colour, font, background and kind of section is on both plans, with
                     no limit on sections. Once a page is live, you can see how many people visited
                     and what they opened, over 7, 30 or 90 days.
                 </p>
@@ -142,11 +172,11 @@ const faq = [
             <div class="pl-head">
                 <h2>Compare the plans</h2>
                 <p class="sub">
-                    Every plan has the whole editor. What changes is how many pages are online.
+                    Both plans have the whole editor. Pro adds more pages and your own domain.
                 </p>
             </div>
             <table class="r-table">
-                <caption class="r-vh">Features of the Free, Starter and Pro plans</caption>
+                <caption class="r-vh">Features of the Starter and Pro plans</caption>
                 <thead>
                     <tr>
                         <td></td>
@@ -161,7 +191,7 @@ const faq = [
                 {groups.map((group) => (
                     <tbody>
                         <tr class="r-group">
-                            <th scope="colgroup" colspan="4">
+                            <th scope="colgroup" colspan="3">
                                 {group.name}
                             </th>
                         </tr>
@@ -203,7 +233,7 @@ const faq = [
         </div>
         <div class="wrap">
             <h2>Claim your link</h2>
-            <p class="sub">It's free to build, and you won't need a card.</p>
+            <p class="sub">It's free to build, and you won't need a card until you go online.</p>
             <ClaimForm id="claim-pricing" />
         </div>
     </section>

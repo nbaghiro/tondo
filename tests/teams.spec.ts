@@ -278,21 +278,29 @@ test.describe("teams", () => {
         expect(rows[0]?.["team_id"]).toBeTruthy();
     });
 
-    test("the tenth person joins and the eleventh doesn't, even at once", async ({ browser }) => {
+    test("the last page a team has room for goes to one person, and adding pages makes room", async ({
+        browser,
+    }) => {
         const owner = await person(browser);
-        await makeTeam(owner);
+        const team = await makeTeam(owner);
         const invite = await inviteLink(owner.api);
-        for (let i = 0; i < 8; i++) {
+        // The look page and the owner's page use 2 of a pack's 5.
+        for (let i = 0; i < 2; i++) {
             const member = await person(browser);
             expect((await join(member, invite)).status()).toBe(201);
             await member.context.close();
         }
-        const [tenth, eleventh] = await Promise.all([person(browser), person(browser)]);
-        const results = await Promise.all([join(tenth, invite), join(eleventh, invite)]);
+        const [last, next] = await Promise.all([person(browser), person(browser)]);
+        const results = await Promise.all([join(last, invite), join(next, invite)]);
         expect(results.map((res) => res.status()).sort()).toEqual([201, 409]);
         const refused = results.find((res) => res.status() === 409);
         expect(((await refused?.json()) as { code: string }).code).toBe("team_full");
-        expect((await teamOf(owner.api)).people).toHaveLength(10);
+        const sql = postgres(TEST_DATABASE, { max: 1 });
+        await sql`update users set packs = 2 where id = (select owner_id from teams where id = ${team.id})`;
+        await sql.end();
+        const waiting = results[0].status() === 201 ? next : last;
+        expect((await join(waiting, invite)).status()).toBe(201);
+        expect((await teamOf(owner.api)).people).toHaveLength(5);
     });
 
     test("the owner can't leave or delete their account until the team is settled", async ({
@@ -421,7 +429,7 @@ test.describe("teams", () => {
         ).toBe("joined");
     });
 
-    test("a team has up to 5 pages of its own, even when added at once", async ({ browser }) => {
+    test("a team's pages stop at its room, even when added at once", async ({ browser }) => {
         const owner = await person(browser);
         await makeTeam(owner);
         const results = await Promise.all(
@@ -431,9 +439,9 @@ test.describe("teams", () => {
                 }),
             ),
         );
-        expect(results.filter((res) => res.status() === 201)).toHaveLength(4);
+        expect(results.filter((res) => res.status() === 201)).toHaveLength(3);
         const full = results.find((res) => res.status() === 409);
-        expect(((await full?.json()) as { code: string }).code).toBe("team_pages");
+        expect(((await full?.json()) as { code: string }).code).toBe("team_full");
     });
 
     test("deleting a team keeps members' pages, frees its address, and beats a join", async ({

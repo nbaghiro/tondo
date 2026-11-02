@@ -112,11 +112,11 @@ test("publishing on Free offers both plans, and going back leaves everything as 
     await page.locator(".publish").click();
     const prompt = page.locator("[data-plan-panel]");
     await expect(prompt).toContainText(`online at tondo.page/${handle}`);
-    await expect(prompt.locator("[data-plan=starter]")).toContainText("$4 a month");
-    await expect(prompt.locator("[data-plan=pro]")).toContainText("$10 a month");
+    await expect(prompt.locator("[data-plan=starter]")).toContainText("$5 a month");
+    await expect(prompt.locator("[data-plan=pro]")).toContainText("$12 a month");
     await prompt.locator("[data-period=year]").click();
-    await expect(prompt.locator("[data-plan=starter]")).toContainText("$40 a year");
-    await expect(prompt.locator("[data-plan=pro]")).toContainText("$100 a year");
+    await expect(prompt.locator("[data-plan=starter]")).toContainText("$48 a year");
+    await expect(prompt.locator("[data-plan=pro]")).toContainText("$120 a year");
     await prompt.locator("[data-keep-editing]").click();
     await expect(prompt).toHaveCount(0);
     await expect(page.locator(".address")).toContainText(handle);
@@ -142,7 +142,7 @@ test("a plan ending takes the page offline, keeps the content, and subscribing r
     await publishIt(page, handle);
     const visit = () => page.request.get(`/${handle}`);
     expect((await visit()).status()).toBe(200);
-    expect(await (await visit()).text()).not.toContain("Made with Tondo");
+    expect(await (await visit()).text()).toContain("Made with Tondo");
 
     await setPlan(handle, "pro", new Date(Date.now() - DAY));
     await page.waitForTimeout(CACHE_MS);
@@ -227,45 +227,62 @@ test("coming back from paying is enough, even with no event", async ({ page }) =
     await choosePlanAndPay(page, "pro", "#pay-quiet");
 });
 
-test("a second page on Starter offers Pro, and moving up lets it publish", async ({ page }) => {
+test("New page on Starter offers Pro, and moving up lets a second page go live", async ({
+    page,
+}) => {
     const handle = await choosePlanAndPay(page, "starter");
     await page.locator(".pub .go").last().click();
     await expect(page.locator(".pub-address")).toContainText(handle);
 
-    const made = await page.evaluate(async (name) => {
-        const res = await fetch("/api/v1/me/pages", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ name: "Band", handle: name }),
-        });
-        return (await res.json()) as { id: string };
-    }, `${handle}-band`);
-    await page.evaluate(async (id) => {
-        const url = `/api/v1/me/pages/${id}`;
-        const { page: draft, updatedAt } = (await (await fetch(url)).json()) as {
-            page: Record<string, unknown> & { header: Record<string, unknown> };
-            updatedAt: string;
-        };
-        await fetch(url, {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-                page: { ...draft, header: { ...draft.header, bio: "Band" } },
-                updatedAt,
-            }),
-        });
-    }, made.id);
-    await page.goto(`/app/edit?page=${made.id}`);
-    await page.locator(".publish").click();
-    const prompt = page.locator("[data-plan-panel]");
-    await expect(prompt).toContainText("Starter includes 1 live page");
+    await page.goto("/app/");
+    await page.locator("[data-page-switcher]:visible").click();
+    await page.locator("[data-new-page]").click();
+    const prompt = page.locator("[data-page-limit=plan]");
+    await expect(prompt).toContainText("Move to Pro");
     await expect(prompt.locator("[data-plan=starter]")).toHaveCount(0);
     await prompt.locator("[data-plan=pro]").click();
     await page.locator("#confirm-change").click();
-    await expect(page.locator("[data-paid-note]")).toContainText("You're on Pro.");
+    await expect(page.locator("[data-plan-summary]")).toContainText("Pro");
+    const made = await page.request.post("/api/v1/me/pages", {
+        data: { name: "Band", handle: `${handle}-band` },
+    });
+    expect(made.status()).toBe(201);
+});
+
+test("Account adds 5 more pages through Stripe, and the plan follows", async ({ page }) => {
+    await choosePlanAndPay(page, "pro");
+    await page.goto("/app/account");
+    await expect(page.locator("[data-plan-summary]")).toContainText("trying Pro");
+    await page.locator("[data-add-pages]").click();
+    await page.locator("#confirm-change").click();
+    await expect(page.locator("[data-pages-plan]")).toContainText("You have 10 live pages");
+    const me = (await (await page.request.get("/api/v1/me")).json()) as {
+        limits: { credits: number };
+    };
+    expect(me.limits.credits).toBe(600);
+});
+
+test("the trial is once per account, and a page can hide the badge", async ({ page }) => {
+    const handle = await choosePlanAndPay(page, "pro");
     await page.locator(".pub .go").last().click();
-    await expect(page.locator(".pub-address")).toContainText(`${handle}-band`);
-    expect((await page.request.get(`/${handle}-band`)).status()).toBe(200);
+    await expect(page.locator(".pub-address")).toContainText(handle);
+    expect(await (await page.request.get(`/${handle}`)).text()).toContain("Made with Tondo");
+
+    await page.goto("/app/settings");
+    await page.locator("[data-show-badge]").uncheck();
+    await page.locator('input[name="title"]').fill("Maya");
+    await page.locator('form:has(input[name="title"]) button[type=submit]').click();
+    await expect(page.getByText("Saved")).toBeVisible();
+    const draftAt = await draftUrl(page);
+    const draft = (await (await page.request.get(draftAt)).json()) as { updatedAt: string };
+    const done = await page.request.post(`${draftAt}/publish`, {
+        data: { updatedAt: draft.updatedAt },
+    });
+    expect(done.status()).toBe(204);
+    expect(await (await page.request.get(`/${handle}`)).text()).not.toContain("Made with Tondo");
+
+    const billing = (await (await page.request.get("/api/v1/me/billing")).json()) as object;
+    expect(billing).toMatchObject({ trialLeft: false });
 });
 
 test("cancelling at the payment page loses nothing", async ({ page }) => {

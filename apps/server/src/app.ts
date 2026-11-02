@@ -261,6 +261,7 @@ export function createApp({
                 assetBase: "/photos/",
                 editable: false,
                 live: true,
+                badge: !page.hideBadge,
                 trackAs: handle,
                 shareUrl: `${origin}/${handle}`,
                 onDrawError: (type, error) => {

@@ -342,13 +342,13 @@ describe("publishing and plans", () => {
         expect((await app.request("/june")).status).toBe(404);
     });
 
-    it("publishes on Starter with any look and no mark", async () => {
+    it("publishes on Starter with any look, and the badge until it's hidden", async () => {
         const { publish, app, setPlan } = setupPlans();
         setPlan("june", { plan: "starter", ...FOREVER });
         expect((await publish()).status).toBe(204);
         const html = await (await app.request("/june")).text();
         expect(html).toContain('class="look bake"');
-        expect(html).not.toContain("Made with Tondo");
+        expect(html).toContain("Made with Tondo");
     });
 
     it("offers Pro for a second live page on Starter", async () => {

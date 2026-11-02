@@ -641,18 +641,20 @@
 }
 
 /* Questions and the closing call to action */
-.pl-faq-in {
-    display: grid;
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-    gap: 40px;
-}
 .pl-faq h2 {
     margin: 0;
 }
-.pl-faq details {
-    border-top: 1px solid var(--line);
+.pl-faq-lead {
+    margin-top: 10px;
 }
-.pl-faq details:last-child {
+.pl-faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 40px;
+    align-items: start;
+    margin-top: 28px;
+}
+.pl-faq details {
     border-bottom: 1px solid var(--line);
 }
 .pl-faq summary {
@@ -745,14 +747,49 @@
 .pc-cards {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
-    max-width: 1080px;
+    max-width: 760px;
     margin: 0 auto;
     text-align: left;
 }
-#pricing .pc-cards {
-    max-width: none;
+.pc-switch {
+    position: relative;
+    display: flex;
+    width: fit-content;
+    margin: 0 auto 22px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+}
+.pc-switch button {
+    height: 34px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    color: var(--soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.pc-switch button[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+}
+[data-period="month"] .pc-year,
+[data-period="year"] .pc-month {
+    display: none;
+}
+.pc-more {
+    position: relative;
+    margin: 22px auto 0;
+    max-width: 760px;
+    color: var(--soft);
+    font-size: 15px;
+    text-align: center;
 }
 .pc-card {
     display: flex;
@@ -982,7 +1019,7 @@
     .t-roles,
     .r-today-in,
     .lk,
-    .pl-faq-in {
+    .pl-faq-grid {
         grid-template-columns: minmax(0, 1fr);
     }
     .t-stage {

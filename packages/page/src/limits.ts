@@ -5,8 +5,9 @@ export type PaidPlan = Exclude<Plan, "free">;
 export type Period = "month" | "year";
 
 export const PRICES: Readonly<Record<PaidPlan, Readonly<Record<Period, number>>>> = {
-    starter: { month: 4, year: 40 },
-    pro: { month: 10, year: 100 },
+    starter: { month: 5, year: 48 },
+    /** For 5 pages. Each further 5 costs the same again. */
+    pro: { month: 12, year: 120 },
 };
 
 export interface Limits {
@@ -15,20 +16,27 @@ export interface Limits {
     /** Of those, how many visitors can see. */
     live: number;
     photos: number;
-    /** Help me credits each month. */
+    /** Help me credits each month, or in total with `creditsOnce`. */
     credits: number;
-    /** How many people a team can have, counting its owner. None means this plan doesn't cover one. */
-    people: number;
+    /** These credits don't come back each month. */
+    creditsOnce: boolean;
+    /** Whether this plan covers a team. */
+    team: boolean;
 }
 
+// `free` isn't sold as a plan. It's what an account has before it subscribes, or after it stops.
 export const PLANS: Readonly<Record<Plan, Limits>> = {
-    free: { pages: 1, live: 0, photos: 25, credits: 15, people: 0 },
-    starter: { pages: 5, live: 1, photos: 2000, credits: 100, people: 0 },
-    pro: { pages: 5, live: 5, photos: 2000, credits: 300, people: 10 },
+    free: { pages: 1, live: 0, photos: 25, credits: 15, creditsOnce: true, team: false },
+    starter: { pages: 1, live: 1, photos: 2000, credits: 100, creditsOnce: false, team: false },
+    pro: { pages: 5, live: 5, photos: 2000, credits: 300, creditsOnce: false, team: true },
 };
 
-/** Pages a team can have of its own, including any waiting for their person. */
-export const TEAM_PAGES = 5;
+/** Pro is sold in packs of this many pages. */
+export const PACK_PAGES = PLANS.pro.live;
+/** The most packs one account can have, which is 100 pages. */
+export const MOST_PACKS = 20;
+/** How long the first subscription is free for. Once per account. */
+export const TRIAL_DAYS = 14;
 /** How long an invitation link works. */
 export const INVITE_DAYS = 7;
 
@@ -54,11 +62,22 @@ const isPlan = (value: string): value is Plan => Object.hasOwn(PLANS, value);
 export interface Account {
     plan: string;
     endsAt: Date | null;
+    /** How many packs of Pro. Left out means one. */
+    packs?: number;
 }
 
-/** What an account can do at this moment. Once a plan has ended, that's what Free allows. */
-export function limitsFor({ plan, endsAt }: Account, now: Date): Limits {
+/** What one account's Pro comes to, with its pages and credits for this many packs. */
+export const proLimits = (packs: number): Limits => ({
+    ...PLANS.pro,
+    pages: PLANS.pro.pages * packs,
+    live: PLANS.pro.live * packs,
+    credits: PLANS.pro.credits * packs,
+});
+
+/** What an account can do at this moment. Once a plan has ended, it's back to having none. */
+export function limitsFor({ plan, endsAt, packs = 1 }: Account, now: Date): Limits {
     if (endsAt !== null && now >= endsAt) return PLANS.free;
+    if (plan === "pro") return proLimits(packs);
     return PLANS[isPlan(plan) ? plan : "free"];
 }
 
@@ -79,32 +98,50 @@ export interface Standing {
     joinedLive: boolean;
     /** This page is live, whether or not visitors can see it. */
     published: boolean;
+    /** Older live pages on this page's team. */
+    teamRank: number;
+    /** Live pages on this page's team. */
+    teamLive: number;
 }
 
 export type LimitsOf = (account: Account) => Limits;
 
 /** Whether a team's owner is on a plan that covers it. */
 export const isCovered = (team: Account | null, limitsOf: LimitsOf): boolean =>
-    team !== null && limitsOf(team).people > 0;
+    team !== null && limitsOf(team).team;
+
+/** How many pages a team can hold. Before the owner pays, there's room to build one pack's worth. */
+export const teamRoom = (team: Account, limitsOf: LimitsOf): number =>
+    isCovered(team, limitsOf) ? limitsOf(team).live : PACK_PAGES;
+
+/** Whether a page on a covered team fits within the owner's live pages, oldest first. */
+const fitsTeam = (standing: Standing, limitsOf: LimitsOf): boolean =>
+    standing.team !== null &&
+    isCovered(standing.team, limitsOf) &&
+    standing.teamRank < limitsOf(standing.team).live;
 
 /**
- * A covered team pays for its own pages and each person's joined page, which don't use anyone's live
- * pages. Without that cover, a team's pages are offline and a joined page counts like any other page.
+ * A covered team pays for its own pages and each person's joined page, up to the owner's live pages, and
+ * they don't use anyone else's. Past that or without cover, a team's pages are offline and a joined page
+ * counts like any other page.
  */
 export function isPageOnline(standing: Standing, limitsOf: LimitsOf): boolean {
+    if (standing.kind === "team") return fitsTeam(standing, limitsOf);
+    if (standing.kind === "joined" && fitsTeam(standing, limitsOf)) return true;
     const covered = isCovered(standing.team, limitsOf);
-    if (standing.kind === "team") return covered;
-    if (standing.kind === "joined" && covered) return true;
     const rank = standing.rank + (standing.joinedOlder && !covered ? 1 : 0);
     return isOnline(limitsOf(standing.account), rank);
 }
 
 /** Whether this page can be published, by the same rule. */
 export function canPublishStanding(standing: Standing, limitsOf: LimitsOf): boolean {
-    const covered = isCovered(standing.team, limitsOf);
-    if (standing.kind === "team") return covered;
-    if (standing.kind === "joined" && covered) return true;
+    if (standing.kind !== "personal" && standing.team && isCovered(standing.team, limitsOf)) {
+        const room = standing.teamLive < limitsOf(standing.team).live;
+        if (standing.published ? fitsTeam(standing, limitsOf) : room) return true;
+    }
+    if (standing.kind === "team") return false;
     if (standing.published) return isPageOnline(standing, limitsOf);
+    const covered = isCovered(standing.team, limitsOf);
     const live = standing.personalLive + (standing.joinedLive && !covered ? 1 : 0);
     return canPublishPage(limitsOf(standing.account), live, null);
 }

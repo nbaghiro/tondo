@@ -20,7 +20,7 @@ export interface AccountStore {
     /** False if the address is taken. Someone who already has pages keeps them. */
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
     /** Someone with no row yet, such as a person in the start flow, is on Free. */
-    findPlan: (userId: string) => Promise<{ plan: Plan; endsAt: Date | null }>;
+    findPlan: (userId: string) => Promise<{ plan: Plan; endsAt: Date | null; packs: number }>;
     findStripeId: (userId: string) => Promise<string | null>;
     /** Keeps the first id saved, so two tabs can't leave two customers. Returns the id kept. */
     setStripeId: (userId: string, stripeId: string) => Promise<string | null>;
@@ -30,7 +30,7 @@ export interface AccountStore {
      */
     setPlan: (
         stripeId: string,
-        plan: { plan: Plan; endsAt: Date | null; ifEmpty?: boolean },
+        plan: { plan: Plan; endsAt: Date | null; packs?: number; ifEmpty?: boolean },
     ) => Promise<string | null>;
     /** Removes the person's addresses, pages and counts. A suspended person's addresses stay out of use. */
     removeUser: (userId: string) => Promise<void>;
@@ -98,10 +98,10 @@ export function createAccountStore(db: Db): AccountStore {
         },
         findPlan: async (userId) => {
             const [row] = await db
-                .select({ plan: users.plan, endsAt: users.endsAt })
+                .select({ plan: users.plan, endsAt: users.endsAt, packs: users.packs })
                 .from(users)
                 .where(eq(users.id, userId));
-            return row ?? { plan: "free", endsAt: null };
+            return row ?? { plan: "free", endsAt: null, packs: 1 };
         },
         findStripeId: async (userId) => {
             const [row] = await db
@@ -121,10 +121,14 @@ export function createAccountStore(db: Db): AccountStore {
                 .where(eq(users.id, userId));
             return row?.stripeId ?? null;
         },
-        setPlan: async (stripeId, { plan, endsAt, ifEmpty }) => {
+        setPlan: async (stripeId, { plan, endsAt, packs, ifEmpty }) => {
             const [row] = await db
                 .update(users)
-                .set({ plan, endsAt: ifEmpty ? sql`coalesce(${users.endsAt}, ${endsAt})` : endsAt })
+                .set({
+                    plan,
+                    endsAt: ifEmpty ? sql`coalesce(${users.endsAt}, ${endsAt})` : endsAt,
+                    ...(packs ? { packs } : {}),
+                })
                 .where(eq(users.stripeId, stripeId))
                 .returning({ id: users.id });
             return row?.id ?? null;

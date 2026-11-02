@@ -14,6 +14,8 @@ const sub = (over: Partial<SubscriptionView>): SubscriptionView => ({
     period: "month",
     periodEnd: 2_000_000_000,
     cancelling: false,
+    quantity: 1,
+    trialEnd: null,
     ...over,
 });
 
@@ -30,10 +32,11 @@ function setup(list: SubscriptionView[] = []) {
         createCustomer: () => Promise.resolve("cus_new"),
         checkoutUrl: (input) => {
             calls.push(`checkout ${input.plan} ${input.period} ${input.successUrl}`);
+            calls.push(`trial ${String(input.trial)}`);
             return Promise.resolve("https://pay.example/1");
         },
         changeUrl: (input) => {
-            calls.push(`change ${input.plan} ${input.period}`);
+            calls.push(`change ${input.plan} ${input.period} ${String(input.quantity)}`);
             return Promise.resolve("https://pay.example/change");
         },
         portalUrl: () => Promise.resolve("https://pay.example/portal"),
@@ -90,7 +93,11 @@ describe("copying a plan from Stripe", () => {
     };
 
     it.each(["active", "trialing", "past_due"])("treats %s as paid", async (status) => {
-        expect(await stateAfter([sub({ status })])).toEqual({ plan: "pro", endsAt: null });
+        expect(await stateAfter([sub({ status })])).toEqual({
+            plan: "pro",
+            endsAt: null,
+            packs: 1,
+        });
     });
 
     it("uses Stripe's own end date, so repeats can't move it", async () => {
@@ -137,6 +144,36 @@ describe("copying a plan from Stripe", () => {
         store.plans.set("june", { plan: "pro", endsAt: earlier });
         await syncPlan(payments, store, "cus_1");
         expect(store.plans.get("june")?.endsAt).toEqual(earlier);
+    });
+});
+
+describe("packs and the trial", () => {
+    it("copies how many packs from the subscription", async () => {
+        const { store, payments } = setup([sub({ status: "trialing", quantity: 3 })]);
+        await syncPlan(payments, store, "cus_1");
+        expect(store.plans.get("june")).toMatchObject({ plan: "pro", packs: 3, endsAt: null });
+    });
+
+    it("gives a trial on the first subscription only", async () => {
+        const body = { plan: "pro", period: "month", from: "edit" };
+        const first = setup();
+        await first.post("/api/v1/me/billing/checkout", body);
+        expect(first.calls).toContain("trial true");
+        const again = setup([sub({ status: "canceled", endedAt: 1_000 })]);
+        await again.post("/api/v1/me/billing/checkout", body);
+        expect(again.calls).toContain("trial false");
+    });
+
+    it("changes how many packs through Stripe's confirm page, on Pro only", async () => {
+        const pro = setup([sub({})]);
+        const res = await pro.post("/api/v1/me/billing/packs", { packs: 2 });
+        expect(res.status).toBe(200);
+        expect(pro.calls).toEqual(["change pro month 2"]);
+        const starter = setup([sub({ lookupKey: "starter_month" })]);
+        const refused = await starter.post("/api/v1/me/billing/packs", { packs: 2 });
+        expect(refused.status).toBe(409);
+        const tooMany = await pro.post("/api/v1/me/billing/packs", { packs: 21 });
+        expect(tooMany.status).toBe(400);
     });
 });
 
@@ -189,6 +226,7 @@ describe("checkout", () => {
         await post("/api/v1/me/billing/checkout", { ...body, plan: "pro", period: "year", page });
         expect(calls).toEqual([
             `checkout pro year https://tondo.page/app/edit?paid=1&page=${page}`,
+            "trial true",
         ]);
     });
 
@@ -203,7 +241,7 @@ describe("checkout", () => {
         const { post, calls } = setup([sub({ lookupKey: "starter_month" })]);
         const res = await post("/api/v1/me/billing/checkout", { ...body, plan: "pro" });
         expect(await res.json()).toEqual({ url: "https://pay.example/change" });
-        expect(calls).toEqual(["change pro month"]);
+        expect(calls).toEqual(["change pro month 1"]);
     });
 
     it("refuses when a paid subscription exists", async () => {

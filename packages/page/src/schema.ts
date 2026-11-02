@@ -146,6 +146,8 @@ export const pageSchema = z.strictObject({
     /** Which painting. Leaving this out uses the look's own. */
     seed: z.number().int().min(1).optional(),
     style: pageStyleSchema.optional(),
+    /** Leaves "Made with Tondo" off the live page. */
+    hideBadge: z.boolean().optional(),
     /** The owner's time zone, so an event at 10 am is at 10 am where they are. */
     timeZone: z.string().max(60).refine(isTimeZone, "That isn't a time zone.").optional(),
     header: headerSchema,

@@ -9,10 +9,10 @@ const covers = (plan: PaidPlan) => {
     const { live, credits, photos } = PLANS[plan];
     const pages = `${String(live)} live ${live === 1 ? "page" : "pages"}`;
     const rest = `${String(credits)} Help me credits a month and ${photos.toLocaleString("en")} photos`;
-    return plan === "pro" ? `${pages}, ${rest}. Team features are included.` : `${pages}, ${rest}.`;
+    return plan === "pro" ? `${pages}, ${rest}. Teams are included.` : `${pages}, ${rest}.`;
 };
 
-/** Starter and Pro, paid monthly or yearly. Pressing a plan goes to Stripe to confirm and pay. */
+/** Starter and Pro, paid monthly or yearly. Pressing a plan goes to Stripe to confirm. */
 export function PlanChoice(props: {
     offer: "any" | "pro";
     onChoose: (plan: PaidPlan, period: Period) => void;
@@ -60,7 +60,9 @@ export function PlanChoice(props: {
                         </span>
                         <small>
                             {covers(plan)}
-                            {period() === "year" ? " Two months free." : ""}
+                            {period() === "year"
+                                ? ` Saves $${String(PRICES[plan].month * 12 - PRICES[plan].year)} a year.`
+                                : ""}
                         </small>
                     </button>
                 )}

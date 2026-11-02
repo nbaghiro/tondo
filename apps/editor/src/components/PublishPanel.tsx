@@ -99,7 +99,8 @@ export function PublishPanel(props: {
                         >
                             <p>
                                 Your page is saved, and it's free to keep building. A plan puts it
-                                online at {view().address}.
+                                online at {view().address}. Your first subscription starts with 14
+                                free days, and you add a card to start it.
                             </p>
                         </Show>
                         <Show when={view().problem}>

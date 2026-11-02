@@ -47,7 +47,7 @@ test.describe("the teams and pricing pages", () => {
         await expect(page.locator("h1")).toContainText("one look for the team");
         await page.locator('.foot a[href="/pricing"]').click();
         await expect(page).toHaveURL(/\/pricing$/);
-        await expect(page.locator("h1")).toHaveText("Free to build, and paying puts it online");
+        await expect(page.locator("h1")).toHaveText("Build for free, then try it live for 14 days");
     });
 
     test("the nav goes to the pages, and Home links to both", async ({ page }, testInfo) => {
@@ -128,20 +128,27 @@ test.describe("the teams and pricing pages", () => {
     test("pricing states the plans, with cards that go to sign-up", async ({ page }) => {
         await page.goto("/pricing");
         await expect(page.locator(".r-table thead th")).toHaveText([
-            /Free.*\$0/,
-            /Starter.*\$4 a month or \$40 a year/,
-            /Pro.*\$10 a month or \$100 a year/,
+            /Starter.*\$5 a month or \$48 a year/,
+            /Pro.*\$12 a month or \$120 a year/,
         ]);
         const live = page.locator(".r-table tbody tr", { hasText: "Live pages" });
-        await expect(live.locator(".r-value")).toHaveText(["None", "1", "5"]);
-        await expect(page.locator(".pc-card")).toHaveCount(3);
-        await expect(page.locator(".pc-card a")).toHaveCount(3);
+        await expect(live.locator(".r-value")).toHaveText(["1", "5"]);
+        await expect(page.locator(".pc-card")).toHaveCount(2);
+        await expect(page.locator(".pc-card a")).toHaveCount(2);
+        await expect(page.locator(".pc-card a").first()).toHaveText("Try free for 14 days");
+        await expect(page.locator(".pc-card strong:visible").last()).toHaveText("$12 a month");
+        await page.locator("[data-set-period=year]").click();
+        await expect(page.locator(".pc-card strong:visible").last()).toHaveText("$120 a year");
+        await expect(page.locator(".pc-more")).toContainText("Add 5 more pages for $12");
+        await expect(page.locator(".pl-faq details")).toHaveCount(13);
         for (const link of await page.locator(".pc-card a").all()) {
             await expect(link).toHaveAttribute("href", "/signup");
         }
         const body = page.locator("body");
         for (const words of [
-            "Made with Tondo",
+            "per pack",
+            "QR code",
+            "refund",
             "a person",
             "Planned",
             "Available today",

@@ -19,18 +19,20 @@ const personalStanding = (
     personalLive,
     joinedLive: false,
     published,
+    teamRank: 0,
+    teamLive: 0,
 });
 
 /** Keeps addresses in memory, for tests. */
 export function createFakeStore(): AccountStore & {
     suspend: (userId: string) => void;
     teamOwners: Set<string>;
-    plans: Map<string, { plan: Plan; endsAt: Date | null }>;
+    plans: Map<string, { plan: Plan; endsAt: Date | null; packs?: number }>;
     customers: Map<string, string>;
 } {
     const customers = new Map<string, string>();
     const owners = new Map<string, string>();
-    const plans = new Map<string, { plan: Plan; endsAt: Date | null }>();
+    const plans = new Map<string, { plan: Plan; endsAt: Date | null; packs?: number }>();
     const suspended = new Set<string>();
     const teamOwners = new Set<string>();
     const handlesOf = (userId: string) =>
@@ -57,14 +59,18 @@ export function createFakeStore(): AccountStore & {
             if (!customers.has(userId)) customers.set(userId, stripeId);
             return Promise.resolve(customers.get(userId) ?? null);
         },
-        setPlan: (stripeId, { plan, endsAt, ifEmpty }) => {
+        setPlan: (stripeId, { plan, endsAt, ifEmpty, packs }) => {
             const userId = [...customers].find(([, id]) => id === stripeId)?.[0];
             if (!userId) return Promise.resolve(null);
             const before = plans.get(userId)?.endsAt ?? null;
-            plans.set(userId, { plan, endsAt: ifEmpty ? (before ?? endsAt) : endsAt });
+            plans.set(userId, {
+                plan,
+                endsAt: ifEmpty ? (before ?? endsAt) : endsAt,
+                ...(packs ? { packs } : {}),
+            });
             return Promise.resolve(userId);
         },
-        findPlan: (userId) => Promise.resolve(plans.get(userId) ?? { plan: "free", endsAt: null }),
+        findPlan: (userId) => Promise.resolve({ packs: 1, ...(plans.get(userId) ?? FREE) }),
         listPages,
         listReachable: listPages,
         ownsTeam: (userId) => Promise.resolve(teamOwners.has(userId)),

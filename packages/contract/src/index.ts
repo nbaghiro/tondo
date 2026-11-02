@@ -1,4 +1,4 @@
-import { handleSchema, normaliseHandle, pageSchema } from "@tondo/page";
+import { handleSchema, MOST_PACKS, normaliseHandle, pageSchema } from "@tondo/page";
 import { z } from "zod";
 
 export const routes = {
@@ -33,6 +33,7 @@ export const routes = {
     billingCheckout: "/api/v1/me/billing/checkout",
     billingPortal: "/api/v1/me/billing/portal",
     billingSync: "/api/v1/me/billing/sync",
+    billingPacks: "/api/v1/me/billing/packs",
     stripeWebhook: "/api/stripe/webhook",
     team: "/api/v1/me/team",
     teamInvites: "/api/v1/me/team/invites",
@@ -64,7 +65,8 @@ const limits = z.strictObject({
     live: z.number(),
     photos: z.number(),
     credits: z.number(),
-    people: z.number(),
+    creditsOnce: z.boolean(),
+    team: z.boolean(),
 });
 export const pageSummary = z.strictObject({
     id: z.string(),
@@ -110,6 +112,7 @@ export const checkoutRequest = z.strictObject({
     /** The page being published, so coming back opens that one. */
     page: z.uuid().optional(),
 });
+export const packsRequest = z.strictObject({ packs: z.number().int().min(1).max(MOST_PACKS) });
 export const billingUrlResponse = z.strictObject({ url: z.string() });
 export const billingResponse = z.strictObject({
     period: z.enum(["month", "year"]).nullable(),
@@ -118,6 +121,10 @@ export const billingResponse = z.strictObject({
     cancelling: z.boolean(),
     /** The last payment didn't go through, and Stripe is retrying. */
     failing: z.boolean(),
+    /** When a free trial ends, as an ISO date. */
+    trialUntil: z.string().nullable(),
+    /** Whether the next subscription starts with a trial. */
+    trialLeft: z.boolean(),
 });
 export type BillingUrlResponse = z.infer<typeof billingUrlResponse>;
 export type CheckoutRequest = z.infer<typeof checkoutRequest>;
@@ -141,9 +148,10 @@ export const teamResponse = z.strictObject({
     role: z.enum(["owner", "editor", "member"]),
     /** Whether the owner's plan covers the team now. */
     covered: z.boolean(),
-    /** How many people the plan allows, counting the owner. */
-    most: z.number(),
-    pagesMost: z.number(),
+    /** How many pages the team can hold, counting its own and everyone's joined page. */
+    room: z.number(),
+    /** How many it holds now. */
+    held: z.number(),
     ownerSuspended: z.boolean(),
     myPageId: z.string().nullable(),
     people: z.array(teamPerson),
@@ -283,6 +291,8 @@ export const assistantStatus = z.strictObject({
     credits: z.number(),
     /** The first day of next month, as a date. */
     resetsOn: z.string(),
+    /** These credits don't come back, so `resetsOn` doesn't apply. */
+    once: z.boolean(),
     imageCredits: z.number(),
     /** False if there's no image model on this server, so nothing offers to make one. */
     images: z.boolean(),

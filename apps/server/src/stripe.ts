@@ -1,4 +1,4 @@
-import { PRICES } from "@tondo/page";
+import { PRICES, TRIAL_DAYS } from "@tondo/page";
 import type { PaidPlan, Period } from "@tondo/page";
 import Stripe from "stripe";
 
@@ -13,6 +13,10 @@ export interface SubscriptionView {
     /** Seconds since 1970, when the paid period ends. */
     periodEnd: number | null;
     cancelling: boolean;
+    /** How many packs. */
+    quantity: number;
+    /** Seconds since 1970, when a free trial ends. */
+    trialEnd: number | null;
 }
 
 export type BillingEvent =
@@ -29,6 +33,8 @@ export interface Payments {
         period: Period;
         successUrl: string;
         cancelUrl: string;
+        /** The first subscription on an account starts free. A card is still needed. */
+        trial: boolean;
     }) => Promise<string>;
     /** Stripe's page for confirming a change to this subscription, which it charges for itself. */
     changeUrl: (input: {
@@ -37,6 +43,7 @@ export interface Payments {
         item: string;
         plan: PaidPlan;
         period: Period;
+        quantity: number;
         returnUrl: string;
     }) => Promise<string>;
     portalUrl: (customer: string, returnUrl: string) => Promise<string>;
@@ -107,7 +114,7 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
             );
             return customer.id;
         },
-        checkoutUrl: async ({ customer, plan, period, successUrl, cancelUrl }) => {
+        checkoutUrl: async ({ customer, plan, period, successUrl, cancelUrl, trial }) => {
             const price = await priceFor(plan, period);
             const session = await client.checkout.sessions.create({
                 mode: "subscription",
@@ -116,6 +123,8 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
                 success_url: successUrl,
                 cancel_url: cancelUrl,
                 integration_identifier: "tondo_plans_qhzmtvra",
+                payment_method_collection: "always",
+                ...(trial ? { subscription_data: { trial_period_days: TRIAL_DAYS } } : {}),
                 consent_collection: { terms_of_service: "required" },
                 ...(tax
                     ? {
@@ -128,7 +137,7 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
             if (!session.url) throw new Error("Stripe sent no payment page.");
             return session.url;
         },
-        changeUrl: async ({ customer, subscription, item, plan, period, returnUrl }) => {
+        changeUrl: async ({ customer, subscription, item, plan, period, quantity, returnUrl }) => {
             const price = await priceFor(plan, period);
             const session = await client.billingPortal.sessions.create({
                 customer,
@@ -137,7 +146,7 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
                     type: "subscription_update_confirm",
                     subscription_update_confirm: {
                         subscription,
-                        items: [{ id: item, price: price.id, quantity: 1 }],
+                        items: [{ id: item, price: price.id, quantity }],
                     },
                     after_completion: { type: "redirect", redirect: { return_url: returnUrl } },
                 },
@@ -169,6 +178,8 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
                     period: interval === "month" ? "month" : interval === "year" ? "year" : null,
                     periodEnd: item?.current_period_end ?? null,
                     cancelling: sub.cancel_at_period_end,
+                    quantity: item?.quantity ?? 1,
+                    trialEnd: sub.trial_end ?? null,
                 };
             });
         },

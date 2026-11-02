@@ -1,5 +1,25 @@
 # Plans implementation plan
 
+**Current, built on 2026-11-01 against the stand-in. This replaces the rules below wherever they differ.** See the top of [plans.md](plans.md) for what was decided. It stays off until `PLANS_ON`, there's no Stripe account yet, and none of this has run against real Stripe.
+
+| What | How it's built |
+|---|---|
+| Unsubscribed | `PLANS.free` isn't sold. It's 1 page, 0 live, 25 photos and 15 Help me credits in total, kept on one `usage` row with the month `total` |
+| Starter | 1 page and 1 live, $5 a month or $48 a year |
+| Pro | Per pack: `proLimits(packs)` gives 5 pages, 5 live and 300 credits a pack, up to 20 packs. Photos stay 2,000. $12 a month or $120 a year a pack |
+| Packs | `users.packs`, copied from the Stripe subscription's quantity on the one Pro Price for each period. Migration `0008` |
+| Changing packs | `POST /api/v1/me/billing/packs`, from Account and the New page prompt, through Stripe's confirm page, which charges or credits |
+| Trial | 14 days, with `trial_period_days` and a card required at Checkout. A customer's first subscription only, which Stripe's list tells us, so there's no column |
+| When it starts | When the subscription starts, which is normally at first publish. Someone who subscribes from Account starts it then |
+| Trial ending or cancelling | The subscription ends, `ends_at` is set, and pages go offline as they would for any lapsed plan |
+| Limits on screen | New page on Starter or with no plan offers Pro. Over Pro's pages offers 5 more. Interface copy doesn't say "pack" |
+| Badge | "Made with Tondo" on every live page. `page.hideBadge`, from a switch in Page settings, leaves it off from the next publish. Only subscribers have live pages, so it needs no further check |
+| Prices | `limits.ts`, and the boot check compares Stripe's Prices with them |
+| Site | Two cards with a monthly and yearly switch, and "Try free for 14 days" going to sign-up. "Your own domain" is listed and **isn't built**: it has to be before launch |
+
+**The owner must create in Stripe:** Prices with the lookup keys `starter_month` at $5, `starter_year` at $48, `pro_month` at $12 and `pro_year` at $120, with a portal configuration that allows quantity changes on Pro.
+
+
 This plan builds the plan the owner chose in [plans.md](plans.md).
 
 **Status:** the simplified plans decided on 2026-11-01 are built, off until `PLANS_ON`, and tested against a stand-in for Stripe. `PLANS_ON` is true only in tests. The real pass in a Stripe sandbox hasn't been done, because it needs the owner's account. [Current plans](#current-plans) below is what the code does. Everything after that section is the earlier plan (option A), kept as history, and much of it no longer applies.

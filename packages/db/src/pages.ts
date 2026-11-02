@@ -187,10 +187,12 @@ const pageRows = (db: Db, where: SQL | undefined) =>
             updatedAt: stamp,
             personPlan: person.plan,
             personEnds: person.endsAt,
+            personPacks: person.packs,
             personSuspended: person.suspendedAt,
             ownerId: teams.ownerId,
             ownerPlan: owner.plan,
             ownerEnds: owner.endsAt,
+            ownerPacks: owner.packs,
             ownerSuspended: owner.suspendedAt,
             rank: sql<number>`(
                 select count(*)::int from ${pages} older
@@ -201,6 +203,15 @@ const pageRows = (db: Db, where: SQL | undefined) =>
                 select 1 from ${pages} older
                 where older.user_id = ${pages.userId} and older.team_id is not null
                     and older.published is not null and ${isOlder}
+            )`,
+            teamRank: sql<number>`(
+                select count(*)::int from ${pages} older
+                where older.team_id = ${pages.teamId}
+                    and older.published is not null and ${isOlder}
+            )`,
+            teamLive: sql<number>`(
+                select count(*)::int from ${pages} older
+                where older.team_id = ${pages.teamId} and older.published is not null
             )`,
             personalLive: sql<number>`(
                 select count(*)::int from ${pages} older
@@ -228,19 +239,27 @@ const pageRows = (db: Db, where: SQL | undefined) =>
 type PageRow = Awaited<ReturnType<typeof pageRows>>[number];
 
 const standingOf = (row: PageRow): Standing => {
-    const team = row.ownerPlan ? { plan: row.ownerPlan, endsAt: row.ownerEnds } : null;
+    const team = row.ownerPlan
+        ? { plan: row.ownerPlan, endsAt: row.ownerEnds, packs: row.ownerPacks ?? 1 }
+        : null;
     return {
         kind: row.userId === null ? "team" : row.teamId ? "joined" : "personal",
         account:
             row.userId === null
                 ? (team ?? { plan: "free", endsAt: null })
-                : { plan: row.personPlan ?? "free", endsAt: row.personEnds },
+                : {
+                      plan: row.personPlan ?? "free",
+                      endsAt: row.personEnds,
+                      packs: row.personPacks ?? 1,
+                  },
         team,
         rank: row.rank,
         joinedOlder: row.joinedOlder,
         personalLive: row.personalLive,
         joinedLive: row.joinedLive,
         published: row.published !== null,
+        teamRank: row.teamRank,
+        teamLive: row.teamLive,
     };
 };
 

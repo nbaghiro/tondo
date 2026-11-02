@@ -28,6 +28,8 @@ export const users = pgTable("users", {
     endsAt: timestamp("ends_at", { withTimezone: true }),
     /** Can edit any page on their team. The owner is `teams.owner_id`, and everyone else is a member. */
     editor: boolean("editor").notNull().default(false),
+    /** Pro is sold per pack of pages. This is the subscription's quantity, copied from Stripe. */
+    packs: integer("packs").notNull().default(1),
 });
 
 // A person's team is the one they own, or the one their joined page is on, so `users` doesn't say.

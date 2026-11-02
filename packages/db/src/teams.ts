@@ -1,6 +1,6 @@
-import { readPage, starterPage, TEAM_PAGES } from "@tondo/page";
+import { readPage, starterPage } from "@tondo/page";
 import type { Account, Page } from "@tondo/page";
-import { and, asc, count, eq, inArray, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { Db } from "./client";
 import { listOwnOfTeam } from "./pages";
 import type { PageSummary, TeamRole } from "./pages";
@@ -20,6 +20,8 @@ export interface TeamPerson {
 export interface TeamView {
     id: string;
     ownerId: string;
+    /** How many pages are on the team. */
+    held: number;
     /** The name and address on the team's look page. */
     name: string;
     handle: string;
@@ -46,7 +48,7 @@ export interface TeamInvite {
     ownerSuspended: boolean;
     invitesFrom: Date;
     look: Page | null;
-    peopleCount: number;
+    held: number;
     /** The page the link names, while it's still waiting for its person. */
     made: { id: string; handle: string; name: string } | null;
 }
@@ -78,10 +80,16 @@ export interface TeamStore {
         editor: boolean,
     ) => Promise<"owner" | "missing" | "set">;
     /** Changes which of this person's pages is on the team. Only an owner can have none. */
-    setPage: (teamId: string, userId: string, pageId: string | null) => Promise<boolean>;
+    setPage: (
+        teamId: string,
+        userId: string,
+        pageId: string | null,
+        most: number,
+    ) => Promise<boolean>;
     addPage: (
         teamId: string,
         page: { id: string; handle: string; draft: Page },
+        most: number,
     ) => Promise<"added" | "full" | "taken">;
     endInvites: (teamId: string) => Promise<void>;
     /** Whoever holds this team's page named by the link becomes the owner. */
@@ -126,12 +134,10 @@ const isOnTeam = async (tx: Tx, userId: string) => {
     return owned !== undefined;
 };
 
-const peopleCount = async (tx: Db | Tx, teamId: string, ownerId: string) => {
-    const [row] = await tx
-        .select({ joined: count() })
-        .from(pages)
-        .where(and(eq(pages.teamId, teamId), isNotNull(pages.userId), ne(pages.userId, ownerId)));
-    return (row?.joined ?? 0) + 1;
+/** What a team's room is used by: its own pages and everyone's joined page. */
+const pagesHeld = async (tx: Db | Tx, teamId: string) => {
+    const [row] = await tx.select({ held: count() }).from(pages).where(eq(pages.teamId, teamId));
+    return row?.held ?? 0;
 };
 
 const teamIdOf = async (db: Db | Tx, userId: string) => {
@@ -162,6 +168,7 @@ export function createTeamStore(db: Db): TeamStore {
             .select({
                 plan: users.plan,
                 endsAt: users.endsAt,
+                packs: users.packs,
                 suspendedAt: users.suspendedAt,
             })
             .from(users)
@@ -213,12 +220,13 @@ export function createTeamStore(db: Db): TeamStore {
             return {
                 id,
                 ownerId: team.ownerId,
+                held: rows.length,
                 name: nameOf(look.draft),
                 handle: look.handle,
                 lookPageId: look.id,
                 lookLive: look.published !== null,
                 role,
-                owner: { plan: owner.plan, endsAt: owner.endsAt },
+                owner: { plan: owner.plan, endsAt: owner.endsAt, packs: owner.packs },
                 ownerSuspended: owner.suspendedAt !== null,
                 invitesFrom: team.invitesFrom,
                 people: [
@@ -267,11 +275,11 @@ export function createTeamStore(db: Db): TeamStore {
                 ownerId: team.ownerId,
                 name: nameOf(look.draft),
                 handle: look.handle,
-                owner: { plan: owner.plan, endsAt: owner.endsAt },
+                owner: { plan: owner.plan, endsAt: owner.endsAt, packs: owner.packs },
                 ownerSuspended: owner.suspendedAt !== null,
                 invitesFrom: team.invitesFrom,
                 look: look.published ? readPage(look.published) : null,
-                peopleCount: await peopleCount(db, teamId, team.ownerId),
+                held: await pagesHeld(db, teamId),
                 made: made ? { id: made.id, handle: made.handle, name: nameOf(made.draft) } : null,
             };
         },
@@ -279,11 +287,18 @@ export function createTeamStore(db: Db): TeamStore {
             const id = await teamIdOf(db, userId);
             if (!id) return null;
             const [row] = await db
-                .select({ id: users.id, plan: users.plan, endsAt: users.endsAt })
+                .select({
+                    id: users.id,
+                    plan: users.plan,
+                    endsAt: users.endsAt,
+                    packs: users.packs,
+                })
                 .from(teams)
                 .innerJoin(users, eq(teams.ownerId, users.id))
                 .where(eq(teams.id, id));
-            return row ? { id: row.id, account: { plan: row.plan, endsAt: row.endsAt } } : null;
+            return row
+                ? { id: row.id, account: { plan: row.plan, endsAt: row.endsAt, packs: row.packs } }
+                : null;
         },
         create: async (userId, { handle, page, join }) =>
             db.transaction(async (tx) => {
@@ -332,7 +347,8 @@ export function createTeamStore(db: Db): TeamStore {
                     .where(eq(users.id, userId))
                     .for("update");
                 if (await isOnTeam(tx, userId)) return "on-team";
-                if ((await peopleCount(tx, teamId, team.ownerId)) >= most) return "full";
+                // A page made for them is already counted, so claiming it needs no more room.
+                if (!("made" in page) && (await pagesHeld(tx, teamId)) >= most) return "full";
                 if ("made" in page) {
                     if (page.made === (await lookPageId(tx, teamId))) return "taken";
                     const [claimed] = await tx
@@ -396,7 +412,7 @@ export function createTeamStore(db: Db): TeamStore {
                 await tx.update(users).set({ editor }).where(eq(users.id, page.userId));
                 return "set";
             }),
-        setPage: async (teamId, userId, pageId) =>
+        setPage: async (teamId, userId, pageId, most) =>
             db.transaction(async (tx) => {
                 const team = await lockTeam(tx, teamId);
                 if (!team || (pageId === null && team.ownerId !== userId)) return false;
@@ -413,18 +429,15 @@ export function createTeamStore(db: Db): TeamStore {
                     .where(and(eq(pages.userId, userId), eq(pages.teamId, teamId)));
                 if (pageId) {
                     await tx.update(pages).set({ teamId }).where(eq(pages.id, pageId));
+                    if ((await pagesHeld(tx, teamId)) > most) tx.rollback();
                 }
                 return true;
             }),
-        addPage: async (teamId, { id, handle, draft }) =>
+        addPage: async (teamId, { id, handle, draft }, most) =>
             db.transaction(async (tx) => {
                 const team = await lockTeam(tx, teamId);
                 if (!team) return "full";
-                const [row] = await tx
-                    .select({ own: count() })
-                    .from(pages)
-                    .where(and(eq(pages.teamId, teamId), isNull(pages.userId)));
-                if ((row?.own ?? 0) >= TEAM_PAGES) return "full";
+                if ((await pagesHeld(tx, teamId)) >= most) return "full";
                 const made = await tx
                     .insert(pages)
                     .values({ id, teamId, handle, draft })

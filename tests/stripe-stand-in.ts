@@ -11,15 +11,16 @@ interface Subscription {
     customer: string;
     status: string;
     ended_at: number | null;
+    trial_end: number | null;
     cancel_at_period_end: boolean;
     items: { object: "list"; data: unknown[] };
 }
 
 const PRICES = [
-    { id: "price_starter_month", key: "starter_month", amount: 400, interval: "month" },
-    { id: "price_starter_year", key: "starter_year", amount: 4000, interval: "year" },
-    { id: "price_pro_month", key: "pro_month", amount: 1000, interval: "month" },
-    { id: "price_pro_year", key: "pro_year", amount: 10000, interval: "year" },
+    { id: "price_starter_month", key: "starter_month", amount: 500, interval: "month" },
+    { id: "price_starter_year", key: "starter_year", amount: 4800, interval: "year" },
+    { id: "price_pro_month", key: "pro_month", amount: 1200, interval: "month" },
+    { id: "price_pro_year", key: "pro_year", amount: 12000, interval: "year" },
 ];
 const priceObject = (price: (typeof PRICES)[number]) => ({
     id: price.id,
@@ -35,7 +36,7 @@ const byKey = new Map<string, string>();
 const subscriptions = new Map<string, Subscription>();
 const sessions = new Map<
     string,
-    { customer: string; price: string; success: string; cancel: string }
+    { customer: string; price: string; success: string; cancel: string; trial: number }
 >();
 const SITE = `http://127.0.0.1:${String(PORTS.testNeon)}`;
 const WEBHOOK = `http://127.0.0.1:${String(PORTS.testServer)}/api/stripe/webhook`;
@@ -110,6 +111,7 @@ export function stripeStandIn(
             const sub = subscriptions.get(searchParams.get("sub") ?? "");
             const back = searchParams.get("return") ?? "";
             const price = PRICES.find((other) => other.id === searchParams.get("price"));
+            const quantity = Number(searchParams.get("quantity") ?? 1);
             if (action === "done" && sub && price) {
                 sub.items = {
                     object: "list",
@@ -117,6 +119,7 @@ export function stripeStandIn(
                         {
                             id: "si_1",
                             price: priceObject(price),
+                            quantity,
                             current_period_end: now() + 30 * 86_400,
                         },
                     ],
@@ -148,8 +151,9 @@ export function stripeStandIn(
                 id: `sub_${randomUUID()}`,
                 object: "subscription",
                 customer: session.customer,
-                status: "active",
+                status: session.trial ? "trialing" : "active",
                 ended_at: null,
+                trial_end: session.trial ? now() + session.trial * 86_400 : null,
                 cancel_at_period_end: false,
                 items: {
                     object: "list",
@@ -157,6 +161,7 @@ export function stripeStandIn(
                         {
                             id: "si_1",
                             price: price ? priceObject(price) : null,
+                            quantity: 1,
                             current_period_end: now() + 30 * 86_400,
                         },
                     ],
@@ -174,7 +179,7 @@ export function stripeStandIn(
         res.writeHead(200, { "content-type": "text/html" });
         res.end(
             page(
-                `<h1>Pay</h1><p id="price-key">${PRICES.find((other) => other.id === session.price)?.key ?? ""}</p><a id="pay" href="/pay/${id ?? ""}/done">Pay</a> <a id="pay-quiet" href="/pay/${id ?? ""}/done?quiet=1">Pay with no event</a> <a id="cancel" href="/pay/${id ?? ""}/cancel">Cancel</a>`,
+                `<h1>Pay</h1><p id="price-key">${PRICES.find((other) => other.id === session.price)?.key ?? ""}</p><p id="trial-days">${String(session.trial)}</p><a id="pay" href="/pay/${id ?? ""}/done">Pay</a> <a id="pay-quiet" href="/pay/${id ?? ""}/done?quiet=1">Pay with no event</a> <a id="cancel" href="/pay/${id ?? ""}/cancel">Cancel</a>`,
             ),
         );
         return true;
@@ -242,6 +247,7 @@ export function stripeStandIn(
             price: form.get("line_items[0][price]") ?? "",
             success: form.get("success_url") ?? "",
             cancel: form.get("cancel_url") ?? "",
+            trial: Number(form.get("subscription_data[trial_period_days]") ?? 0),
         });
         json(res, 200, { id, object: "checkout.session", url: `${SITE}/pay/${id}` });
         return true;
@@ -250,11 +256,12 @@ export function stripeStandIn(
         const back = encodeURIComponent(form.get("return_url") ?? "");
         const changing = form.get("flow_data[subscription_update_confirm][subscription]");
         const price = form.get("flow_data[subscription_update_confirm][items][0][price]");
+        const quantity = form.get("flow_data[subscription_update_confirm][items][0][quantity]");
         json(res, 200, {
             id: "bps_1",
             object: "billing_portal.session",
             url: changing
-                ? `${SITE}/pay/change?sub=${changing}&price=${price ?? ""}&return=${back}`
+                ? `${SITE}/pay/change?sub=${changing}&price=${price ?? ""}&quantity=${quantity ?? "1"}&return=${back}`
                 : `${SITE}/pay/portal?return=${back}`,
         });
         return true;

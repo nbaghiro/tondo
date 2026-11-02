@@ -212,6 +212,12 @@ export async function startCheckout(request: CheckoutRequest): Promise<string | 
     return res?.ok ? ((await res.json()) as { url: string }).url : null;
 }
 
+/** Stripe's page for changing how many pages Pro has. */
+export async function changePacks(packs: number): Promise<string | null> {
+    const res = await send("POST", routes.billingPacks, { packs }).catch(() => null);
+    return res?.ok ? ((await res.json()) as { url: string }).url : null;
+}
+
 export async function openPortal(): Promise<string | null> {
     const res = await send("POST", routes.billingPortal, {}).catch(() => null);
     return res?.ok ? ((await res.json()) as { url: string }).url : null;

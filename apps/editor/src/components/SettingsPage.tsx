@@ -25,6 +25,7 @@ export function SettingsPage(props: {
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
     const [timeZone, setTimeZone] = createSignal("");
+    const [showBadge, setShowBadge] = createSignal(true);
     const [handle, setHandle] = createSignal(untrack(() => props.page.handle));
     const [current, setCurrent] = createSignal(untrack(() => props.page.handle));
     const [addressNote, setAddressNote] = createSignal("");
@@ -46,18 +47,25 @@ export function SettingsPage(props: {
         setTitle(loaded.page.title ?? "");
         setDescription(loaded.page.description ?? "");
         setTimeZone(loaded.page.timeZone ?? "");
+        setShowBadge(!loaded.page.hideBadge);
     });
 
     const saveDetails = async (e: Event) => {
         e.preventDefault();
         const loaded = draft();
         if (!loaded) return;
-        const { title: _title, description: _description, ...rest } = loaded.page;
+        const {
+            title: _title,
+            description: _description,
+            hideBadge: _badge,
+            ...rest
+        } = loaded.page;
         const page = {
             ...rest,
             ...(title().trim() ? { title: title().trim() } : {}),
             ...(description().trim() ? { description: description().trim() } : {}),
             ...(timeZone() ? { timeZone: timeZone() } : {}),
+            ...(showBadge() ? {} : { hideBadge: true }),
         };
         const result = await saveDraft(props.page.id, page, loaded.updatedAt, null);
         if (result.state === "saved") {
@@ -204,6 +212,16 @@ export function SettingsPage(props: {
                                         onInput={(e) => setDescription(e.currentTarget.value)}
                                     />
                                     <small>These go live the next time you publish.</small>
+                                </label>
+                                <label class="check-row">
+                                    <input
+                                        type="checkbox"
+                                        name="badge"
+                                        data-show-badge
+                                        checked={showBadge()}
+                                        onChange={(e) => setShowBadge(e.currentTarget.checked)}
+                                    />
+                                    Show "Made with Tondo" at the foot of this page
                                 </label>
                                 <label class="f">
                                     Time zone
