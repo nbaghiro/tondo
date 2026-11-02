@@ -1,15 +1,5 @@
-import {
-    findSection,
-    freeLookFor,
-    PLANS,
-    pageHash,
-    paidUses,
-    publishIssues,
-    publishWarnings,
-    stepDown,
-    triedUses,
-} from "@tondo/page";
-import type { LookName, Page, PublishIssue } from "@tondo/page";
+import { findSection, pageHash, publishIssues, publishWarnings } from "@tondo/page";
+import type { PaidPlan, Period, PublishIssue } from "@tondo/page";
 import type { DraftResponse } from "@tondo/contract";
 import { looks, paint, paintFor, themeOf } from "@tondo/render";
 import { createEffect, createSignal, onCleanup, onMount, Show, untrack } from "solid-js";
@@ -24,7 +14,7 @@ import {
     syncBilling,
 } from "../lib/api";
 import { pageUrl, toLogin } from "../lib/account";
-import { changesFrom, noteFor } from "../lib/plan-copy";
+import { planName } from "../lib/plan-copy";
 import { plan, refreshPlan } from "../state/plan";
 import type { Account } from "../lib/account";
 import { downloadPage, dropBackup, loadStaleBackup } from "../state/storage";
@@ -162,46 +152,21 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
     const [dragOrder, setDragOrder] = createSignal<{ id: string; to: number } | null>(null);
     const [picking, setPicking] = createSignal<{ name: string; x: number; y: number } | null>(null);
 
-    const lookLabel = (look: LookName) => looks[look].label;
-    const limits = () => plan()?.limits ?? PLANS.pro;
-    const [livePage, setLivePage] = createSignal<Page | null>(null);
-    const [freeBusy, setFreeBusy] = createSignal(false);
-    const [freePreview, setFreePreview] = createSignal(false);
-    const [checkoutProblem, setCheckoutProblem] = createSignal("");
-    const freeCopy = () =>
-        stepDown(editor.page(), {
-            keepContent: false,
-            live: livePage(),
-            keepDesign: limits().design,
-        });
-
-    // Says once per visit that something needs Pro. What the page already had when it opened was seen.
-    const [planNote, setPlanNote] = createSignal("");
     const [paidNote, setPaidNote] = createSignal("");
-    const usesNow = () =>
-        plan()?.billing ? triedUses(editor.page(), limits(), livePage(), lookLabel) : [];
-    const mentioned = new Set(untrack(usesNow).map((use) => `${use.code}${use.label}`));
-    createEffect(() => {
-        const fresh = usesNow().filter((use) => !mentioned.has(`${use.code}${use.label}`));
-        const first = fresh[0];
-        if (!first) return;
-        for (const use of fresh) mentioned.add(`${use.code}${use.label}`);
-        setPlanNote(noteFor(first));
-        const timer = setTimeout(() => setPlanNote(""), NOTICE_MS * 2);
-        onCleanup(() => {
-            clearTimeout(timer);
-        });
-    });
+    const [checkoutProblem, setCheckoutProblem] = createSignal("");
 
-    const goToCheckout = async () => {
+    const goToCheckout = async (chosen: PaidPlan, period: Period) => {
         setCheckoutProblem("");
         await editor.saver.flush();
-        const url = await startCheckout("edit");
+        const url = await startCheckout({
+            plan: chosen,
+            period,
+            from: "edit",
+            page: props.pageId,
+        });
         if (url) location.assign(url);
         else {
-            setCheckoutProblem(
-                "We couldn't open the payment page. Please try again, or publish with free choices for now.",
-            );
+            setCheckoutProblem("We couldn't open the payment page. Please try again.");
             setView(listView());
         }
     };
@@ -210,8 +175,10 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
         for (let tries = 0; tries < PAID_TRIES; tries++) {
             await syncBilling();
             await refreshPlan();
-            if (plan()?.limits.design) {
-                setPaidNote("You're on Pro. Your page is ready to publish.");
+            const issues = await loadPublishChecks(props.pageId);
+            const current = plan();
+            if (current && current.limits.live > 0 && !issues.some((issue) => issue.plan)) {
+                setPaidNote(`You're on ${planName(current)}. Your page is ready to publish.`);
                 await openPublishList();
                 return;
             }
@@ -226,19 +193,16 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
         setRight("publish");
         setSheet("publish");
     };
-    const runPublish = async (free = false) => {
+    const runPublish = async () => {
         setPublishing(true);
         const failedSave = "Your latest changes aren't saved yet. Try again in a moment.";
         const saved = await editor.saver.flush();
         const result = saved
-            ? await publish(props.pageId, editor.saver.updatedAt(), free)
+            ? await publish(props.pageId, editor.saver.updatedAt())
             : ({ state: "failed", message: editor.saver.message() || failedSave } as const);
         setPublishing(false);
         if (result.state === "published") {
-            // Free choices leave the draft ahead of what's live, so there's still something to publish.
-            if (free) editor.syncLive(true, true);
-            else editor.markPublished();
-            setLivePage(await loadLive(props.pageId));
+            editor.markPublished();
             setView({
                 state: "live",
                 url: pageUrl(props.draft.handle),
@@ -282,21 +246,17 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
             ...publishIssues(editor.page()),
         ];
         if (issues.length) return { state: "issues", issues };
-        const warnings = publishWarnings(editor.page());
-        const uses = plan()?.billing
-            ? paidUses(editor.page(), limits(), livePage(), lookLabel)
-            : [];
-        return uses.length
+        const offer = serverIssues().find((issue) => issue.plan)?.plan;
+        return offer
             ? {
                   state: "plan",
-                  uses,
-                  warnings,
+                  offer,
+                  address: `tondo.page/${props.draft.handle}`,
                   ...(checkoutProblem() ? { problem: checkoutProblem() } : {}),
               }
-            : { state: "warnings", warnings };
+            : { state: "warnings", warnings: publishWarnings(editor.page()) };
     };
     const openPublishList = async () => {
-        setLivePage(await loadLive(props.pageId));
         if (await editor.saver.flush()) setServerIssues(await loadPublishChecks(props.pageId));
         setView(listView());
         showPublish();
@@ -902,10 +862,10 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                                 }
                                 openIssue(issue.target, issue.item);
                             }}
-                            onFreeChoices={() => setFreePreview(true)}
-                            onGetPro={() => {
-                                goToCheckout().catch(() => undefined);
+                            onChoosePlan={(chosen, period) => {
+                                goToCheckout(chosen, period).catch(() => undefined);
                             }}
+                            onKeepEditing={closeRight}
                             onPublishAnyway={() => {
                                 runPublish().catch(() => {
                                     setPublishing(false);
@@ -980,35 +940,6 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                 <div class="toast on" role="status" data-paid-note>
                     {paidNote()}
                 </div>
-            </Show>
-            <Show when={planNote()}>
-                <div class="toast on" role="status" data-plan-note>
-                    {planNote()}
-                </div>
-            </Show>
-            <Show when={freePreview()}>
-                <Preview
-                    page={freeCopy()}
-                    onClose={() => setFreePreview(false)}
-                    freeChoices={{
-                        changes: changesFrom(
-                            paidUses(editor.page(), limits(), livePage(), lookLabel),
-                            looks[freeLookFor(editor.page().look)].label,
-                        ),
-                        busy: freeBusy(),
-                        onPublish: () => {
-                            setFreeBusy(true);
-                            runPublish(true)
-                                .catch(() => {
-                                    setPublishing(false);
-                                })
-                                .finally(() => {
-                                    setFreeBusy(false);
-                                    setFreePreview(false);
-                                });
-                        },
-                    }}
-                />
             </Show>
             <Show when={previewing()}>
                 <Preview page={editor.page()} onClose={() => setPreviewing(false)} />

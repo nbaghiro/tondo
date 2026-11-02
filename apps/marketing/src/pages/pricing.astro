@@ -1,5 +1,4 @@
 ---
-import { paint } from "@tondo/render";
 import { groups, heads } from "../data/plans";
 import type { Cell } from "../data/plans";
 import AppSide from "../components/AppSide.astro";
@@ -7,18 +6,16 @@ import Art from "../components/Art.astro";
 import ClaimForm from "../components/ClaimForm.astro";
 import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
+import PlanCards from "../components/PlanCards.astro";
 import LookTile from "../components/LookTile.astro";
 import Nav from "../components/Nav.astro";
-import Status from "../components/Status.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/plans.css";
 
 const said: Record<Exclude<Cell, object>, string> = {
-    yes: "Works today",
-    coming: "Coming",
+    yes: "Included",
     no: "Not part of this plan",
 };
-const saidPaid = { ...said, yes: "Works today, and will be part of this plan" };
 
 const tiles = ["madder", "sumi", "sap", "dusk", "signal", "lilac"] as const;
 const clicks = [
@@ -30,111 +27,56 @@ const clicks = [
 
 const faq = [
     {
-        q: "What does Tondo cost today?",
-        a: "Nothing. Paid plans can't be bought yet, so every account can use everything that works today, and we don't ask for a card.",
+        q: "What does it cost to try Tondo?",
+        a: "Nothing. Building and previewing a page is free, and you don't need a card. You pay when you want the page online.",
     },
     {
-        q: "What will the free plan include?",
-        a: "One page at your own address, 12 looks with their own colours and fonts, 14 kinds of section with up to 6 on a page, 25 photos and 7 days of statistics. Free pages will carry a small Made with Tondo.",
+        q: "What does the free plan include?",
+        a: "Building and previewing one page, with every look, colour, font, background and kind of section, plus 25 photos and 15 Help me credits a month. Your address is held while you build. Putting the page online is what a paid plan adds.",
     },
     {
-        q: "Can I try Pro before paying?",
-        a: "That's the plan. Anything in Pro will work in the editor, marked with a small label, and you'll only be asked when you publish. You'll also be able to publish with free choices instead, and your draft keeps everything.",
+        q: "What's the difference between Starter and Pro?",
+        a: "Starter has 1 live page, 100 Help me credits a month and 2,000 photos. Pro has 5 live pages, 300 credits and 2,000 photos, and includes team features at one price for the account. Design and sections are the same on both.",
+    },
+    {
+        q: "What do visitors see before I publish?",
+        a: "A short note saying there's no page at that address right now, with a link to log in. It doesn't show your name or anything from your draft.",
     },
     {
         q: "How do I cancel?",
-        a: "There's nothing to cancel today, because nobody is paying. You can delete your account at any time from the Account page, which removes your page. When paid plans open, you'll be able to cancel from the same page, and we plan to refund your first payment if you ask within 14 days.",
+        a: "From the Account page. Your page stays online until the period you paid for ends, and we refund your first payment if you ask within 14 days.",
     },
     {
         q: "What happens if a plan ends?",
-        a: "Your page stays online at its address and your content stays. The Tondo mark returns and the free limits apply. After 30 days, paid looks, your own colours and fonts and photo backgrounds change to free ones on your live page. Your draft keeps them, so they come back if you subscribe again.",
-    },
-    {
-        q: "Which plan will each coming feature be on?",
-        a: "The table shows our current thinking for anything marked Coming, and a feature might land on a different plan from the one shown here.",
-    },
-    {
-        q: "When will Pro and Team be available?",
-        a: "We don't have a date. Paid plans come after a private release, and Team comes after that. To hear about teams, email hello@tondo.page.",
+        a: "Your page goes offline when the paid period ends. Visitors see the same short note, and your content stays. You can still log in and edit, and subscribing again puts the page back online. If a payment fails, the page stays up while the payment is retried, and goes offline only if the subscription ends.",
     },
 ];
 ---
 
 <BaseLayout
     title="Pricing | Tondo"
-    description="Tondo's Free, Pro and Team plans. Paid plans can't be bought yet, so everything that works today is free for now."
+    description="Tondo is free to build, and a paid plan puts your page online. Starter is $4 a month and Pro is $10 a month."
 >
-    <div class="wrap logo-wide">
+    <div class="wrap">
         <Nav />
         <header class="r-hero">
-            <h1>Free for now, with paid plans on the way</h1>
+            <h1>Free to build, and paying puts it online</h1>
             <p class="sub">
-                Paid plans can't be bought yet, so every account can use everything that works
-                today. This page shows how Free and Pro will work once they open.
+                You can build and preview your page for free, with every look and kind of section. A
+                plan is what puts it online at your address.
             </p>
-            <div class="r-discs">
-                <div class="r-plan">
-                    <div class="r-art">
-                        <div class="r-disc r-disc-free">
-                            <Art seed={3} />
-                            <img
-                                src="/shots/maya.jpg"
-                                alt="Maya Okafor's example page"
-                                width="390"
-                                height="844"
-                            />
-                        </div>
-                    </div>
-                    <h2>Free</h2>
-                    <strong>$0</strong>
-                    <Status now label="Available today" />
-                    <p>One page, 12 looks, up to 6 sections and 7 days of statistics.</p>
-                    <a class="mbtn" href="/signup">
-                        Get started
-                    </a>
-                </div>
-                <div class="r-plan">
-                    <div class="r-art">
-                        <div class="r-disc" set:html={paint(["#a42a55"], 37, { ring: 6 })} />
-                        <div class="r-inside" aria-hidden="true">
-                            <span class="r-domain">yourname.com</span>
-                        </div>
-                    </div>
-                    <h2>Pro</h2>
-                    <strong>$6 a month</strong>
-                    <Status label="Planned" />
-                    <p>All 50 looks, your own colour and fonts, Shop, Tabs and no Tondo mark.</p>
-                </div>
-                <div class="r-plan">
-                    <div class="r-art">
-                        <div class="r-disc" set:html={paint(["#a42a55"], 41, { ring: 6 })} />
-                        <div class="r-inside r-faces" aria-hidden="true">
-                            <img src="/photos/face-24.jpg" alt="" />
-                            <img src="/photos/face-25.jpg" alt="" />
-                            <img src="/photos/face-29.jpg" alt="" />
-                        </div>
-                    </div>
-                    <h2>Team</h2>
-                    <strong>$4 a person</strong>
-                    <Status label="Planned" />
-                    <p>A page for each person, shared looks and roles.</p>
-                    <a class="pl-link" href="/teams">
-                        About teams
-                    </a>
-                </div>
-            </div>
+            <PlanCards />
         </header>
     </div>
 
     <section class="band pl-sec r-today">
-        <div class="wrap logo-wide r-today-in">
+        <div class="wrap r-today-in">
             <div class="r-today-text">
-                <Status now />
-                <h2>What Free will include</h2>
+                <h2>Every plan gets the whole editor</h2>
                 <p class="sub">
-                    One address and one page, built in the full editor. Choose from 12 looks, add up
-                    to 6 sections and see how many people visited in the last 7 days and what they
-                    opened.
+                    Every look, colour, font, background and kind of section is on every plan, with
+                    no limit on sections. Once a page is live, you can see how many people visited
+                    and what they opened, over 7, 30 or 90 days.
                 </p>
                 <div class="r-tiles" aria-hidden="true">
                     {tiles.map((name) => (
@@ -196,29 +138,15 @@ const faq = [
     </section>
 
     <section class="pl-sec" id="compare">
-        <div class="wrap logo-wide">
+        <div class="wrap">
             <div class="pl-head">
                 <h2>Compare the plans</h2>
                 <p class="sub">
-                    Until paid plans open, every account can use everything that works today,
-                    including what's marked for Pro.
+                    Every plan has the whole editor. What changes is how many pages are online.
                 </p>
             </div>
-            <ul class="r-legend">
-                <li>
-                    <i class="r-yes" aria-hidden="true"></i> Works today
-                </li>
-                <li>
-                    <span class="st">Coming</span> Planned and not built yet
-                </li>
-                <li>
-                    <i class="r-no" aria-hidden="true"></i> Not part of this plan
-                </li>
-            </ul>
             <table class="r-table">
-                <caption class="r-vh">
-                    Features of the Free plan and the planned Pro and Team plans
-                </caption>
+                <caption class="r-vh">Features of the Free, Starter and Pro plans</caption>
                 <thead>
                     <tr>
                         <td></td>
@@ -226,7 +154,6 @@ const faq = [
                             <th scope="col">
                                 <b>{head.name}</b>
                                 <span>{head.price}</span>
-                                <small>{head.note}</small>
                             </th>
                         ))}
                     </tr>
@@ -244,29 +171,17 @@ const faq = [
                                     {row.label}
                                     {row.note ? <small>{row.note}</small> : null}
                                 </th>
-                                {row.cells.map((cell, i) => (
+                                {row.cells.map((cell) => (
                                     <td>
                                         {typeof cell === "object" ? (
-                                            <>
-                                                <span class="r-value">{cell.value}</span>
-                                                {cell.coming ? (
-                                                    <span class="st">Coming</span>
-                                                ) : null}
-                                            </>
-                                        ) : cell === "coming" ? (
-                                            <span class="st">Coming</span>
+                                            <span class="r-value">{cell.value}</span>
                                         ) : (
                                             <>
                                                 <i
-                                                    class:list={[
-                                                        cell === "yes" ? "r-yes" : "r-no",
-                                                        { "r-later": i > 0 },
-                                                    ]}
+                                                    class={cell === "yes" ? "r-yes" : "r-no"}
                                                     aria-hidden="true"
                                                 />
-                                                <span class="r-vh">
-                                                    {(i === 0 ? said : saidPaid)[cell]}
-                                                </span>
+                                                <span class="r-vh">{said[cell]}</span>
                                             </>
                                         )}
                                     </td>
@@ -276,11 +191,7 @@ const faq = [
                     </tbody>
                 ))}
             </table>
-            <p class="note r-tablenote">
-                Prices are in US dollars, before any tax, and could still change before paid plans
-                open. A tick under Pro or Team means the feature works today and will be part of
-                that plan.
-            </p>
+            <p class="note r-tablenote">Prices are in US dollars, before any tax.</p>
         </div>
     </section>
 
@@ -290,9 +201,9 @@ const faq = [
         <div class="pl-cta-paint">
             <Art seed={66} />
         </div>
-        <div class="wrap logo-wide">
+        <div class="wrap">
             <h2>Claim your link</h2>
-            <p class="sub">It's free today, and you won't need a card.</p>
+            <p class="sub">It's free to build, and you won't need a card.</p>
             <ClaimForm id="claim-pricing" />
         </div>
     </section>

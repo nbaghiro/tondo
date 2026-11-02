@@ -1,5 +1,3 @@
-import { isPaidSection } from "@tondo/page";
-import { ProLabel } from "./Parts";
 import {
     readLink,
     routeLink,
@@ -52,12 +50,7 @@ function Pick(props: {
                 <Glyph name={props.definition.icon} />
             </span>
             <span>
-                <b>
-                    {props.definition.name}
-                    <Show when={isPaidSection(props.definition)}>
-                        <ProLabel for="business" />
-                    </Show>
-                </b>
+                <b>{props.definition.name}</b>
                 <small>{props.definition.why}</small>
             </span>
             <Show when={usable()} fallback={<em class="soon-tag">Soon</em>}>

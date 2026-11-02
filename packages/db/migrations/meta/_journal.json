@@ -43,6 +43,13 @@
       "when": 1793574372651,
       "tag": "0005_one_address_per_page",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793576852879,
+      "tag": "0006_flat_pro_plan",
+      "breakpoints": true
     }
   ]
 }

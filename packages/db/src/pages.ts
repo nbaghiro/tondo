@@ -20,6 +20,8 @@ export interface LivePage {
     page: Page;
     plan: Plan;
     endsAt: Date | null;
+    /** How many of this person's live pages are older than this one. */
+    rank: number;
 }
 
 export interface PageStats {
@@ -55,8 +57,8 @@ export interface PageStore {
         page: Page,
         updatedAt: string,
     ) => Promise<string | null>;
-    /** False if someone saved since `updatedAt`. Otherwise the draft, or the page given, is live. */
-    publish: (userId: string, pageId: string, updatedAt: string, page?: Page) => Promise<boolean>;
+    /** False if someone saved since `updatedAt`. Otherwise the draft is live. */
+    publish: (userId: string, pageId: string, updatedAt: string) => Promise<boolean>;
     unpublish: (userId: string, pageId: string) => Promise<void>;
     count: (pageId: string, target: string, by?: number) => Promise<void>;
     /** What's live on this page, for naming the links in its numbers. */
@@ -132,13 +134,25 @@ export function createPageStore(db: Db): PageStore {
                     published: pages.published,
                     plan: users.plan,
                     endsAt: users.endsAt,
+                    rank: sql<number>`(
+                        select count(*)::int from ${pages} older
+                        where older.user_id = ${pages.userId}
+                            and older.published is not null
+                            and (older.created_at, older.id) < (${pages.createdAt}, ${pages.id})
+                    )`,
                 })
                 .from(pages)
                 .innerJoin(users, eq(pages.userId, users.id))
                 .where(and(eq(pages.handle, handle), isNull(users.suspendedAt)))
                 .limit(1);
             return row?.published
-                ? { id: row.id, page: read(row.published), plan: row.plan, endsAt: row.endsAt }
+                ? {
+                      id: row.id,
+                      page: read(row.published),
+                      plan: row.plan,
+                      endsAt: row.endsAt,
+                      rank: row.rank,
+                  }
                 : null;
         },
         listPages: (userId) => listPagesOf(db, userId),
@@ -175,10 +189,10 @@ export function createPageStore(db: Db): PageStore {
                 .returning({ updatedAt: stamp });
             return row?.updatedAt ?? null;
         },
-        publish: async (userId, pageId, updatedAt, page) => {
+        publish: async (userId, pageId, updatedAt) => {
             const rows = await db
                 .update(pages)
-                .set({ published: page ?? sql`${pages.draft}` })
+                .set({ published: sql`${pages.draft}` })
                 .where(and(pageOf(userId, pageId), isUnchanged(updatedAt)))
                 .returning({ id: pages.id });
             return rows.length > 0;
@@ -282,7 +296,7 @@ export function summarise(
 export async function seedUser(db: Db, handle: string, page: Page): Promise<void> {
     const userId = `seed-${handle}`;
     await db.transaction(async (tx) => {
-        // Example pages carry no mark.
+        // Example pages stay online.
         await tx
             .insert(users)
             .values({ id: userId, plan: "pro" })

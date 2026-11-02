@@ -6,6 +6,8 @@ import { Hono } from "hono";
 import { mountBilling } from "./billing";
 
 const sub = (over: Partial<SubscriptionView>): SubscriptionView => ({
+    id: "sub_1",
+    itemId: "si_1",
     status: "active",
     endedAt: null,
     lookupKey: "pro_month",
@@ -26,9 +28,13 @@ function setup(list: SubscriptionView[] = []) {
     });
     const payments: Payments = {
         createCustomer: () => Promise.resolve("cus_new"),
-        checkoutUrl: () => {
-            calls.push("checkout");
+        checkoutUrl: (input) => {
+            calls.push(`checkout ${input.plan} ${input.period} ${input.successUrl}`);
             return Promise.resolve("https://pay.example/1");
+        },
+        changeUrl: (input) => {
+            calls.push(`change ${input.plan} ${input.period}`);
+            return Promise.resolve("https://pay.example/change");
         },
         portalUrl: () => Promise.resolve("https://pay.example/portal"),
         subscriptions: () => Promise.resolve(current),
@@ -99,6 +105,17 @@ describe("copying a plan from Stripe", () => {
         expect(await stateAfter([sub({ status: "incomplete" })])).toBeUndefined();
     });
 
+    it("reads Starter and Pro from the price key, monthly or yearly", async () => {
+        for (const [lookupKey, plan] of [
+            ["starter_month", "starter"],
+            ["starter_year", "starter"],
+            ["pro_month", "pro"],
+            ["pro_year", "pro"],
+        ] as const) {
+            expect((await stateAfter([sub({ lookupKey })]))?.plan).toBe(plan);
+        }
+    });
+
     it("treats an unknown price as Pro", async () => {
         expect((await stateAfter([sub({ lookupKey: "mistake" })]))?.plan).toBe("pro");
     });
@@ -158,12 +175,35 @@ describe("the webhook", () => {
 });
 
 describe("checkout", () => {
-    const body = { period: "month", from: "edit" };
+    const body = { plan: "starter", period: "month", from: "edit" };
 
     it("gives a payment page", async () => {
         const { post } = setup();
         const res = await post("/api/v1/me/billing/checkout", body);
         expect(await res.json()).toEqual({ url: "https://pay.example/1" });
+    });
+
+    it("passes on the plan and period chosen, and comes back to the page", async () => {
+        const { post, calls } = setup();
+        const page = "3f2b8a10-4c5d-4e6f-8a9b-0c1d2e3f4a5b";
+        await post("/api/v1/me/billing/checkout", { ...body, plan: "pro", period: "year", page });
+        expect(calls).toEqual([
+            `checkout pro year https://tondo.page/app/edit?paid=1&page=${page}`,
+        ]);
+    });
+
+    it("refuses a plan that doesn't exist, or a page that isn't an id", async () => {
+        const { post } = setup();
+        const url = "/api/v1/me/billing/checkout";
+        expect((await post(url, { ...body, plan: "team" })).status).toBe(400);
+        expect((await post(url, { ...body, page: "x&y=1" })).status).toBe(400);
+    });
+
+    it("moves Starter to Pro through Stripe's confirm page, and only that way", async () => {
+        const { post, calls } = setup([sub({ lookupKey: "starter_month" })]);
+        const res = await post("/api/v1/me/billing/checkout", { ...body, plan: "pro" });
+        expect(await res.json()).toEqual({ url: "https://pay.example/change" });
+        expect(calls).toEqual(["change pro month"]);
     });
 
     it("refuses when a paid subscription exists", async () => {

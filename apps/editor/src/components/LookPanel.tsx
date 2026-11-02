@@ -1,4 +1,4 @@
-import { isFreeLook, lookNames } from "@tondo/page";
+import { lookNames } from "@tondo/page";
 import type { LookName, Page, PageStyle } from "@tondo/page";
 import {
     fontChoices,
@@ -14,10 +14,8 @@ import {
 import { createSignal, For, onCleanup, Show } from "solid-js";
 import { brandFromPhoto } from "../lib/photo-colour";
 import type { EditorState } from "../state/document";
-import { needsPro } from "../state/plan";
 import { FieldView } from "./Fields";
 import { Glyph } from "./Panels";
-import { ProLabel } from "./Parts";
 
 const TILES = "/photos/looks/";
 const FONT_ORIGIN = "https://fonts.googleapis.com/css2?";
@@ -83,12 +81,6 @@ export function LookTiles(props: { page: () => Page; onPick: (look: LookName) =>
         const colour = props.page().style?.colour;
         return colour && (colour.mode === "brand" || colour.mode === "photo") ? colour.brand : null;
     };
-    // On Free, free looks come first, keeping the mix within each group.
-    const inOrder = () =>
-        needsPro("design")
-            ? [...ORDER.filter(isFreeLook), ...ORDER.filter((name) => !isFreeLook(name))]
-            : ORDER;
-    const isPro = (name: LookName) => needsPro("design") && !isFreeLook(name);
     const varsFor = (name: LookName) => {
         const brand = kept();
         return { ...lookVars(name, looks[name]), ...(brand ? makeTheme(brand).vars : {}) };
@@ -110,17 +102,13 @@ export function LookTiles(props: { page: () => Page; onPick: (look: LookName) =>
                 </For>
             </div>
             <div class="tiles">
-                <For
-                    each={inOrder().filter(
-                        (name) => filter() === "all" || kindOf(name) === filter(),
-                    )}
-                >
+                <For each={ORDER.filter((name) => filter() === "all" || kindOf(name) === filter())}>
                     {(name) => (
                         <button
                             type="button"
                             class="tile"
                             data-look={name}
-                            aria-label={`${looks[name].label} look${isPro(name) ? ", part of Pro" : ""}`}
+                            aria-label={`${looks[name].label} look`}
                             aria-pressed={props.page().look === name}
                             ref={(el) => {
                                 fonts.observe(el);
@@ -139,14 +127,7 @@ export function LookTiles(props: { page: () => Page; onPick: (look: LookName) =>
                                 <span>Button</span>
                                 <span>Button</span>
                             </div>
-                            <u>
-                                {looks[name].label}
-                                <Show when={isPro(name)}>
-                                    <small class="pro-label" aria-hidden="true">
-                                        Pro
-                                    </small>
-                                </Show>
-                            </u>
+                            <u>{looks[name].label}</u>
                         </button>
                     )}
                 </For>
@@ -447,7 +428,6 @@ export function MakeItYours(props: { editor: EditorState }) {
                     >
                         <i />
                         My colour
-                        <ProLabel for="design" />
                         <input
                             id="mycol"
                             type="color"
@@ -473,7 +453,6 @@ export function MakeItYours(props: { editor: EditorState }) {
                         }}
                     >
                         From my photo
-                        <ProLabel for="design" />
                     </button>
                 </div>
                 <p class="fine">
@@ -537,10 +516,7 @@ export function MakeItYours(props: { editor: EditorState }) {
                                 >
                                     Aa
                                 </strong>
-                                <small>
-                                    {choice.label}
-                                    <ProLabel for="design" />
-                                </small>
+                                <small>{choice.label}</small>
                             </button>
                         )}
                     </For>

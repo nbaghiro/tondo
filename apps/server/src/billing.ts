@@ -1,7 +1,7 @@
 import { checkoutRequest, routes } from "@tondo/contract";
 import type { BillingResponse, BillingUrlResponse, ErrorResponse } from "@tondo/contract";
 import type { AccountStore } from "@tondo/db";
-import type { Plan } from "@tondo/page";
+import type { PaidPlan } from "@tondo/page";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
@@ -12,9 +12,9 @@ import type { Scale } from "./traffic";
 const PAID = new Set(["active", "trialing", "past_due"]);
 const STOPPED = new Set(["unpaid", "paused"]);
 
-const planOf = (sub: SubscriptionView): Plan => {
+const planOf = (sub: SubscriptionView): PaidPlan => {
     const name = sub.lookupKey?.split("_")[0];
-    if (name === "pro" || name === "team") return name;
+    if (name === "starter" || name === "pro") return name;
     // Nobody who paid should end up on Free because of a mistake in the Dashboard.
     process.stderr.write(`A subscription has an unknown price key: ${String(sub.lookupKey)}\n`);
     return "pro";
@@ -121,11 +121,15 @@ export function mountBilling(
         const { person, refused } = await allowed(c);
         if (!person) return refused;
         const parsed = checkoutRequest.safeParse(await c.req.json<unknown>().catch(() => null));
-        if (!parsed.success) return fail(c, 400, "Choose monthly or yearly.");
+        if (!parsed.success) return fail(c, 400, "Choose a plan, and monthly or yearly.");
         // Paying would end a free period someone was given, so that waits until it's over.
         const current = await store.findPlan(person.id);
         if (current.plan !== "free" && current.endsAt && current.endsAt > new Date()) {
-            return fail(c, 409, "You already have Pro for free. There's nothing to pay yet.");
+            return fail(
+                c,
+                409,
+                "You have a plan for free at the moment. There's nothing to pay yet.",
+            );
         }
         try {
             const customer =
@@ -135,16 +139,37 @@ export function mountBilling(
                     await payments.createCustomer(person.id, person.email),
                 ));
             if (!customer) return fail(c, 404, "Choose your address first.");
-            const list = await payments.subscriptions(customer);
-            if (list.some((sub) => PAID.has(sub.status))) {
-                return fail(c, 409, "You already have a plan. Manage it from your Account page.");
-            }
+            const { plan, period, from, page } = parsed.data;
             const base = appUrl(c);
+            const onPage = page ? `&page=${page}` : "";
+            const successUrl = `${base}/${from}?paid=1${onPage}`;
+            const list = await payments.subscriptions(customer);
+            const current = list.find((sub) => PAID.has(sub.status));
+            if (current) {
+                if (plan !== "pro" || planOf(current) !== "starter" || !current.itemId) {
+                    return fail(
+                        c,
+                        409,
+                        "You already have a plan. Manage it from your Account page.",
+                    );
+                }
+                const url = await payments.changeUrl({
+                    customer,
+                    subscription: current.id,
+                    item: current.itemId,
+                    plan,
+                    period,
+                    returnUrl: successUrl,
+                });
+                return c.json<BillingUrlResponse>({ url });
+            }
             const url = await payments.checkoutUrl({
                 customer,
-                period: parsed.data.period,
-                successUrl: `${base}/${parsed.data.from}?paid=1`,
-                cancelUrl: `${base}/${parsed.data.from}${parsed.data.from === "edit" ? "?panel=publish" : ""}`,
+                plan,
+                period,
+                successUrl,
+                cancelUrl:
+                    from === "edit" ? `${base}/edit?panel=publish${onPage}` : `${base}/account`,
             });
             return c.json<BillingUrlResponse>({ url });
         } catch (error) {

@@ -21,24 +21,22 @@ import type { Draft, PageStore } from "@tondo/db";
 import {
     canAddPage,
     canPublishPage,
+    isOnline,
     pageHash,
     publishIssues,
     starterPage,
-    stepDown,
 } from "@tondo/page";
-import type { Page, PublishIssue } from "@tondo/page";
+import type { Limits, Page, PublishIssue } from "@tondo/page";
 import { linkTargets } from "@tondo/render";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
 import { blockedIssues } from "./blocked";
-import { planIssues } from "./limits";
+import { livePageIssue } from "./limits";
 import type { LimitsOfPerson } from "./limits";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 
-const TOO_MANY_LIVE =
-    "You have as many live pages as your plan allows. Take one down to publish this one.";
 const MAX_PAGE_BYTES = 1024 * 1024;
 const STATS_DAYS = 30;
 const STAT_RANGES = [7, 30, 90];
@@ -55,9 +53,11 @@ export function mountPages(
         scale: Scale;
         limitsOfPerson: LimitsOfPerson;
         onHandleChange: (before: string | null, after: string | null) => void;
+        /** Which of someone's pages visitors see can depend on any of the others. */
+        onLivePagesChange: (userId: string) => Promise<void>;
     },
 ): void {
-    const { scale, limitsOfPerson, onHandleChange } = options;
+    const { scale, limitsOfPerson, onHandleChange, onLivePagesChange } = options;
     const fail = (
         c: Context,
         status: 400 | 401 | 403 | 404 | 409 | 413 | 415 | 429,
@@ -87,6 +87,14 @@ export function mountPages(
     const allowChange = createLimiter(scale(10), 60_000);
     const slowDown = (c: Context) => fail(c, 429, "Too many tries. Wait a little and try again.");
     const pageId = (c: Context) => c.req.param("id") ?? "";
+    // Oldest first, as the store lists them. Null if this page isn't live.
+    const liveNumbers = async (userId: string, id: string) => {
+        const live = (await store.listPages(userId)).filter((other) => other.live);
+        const at = live.findIndex((other) => other.id === id);
+        return { live: live.length, rank: at < 0 ? null : at };
+    };
+    const isOffline = (limits: Limits, rank: number | null) =>
+        rank !== null && !isOnline(limits, rank);
 
     app.get(routes.pages, async (c) => {
         const person = await currentPerson(c);
@@ -130,7 +138,11 @@ export function mountPages(
         if (!person) return fail(c, 401, "You're not logged in.");
         const draft = await store.findDraft(person.id, pageId(c));
         if (!draft) return missing(c);
-        return c.json<DraftResponse>(draft);
+        const { rank } = await liveNumbers(person.id, pageId(c));
+        return c.json<DraftResponse>({
+            ...draft,
+            offline: isOffline(await limitsOfPerson(person.id), rank),
+        });
     });
 
     app.put(routes.page(":id"), jsonBody, async (c) => {
@@ -168,6 +180,7 @@ export function mountPages(
             return fail(c, 409, "This is your only page, so it can't be deleted here.");
         }
         onHandleChange(draft.handle, null);
+        await onLivePagesChange(person.id);
         return c.body(null, 204);
     });
 
@@ -196,17 +209,13 @@ export function mountPages(
         userId: string,
         id: string,
         draft: Draft,
-        page: Page = draft.page,
     ): Promise<PublishIssue[]> => {
         const limits = await limitsOfPerson(userId);
-        const live = (await store.listPages(userId)).filter((other) => other.live).length;
+        const { live, rank } = await liveNumbers(userId, id);
         return [
             ...(draft.suspended ? [{ target: "page", message: SUSPENDED }] : []),
-            ...(canPublishPage(limits, live, draft.published)
-                ? []
-                : [{ target: "page", message: TOO_MANY_LIVE }]),
-            ...planIssues(page, limits, await store.findOwnLive(userId, id)),
-            ...blockedIssues(page),
+            ...(canPublishPage(limits, live, rank) ? [] : [livePageIssue(limits)]),
+            ...blockedIssues(draft.page),
         ];
     };
 
@@ -230,23 +239,15 @@ export function mountPages(
         const id = pageId(c);
         const draft = await store.findDraft(person.id, id);
         if (!draft) return missing(c);
-        // The copy goes through every check the draft would, and the draft stays as it is.
-        const free = parsed.data.free
-            ? stepDown(draft.page, {
-                  keepContent: false,
-                  live: await store.findOwnLive(person.id, id),
-                  keepDesign: (await limitsOfPerson(person.id)).design,
-              })
-            : undefined;
         const issues = [
-            ...(await serverIssues(person.id, id, draft, free)),
-            ...publishIssues(free ?? draft.page),
+            ...(await serverIssues(person.id, id, draft)),
+            ...publishIssues(draft.page),
         ];
         if (issues.length) {
             return c.json<IssuesResponse>({ error: "Fix these before publishing.", issues }, 422);
         }
-        if (!(await store.publish(person.id, id, parsed.data.updatedAt, free))) return conflict(c);
-        onHandleChange(draft.handle, null);
+        if (!(await store.publish(person.id, id, parsed.data.updatedAt))) return conflict(c);
+        await onLivePagesChange(person.id);
         return c.body(null, 204);
     });
 
@@ -258,7 +259,7 @@ export function mountPages(
         const draft = await store.findDraft(person.id, pageId(c));
         if (!draft) return missing(c);
         await store.unpublish(person.id, pageId(c));
-        onHandleChange(draft.handle, null);
+        await onLivePagesChange(person.id);
         return c.body(null, 204);
     });
 
@@ -277,8 +278,7 @@ export function mountPages(
         const id = pageId(c);
         if (!(await store.findDraft(person.id, id))) return missing(c);
         const asked = Number(c.req.query("days") ?? STATS_DAYS);
-        const { statsDays } = await limitsOfPerson(person.id);
-        const days = Math.min(STAT_RANGES.includes(asked) ? asked : STATS_DAYS, statsDays);
+        const days = STAT_RANGES.includes(asked) ? asked : STATS_DAYS;
         const stats = await store.statsFor(person.id, id, days);
         const live = await store.findOwnLive(person.id, id);
         const urls = live ? linkTargets(live) : {};

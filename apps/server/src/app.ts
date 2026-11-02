@@ -1,7 +1,7 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { LivePage, PageStore } from "@tondo/db";
-import { handleSchema, normaliseHandle, stepDown } from "@tondo/page";
+import { handleSchema, isOnline, normaliseHandle } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
@@ -12,6 +12,7 @@ import type { AuthConfig } from "./auth";
 import { isBlockedLink } from "./blocked";
 import { limitsOf } from "./limits";
 import { mountBilling } from "./billing";
+import { NO_PAGE } from "./no-page";
 import { mountPages } from "./pages";
 import { folderFor, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
@@ -74,11 +75,12 @@ export function createApp({
                 process.stderr.write(`Couldn't save a count: ${String(error)}\n`);
             });
         });
-    const live = (raw: string) => {
+    // Worked out per request from the cached plan, so a plan's end date passes when it should.
+    const live = async (raw: string) => {
         const handle = normaliseHandle(raw);
-        return handleSchema.safeParse(handle).success
-            ? cache.get(handle, () => pages.findLive(handle))
-            : Promise.resolve(null);
+        if (!handleSchema.safeParse(handle).success) return null;
+        const found = await cache.get(handle, () => pages.findLive(handle));
+        return found && isOnline(limitsOf(found), found.rank) ? found : null;
     };
 
     // A sandboxed frame or a data: page sends this, and neither should be able to act for someone.
@@ -122,6 +124,9 @@ export function createApp({
         if (before) cache.drop(before);
         if (after) cache.drop(after);
     };
+    const dropPagesOf = async (userId: string) => {
+        for (const { handle } of await pages.listPages(userId)) cache.drop(handle);
+    };
     const currentPerson = mountAuth(app, {
         ...auth,
         scale,
@@ -137,16 +142,19 @@ export function createApp({
         },
     });
     // Publishing has to show straight away, so it clears that page from the cache.
-    mountPages(app, pages, currentPerson, { scale, limitsOfPerson, onHandleChange });
+    mountPages(app, pages, currentPerson, {
+        scale,
+        limitsOfPerson,
+        onHandleChange,
+        onLivePagesChange: dropPagesOf,
+    });
     if (payments) {
         mountBilling(app, {
             payments,
             store: auth.store,
             currentPerson,
             scale,
-            onPlanChange: async (userId) => {
-                for (const { handle } of await pages.listPages(userId)) cache.drop(handle);
-            },
+            onPlanChange: dropPagesOf,
             appUrl: (c) =>
                 new URL(
                     auth.editorUrl,
@@ -183,12 +191,10 @@ export function createApp({
     app.get("/:handle", limit(scale(300), byIp), async (c) => {
         const handle = normaliseHandle(c.req.param("handle"));
         const found = await live(handle);
-        if (!found) return c.text(notFound.error, 404);
+        if (!found) return c.html(NO_PAGE, 404, PAGE_HEADERS);
         if (countsAsVisit(c)) add(found.id, "");
         const origin = publicOrigin ?? new URL(c.req.url).origin;
-        // Worked out per request from the cached plan, so a date passes when it should.
-        const limits = limitsOf(found);
-        const page = limits.design ? found.page : stepDown(found.page, { keepContent: true });
+        const { page } = found;
         return c.html(
             renderDocument(page, {
                 title: page.header.name,
@@ -196,7 +202,6 @@ export function createApp({
                 editable: false,
                 live: true,
                 trackAs: handle,
-                mark: limits.mark,
                 shareUrl: `${origin}/${handle}`,
                 onDrawError: (type, error) => {
                     process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);

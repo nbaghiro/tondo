@@ -1,16 +1,8 @@
 import { routes } from "@tondo/contract";
 import type { DraftResponse, PageSummary, StatsResponse } from "@tondo/contract";
-import {
-    freeLookFor,
-    isFreeLook,
-    pageHash,
-    publishIssues,
-    publishWarnings,
-    setupChecklist,
-    stepDown,
-} from "@tondo/page";
-import type { ChecklistItem, Page } from "@tondo/page";
-import { looks, paint, renderDocument } from "@tondo/render";
+import { publishIssues, publishWarnings, setupChecklist } from "@tondo/page";
+import type { ChecklistItem } from "@tondo/page";
+import { paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { appPath, onPage, pageUrl } from "../lib/account";
 import { loadBilling, loadLive, loadStats, publish, saveDraft, savePendingWork } from "../lib/api";
@@ -24,7 +16,7 @@ const PHONE_ART = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 3);
 
 async function loadHome(
     pageId: string,
-): Promise<{ draft: DraftResponse; stats: StatsResponse | null; live: Page | null }> {
+): Promise<{ draft: DraftResponse; stats: StatsResponse | null }> {
     const res = await fetch(routes.page(pageId));
     if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -32,8 +24,7 @@ async function loadHome(
     }
     // Leaving the builder straight after typing leaves that work in this browser, so it's saved first.
     const draft = await savePendingWork(pageId, (await res.json()) as DraftResponse);
-    const live = draft.published ? await loadLive(pageId) : null;
-    return { draft, stats: await loadStats(pageId, 30), live };
+    return { draft, stats: await loadStats(pageId, 30) };
 }
 
 function checklistLink(item: ChecklistItem, pageId: string): string {
@@ -45,17 +36,22 @@ function checklistLink(item: ChecklistItem, pageId: string): string {
     return appPath(`/edit?${asked.toString()}`);
 }
 
-/** What someone whose plan has ended needs to know about their live page. Null if nothing. */
-function planNotice(live: Page | null): string | null {
+const NOTHING_SHOWN = "Visitors to your address see a short note that there's no page here.";
+
+/** What someone needs to know about this page and their plan. Null if nothing. */
+function planNotice(draft: DraftResponse): string | null {
     const current = plan();
-    if (!current?.billing || current.plan === "free" || !current.endsAt) return null;
-    if (new Date(current.endsAt) > new Date()) return null;
-    if (!live || isFreeLook(live.look)) return null;
-    const from = looks[live.look].label;
-    const to = looks[freeLookFor(live.look)].label;
-    return current.designUntil
-        ? `Your plan has ended, and your page is still live. It keeps ${from} until ${longDate(current.designUntil)}, then moves to ${to}. You can choose another free look before then, or get Pro again.`
-        : `Your page now uses ${to}. Your draft still has everything, so getting Pro brings it back.`;
+    if (!current?.billing || draft.suspended) return null;
+    if (draft.offline) {
+        if (current.limits.live > 0) {
+            return `This page is offline, because your plan includes ${String(current.limits.live)} live page and this one is past that number. ${NOTHING_SHOWN} To bring it back, take another page down in Page settings, or move to Pro in Account.`;
+        }
+        const ended = current.endsAt ? ` on ${longDate(current.endsAt)}` : "";
+        return `Your plan ended${ended}, so this page is offline. ${NOTHING_SHOWN} Its content is kept and you can still edit it. To bring it back, choose a plan in Account.`;
+    }
+    return !draft.published && current.limits.live === 0
+        ? "You can build and preview your page for free. Your address is held for you, and a plan is what puts the page online when you publish."
+        : null;
 }
 
 function Checklist(props: { items: ChecklistItem[]; pageId: string }) {
@@ -207,7 +203,6 @@ export function HomePage(props: { page: PageSummary }) {
             assetBase: "/photos/",
             editable: false,
             live: true,
-            mark: Boolean(plan()?.billing && plan()?.limits.mark),
         }).replace("<head>", '<head><base target="_blank">');
 
     return (
@@ -225,17 +220,6 @@ export function HomePage(props: { page: PageSummary }) {
             >
                 {(loaded) => {
                     const draft = () => loaded().draft;
-                    // Someone who chose free choices hasn't got unfinished work, only Pro choices kept.
-                    const onlyPro = () => {
-                        const { live } = loaded();
-                        if (!plan()?.billing || !live || !draft().changed) return false;
-                        const down = stepDown(draft().page, {
-                            keepContent: false,
-                            live,
-                            keepDesign: plan()?.limits.design ?? false,
-                        });
-                        return pageHash(down) === pageHash(live);
-                    };
                     const status = () =>
                         draft().suspended
                             ? {
@@ -243,13 +227,17 @@ export function HomePage(props: { page: PageSummary }) {
                                   label: "Taken down",
                                   line: "This page was taken down for breaking our rules, so visitors can't see it.",
                               }
-                            : !draft().published
-                              ? { tone: "", label: "Not live yet", line: "Only you can see it." }
-                              : onlyPro()
+                            : draft().offline
+                              ? {
+                                    tone: "warn",
+                                    label: "Offline",
+                                    line: "Only you can see it. Your content is kept.",
+                                }
+                              : !draft().published
                                 ? {
-                                      tone: "ok",
-                                      label: "Live, with free choices",
-                                      line: "Your draft has Pro choices that aren't on your live page.",
+                                      tone: "",
+                                      label: "Not live yet",
+                                      line: `Only you can see it. ${NOTHING_SHOWN}`,
                                   }
                                 : draft().changed
                                   ? {
@@ -335,14 +323,18 @@ export function HomePage(props: { page: PageSummary }) {
                                         <Show when={billing()?.failing}>
                                             <p class="notice bad" role="alert" data-payment-failing>
                                                 Your last payment didn't go through. Your plan and
-                                                page are unchanged while we retry. Update your card
-                                                in Manage billing.
+                                                pages stay as they are while we retry. If the
+                                                retries run out, your plan ends and your pages go
+                                                offline. Update your card in Manage billing.
                                             </p>
                                         </Show>
-                                        <Show when={planNotice(loaded().live)}>
+                                        <Show when={planNotice(draft())}>
                                             {(notice) => (
                                                 <p class="notice" role="status" data-plan-notice>
-                                                    {notice()}
+                                                    {notice()}{" "}
+                                                    <a class="lnk" href={appPath("/account")}>
+                                                        See plans
+                                                    </a>
                                                 </p>
                                             )}
                                         </Show>
@@ -392,7 +384,7 @@ export function HomePage(props: { page: PageSummary }) {
                                         </Card>
                                         <Checklist
                                             items={setupChecklist(draft().page, {
-                                                published: draft().published,
+                                                published: draft().published && !draft().offline,
                                                 suspended: draft().suspended,
                                             })}
                                             pageId={props.page.id}

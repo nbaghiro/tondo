@@ -25,7 +25,8 @@ if (storage && !production) {
 const pages = createPageStore(db);
 const counter = createCounter(pages.count, Number(process.env["COUNT_FLUSH_MS"] ?? 5 * 1000));
 const limitScale = Number(process.env["RATE_LIMIT_SCALE"] ?? 1);
-// Gates with no way to pay would be a dead end, so this stops the deploy and the old one stays live.
+// Refusing to publish with no way to pay would be a dead end, so this stops the deploy and the old one
+// stays live.
 const payments = paymentsFromEnv(process.env);
 if (plansOn()) {
     if (!payments) {

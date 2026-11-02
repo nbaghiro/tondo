@@ -16,8 +16,10 @@ interface Subscription {
 }
 
 const PRICES = [
-    { id: "price_month", key: "pro_month", amount: 600, interval: "month" },
-    { id: "price_year", key: "pro_year", amount: 6000, interval: "year" },
+    { id: "price_starter_month", key: "starter_month", amount: 400, interval: "month" },
+    { id: "price_starter_year", key: "starter_year", amount: 4000, interval: "year" },
+    { id: "price_pro_month", key: "pro_month", amount: 1000, interval: "month" },
+    { id: "price_pro_year", key: "pro_year", amount: 10000, interval: "year" },
 ];
 const priceObject = (price: (typeof PRICES)[number]) => ({
     id: price.id,
@@ -103,6 +105,34 @@ export function stripeStandIn(
             res.end(page(`<a id="back" href="${searchParams.get("return") ?? ""}">Back</a>`));
             return true;
         }
+        if (id === "change") {
+            // The portal's confirm page, which charges and changes the subscription itself.
+            const sub = subscriptions.get(searchParams.get("sub") ?? "");
+            const back = searchParams.get("return") ?? "";
+            const price = PRICES.find((other) => other.id === searchParams.get("price"));
+            if (action === "done" && sub && price) {
+                sub.items = {
+                    object: "list",
+                    data: [
+                        {
+                            id: "si_1",
+                            price: priceObject(price),
+                            current_period_end: now() + 30 * 86_400,
+                        },
+                    ],
+                };
+                const finish = () => res.writeHead(302, { location: back }).end();
+                subscriptionEvent("v1.customer.subscription.updated", sub).then(finish, finish);
+                return true;
+            }
+            res.writeHead(200, { "content-type": "text/html" });
+            res.end(
+                page(
+                    `<a id="confirm-change" href="/pay/change/done?${searchParams.toString()}">Confirm</a>`,
+                ),
+            );
+            return true;
+        }
         const session = sessions.get(id ?? "");
         if (!session) {
             res.writeHead(404).end();
@@ -144,7 +174,7 @@ export function stripeStandIn(
         res.writeHead(200, { "content-type": "text/html" });
         res.end(
             page(
-                `<h1>Pay</h1><a id="pay" href="/pay/${id ?? ""}/done">Pay</a> <a id="pay-quiet" href="/pay/${id ?? ""}/done?quiet=1">Pay with no event</a> <a id="cancel" href="/pay/${id ?? ""}/cancel">Cancel</a>`,
+                `<h1>Pay</h1><p id="price-key">${PRICES.find((other) => other.id === session.price)?.key ?? ""}</p><a id="pay" href="/pay/${id ?? ""}/done">Pay</a> <a id="pay-quiet" href="/pay/${id ?? ""}/done?quiet=1">Pay with no event</a> <a id="cancel" href="/pay/${id ?? ""}/cancel">Cancel</a>`,
             ),
         );
         return true;
@@ -218,10 +248,14 @@ export function stripeStandIn(
     }
     if (parts[0] === "billing_portal") {
         const back = encodeURIComponent(form.get("return_url") ?? "");
+        const changing = form.get("flow_data[subscription_update_confirm][subscription]");
+        const price = form.get("flow_data[subscription_update_confirm][items][0][price]");
         json(res, 200, {
             id: "bps_1",
             object: "billing_portal.session",
-            url: `${SITE}/pay/portal?return=${back}`,
+            url: changing
+                ? `${SITE}/pay/change?sub=${changing}&price=${price ?? ""}&return=${back}`
+                : `${SITE}/pay/portal?return=${back}`,
         });
         return true;
     }

@@ -1,6 +1,6 @@
-import type { IssuesResponse, StatsResponse } from "@tondo/contract";
+import type { DraftResponse, IssuesResponse, StatsResponse } from "@tondo/contract";
 import { pageHash, samplePage, starterPage } from "@tondo/page";
-import type { Page } from "@tondo/page";
+import type { Page, Plan } from "@tondo/page";
 import { linkId } from "@tondo/render";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "./app";
@@ -41,17 +41,22 @@ function setup() {
     const pages = createFakePages({ sample: samplePage });
     pages.addUser("june", "june", starterPage("June"));
     pages.addUser("rae", "rae", starterPage("Rae"));
+    const accounts = createFakeStore();
     const app = createApp({
         pages: pages.store,
-        auth: { store: createFakeStore(), siteUrl: "http://site", editorUrl: "http://e", neon },
+        auth: { store: accounts, siteUrl: "http://site", editorUrl: "http://e", neon },
     });
+    const setPlan = (userId: string, plan: { plan: Plan; endsAt: Date | null }) => {
+        pages.setPlan(userId, plan);
+        accounts.plans.set(userId, plan);
+    };
     const call = (token: string, method: string, path: string, body?: unknown) =>
         app.request(path, {
             method,
             headers: { "content-type": "application/json", cookie: cookieFor(token) },
             ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         });
-    return { app, call, pages };
+    return { app, call, pages, setPlan };
 }
 
 const button = {
@@ -310,94 +315,152 @@ describe("keeping a page under control", () => {
 });
 
 describe("publishing and plans", () => {
-    const bake = (): Page => ({
-        ...starterPage("June"),
+    const worded = (name: string): Page => ({
+        ...starterPage(name),
         look: "bake",
-        header: { ...starterPage("June").header, bio: "Hello" },
+        header: { ...starterPage(name).header, bio: "Hello" },
     });
-    const setupWith = (page: Page) => {
+    const setupPlans = (on = true) => {
+        if (on) vi.stubEnv("PLANS_ON", "true");
         const made = setup();
-        made.pages.setDraft("june", page);
-        const post = (body: unknown) =>
-            made.call("june", "POST", "/api/v1/me/pages/june/publish", body);
-        const get = (path: string) => made.call("june", "GET", path);
-        return { ...made, post, get };
+        made.pages.setDraft("june", worded("June"));
+        const publish = (id = "june") =>
+            made.call("june", "POST", `/api/v1/me/pages/${id}/publish`, { updatedAt: "1" });
+        return { ...made, publish };
     };
-    const setupPlans = () => {
-        vi.stubEnv("PLANS_ON", "true");
-        return setupWith(bake());
-    };
+    const FOREVER = { endsAt: null };
     afterEach(() => {
         vi.unstubAllEnvs();
     });
 
-    it("refuses a paid look on Free, and says it's about the plan", async () => {
-        const { post } = setupPlans();
-        const res = await post({ updatedAt: "1" });
+    it("refuses publishing on Free, offering either plan, and serves nothing", async () => {
+        const { publish, app } = setupPlans();
+        const res = await publish();
         expect(res.status).toBe(422);
         const { issues } = (await res.json()) as IssuesResponse;
-        expect(issues[0]).toMatchObject({
-            plan: "look",
-            message: expect.stringContaining("Bakehouse") as string,
-        });
+        expect(issues).toEqual([expect.objectContaining({ target: "page", plan: "any" })]);
+        expect((await app.request("/june")).status).toBe(404);
     });
 
-    it("publishes free choices as a copy, leaving the draft alone", async () => {
-        const { post, pages } = setupPlans();
-        expect((await post({ updatedAt: "1", free: true })).status).toBe(204);
-        expect((await pages.store.findOwnLive("june", "june"))?.look).toBe("sap");
-        expect((await pages.store.findDraft("june", "june"))?.page.look).toBe("bake");
+    it("publishes on Starter with any look and no mark", async () => {
+        const { publish, app, setPlan } = setupPlans();
+        setPlan("june", { plan: "starter", ...FOREVER });
+        expect((await publish()).status).toBe(204);
+        const html = await (await app.request("/june")).text();
+        expect(html).toContain('class="look bake"');
+        expect(html).not.toContain("Made with Tondo");
+    });
+
+    it("offers Pro for a second live page on Starter", async () => {
+        const { publish, pages, setPlan } = setupPlans();
+        setPlan("june", { plan: "starter", ...FOREVER });
+        expect((await publish()).status).toBe(204);
+        const second = await pages.store.createPage("june", "second", worded("Band"));
+        const res = await publish(second ?? "");
+        expect(res.status).toBe(422);
+        const { issues } = (await res.json()) as IssuesResponse;
+        expect(issues).toEqual([expect.objectContaining({ plan: "pro" })]);
     });
 
     it("lets everything through while plans are off", async () => {
-        const { post } = setupWith(bake());
-        expect((await post({ updatedAt: "1" })).status).toBe(204);
+        const { publish, app } = setupPlans(false);
+        expect((await publish()).status).toBe(204);
+        expect((await app.request("/june")).status).toBe(200);
     });
 
-    it("clamps statistics to the plan, and says which range it used", async () => {
-        const { get } = setupPlans();
-        const body = (await (
-            await get("/api/v1/me/pages/june/stats?days=90")
-        ).json()) as StatsResponse;
-        expect(body.range).toBe(7);
-        expect(body.days).toHaveLength(7);
+    it("answers every range of statistics on Free", async () => {
+        const { call } = setupPlans();
+        const res = await call("june", "GET", "/api/v1/me/pages/june/stats?days=90");
+        const body = (await res.json()) as StatsResponse;
+        expect(body.range).toBe(90);
     });
 });
 
-describe("the live page and plans", () => {
+describe("a page going offline", () => {
     const DAY = 86_400_000;
-    const live = async (plan: { plan: "free" | "pro"; endsAt: Date | null }) => {
+    const published = async () => {
         vi.stubEnv("PLANS_ON", "true");
-        const { app, pages } = setup();
-        pages.addUser("noor", "noor", { ...samplePage, look: "bake" });
-        await pages.store.publish("noor", "noor", "1");
-        pages.setPlan("noor", plan);
-        return (await app.request("/noor")).text();
+        const made = setup();
+        made.pages.setDraft("june", {
+            ...starterPage("June"),
+            header: { ...starterPage("June").header, bio: "Hello" },
+            blocks: [button],
+        });
+        await made.pages.store.publish("june", "june", "1");
+        return made;
     };
+    const draftOf = async (call: ReturnType<typeof setup>["call"]) =>
+        (await (await call("june", "GET", "/api/v1/me/pages/june")).json()) as DraftResponse;
     afterEach(() => {
         vi.unstubAllEnvs();
     });
 
-    it("shows the mark on Free and not on Pro", async () => {
-        expect(await live({ plan: "free", endsAt: null })).toContain("Made with Tondo");
-        expect(await live({ plan: "pro", endsAt: null })).not.toContain("Made with Tondo");
+    it("serves the page until the plan ends, then a plain page and no links", async () => {
+        const { app, setPlan, call } = await published();
+        setPlan("june", { plan: "pro", endsAt: new Date(Date.now() + DAY) });
+        expect((await app.request("/june")).status).toBe(200);
+        expect((await draftOf(call)).offline).toBe(false);
+
+        const made = await published();
+        made.setPlan("june", { plan: "pro", endsAt: new Date(Date.now() - DAY) });
+        const res = await made.app.request("/june");
+        expect(res.status).toBe(404);
+        const html = await res.text();
+        expect(html).toContain("no page here");
+        expect(html).not.toContain("June");
+        expect(html).not.toContain("<script");
+        expect((await made.app.request(`/l/june/${linkId(button.url)}`)).status).toBe(404);
+        expect(made.pages.counts).toEqual([]);
+        expect(await draftOf(made.call)).toMatchObject({ offline: true, published: true });
     });
 
-    it("keeps the design for 30 days after a plan ends, then steps down", async () => {
-        const ten = await live({ plan: "pro", endsAt: new Date(Date.now() - 10 * DAY) });
-        expect(ten).toContain("Made with Tondo");
-        expect(ten).toContain('class="look bake"');
-        const later = await live({ plan: "pro", endsAt: new Date(Date.now() - 31 * DAY) });
-        expect(later).toContain('class="look sap"');
+    it("keeps the content, lets the person save, and refuses a publish until they subscribe", async () => {
+        const { app, pages, call, setPlan } = await published();
+        setPlan("june", { plan: "pro", endsAt: new Date(Date.now() - DAY) });
+        const before = await pages.store.findOwnLive("june", "june");
+        expect(before?.header.bio).toBe("Hello");
+        const save = await call("june", "PUT", "/api/v1/me/pages/june", {
+            page: withButton,
+            updatedAt: "1",
+        });
+        expect(save.status).toBe(200);
+        const refused = await call("june", "POST", "/api/v1/me/pages/june/publish", {
+            updatedAt: (await draftOf(call)).updatedAt,
+        });
+        expect(refused.status).toBe(422);
+
+        setPlan("june", { plan: "starter", endsAt: null });
+        // The plan changes through billing, which clears the cache. Here it has to wait it out.
+        vi.useFakeTimers({ now: Date.now() + 60_000, toFake: ["Date"] });
+        const back = await app.request("/june");
+        vi.useRealTimers();
+        expect(back.status).toBe(200);
+        expect(await back.text()).toContain("Hello");
     });
 
-    it("draws neither while plans are off", async () => {
-        const { app, pages } = setup();
-        pages.addUser("noor", "noor", { ...samplePage, look: "bake" });
-        await pages.store.publish("noor", "noor", "1");
-        const html = await (await app.request("/noor")).text();
-        expect(html).not.toContain("Made with Tondo");
-        expect(html).toContain('class="look bake"');
+    it("shows only the oldest live pages the plan covers", async () => {
+        const { app, pages, call, setPlan } = await published();
+        const second = await pages.store.createPage("june", "second", withButton);
+        setPlan("june", { plan: "pro", endsAt: null });
+        await pages.store.publish("june", second ?? "", "1");
+        expect((await app.request("/second")).status).toBe(200);
+
+        setPlan("june", { plan: "starter", endsAt: null });
+        vi.useFakeTimers({ now: Date.now() + 60_000, toFake: ["Date"] });
+        expect((await app.request("/june")).status).toBe(200);
+        expect((await app.request("/second")).status).toBe(404);
+        vi.useRealTimers();
+
+        const taken = await call("june", "POST", "/api/v1/me/pages/june/unpublish", {});
+        expect(taken.status).toBe(204);
+        expect((await app.request("/second")).status).toBe(200);
+    });
+
+    it("shows a page nobody holds the same way", async () => {
+        const { app } = setup();
+        const res = await app.request("/nobody-here");
+        expect(res.status).toBe(404);
+        expect(await res.text()).toContain("no page here");
     });
 });
 

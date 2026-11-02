@@ -2,6 +2,8 @@
 
 This plan builds option E in [teams-schema.md](teams-schema.md), ready to start on "go". Nothing here is built: no app code, migration, Neon setting or Stripe object has changed. I checked it against the working tree on 2026-11-01 while other agents were changing `apps/`, `packages/` and `.docs/`, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. Migrations and SQL here haven't been run.
 
+**Changed on 2026-11-01:** there's no separate per-person Team plan any more. Team features are part of the flat Pro plan, $10 a month or $100 a year for the account, so everything here about per-seat pricing no longer applies: `team_month`, `TEAM_MINIMUM`, `for: "team"` on checkout, `syncSeats` and quantity changes. The T-milestone billing work becomes checking that the team's owner is on Pro. Recorded, not built: a limit of 10 people on a team, and those people sharing the owner's 300 credits. Members bill nothing themselves. `team` is gone from `limits.ts`, the Stripe code and pricing copy, and page and photo numbers elsewhere in this plan need rechecking against [plans-implementation.md](plans-implementation.md) when this starts.
+
 ## What's being built
 
 A team has one owner, one address and one team page. Each person keeps their own address and pages. When the owner publishes the team page, its look appears on every member's live page, with nothing copied into their documents.
@@ -531,6 +533,8 @@ Sub-pages come from M6, and teams use them as follows.
 `canAddPage` takes `{ pages: 25, drafts: 0 }` for a team. M6's `listPages` and `createPage` accept the team's id under `editableBy`.
 
 ## Plans and billing
+
+**Replaced by the flat Pro plan, see the note at the top.** The text below is the earlier per-seat design.
 
 This replaces the "Team billing" section of `plans-implementation.md`, whose text assumes a team is a `users` row. Update that section to point here in T7.
 

@@ -1,5 +1,5 @@
 import { createResource, createSignal, Show } from "solid-js";
-import { PRICES } from "@tondo/page";
+import type { PaidPlan, Period } from "@tondo/page";
 import { logOut, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
 import {
@@ -10,14 +10,16 @@ import {
     startCheckout,
     syncBilling,
 } from "../lib/api";
-import { longDate } from "../lib/plan-copy";
+import { longDate, planName } from "../lib/plan-copy";
 import { plan, refreshPlan } from "../state/plan";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
+import { PlanChoice } from "./PlanChoice";
 
 function PlanSection() {
     const [problem, setProblem] = createSignal("");
     const [billing, { refetch }] = createResource(async () => {
-        if (new URLSearchParams(location.search).get("billing")) {
+        const asked = new URLSearchParams(location.search);
+        if (asked.get("billing") || asked.get("paid")) {
             history.replaceState(null, "", location.pathname);
             await syncBilling();
             await refreshPlan();
@@ -30,26 +32,33 @@ function PlanSection() {
         if (opened) location.assign(opened);
         else setProblem("We couldn't open the payment page. Please try again.");
     };
-    const ended = () => {
-        const until = plan()?.endsAt;
-        return Boolean(until && new Date(until) <= new Date());
+    const onFree = () => plan()?.limits.live === 0;
+    const name = () => {
+        const current = plan();
+        return current ? planName(current) : "";
     };
-    const free = () => plan()?.limits.mark === true;
     const given = () => {
         const until = plan()?.endsAt;
-        return until && !ended() && plan()?.plan !== "free" ? until : null;
+        return until && !onFree() ? until : null;
     };
     const paid = () => billing()?.period;
     const line = () => {
         const until = given();
-        if (until) return `You have Pro for free until ${longDate(until)}.`;
-        if (free()) return ended() ? "Your plan has ended, and you're on Free." : "You're on Free.";
+        if (until) return `You have ${name()} for free until ${longDate(until)}.`;
+        if (onFree()) {
+            return plan()?.endsAt
+                ? "Your plan has ended, so you're on Free and your pages are offline. Their content is kept, and you can still edit them. Choose a plan and they come back online."
+                : "You're on Free. You can build and preview a page, and a plan puts it online.";
+        }
         const current = billing();
-        if (!current?.period || !current.until) return "You're on Pro.";
+        if (!current?.period || !current.until) return `You're on ${name()}.`;
         const date = longDate(current.until);
         return current.cancelling
-            ? `You're on Pro until ${date}, and it won't renew.`
-            : `You're on Pro, paid each ${current.period}. It renews on ${date}.`;
+            ? `You're on ${name()} until ${date}, and it won't renew. After that your pages go offline, and their content stays.`
+            : `You're on ${name()}, paid each ${current.period}. It renews on ${date}.`;
+    };
+    const choose = (chosen: PaidPlan, period: Period) => {
+        go(startCheckout({ plan: chosen, period, from: "account" })).catch(() => undefined);
     };
     return (
         <Show when={plan()?.billing}>
@@ -57,8 +66,9 @@ function PlanSection() {
                 <p data-plan-summary>{line()}</p>
                 <Show when={billing()?.failing}>
                     <p class="bad-note" role="alert" data-payment-failing>
-                        Your last payment didn't go through. Your plan and page are unchanged while
-                        we retry. Update your card in Manage billing.
+                        Your last payment didn't go through. Your plan and pages stay as they are
+                        while we retry. If the retries run out, your plan ends and your pages go
+                        offline. Update your card in Manage billing.
                     </p>
                 </Show>
                 <Show when={problem()}>
@@ -66,8 +76,14 @@ function PlanSection() {
                         {problem()}
                     </p>
                 </Show>
-                <div class="acts">
-                    <Show when={paid()}>
+                <Show when={onFree()}>
+                    <PlanChoice offer="any" onChoose={choose} />
+                </Show>
+                <Show when={plan()?.plan === "starter" && !onFree() && !given() && paid()}>
+                    <PlanChoice offer="pro" onChoose={choose} />
+                </Show>
+                <Show when={paid()}>
+                    <div class="acts">
                         <button
                             class="b"
                             data-manage-billing
@@ -79,19 +95,8 @@ function PlanSection() {
                         >
                             Manage billing
                         </button>
-                    </Show>
-                    <Show when={free() && !given()}>
-                        <button
-                            class="b"
-                            data-account-pro
-                            onClick={() => {
-                                go(startCheckout("account")).catch(() => undefined);
-                            }}
-                        >
-                            Get Pro, ${PRICES.pro.month} a month
-                        </button>
-                    </Show>
-                </div>
+                    </div>
+                </Show>
             </SettingsSection>
         </Show>
     );
@@ -213,7 +218,7 @@ export function AccountPage(props: { account: Account }) {
             <SettingsSection
                 title="Delete account"
                 lead={
-                    plan()?.billing && !plan()?.limits.mark
+                    plan()?.billing && plan()?.limits.live
                         ? "This removes your page, your photos and your numbers, and can't be undone. This also cancels your plan straight away, with no further charges."
                         : "This removes your page, your photos and your numbers. It can't be undone."
                 }

@@ -1,9 +1,10 @@
 import { PRICES } from "@tondo/page";
+import type { PaidPlan, Period } from "@tondo/page";
 import Stripe from "stripe";
 
-export type Period = "month" | "year";
-
 export interface SubscriptionView {
+    id: string;
+    itemId: string | null;
     status: string;
     /** Seconds since 1970, when it ended. */
     endedAt: number | null;
@@ -24,9 +25,19 @@ export interface Payments {
     createCustomer: (userId: string, email: string) => Promise<string>;
     checkoutUrl: (input: {
         customer: string;
+        plan: PaidPlan;
         period: Period;
         successUrl: string;
         cancelUrl: string;
+    }) => Promise<string>;
+    /** Stripe's page for confirming a change to this subscription, which it charges for itself. */
+    changeUrl: (input: {
+        customer: string;
+        subscription: string;
+        item: string;
+        plan: PaidPlan;
+        period: Period;
+        returnUrl: string;
     }) => Promise<string>;
     portalUrl: (customer: string, returnUrl: string) => Promise<string>;
     subscriptions: (customer: string) => Promise<SubscriptionView[]>;
@@ -54,7 +65,7 @@ const REVIEW = new Set([
     "v1.radar.early_fraud_warning.created",
 ]);
 
-const KEYS = { month: "pro_month", year: "pro_year" } as const;
+const keyOf = (plan: PaidPlan, period: Period) => `${plan}_${period}`;
 
 const idOf = (value: unknown): string | null => {
     if (typeof value === "string") return value;
@@ -81,10 +92,11 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
               }
             : {}),
     });
-    const priceFor = async (period: Period) => {
-        const { data } = await client.prices.list({ lookup_keys: [KEYS[period]], active: true });
+    const priceFor = async (plan: PaidPlan, period: Period) => {
+        const key = keyOf(plan, period);
+        const { data } = await client.prices.list({ lookup_keys: [key], active: true });
         const price = data[0];
-        if (!price) throw new Error(`Stripe has no active Price with the key ${KEYS[period]}.`);
+        if (!price) throw new Error(`Stripe has no active Price with the key ${key}.`);
         return price;
     };
     return {
@@ -95,8 +107,8 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
             );
             return customer.id;
         },
-        checkoutUrl: async ({ customer, period, successUrl, cancelUrl }) => {
-            const price = await priceFor(period);
+        checkoutUrl: async ({ customer, plan, period, successUrl, cancelUrl }) => {
+            const price = await priceFor(plan, period);
             const session = await client.checkout.sessions.create({
                 mode: "subscription",
                 customer,
@@ -116,6 +128,22 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
             if (!session.url) throw new Error("Stripe sent no payment page.");
             return session.url;
         },
+        changeUrl: async ({ customer, subscription, item, plan, period, returnUrl }) => {
+            const price = await priceFor(plan, period);
+            const session = await client.billingPortal.sessions.create({
+                customer,
+                return_url: returnUrl,
+                flow_data: {
+                    type: "subscription_update_confirm",
+                    subscription_update_confirm: {
+                        subscription,
+                        items: [{ id: item, price: price.id, quantity: 1 }],
+                    },
+                    after_completion: { type: "redirect", redirect: { return_url: returnUrl } },
+                },
+            });
+            return session.url;
+        },
         portalUrl: async (customer, returnUrl) => {
             const session = await client.billingPortal.sessions.create({
                 customer,
@@ -133,6 +161,8 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
                 const item = sub.items.data[0];
                 const interval = item?.price.recurring?.interval;
                 return {
+                    id: sub.id,
+                    itemId: item?.id ?? null,
                     status: sub.status,
                     endedAt: sub.ended_at ?? null,
                     lookupKey: item?.price.lookup_key ?? null,
@@ -162,10 +192,12 @@ export function createPayments({ key, webhookSecret, tax, apiBase }: StripeEnv):
             };
         },
         checkPrices: async () => {
-            for (const period of ["month", "year"] as const) {
-                const price = await priceFor(period);
-                if (price.unit_amount !== PRICES.pro[period] * 100) {
-                    throw new Error(`The Price ${KEYS[period]} doesn't match the site.`);
+            for (const plan of ["starter", "pro"] as const) {
+                for (const period of ["month", "year"] as const) {
+                    const price = await priceFor(plan, period);
+                    if (price.unit_amount !== PRICES[plan][period] * 100) {
+                        throw new Error(`The Price ${keyOf(plan, period)} doesn't match the site.`);
+                    }
                 }
             }
         },

@@ -1,10 +1,8 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { lookNames, samplePage } from "@tondo/page";
-import { renderDocument } from "@tondo/render";
 import postgres from "postgres";
 import { PORTS } from "../scripts/ports";
-import { addSection, canvas, openLook, panel, setPlan, signUpToEditor, draftUrl } from "./helpers";
+import { canvas, openLook, panel, setPlan, signUpToEditor, draftUrl } from "./helpers";
 
 // A page with something of its own on it, so publishing has nothing else to ask about.
 const withWords = async (page: Page, options: { plan?: string } = {}) => {
@@ -67,7 +65,7 @@ test("a photo can be removed, and not while it's on the page", async ({ page }) 
     await expect(page.locator(".pick-mine .mine")).toHaveCount(1);
 });
 
-test("Free asks for 7 days of statistics at most", async ({ page }) => {
+test("Free asks for any range of statistics", async ({ page }) => {
     await signUpToEditor(page, [], { plan: "free" });
     const answer = await page.evaluate(
         async (draftUrl) => {
@@ -76,212 +74,111 @@ test("Free asks for 7 days of statistics at most", async ({ page }) => {
         },
         await draftUrl(page),
     );
-    expect(answer.range).toBe(7);
-    expect(answer.days).toHaveLength(7);
+    expect(answer.range).toBe(90);
+    expect(answer.days).toHaveLength(90);
 });
 
-test("the server refuses a Pro look on Free, and can publish free choices instead", async ({
-    page,
-}) => {
-    const handle = await signUpToEditor(page, [], { plan: "free" });
-    await page.evaluate(
-        async (draftUrl) => {
-            const res = await fetch(draftUrl);
-            const { page: draft, updatedAt } = (await res.json()) as {
-                page: Record<string, unknown> & { header: Record<string, unknown> };
-                updatedAt: string;
-            };
-            await fetch(draftUrl, {
-                method: "PUT",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    page: { ...draft, look: "bake", header: { ...draft.header, bio: "Hello" } },
-                    updatedAt,
-                }),
-            });
-        },
-        await draftUrl(page),
-    );
-    const address = await draftUrl(page);
-    const publish = (free: boolean) =>
-        page.evaluate(
-            async ({ asFree, draftUrl }) => {
-                const { updatedAt } = (await (await fetch(draftUrl)).json()) as {
-                    updatedAt: string;
-                };
-                const res = await fetch(`${draftUrl}/publish`, {
-                    method: "POST",
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify({ updatedAt, ...(asFree ? { free: true } : {}) }),
-                });
-                return res.status;
-            },
-            { asFree: free, draftUrl: address },
-        );
-    expect(await publish(false)).toBe(422);
-    expect(await publish(true)).toBe(204);
-    const live = await page.request.get(`/${handle}`);
-    expect(await live.text()).toContain('class="look sap"');
-    const draft = await page.evaluate(
-        async (draftUrl) => {
-            const res = await fetch(draftUrl);
-            return ((await res.json()) as { page: { look: string } }).page.look;
-        },
-        await draftUrl(page),
-    );
-    expect(draft).toBe("bake");
-});
-
-test("a Pro look can be tried, and published with free choices", async ({ page }) => {
+test("Free can use any look or section, with no labels, and can't go live", async ({ page }) => {
     const handle = await withWords(page, { plan: "free" });
     await openLook(page);
     const tile = page.locator(".tile[data-look=bake]");
-    await expect(tile).toHaveAttribute("aria-label", "Bakehouse look, part of Pro");
-    await expect(page.locator(".tile[data-look=sap]")).toHaveAttribute("aria-label", "Sap look");
+    await expect(tile).toHaveAttribute("aria-label", "Bakehouse look");
     await tile.click();
-    await expect(page.locator("[data-plan-note]")).toContainText("Bakehouse is part of Pro");
-
-    await page.keyboard.press("Escape");
-    await page.locator(".publish").click();
-    const planPanel = page.locator("[data-plan-panel]");
-    await expect(planPanel).toContainText("Your page uses Bakehouse, which is part of Pro.");
-    await planPanel.locator("[data-free-choices]").click();
-    await expect(page.locator("[data-free-preview]")).toContainText("Bakehouse becomes Sap.");
-    await page.locator("[data-publish-this]").click();
-    await expect(page.locator(".pub-address")).toContainText(handle);
-
-    const live = await page.request.get(`/${handle}`);
-    expect(await live.text()).toContain('class="look sap"');
-    const draft = await page.evaluate(
-        async (draftUrl) => {
-            const res = await fetch(draftUrl);
-            return ((await res.json()) as { page: { look: string } }).page.look;
-        },
-        await draftUrl(page),
-    );
-    expect(draft).toBe("bake");
-
-    await page.goto("/app");
-    await expect(page.locator(".tag")).toContainText("Live, with free choices");
-});
-
-test("a Pro section shows its label and a line about a plain button", async ({ page }) => {
-    await signUpToEditor(page, [], { plan: "free" });
-    await addSection(page, "shop");
-    await expect(page.locator("[data-plan-note]")).toContainText(
-        "A plain button can link there for free.",
-    );
-});
-
-test("Analytics says what Free shows, without asking for more", async ({ page }) => {
-    await signUpToEditor(page, [], { plan: "free" });
-    await page.goto("/app/analytics");
-    await expect(page.locator('.seg button[aria-pressed="true"]')).toContainText("7 days");
-    await page.locator(".seg button", { hasText: "90 days" }).click();
-    await expect(page.locator("[data-plan-stats]")).toContainText("You can see 7 days on Free.");
-    await expect(page.locator('.seg button[aria-pressed="true"]')).toContainText("7 days");
-});
-
-test("Pro has no labels", async ({ page }) => {
-    await signUpToEditor(page);
-    await openLook(page);
-    await expect(page.locator(".tile[data-look=bake]")).toHaveAttribute(
-        "aria-label",
-        "Bakehouse look",
-    );
-    await expect(page.locator(".pro-label")).toHaveCount(0);
-});
-
-test("a tab that hasn't heard about the plan shows the same panel after a refusal", async ({
-    page,
-}) => {
-    await withWords(page);
-    await openLook(page);
-    await page.locator(".tile[data-look=bake]").click();
     await page.keyboard.press("Escape");
     await expect(page.locator(".saved.status")).toHaveAttribute("data-state", "saved");
-    const handle = (await page.locator(".address b").textContent()) ?? "";
-    await setPlan(handle, "free");
-    await page.locator(".publish").click();
-    await expect(page.locator("[data-plan-panel]")).toContainText("Bakehouse");
+    await expect(page.locator("body")).not.toContainText("part of Pro");
+
+    const address = await draftUrl(page);
+    const status = await page.evaluate(async (draftUrl) => {
+        const { updatedAt } = (await (await fetch(draftUrl)).json()) as { updatedAt: string };
+        const res = await fetch(`${draftUrl}/publish`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ updatedAt }),
+        });
+        return res.status;
+    }, address);
+    expect(status).toBe(422);
+    const visit = await page.request.get(`/${handle}`);
+    expect(visit.status()).toBe(404);
+    expect(await visit.text()).toContain("no page here");
 });
 
-test("a plan ending keeps the page online, returns the mark and steps down after 30 days", async ({
+test("publishing on Free offers both plans, and going back leaves everything as it was", async ({
+    page,
+}) => {
+    const handle = await withWords(page, { plan: "free" });
+    await expect(page.locator(".address")).toContainText(handle);
+    await page.locator(".publish").click();
+    const prompt = page.locator("[data-plan-panel]");
+    await expect(prompt).toContainText(`online at tondo.page/${handle}`);
+    await expect(prompt.locator("[data-plan=starter]")).toContainText("$4 a month");
+    await expect(prompt.locator("[data-plan=pro]")).toContainText("$10 a month");
+    await prompt.locator("[data-period=year]").click();
+    await expect(prompt.locator("[data-plan=starter]")).toContainText("$40 a year");
+    await expect(prompt.locator("[data-plan=pro]")).toContainText("$100 a year");
+    await prompt.locator("[data-keep-editing]").click();
+    await expect(prompt).toHaveCount(0);
+    await expect(page.locator(".address")).toContainText(handle);
+});
+
+test("Home says plainly what Free does and what visitors see", async ({ page }) => {
+    await signUpToEditor(page, [], { plan: "free" });
+    await page.goto("/app");
+    await expect(page.locator("[data-plan-notice]")).toContainText("free");
+    await expect(page.locator(".home")).toContainText("no page here");
+});
+
+const publishIt = async (page: Page, handle: string) => {
+    await publishFromPanel(page);
+    await expect(page.locator(".pub-address")).toContainText(handle);
+};
+
+test("a plan ending takes the page offline, keeps the content, and subscribing restores it", async ({
     page,
 }) => {
     test.setTimeout(90_000);
     const handle = await withWords(page);
-    await openLook(page);
-    await page.locator(".tile[data-look=bake]").click();
-    await page.keyboard.press("Escape");
-    await publishFromPanel(page);
-    const html = async () => await (await page.request.get(`/${handle}`)).text();
-    expect(await html()).not.toContain("Made with Tondo");
+    await publishIt(page, handle);
+    const visit = () => page.request.get(`/${handle}`);
+    expect((await visit()).status()).toBe(200);
+    expect(await (await visit()).text()).not.toContain("Made with Tondo");
 
-    await setPlan(handle, "pro", new Date(Date.now() - 10 * DAY));
+    await setPlan(handle, "pro", new Date(Date.now() - DAY));
     await page.waitForTimeout(CACHE_MS);
-    const kept = await html();
-    expect(kept).toContain("Made with Tondo");
-    expect(kept).toContain('class="look bake"');
+    const gone = await visit();
+    expect(gone.status()).toBe(404);
+    const plain = await gone.text();
+    expect(plain).toContain("no page here");
+    expect(plain).not.toContain("Maya Okafor");
     await page.goto("/app");
-    await expect(page.locator("[data-plan-notice]")).toContainText("It keeps Bakehouse until");
-
-    await setPlan(handle, "pro", new Date(Date.now() - 31 * DAY));
-    await page.waitForTimeout(CACHE_MS);
-    const stepped = await html();
-    expect(stepped).toContain('class="look sap"');
-    expect(stepped).not.toContain("<script");
-    await page.goto("/app");
-    await expect(page.locator("[data-plan-notice]")).toContainText("Your page now uses Sap.");
+    await expect(page.locator(".tag")).toContainText("Offline");
+    await expect(page.locator("[data-plan-notice]")).toContainText("so this page is offline");
+    await expect(page.locator("[data-plan-notice]")).toContainText("choose a plan in Account");
     const draft = await page.evaluate(
         async (draftUrl) => {
             const res = await fetch(draftUrl);
-            return ((await res.json()) as { page: { look: string } }).page.look;
+            const body = (await res.json()) as {
+                published: boolean;
+                offline: boolean;
+                page: { header: { bio: string } };
+            };
+            return { ...body, bio: body.page.header.bio };
         },
         await draftUrl(page),
     );
-    expect(draft).toBe("bake");
+    expect(draft).toMatchObject({ published: true, offline: true, bio: "Hello" });
 
-    await setPlan(handle, "pro");
+    await setPlan(handle, "starter");
     await page.waitForTimeout(CACHE_MS);
-    expect(await html()).toContain('class="look bake"');
+    const back = await visit();
+    expect(back.status()).toBe(200);
+    expect(await back.text()).toContain("Hello");
 });
 
-test("the mark can be read on every look", async ({ page }) => {
-    const low: string[] = [];
-    for (const look of lookNames) {
-        await page.setContent(
-            renderDocument(
-                { ...samplePage, look },
-                { title: "A", assetBase: "/photos/", editable: false, live: true, mark: true },
-            ),
-        );
-        const ratio = await page.locator("[data-mark] a").evaluate((link) => {
-            const parse = (value: string) => (value.match(/[\d.]+/g) ?? []).map(Number);
-            const lum = ([r = 0, g = 0, b = 0]: number[]) => {
-                const at = (v: number) => {
-                    const s = v / 255;
-                    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-                };
-                return 0.2126 * at(r) + 0.7152 * at(g) + 0.0722 * at(b);
-            };
-            let behind = "rgb(255, 255, 255)";
-            for (let at: Element | null = link; at; at = at.parentElement) {
-                const colour = getComputedStyle(at).backgroundColor;
-                const [, , , alpha = 1] = parse(colour);
-                if (alpha === 1) {
-                    behind = colour;
-                    break;
-                }
-            }
-            const [a, b] = [lum(parse(getComputedStyle(link).color)), lum(parse(behind))].sort(
-                (x, y) => y - x,
-            );
-            return ((a ?? 0) + 0.05) / ((b ?? 0) + 0.05);
-        });
-        if (ratio < 4.5) low.push(`${look} ${ratio.toFixed(2)}`);
-    }
-    expect(low).toEqual([]);
+test("visitors can't follow a link on a page that's offline", async ({ page }) => {
+    const handle = await signUpToEditor(page, [], { plan: "free" });
+    expect((await page.request.get(`/l/${handle}/anything`)).status()).toBe(404);
 });
 
 const customerOf = async (handle: string) => {
@@ -299,57 +196,107 @@ const control = (action: string, customer: string) =>
         `http://127.0.0.1:${String(PORTS.testNeon)}/stripe-control/${action}?customer=${customer}`,
     );
 
-const tryBakeAndPay = async (page: Page, button = "#pay") => {
+const choosePlanAndPay = async (page: Page, plan = "pro", button = "#pay") => {
     const handle = await withWords(page, { plan: "free" });
-    await openLook(page);
-    await page.locator(".tile[data-look=bake]").click();
-    await page.keyboard.press("Escape");
     await page.locator(".publish").click();
-    await page.locator("[data-get-pro]").click();
+    await page.locator(`[data-plan=${plan}]`).click();
     await page.locator(button).click();
-    await expect(page.locator("[data-paid-note]")).toContainText("You're on Pro.");
+    await expect(page.locator("[data-paid-note]")).toContainText(
+        `You're on ${plan === "pro" ? "Pro" : "Starter"}.`,
+    );
     return handle;
 };
 
-test("paying at publish gives Pro and then the person publishes", async ({ page }) => {
-    const handle = await tryBakeAndPay(page);
+test("paying at publish gives the plan and then the person publishes", async ({ page }) => {
+    const handle = await choosePlanAndPay(page, "starter");
     await expect(page.locator(".pub .go").last()).toBeVisible();
     await page.locator(".pub .go").last().click();
     await expect(page.locator(".pub-address")).toContainText(handle);
-    const html = await (await page.request.get(`/${handle}`)).text();
-    expect(html).toContain('class="look bake"');
-    expect(html).not.toContain("Made with Tondo");
+    expect((await page.request.get(`/${handle}`)).status()).toBe(200);
+});
+
+test("the yearly choice reaches checkout", async ({ page }) => {
+    await withWords(page, { plan: "free" });
+    await page.locator(".publish").click();
+    await page.locator("[data-period=year]").click();
+    await page.locator("[data-plan=pro]").click();
+    await expect(page.locator("#price-key")).toHaveText("pro_year");
 });
 
 test("coming back from paying is enough, even with no event", async ({ page }) => {
-    await tryBakeAndPay(page, "#pay-quiet");
-    await expect(page.locator(".tile")).toHaveCount(0);
+    await choosePlanAndPay(page, "pro", "#pay-quiet");
+});
+
+test("a second page on Starter offers Pro, and moving up lets it publish", async ({ page }) => {
+    const handle = await choosePlanAndPay(page, "starter");
+    await page.locator(".pub .go").last().click();
+    await expect(page.locator(".pub-address")).toContainText(handle);
+
+    const made = await page.evaluate(async (name) => {
+        const res = await fetch("/api/v1/me/pages", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ name: "Band", handle: name }),
+        });
+        return (await res.json()) as { id: string };
+    }, `${handle}-band`);
+    await page.evaluate(async (id) => {
+        const url = `/api/v1/me/pages/${id}`;
+        const { page: draft, updatedAt } = (await (await fetch(url)).json()) as {
+            page: Record<string, unknown> & { header: Record<string, unknown> };
+            updatedAt: string;
+        };
+        await fetch(url, {
+            method: "PUT",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                page: { ...draft, header: { ...draft.header, bio: "Band" } },
+                updatedAt,
+            }),
+        });
+    }, made.id);
+    await page.goto(`/app/edit?page=${made.id}`);
+    await page.locator(".publish").click();
+    const prompt = page.locator("[data-plan-panel]");
+    await expect(prompt).toContainText("Starter includes 1 live page");
+    await expect(prompt.locator("[data-plan=starter]")).toHaveCount(0);
+    await prompt.locator("[data-plan=pro]").click();
+    await page.locator("#confirm-change").click();
+    await expect(page.locator("[data-paid-note]")).toContainText("You're on Pro.");
+    await page.locator(".pub .go").last().click();
+    await expect(page.locator(".pub-address")).toContainText(`${handle}-band`);
+    expect((await page.request.get(`/${handle}-band`)).status()).toBe(200);
 });
 
 test("cancelling at the payment page loses nothing", async ({ page }) => {
     await withWords(page, { plan: "free" });
-    await openLook(page);
-    await page.locator(".tile[data-look=bake]").click();
-    await page.keyboard.press("Escape");
     await page.locator(".publish").click();
-    await page.locator("[data-get-pro]").click();
+    await page.locator("[data-plan=pro]").click();
     await page.locator("#cancel").click();
-    await expect(page.locator("[data-plan-panel]")).toContainText("Bakehouse");
+    await expect(page.locator("[data-plan-panel]")).toContainText("A plan puts it");
 });
 
-test("failing, repeats and ending all arrive through the webhook", async ({ page }) => {
-    const handle = await tryBakeAndPay(page);
+test("failing keeps the page up, and ending through the webhook takes it offline", async ({
+    page,
+}) => {
+    test.setTimeout(60_000);
+    const handle = await choosePlanAndPay(page);
+    await page.locator(".pub .go").last().click();
+    await expect(page.locator(".pub-address")).toContainText(handle);
     const customer = await customerOf(handle);
 
     await control("fail", customer);
     await page.goto("/app/account");
     await expect(page.locator("[data-payment-failing]")).toBeVisible();
     await expect(page.locator("[data-plan-summary]")).toContainText("You're on Pro");
+    expect((await page.request.get(`/${handle}`)).status()).toBe(200);
 
     await control("twice", customer);
     await control("end", customer);
     await page.goto("/app/account");
     await expect(page.locator("[data-plan-summary]")).toContainText("Your plan has ended");
+    expect((await page.request.get(`/${handle}`)).status()).toBe(404);
+    await expect(page.locator("[data-plan-choice] [data-plan=starter]")).toBeVisible();
 });
 
 test("a bad signature is refused", async ({ page }) => {
@@ -361,7 +308,7 @@ test("a bad signature is refused", async ({ page }) => {
 });
 
 test("deleting an account cancels its plan", async ({ page }) => {
-    const handle = await tryBakeAndPay(page);
+    const handle = await choosePlanAndPay(page);
     const customer = await customerOf(handle);
     await page.goto("/app/account");
     await expect(page.locator(".fs", { hasText: "Delete account" })).toContainText(

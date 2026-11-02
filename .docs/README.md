@@ -13,10 +13,12 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [data-model.md](data-model.md) | How pages and blocks get saved, and why Postgres with JSONB fits |
 | [teams-schema.md](teams-schema.md) | The decision on the teams schema: one `teams` table (option E), with the four earlier options kept as history |
 | [teams-implementation.md](teams-implementation.md) | Plan, not yet built: schema, addresses, who can edit what, routes, edge cases, the shared look, screens, invitations, billing, tests, copy and milestones |
-| [plans.md](plans.md) | Subscription options with current competitor prices and estimated costs. The owner chose option A on 2026-11-01 |
-| [plans-implementation.md](plans-implementation.md) | M0 to M5 are built, off until `PLANS_ON`, with no Stripe account yet: schema, limits, publish-time payment, Stripe, the mark, tests, what the owner must set up, and milestones. Multiple pages are in multi-page-implementation.md |
+| [plans.md](plans.md) | The current plans decided on 2026-11-01 at the top: Free with no live page, Starter and Pro. Below that, the earlier proposal with competitor prices, as history |
+| [plans-implementation.md](plans-implementation.md) | What's built for the current plans, off until `PLANS_ON`, with no Stripe account yet: rules, what was removed, what the owner must create in Stripe and testing. The earlier plan follows as history |
 | [multi-page.md](multi-page.md) | The decision on several pages: own address per page (option 2), with the other options, competitors, Home design and working defaults |
-| [multi-page-implementation.md](multi-page-implementation.md) | Plan: P1 and P2 are built (one address per page, routes and editor by page id). Home's switcher, photos and the rest are on hold while the plans change |
+| [multi-page-implementation.md](multi-page-implementation.md) | Plan: P1 and P2 are built (one address per page, routes and editor by page id), and the simplified plans changed the Free draft and downgrade parts. Home's switcher, photos and the rest are next |
+| [ai-chat.md](ai-chat.md) | Help me, the AI chat for setting up and editing a page: what's built, architecture, UX, safety, costs, evals and what's left |
+| [ai-blocks.md](ai-blocks.md) | Reference for AI chat: every block, section, header field, look and style choice, what the model may change and how a person asks |
 | [inspector-design.md](inspector-design.md) | The original inspector design. `builder-port.md` is what was built |
 | [how-it-works.md](how-it-works.md) | Product surfaces, data model, rendering, art and open decisions |
 | [deploy.md](deploy.md) | How to set up Neon, Neon Auth and Render, and what is needed before it works |

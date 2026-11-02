@@ -1,4 +1,3 @@
-import { plan } from "../state/plan";
 import type { PageSummary } from "@tondo/contract";
 import { isReservedHandle, isValidHandle, normaliseHandle } from "@tondo/page";
 import { createEffect, createResource, createSignal, Show, untrack } from "solid-js";
@@ -195,19 +194,16 @@ export function SettingsPage(props: { page: PageSummary; onAddress: (handle: str
                                 </button>
                             </form>
                         </SettingsSection>
-                        <Show when={plan()?.billing && plan()?.limits.mark}>
-                            <p class="notice" data-plan-mark>
-                                Free pages show a small Made with Tondo. Pro removes it.
-                            </p>
-                        </Show>
                         <SettingsSection
                             title="Publishing"
                             lead={
                                 loaded().suspended
                                     ? "This page was taken down for breaking our rules, so visitors can't see it. Contact support if you think that's a mistake."
-                                    : loaded().published
-                                      ? "Your page is live. You can take it down and publish it again later."
-                                      : "Your page isn't live. Publish it from the page editor."
+                                    : loaded().offline
+                                      ? "Your page is published and offline, because your plan doesn't cover it now. Visitors see a short note that there's no page here. You can take it down, and it keeps its content."
+                                      : loaded().published
+                                        ? "Your page is live. You can take it down and publish it again later."
+                                        : "Your page isn't live. Publish it from the page editor. Until then, visitors to your address see a short note that there's no page here."
                             }
                         >
                             <Show when={!loaded().suspended}>

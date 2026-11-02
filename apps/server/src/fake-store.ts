@@ -100,11 +100,16 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
     const store: PageStore = {
         findLive: (handle) => {
             const row = [...rows].find(([, other]) => other.handle === handle);
-            return Promise.resolve(
-                row?.[1].published && !row[1].suspended
-                    ? { id: row[0], page: row[1].published, ...(row[1].plan ?? FREE) }
-                    : null,
-            );
+            if (!row?.[1].published || row[1].suspended) return Promise.resolve(null);
+            const rank = ofUser(row[1].userId)
+                .filter(([, other]) => other.published)
+                .findIndex(([id]) => id === row[0]);
+            return Promise.resolve({
+                id: row[0],
+                page: row[1].published,
+                ...(row[1].plan ?? FREE),
+                rank,
+            });
         },
         listPages: (userId) =>
             Promise.resolve(
@@ -130,10 +135,10 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             row.updatedAt += 1;
             return Promise.resolve(String(row.updatedAt));
         },
-        publish: (userId, pageId, updatedAt, page) => {
+        publish: (userId, pageId, updatedAt) => {
             const row = own(userId, pageId);
             if (row?.updatedAt !== Number(updatedAt)) return Promise.resolve(false);
-            row.published = page ?? row.draft;
+            row.published = row.draft;
             return Promise.resolve(true);
         },
         count: (pageId, target) => {

@@ -19,6 +19,7 @@ services:
             value: "1"
           - key: HOST
             value: 0.0.0.0
+          # Stays off until Stripe has the Prices starter_month, starter_year, pro_month and pro_year.
           - key: PLANS_ON
             value: "false"
           - key: NEON_AUTH_COOKIE_SECRET

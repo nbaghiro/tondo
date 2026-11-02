@@ -1,13 +1,13 @@
-import { PRICES } from "@tondo/page";
-import type { PaidUse, PublishIssue } from "@tondo/page";
+import { PLANS } from "@tondo/page";
+import type { PaidPlan, Period, PublishIssue } from "@tondo/page";
 import { createSignal, For, Show } from "solid-js";
 import { appPath } from "../lib/account";
-import { usesLine } from "../lib/plan-copy";
+import { PlanChoice } from "./PlanChoice";
 
 export type PublishView =
     | { state: "issues"; issues: PublishIssue[] }
     | { state: "warnings"; warnings: PublishIssue[] }
-    | { state: "plan"; uses: PaidUse[]; warnings: PublishIssue[]; problem?: string }
+    | { state: "plan"; offer: "any" | "pro"; address: string; problem?: string }
     | {
           state: "live";
           url: string;
@@ -41,8 +41,9 @@ export function PublishPanel(props: {
     view: PublishView;
     onOpen: (issue: PublishIssue) => void;
     onPublishAnyway: () => void;
-    onGetPro?: (() => void) | undefined;
-    onFreeChoices?: (() => void) | undefined;
+    onChoosePlan?: ((plan: PaidPlan, period: Period) => void) | undefined;
+    /** Closes the panel, and leaves everything as it was. */
+    onKeepEditing?: (() => void) | undefined;
     /** Only offered when there's a live copy to go back to. */
     onDiscard?: (() => void) | undefined;
 }) {
@@ -86,32 +87,44 @@ export function PublishPanel(props: {
             <Show when={props.view.state === "plan" && props.view}>
                 {(view) => (
                     <div data-plan-panel>
-                        <p>{usesLine(view().uses)}</p>
+                        <Show
+                            when={view().offer === "any"}
+                            fallback={
+                                <p>
+                                    Starter includes {PLANS.starter.live} live page, and you already
+                                    have one. Move to Pro to publish this one too, or take your
+                                    other page down in Page settings.
+                                </p>
+                            }
+                        >
+                            <p>
+                                Your page is saved, and it's free to keep building. A plan puts it
+                                online at {view().address}.
+                            </p>
+                        </Show>
                         <Show when={view().problem}>
                             <p class="pub-problem" role="alert">
                                 {view().problem}
                             </p>
                         </Show>
-                        <div class="pub-actions pub-choice">
+                        <PlanChoice
+                            offer={view().offer}
+                            onChoose={(plan, period) => props.onChoosePlan?.(plan, period)}
+                        />
+                        <p class="pub-fine">
+                            You'll confirm and pay on Stripe's page. You can go back from there
+                            without paying.
+                        </p>
+                        <div class="pub-actions">
                             <button
                                 type="button"
-                                class="go"
-                                data-get-pro
-                                onClick={() => props.onGetPro?.()}
+                                class="pub-open"
+                                data-keep-editing
+                                onClick={() => props.onKeepEditing?.()}
                             >
-                                Get Pro, ${PRICES.pro.month} a month
-                                <small>or ${PRICES.pro.year} a year</small>
-                            </button>
-                            <button
-                                type="button"
-                                class="go"
-                                data-free-choices
-                                onClick={() => props.onFreeChoices?.()}
-                            >
-                                Publish with free choices
+                                Not now, keep editing
                             </button>
                         </div>
-                        <IssueList issues={view().warnings} onOpen={props.onOpen} />
                     </div>
                 )}
             </Show>
@@ -157,7 +170,9 @@ export function PublishPanel(props: {
             <Show when={props.view.state === "failed" && props.view}>
                 {(view) => <p>{view().message}</p>}
             </Show>
-            <Show when={props.view.state !== "live" && props.onDiscard}>
+            <Show
+                when={props.view.state !== "live" && props.view.state !== "plan" && props.onDiscard}
+            >
                 {(discard) => (
                     <Show
                         when={confirming()}
@@ -205,6 +220,10 @@ export const publishTitle = (view: PublishView): string =>
         ? "Your page is live"
         : view.state === "failed"
           ? "That didn't publish"
-          : view.state === "warnings" || view.state === "plan"
-            ? "Ready to publish"
-            : "A few things first";
+          : view.state === "plan"
+            ? view.offer === "any"
+                ? "Choose a plan to publish"
+                : "Move to Pro to publish this page"
+            : view.state === "warnings"
+              ? "Ready to publish"
+              : "A few things first";

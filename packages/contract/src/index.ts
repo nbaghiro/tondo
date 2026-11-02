@@ -52,13 +52,9 @@ export const claimRequest = z.strictObject({ handle, page: pageSchema.optional()
 export const handleResponse = z.strictObject({ available: z.boolean(), message: z.string() });
 const limits = z.strictObject({
     pages: z.number(),
-    sections: z.number().nullable(),
+    live: z.number(),
     photos: z.number(),
     credits: z.number(),
-    statsDays: z.number(),
-    design: z.boolean(),
-    business: z.boolean(),
-    mark: z.boolean(),
 });
 export const pageSummary = z.strictObject({
     id: z.string(),
@@ -78,20 +74,21 @@ export const meResponse = z.strictObject({
     name: z.string(),
     /** Oldest first. Empty means this person still needs the start flow. */
     pages: z.array(pageSummary),
-    plan: z.enum(["free", "pro", "team"]),
+    plan: z.enum(["free", "starter", "pro"]),
     limits,
     /** When a plan ended or will end, as an ISO date. */
     endsAt: z.string().nullable(),
-    /** After a plan ends, when its design steps down on the live page. */
-    designUntil: z.string().nullable(),
     /** Whether plans are switched on here. While it's false, nothing mentions them. */
     billing: z.boolean(),
 });
 
 export const checkoutRequest = z.strictObject({
+    plan: z.enum(["starter", "pro"]),
     period: z.enum(["month", "year"]),
     /** Where to come back to, inside the app. */
     from: z.enum(["edit", "account"]),
+    /** The page being published, so coming back opens that one. */
+    page: z.uuid().optional(),
 });
 export const billingUrlResponse = z.strictObject({ url: z.string() });
 export const billingResponse = z.strictObject({
@@ -115,6 +112,8 @@ export const draftResponse = z.strictObject({
     changed: z.boolean(),
     /** Taken down for breaking the rules. It can't go live, and the person is told why. */
     suspended: z.boolean(),
+    /** Published, and not shown to visitors because the plan doesn't cover it now. */
+    offline: z.boolean(),
 });
 // Always the text the server sent back. Anything else is refused before it reaches the database.
 const stamp = z
@@ -129,8 +128,6 @@ export const saveRequest = z.strictObject({
 });
 export const publishRequest = z.strictObject({
     updatedAt: stamp,
-    /** Publishes a copy with free choices, and leaves the draft as it is. */
-    free: z.boolean().optional(),
 });
 export const changeHandleRequest = z.strictObject({ handle });
 export const deleteAccountRequest = z.strictObject({ email: z.string().max(320) });
@@ -154,7 +151,7 @@ export const issuesResponse = z.strictObject({
             item: z.string().optional(),
             message: z.string(),
             url: z.string().optional(),
-            plan: z.string().optional(),
+            plan: z.enum(["any", "pro"]).optional(),
         }),
     ),
 });
@@ -165,7 +162,7 @@ export const statsResponse = z.strictObject({
     links: z.array(z.strictObject({ url: z.string(), clicks: z.number() })),
     /** Clicks on links that are no longer on the page, so the list still adds up to the total. */
     earlierClicks: z.number(),
-    /** The days this answer covers, which can be fewer than were asked for. */
+    /** The days this answer covers. */
     range: z.number(),
 });
 export const publishCheckResponse = z.strictObject({ issues: issuesResponse.shape.issues });

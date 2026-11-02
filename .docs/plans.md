@@ -1,5 +1,32 @@
 # Plans proposal
 
+**Current plans, decided on 2026-11-01. This replaces option A below and the older decision that follows it.** Free has no live page, and paying is what puts a page online. Design and sections are no longer limited on any plan. This is built behind `PLANS_ON`, see [plans-implementation.md](plans-implementation.md).
+
+| | Free | Starter, $4 a month or $40 a year | Pro, $10 a month or $100 a year |
+|---|---|---|---|
+| Live pages | None | 1 | 5 |
+| Build and preview | Yes | Yes | Yes |
+| Looks, colours, fonts, backgrounds and sections | All | All | All |
+| Help me credits a month | 15 | 100 | 300 |
+| Photos | 25 | 2,000 | 2,000 |
+| Statistics | No live page to count | All ranges | All ranges |
+| Team features | No | No | Yes, at one price for the account |
+| Tondo mark | No live page to carry it | None | None |
+
+The owner chose these: no live page on Free, prices of $4 and $10, one flat price for the $10 plan, and pages going offline when someone stops paying. The address stops showing the page when the paid period ends, the content stays, and subscribing again restores it.
+
+These are working defaults, and the owner can change them: the names Starter and Pro, the yearly prices (two months free, as at $6 and $60), the credit and photo numbers, and 5 pages on Pro.
+
+**Still open:**
+
+1. How many people the flat $10 plan allows. A team's Help me use costs money per turn, so an unlimited team at one price could lose money. I suggest 10 people sharing the 300 credits.
+2. Whether an address can be held without paying. Today it's claimed during sign-up. I suggest it can be held, with unused free addresses released later, since a person needs to see their address while building.
+3. Whether a failed payment gets a few days before the page goes offline. Stripe's retries over 2 weeks already give some time, and I suggest the page stays up until those retries end.
+
+**What this gives up.** Without live free pages there's no mark on free pages to bring in new people, and no live free page to set Tondo apart from Liinks, which works the same way. Its entry plan is $5, so $4 is slightly cheaper. Nobody has tested either price with real people.
+
+The rest of this file is the earlier decision and proposal, kept as history.
+
 **Decided on 2026-11-01:** the owner chose option A. Free has 1 page, 12 looks, each look's colours and fonts, 14 kinds of section, 6 sections, 25 photos, 7 days of statistics and the mark. Pro at $6 adds everything else and 10 pages. Team adds 25 pages on a team address. Paid items can be tried and are paid for at publish. A downgrade keeps the address and content, and the design steps down after 30 days. The build plan, and which of the decisions below are settled, is in [plans-implementation.md](plans-implementation.md). None of it is built yet.
 
 The rest of this file is the proposal as it was written. Prices and gates at other products were read on 2026-11-01 from public pages, without signing up or logging in. Margins and sizes are my estimates. Tondo has no paying customers and no traffic, and it isn't deployed, so no figure about Tondo's own users is a measurement.

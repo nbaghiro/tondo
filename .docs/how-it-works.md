@@ -108,5 +108,5 @@ Galleo is a single package using path aliases, so sharing live code would first 
 ## Open decisions
 
 1. **Domain.** The domain is `tondo.page`, decided on 2026-10-31. No trademark search has been run.
-2. **Plans.** The prices on the design pages are placeholders. Liinks charges $5 and $12 a month with no free plan. Linktree has a free plan and three paid ones.
+2. **Plans.** Decided on 2026-11-01 and built behind `PLANS_ON`: Free builds and previews with no live page, Starter is $4 with 1 live page and Pro is $10 with 5. Paying is what puts a page online, and when a plan ends the page goes offline with its content kept. At an address with no live page, visitors see one plain note. See [plans-implementation.md](plans-implementation.md).
 3. **Hosting.** Custom domains need certificate handling, and public pages benefit from edge caching. Both should be compared across providers before the host is chosen.

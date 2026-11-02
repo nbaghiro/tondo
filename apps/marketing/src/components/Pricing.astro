@@ -1,52 +1,16 @@
 ---
+import PlanCards from "./PlanCards.astro";
 import "../styles/plans.css";
-import Status from "./Status.astro";
-
-const plans = [
-    {
-        name: "Free",
-        price: "$0",
-        now: true,
-        features: ["One page and one address", "12 looks", "7 days of statistics"],
-    },
-    {
-        name: "Pro",
-        price: "$6 a month",
-        now: false,
-        features: ["All 50 looks and your own colour", "Shop, Services and Tabs", "No Tondo mark"],
-    },
-    {
-        name: "Team",
-        price: "$4 a person",
-        now: false,
-        features: ["A page for each person", "Shared looks", "Roles and permissions"],
-    },
-];
 ---
 
 <section class="band" id="pricing">
     <div class="wrap">
-        <h2>Free for now, with paid plans on the way</h2>
+        <h2>Free to build, and paying puts it online</h2>
         <p class="sub">
-            Paid plans can't be bought yet, so every account can use everything that works today.
-            Free keeps one page and 12 looks once they open.
+            You can build and preview your page for free, with every look and kind of section. A
+            plan is what puts it online at your address.
         </p>
-        <div class="plans">
-            {plans.map((plan) => (
-                <div class="plan">
-                    <h3>{plan.name}</h3>
-                    <strong>{plan.price}</strong>
-                    <div class="plan-coming">
-                        <Status now={plan.now} label={plan.now ? "Available today" : "Planned"} />
-                    </div>
-                    <ul>
-                        {plan.features.map((feature) => (
-                            <li>{feature}</li>
-                        ))}
-                    </ul>
-                </div>
-            ))}
-        </div>
+        <PlanCards />
         <a class="pl-more" href="/pricing">
             See every plan and price
         </a>

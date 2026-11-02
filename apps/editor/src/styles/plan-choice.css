@@ -1,0 +1,60 @@
+/* Choosing a plan, in the publish panel and on Account. */
+.plan-choice {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0;
+}
+.plan-period {
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+.plan-period button {
+    flex: 1;
+    min-height: 36px;
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--soft);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+.plan-period button[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+}
+.plan-option {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.plan-option:hover {
+    border-color: var(--madder);
+}
+.plan-option:focus-visible,
+.plan-period button:focus-visible {
+    outline: 2px solid var(--madder);
+    outline-offset: 2px;
+}
+.plan-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+.plan-option small {
+    color: var(--soft);
+    font-size: 13px;
+    line-height: 1.4;
+}

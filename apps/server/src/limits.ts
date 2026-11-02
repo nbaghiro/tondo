@@ -1,28 +1,36 @@
-import { limitsFor, paidUses, PLANS } from "@tondo/page";
-import type { Account, AccountLimits, Limits, Page, PublishIssue } from "@tondo/page";
-import { looks } from "@tondo/render";
+import { limitsFor, PLANS } from "@tondo/page";
+import type { Account, Limits, PublishIssue } from "@tondo/page";
 
 export const plansOn = (): boolean => process.env["PLANS_ON"] === "true";
 
-// Until checkout works, asking for a payment would be a dead end, so everyone behaves as Pro. Help me
-// costs money per use, so its credits don't rise with that, unless set locally to try other limits.
-export function limitsOf(account: Account, now = new Date()): AccountLimits {
+// Until checkout works, asking for a payment would be a dead end, so everyone behaves as paid. Help me
+// costs money per use, so its credits stay at Free's number, unless set locally to try other limits.
+export function limitsOf(account: Account, now = new Date()): Limits {
     if (plansOn()) return limitsFor(account, now);
     const credits = process.env["TONDO_PLAN"] === "pro" ? PLANS.pro.credits : PLANS.free.credits;
-    return { ...PLANS.pro, credits, designUntil: null };
+    return { ...PLANS.pro, credits };
 }
 
 export const photoLimitMessage = ({ photos }: { photos: number }): string =>
     photos < PLANS.pro.photos
-        ? `You've used your ${String(photos)} photos. Remove one, or get ${PLANS.pro.photos.toLocaleString("en")} with Pro.`
+        ? `You've used your ${String(photos)} photos. Remove one, or choose a plan for ${PLANS.pro.photos.toLocaleString("en")}.`
         : `You've used your ${photos.toLocaleString("en")} photos. Remove one to add another.`;
 
-export type LimitsOfPerson = (userId: string) => Promise<AccountLimits>;
+export type LimitsOfPerson = (userId: string) => Promise<Limits>;
 
-/** What a page uses that its owner's plan doesn't cover, marked so the editor can offer a way on. */
-export const planIssues = (page: Page, limits: Limits, live: Page | null): PublishIssue[] =>
-    paidUses(page, limits, live, (look) => looks[look].label).map((use) => ({
-        target: use.target,
-        message: `This page uses ${use.label}, which is part of Pro.`,
-        plan: use.code,
-    }));
+const pagesLine = (count: number) => `${String(count)} live ${count === 1 ? "page" : "pages"}`;
+
+/** Why this page can't be published on this plan, and which plans would allow it. */
+export const livePageIssue = ({ live }: Limits): PublishIssue =>
+    live === 0
+        ? { target: "page", message: "Choose a plan to put this page online.", plan: "any" }
+        : live < PLANS.pro.live
+          ? {
+                target: "page",
+                message: `Your plan includes ${pagesLine(live)}. Pro includes ${String(PLANS.pro.live)}.`,
+                plan: "pro",
+            }
+          : {
+                target: "page",
+                message: `Your plan includes ${pagesLine(live)}. Take one down to publish this one.`,
+            };

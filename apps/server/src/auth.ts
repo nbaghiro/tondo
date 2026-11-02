@@ -133,15 +133,13 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
     // Everything the editor knows about this person, from one place.
     const meOf = async (person: Person): Promise<MeResponse> => {
         const account = await store.findPlan(person.id);
-        const { designUntil, ...limits } = limitsOf(account);
         return {
             email: person.email,
             name: nameOf(person),
             pages: await store.listPages(person.id),
             plan: account.plan,
-            limits,
+            limits: limitsOf(account),
             endsAt: account.endsAt?.toISOString() ?? null,
-            designUntil: designUntil?.toISOString() ?? null,
             billing: plansOn(),
         };
     };

@@ -16,7 +16,7 @@ Start the servers (`pnpm services:up`, `pnpm db:migrate`, `pnpm dev`), then open
 8. **Account.** Change your password, log out, log back in. Log in lands on Home. Delete the account with a throwaway one, typing its email to confirm.
 9. **Phone.** Home shows the phone below your name, then your address and checklist. The bottom bar has Home, Edit page, Analytics and More. More has Page settings, Help and Account.
 10. **Two tabs.** Edit in both. The second gets the conflict bar with Use the latest, Keep mine and Download mine.
-11. **Report link.** A live free page has a small Report link at the bottom. It opens `/report`.
+11. **Report link.** A live page has a small Report link at the bottom. It opens `/report`.
 
 ## Trying an example page in the builder
 
@@ -184,13 +184,15 @@ Nobody has tried any of this on real hardware or in another browser.
 
 ## Plans: needs you, once plans are on
 
-These are off today. To try them locally, set `PLANS_ON=true` with a stand-in or sandbox for Stripe. Automated tests cover the flows, and these need a person. Open `?plans` on the dev editor to see every look with its mark and step-down.
+These are off today. To try them locally, set `PLANS_ON=true` with a stand-in or sandbox for Stripe. Automated tests cover the flows, and these need a person.
 
-1. Both prompts on a phone: the first-time note and the publish panel.
-2. Whether Free feels complete on real content, with 6 sections and 12 looks.
-3. Each free look with other people's words, and whether the mark looks good on all 12.
-4. The 38 step-down pairs side by side. They were first chosen from the groups in `plans.md`, without looking at each pair.
-5. The real Stripe pass in `plans-implementation.md`, which hasn't been done.
+1. Press Publish on Free. The prompt offers Starter and Pro, monthly or yearly, and "Not now, keep editing" leaves everything as it was. Check it on a phone.
+2. Pay, come back, publish. Cancel at the payment page and check that nothing was lost.
+3. On Starter, publish a second page. It offers Pro, and moving up uses Stripe's confirm page.
+4. End the subscription. The address shows the plain "no page here" note, Home says Offline and how to bring it back, and the page can still be edited. Subscribe again and it returns.
+5. A failed payment keeps the page up, with a notice on Home and Account.
+6. Move from Pro to Starter with several live pages. The oldest stays online, the others say Offline, and taking the oldest down brings the next one back.
+7. The real Stripe pass in `plans-implementation.md`, which hasn't been done.
 
 ## Known gaps
 

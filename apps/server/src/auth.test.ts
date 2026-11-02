@@ -384,6 +384,7 @@ describe("deleting an account with a plan", () => {
     const COOKIE = "__Secure-neon-auth.session_token=abc";
     const payments = (deleteCustomer: Payments["deleteCustomer"]): Payments => ({
         createCustomer: () => Promise.resolve("cus_1"),
+        changeUrl: () => Promise.resolve(""),
         checkoutUrl: () => Promise.resolve(""),
         portalUrl: () => Promise.resolve(""),
         subscriptions: () => Promise.resolve([]),

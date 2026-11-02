@@ -1,4 +1,4 @@
-import { FREE_LOOKS, lookNames, PLANS, PRICES, TEAM_MINIMUM } from "@tondo/page";
+import { PLANS, PRICES } from "@tondo/page";
 import { describe, expect, it } from "vitest";
 import { groups, heads } from "./plans";
 
@@ -10,41 +10,43 @@ const row = (label: string) => {
 
 describe("the pricing table", () => {
     it("shows the numbers the plans enforce", () => {
-        expect(row("Sections on a page")).toEqual([
-            String(PLANS.free.sections),
-            "No limit",
-            "No limit",
+        expect(row("Live pages")).toEqual([
+            "None",
+            String(PLANS.starter.live),
+            String(PLANS.pro.live),
         ]);
-        expect(row("Looks")).toEqual([
-            String(FREE_LOOKS.length),
-            `All ${String(lookNames.length)}`,
-            `All ${String(lookNames.length)}`,
-        ]);
-        expect(row("Uploaded photos")[0]).toBe(String(PLANS.free.photos));
-        expect(row("Uploaded photos")[1]).toBe(PLANS.pro.photos.toLocaleString("en"));
-        expect(row("Days you can look back")).toEqual(
-            [PLANS.free, PLANS.pro, PLANS.team].map((plan) => String(plan.statsDays)),
+        expect(row("Help me credits a month")).toEqual(
+            [PLANS.free, PLANS.starter, PLANS.pro].map((plan) => String(plan.credits)),
+        );
+        expect(row("Uploaded photos")).toEqual(
+            [PLANS.free, PLANS.starter, PLANS.pro].map((plan) => plan.photos.toLocaleString("en")),
         );
     });
 
     it("shows the prices", () => {
-        expect(heads[1]?.price).toContain(`$${String(PRICES.pro.month)} a month`);
-        expect(heads[1]?.price).toContain(`$${String(PRICES.pro.year)} a year`);
-        expect(heads[2]?.price).toContain(`from ${String(TEAM_MINIMUM)} people`);
+        for (const [at, plan] of [
+            [1, "starter"],
+            [2, "pro"],
+        ] as const) {
+            expect(heads[at]?.price).toContain(`$${String(PRICES[plan].month)} a month`);
+            expect(heads[at]?.price).toContain(`$${String(PRICES[plan].year)} a year`);
+        }
     });
 
-    it("doesn't offer paid sections or design under Free", () => {
+    it("keeps design and sections on every plan", () => {
         for (const label of [
-            "Products and services that link to your own shop",
-            "A Bookings section",
-            "Tabs",
+            "Every look, colour, font and background",
+            "Every kind of section, with no limit on how many",
             "Scheduling a section",
-            "A Team section that lists people",
-            "Your own colour, or one from your photo",
-            "8 font pairings",
-            "A photo as your background",
         ]) {
-            expect(row(label)[0]).toBe("no");
+            expect(row(label)).toEqual(["yes", "yes", "yes"]);
+        }
+    });
+
+    it("states everything as it will be at launch", () => {
+        const text = JSON.stringify({ heads, groups });
+        for (const word of ["Coming", "Planned", "Available today"]) {
+            expect(text).not.toContain(word);
         }
     });
 });

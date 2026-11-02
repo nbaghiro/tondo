@@ -2,7 +2,50 @@
 
 This plan builds the plan the owner chose in [plans.md](plans.md).
 
-**Status:** M0 to M5 are built and tested against a stand-in for Stripe, with `PLANS_ON` true only in tests. The real pass in a Stripe sandbox hasn't been done, because it needs the owner's account. M6 is replaced by [multi-page-implementation.md](multi-page-implementation.md), P1 to P5. M7 and M8 haven't started, and nothing can be bought. M6 is on hold and M7 and M8 haven't started. No Stripe object exists, and `PLANS_ON` is only true in tests.
+**Status:** the simplified plans decided on 2026-11-01 are built, off until `PLANS_ON`, and tested against a stand-in for Stripe. `PLANS_ON` is true only in tests. The real pass in a Stripe sandbox hasn't been done, because it needs the owner's account. [Current plans](#current-plans) below is what the code does. Everything after that section is the earlier plan (option A), kept as history, and much of it no longer applies.
+
+## Current plans
+
+| | Free | Starter, $4 a month or $40 a year | Pro, $10 a month or $100 a year |
+|---|---|---|---|
+| Pages that can be built (`pages`) | 1 | 5 | 5 |
+| Live pages (`live`) | 0 | 1 | 5 |
+| Help me credits a month | 15 | 100 | 300 |
+| Photos | 25 | 2,000 | 2,000 |
+| Team features | No | No | Part of the plan, once built |
+
+Every plan has all looks, colours, fonts, backgrounds, kinds of section, scheduling, all statistics ranges and no section limit. Nothing draws a Tondo mark.
+
+**How it works now**
+
+- `packages/page/src/limits.ts` holds the numbers. `canAddPage` reads `pages`, and `canPublishPage` reads `live`. Starter's 5 buildable pages is my choice: the brief asks for an offer of Pro on a second page, and that needs a Starter person to be able to have one.
+- Publishing past `live` is refused with a 422 and a publish issue whose `plan` says what to offer: `any` on Free, `pro` on Starter, and nothing on Pro, which only says to take a page down. The editor shows the prompt from that issue, so the server stays the only judge.
+- The prompt offers monthly or yearly up front. Starter moving to Pro goes through Stripe's portal confirm page (`changeUrl`, `subscription_update_confirm`), because Checkout would start a second subscription.
+- **Which pages visitors see** is derived, with no column. A person's live pages count oldest first, and those within `live` are served. So a lapsed plan serves none, and someone who moves from Pro to Starter keeps their oldest live page online. Taking that one down brings the next one back online. `published` is never changed by a plan.
+- **Stopping paying.** `past_due` still counts as paid, so a page stays up through Stripe's retries. When the subscription ends, `ends_at` is set, `limitsFor` returns Free's limits at that moment, and the page goes offline. Subscribing again clears `ends_at`, and the page comes back with no further step.
+- **An address with no live page** answers 404 with one plain page, `apps/server/src/no-page.ts`: "There's no page here right now", with a link to log in. It reads the same for an address nobody holds, a page not published yet, a lapsed plan, one past the plan's number, and a suspended person, so it says nothing about whose address it is. Link redirects on those pages answer 404 and nothing is counted.
+- `PLANS_ON=false` gives everyone Pro's limits, with credits at Free's number. `TONDO_PLAN=pro` still raises the credits locally.
+- Seat limit of 10 and shared credits are recorded in [teams-implementation.md](teams-implementation.md), and aren't built.
+
+**Removed:** `paid-uses.ts`, `step-down.ts`, free look lists and `isFreeLook`, `PAID_BLOCKS`, the design and business flags, section limits, `statsDays` and its clamp, the mark in the renderer, live step-down, publishing with free choices and its preview, Pro labels and first-time notes, `PlanLab`, grace days, `designUntil`, `TEAM_MINIMUM`, `team` as a plan, and the tests for all of them.
+
+**Migration:** `0006_flat_pro_plan` renames any stored `team` plan to `pro`. No column was dropped, since `plan`, `stripe_id` and `ends_at` are all still used.
+
+**What the owner must create in Stripe**
+
+1. Two Products, Tondo Starter and Tondo Pro, each with a monthly and a yearly Price, tax behaviour `exclusive`, and these lookup keys: `starter_month` ($4), `starter_year` ($40), `pro_month` ($10), `pro_year` ($100). The server won't start with `PLANS_ON=true` unless all four exist and match `PRICES`.
+2. A restricted key and a webhook endpoint at `/api/stripe/webhook`, for `STRIPE_KEY` and `STRIPE_WEBHOOK_SECRET`.
+3. A customer portal configuration with cards, invoices, cancelling at the period end, and subscription updates allowed between all four Prices. The Starter to Pro move depends on that setting. I've only run it against the stand-in.
+4. Under failed payments, retries ending with the subscription cancelled. Pages stay up until the subscription ends, so this setting decides how long that is. If retries end in `unpaid` instead, the sync also takes the page offline, on that date.
+5. The earlier steps under [What the owner must do](#what-the-owner-must-do) still apply for tax and the business, apart from the `pro_month` and `pro_year` amounts and any `team` Price.
+
+**Testing.** Unit tests cover the limits, offline serving, ranks, the sync and checkout. `tests/plans.spec.ts` drives the prompt, paying, cancelling, moving from Starter to Pro, failing payments, lapsing and restoring against `tests/stripe-stand-in.ts`. The stand-in has all four Prices, and a page standing in for the portal's confirm step. The real sandbox pass below still has to be done, and needs to cover the portal's confirm page.
+
+**Decided in this work and open to change:** a page past the plan's number goes offline rather than staying up, with the oldest kept, because the brief didn't cover downgrades between paid plans. Unused free addresses aren't released, which `plans.md` suggests doing later.
+
+**Marketing and the code differ on purpose.** At the owner's request, the marketing site states paid plans and team features as available at launch, and it isn't deployed. It can't go live until they are. See `cleanup-log.md`.
+
+The rest of this file is the earlier plan.
 
 It was first checked against the working tree and Stripe's docs on 2026-11-01, while other agents were changing `apps/` and `.docs/`, so recheck line-level details when a milestone starts. All sizes are my estimates for one developer. I haven't tried any of this against a real Stripe account.
 

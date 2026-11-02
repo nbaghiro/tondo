@@ -1,6 +1,5 @@
 import { createSignal, Show } from "solid-js";
 import type { JSX } from "solid-js";
-import { needsPro } from "../state/plan";
 
 const ICONS: Record<string, string> = {
     spark: '<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8z"/>',
@@ -18,17 +17,6 @@ const ICONS: Record<string, string> = {
     check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
     go: '<path d="M9 6l6 6-6 6"/>',
 };
-
-/** A small word beside something that works here and needs Pro to publish. It isn't a lock. */
-export function ProLabel(props: { for: "design" | "business" }) {
-    return (
-        <Show when={needsPro(props.for)}>
-            <small class="pro-label" aria-label="part of Pro">
-                Pro
-            </small>
-        </Show>
-    );
-}
 
 export function NavIcon(props: { name: string }) {
     return (

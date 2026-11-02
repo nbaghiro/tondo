@@ -81,7 +81,7 @@ This is everything Tondo should eventually support, taken from the products in [
 | Per-block styling | Li | Block variants and the highlight control. Deliberately not free colour per block | 1 |
 | Animated avatars | Sh | Video or GIF in the header | 4 |
 | Custom footer logo | Li | Page setting on paid plans | 4 |
-| Remove Tondo branding | LT Be | Plan setting | 4 |
+| No Tondo branding on any plan | LT Be | Decided 2026-11-01: nothing to remove | 4 |
 | Favicon | Be | Page setting | 4 |
 | Logo creation | Be | Generated from the art system | 10 |
 | Generated artwork | | Art recipes, Tondo's own feature | 1 |
@@ -97,7 +97,7 @@ This is everything Tondo should eventually support, taken from the products in [
 | Share title, text and image | Li | Page settings, plus generated art image | 4 |
 | Pinterest site verification | Li | Page setting that adds the meta tag | 4 |
 | Verification badge | Li | Reviewed by hand at first | 4 |
-| Report link on free pages | | Abuse handling | 2 |
+| Report link on live pages | | Abuse handling | 2 |
 
 ## Sharing and QR
 
@@ -191,7 +191,7 @@ This is everything Tondo should eventually support, taken from the products in [
 | MCP server for AI assistants | Li | Same operations as the API | 5 |
 | Import from Linktree, Beacons and others | Li La | Page parsers | 5 |
 | Referral program | Li Sh | Referral codes | 5 |
-| Free plan | LT Be La | Plan limits | 2 |
+| Free plan: build and preview 1 page, none live | Li | Plan limits | 2 |
 | Free trial | Li St Sh | Billing | 4 |
 
 ## Payments and store

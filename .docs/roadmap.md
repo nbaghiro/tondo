@@ -55,5 +55,5 @@ Made on 2026-10-31, and open to change:
 Still open:
 
 - **Domain and name:** the domain is `tondo.page`. No trademark search has been run. This should happen before more work goes into the name, because it's cheap now and costly later.
-- **Plans and prices:** the owner chose the plans on 2026-11-01, and [plans-implementation.md](plans-implementation.md) tracks the build. Nothing can be bought yet.
+- **Plans and prices:** the owner chose the simplified plans on 2026-11-01: Free with no live page, Starter at $4 and Pro at $10. [plans-implementation.md](plans-implementation.md) has what's built. Nothing can be bought yet: it needs the owner's Stripe setup and new Terms and Privacy. The marketing site already states paid plans and teams as available, so it can't go live until they are.
 - **Hosting:** compare providers for custom domains and edge caching before step 4.

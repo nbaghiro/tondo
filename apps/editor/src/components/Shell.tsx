@@ -9,6 +9,7 @@ import type { PageSummary } from "@tondo/contract";
 import { AccountPage } from "./AccountPage";
 import { AnalyticsPage } from "./AnalyticsPage";
 import { HomePage } from "./HomePage";
+import { planName } from "../lib/plan-copy";
 import { plan } from "../state/plan";
 import { NavIcon } from "./Parts";
 import { SettingsPage } from "./SettingsPage";
@@ -62,10 +63,12 @@ function NavLink(props: { item: NavItem; pageId: string; onGo?: () => void }) {
 
 function PlanLine() {
     return (
-        <Show when={plan()?.billing}>
-            <p class="plan-line" data-plan-line>
-                {plan()?.limits.mark ? "Free plan" : "Pro"}
-            </p>
+        <Show when={plan()?.billing && plan()}>
+            {(current) => (
+                <p class="plan-line" data-plan-line>
+                    {planName(current())} plan
+                </p>
+            )}
         </Show>
     );
 }

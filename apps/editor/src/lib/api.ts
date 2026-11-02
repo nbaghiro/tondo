@@ -75,17 +75,10 @@ export type PublishResult =
     | { state: "issues"; issues: PublishIssue[] }
     | { state: "failed"; message: string };
 
-export async function publish(
-    pageId: string,
-    updatedAt: string,
-    free = false,
-): Promise<PublishResult> {
+export async function publish(pageId: string, updatedAt: string): Promise<PublishResult> {
     const failed = "Publishing didn't work. Check your connection and try again.";
     try {
-        const res = await send("POST", routes.publish(pageId), {
-            updatedAt,
-            ...(free ? { free: true } : {}),
-        });
+        const res = await send("POST", routes.publish(pageId), { updatedAt });
         if (res.ok) return { state: "published" };
         if (res.status === 422) {
             const { issues } = (await res.json()) as IssuesResponse;
@@ -181,10 +174,8 @@ export async function loadPhotos(): Promise<string[]> {
 }
 
 /** Where to send someone to pay, or null if the payment page can't be opened. */
-export async function startCheckout(from: CheckoutRequest["from"]): Promise<string | null> {
-    const res = await send("POST", routes.billingCheckout, { period: "month", from }).catch(
-        () => null,
-    );
+export async function startCheckout(request: CheckoutRequest): Promise<string | null> {
+    const res = await send("POST", routes.billingCheckout, request).catch(() => null);
     return res?.ok ? ((await res.json()) as { url: string }).url : null;
 }
 
