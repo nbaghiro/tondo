@@ -8,6 +8,7 @@ import {
     sectionAvailable,
     sectionDefinition,
     sectionDefinitions,
+    starterLinks,
     starterSection,
     starterTagline,
     starterUses,
@@ -116,7 +117,7 @@ export function StartFlow(props: {
                 layout: "look",
                 name: name().trim() || "Your name",
                 tagline: starterTagline(use() ?? defaultStarterUse),
-                links: [],
+                links: starterLinks(use() ?? defaultStarterUse),
                 ...(wordmark !== "plain"
                     ? { wordmark: wordmark as (typeof wordmarks)[number] }
                     : {}),

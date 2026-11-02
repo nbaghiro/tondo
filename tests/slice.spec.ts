@@ -92,9 +92,9 @@ test("the gallery edits photos and captions", async ({ page }) => {
 test("a link in the header sets its own icon", async ({ page }) => {
     await canvas(page).locator("#t-header h1").click();
     await panel(page).getByRole("button", { name: "Add an icon" }).click();
-    await panel(page).getByRole("textbox", { name: "Address" }).fill("instagram.com/maya");
-    await expect(canvas(page).locator('#t-header [aria-label="instagram"]')).toHaveCount(1);
-    await expect(panel(page).locator(".ls-n")).toHaveText("Instagram");
+    await panel(page).getByRole("textbox", { name: "Address" }).fill("youtube.com/maya");
+    await expect(canvas(page).locator('#t-header [aria-label="youtube"]')).toHaveCount(1);
+    await expect(panel(page).locator(".ls-n").last()).toHaveText("YouTube");
 });
 
 test("on a phone the sheet grows and closes from its grip", async ({ page }, info) => {
@@ -127,10 +127,10 @@ test("the header panel has a Social icons row, and tapping the icons opens it", 
     const row = panel(page).locator("#social-icons");
     await expect(row).toContainText("Social icons");
     await row.getByRole("button", { name: "Add an icon" }).click();
-    await row.getByRole("textbox", { name: "Address" }).fill("instagram.com/maya");
+    await row.getByRole("textbox", { name: "Address" }).fill("youtube.com/maya");
     await panel(page).getByRole("button", { name: "Close" }).click();
     await expect(panel(page)).toHaveCount(0);
-    await canvas(page).locator('#t-header [aria-label="instagram"]').click();
+    await canvas(page).locator('#t-header [aria-label="youtube"]').click();
     await expect(panel(page).locator("#social-icons")).toBeInViewport();
 });
 

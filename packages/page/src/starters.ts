@@ -1,4 +1,5 @@
 import type { Block, BlockType } from "./blocks";
+import type { linkTypes } from "./links";
 import type { MakeId } from "./operations";
 import { makeSection, sectionDefinition } from "./sections";
 
@@ -19,18 +20,25 @@ export interface StarterUse {
     id: string;
     label: string;
     tagline: string;
+    /** Social icons to show, each waiting for its link. */
+    socials: readonly (typeof linkTypes)[number][];
     sections: readonly StarterSection[];
 }
 
-const links = (...texts: readonly string[]) => texts.map((text) => ({ text }));
+/** One strong button and one quiet one, so a new page doesn't start crowded. */
+const links = (first: string, second: string) => [
+    { text: first },
+    { text: second, variant: "outline" },
+];
 
 export const starterUses: readonly StarterUse[] = [
     {
         id: "shop",
         label: "A shop",
         tagline: "Small batches, made and shipped by me",
+        socials: ["instagram", "tiktok", "mail"],
         sections: [
-            { key: "links", blocks: links("Shop everything", "New this week", "Custom orders") },
+            { key: "links", blocks: links("Shop everything", "Custom orders") },
             {
                 key: "spotlight",
                 blocks: [
@@ -63,6 +71,7 @@ export const starterUses: readonly StarterUse[] = [
         id: "services",
         label: "My services",
         tagline: "Helping people like you, one session at a time",
+        socials: ["instagram", "globe", "mail"],
         sections: [
             {
                 key: "about",
@@ -118,6 +127,7 @@ export const starterUses: readonly StarterUse[] = [
         id: "creator",
         label: "My creative work",
         tagline: "Making things and sharing how they're made",
+        socials: ["instagram", "youtube", "tiktok"],
         sections: [
             { key: "banner", blocks: [{ text: "New work out now" }] },
             { key: "photos" },
@@ -133,13 +143,14 @@ export const starterUses: readonly StarterUse[] = [
                     },
                 ],
             },
-            { key: "links", blocks: links("See my portfolio", "Buy my work", "Work with me") },
+            { key: "links", blocks: links("See my portfolio", "Work with me") },
         ],
     },
     {
         id: "place",
         label: "A place or event",
         tagline: "Come and see us. Everything you need to know is here",
+        socials: ["instagram", "globe", "pin"],
         sections: [
             {
                 key: "spotlight",
@@ -173,8 +184,9 @@ export const starterUses: readonly StarterUse[] = [
         id: "me",
         label: "Just me",
         tagline: "A few words about you, and what you're up to",
+        socials: ["instagram", "tiktok", "mail"],
         sections: [
-            { key: "links", blocks: links("My website", "What I'm up to", "Say hello") },
+            { key: "links", blocks: links("My website", "Say hello") },
             {
                 key: "about",
                 title: "A little about me",
@@ -197,6 +209,16 @@ const useOf = (id: string): StarterUse | undefined =>
     starterUses.find((use) => use.id === defaultStarterUse);
 
 export const starterTagline = (id: string): string => useOf(id)?.tagline ?? "";
+
+const STARTER_LINK = "starter-";
+
+/** Header icons that show a person where their links go. Empty ones never go live. */
+export const starterLinks = (id: string) =>
+    (useOf(id)?.socials ?? []).map((type) => ({ id: `${STARTER_LINK}${type}`, type, value: "" }));
+
+/** An icon the page started with, and nobody has given a link yet. */
+export const isUnfilledStarterLink = (link: { id: string; value: string }): boolean =>
+    !link.value && link.id.startsWith(STARTER_LINK);
 
 export const isStarterTagline = (line: string | undefined): boolean =>
     starterUses.some((use) => use.tagline === line);
@@ -228,14 +250,16 @@ export function starterSection(useId: string, key: string, makeId: MakeId): Bloc
     const words = useOf(useId)?.sections.find((section) => section.key === key);
     if (!words) return blocks;
     let index = 0;
-    return blocks.map((block) => {
-        if (definition.title && block === blocks[0]) {
-            return { ...block, text: words.title ?? definition.title } as Block;
-        }
-        const extra = words.blocks?.[index];
-        index += 1;
-        return extra ? (overlay(block, extra, makeId) as Block) : block;
-    });
+    return blocks
+        .map((block) => {
+            if (definition.title && block === blocks[0]) {
+                return { ...block, text: words.title ?? definition.title } as Block;
+            }
+            const extra = words.blocks?.[index];
+            index += 1;
+            return extra ? (overlay(block, extra, makeId) as Block) : block;
+        })
+        .slice(0, words.blocks ? words.blocks.length + (definition.title ? 1 : 0) : undefined);
 }
 
 interface StarterSample {

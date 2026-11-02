@@ -3,7 +3,8 @@ import { liveContent } from "./sample-content";
 import { setupChecklist } from "./checklist";
 import { addSection } from "./sections";
 import { starterPage } from "./samples";
-import { starterSection, starterTagline, starterUses } from "./starters";
+import { publishIssues } from "./publish";
+import { starterLinks, starterSection, starterTagline, starterUses } from "./starters";
 import type { Page } from "./schema";
 
 function started(id: string): Page {
@@ -48,4 +49,11 @@ it("keeps a tagline the person wrote", () => {
     const page = started("me");
     const mine = { ...page, header: { ...page.header, tagline: "Potter in Vancouver" } };
     expect(liveContent(mine).page.header.tagline).toBe("Potter in Vancouver");
+});
+
+it("doesn't let an icon still waiting for its link hold up publishing", () => {
+    const page = started("me");
+    const waiting = { ...page, header: { ...page.header, links: starterLinks("me") } };
+    expect(waiting.header.links.length).toBe(3);
+    expect(publishIssues(waiting).filter((issue) => issue.target === "header")).toEqual([]);
 });

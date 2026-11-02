@@ -102,3 +102,4 @@ The site changes are in `apps/marketing`.
 | Done | Pricing belongs with Home and Teams | Paint and real example pages frame the cards, with one recommended plan, tick bullets, and Questions on a tinted band |
 | Done | A Team screen, invitations and team pages in the switcher | `TeamPage.tsx`, `JoinPage.tsx`, `PageSwitcher.tsx`, as in the marketing window |
 | Done | Onboarding starts on a Porcelain look with a filled page, with its own sample words for each answer to "What's it mostly for?" | `starters.ts`, `porcelain.ts`, `StartFlow.tsx`, `LivePage.tsx` |
+| Done | Home shows sample content before a page goes live, and starters get social icons and two buttons where they led with links | `HomePage.tsx`, `starters.ts` |

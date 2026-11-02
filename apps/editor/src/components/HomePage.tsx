@@ -198,13 +198,17 @@ export function HomePage(props: { page: PageSummary; name: string }) {
             toast.say(result.message);
         }
     };
-    const preview = (draft: DraftResponse) =>
-        renderDocument(withTeamLook(draft.page, draft.team?.look ?? null), {
+    // Before a page goes live, its sample content shows, so a new page doesn't look empty.
+    const preview = (draft: DraftResponse) => {
+        const sampling = !draft.published && !draft.offline && !draft.suspended;
+        return renderDocument(withTeamLook(draft.page, draft.team?.look ?? null), {
             title: "Preview",
             assetBase: "/photos/",
-            editable: false,
-            live: true,
+            editable: sampling,
+            live: !sampling,
+            ...(sampling ? { editorCss: "a{pointer-events:none}" } : {}),
         }).replace("<head>", '<head><base target="_blank">');
+    };
 
     return (
         <>
@@ -238,7 +242,7 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                 ? {
                                       tone: "",
                                       label: "Not live yet",
-                                      line: `Only you can see it. ${NOTHING_SHOWN}`,
+                                      line: `Only you can see it, and sample words won't go live. ${NOTHING_SHOWN}`,
                                   }
                                 : draft().changed
                                   ? {

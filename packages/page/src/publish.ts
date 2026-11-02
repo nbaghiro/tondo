@@ -1,5 +1,5 @@
 import { allBlocks, blockDefinitions } from "./blocks";
-import { isStarterTagline } from "./starters";
+import { isStarterTagline, isUnfilledStarterLink } from "./starters";
 import { isPlaceholder } from "./define-block";
 import type { Photo } from "./define-block";
 import type { Block } from "./blocks";
@@ -83,7 +83,8 @@ const sectionName = (page: Page, id: string) =>
 /** What has to be fixed before a page can go live. A draft may be unfinished, and a live page can't. */
 export function publishIssues(page: Page): PublishIssue[] {
     const issues: PublishIssue[] = [];
-    const { name, links, buttonText, buttonUrl } = page.header;
+    const { name, buttonText, buttonUrl } = page.header;
+    const links = page.header.links.filter((link) => !isUnfilledStarterLink(link));
     if (!name.trim())
         issues.push({ target: "header", item: "name", message: "Your page needs a name." });
     if (links.some((link) => !link.value)) {

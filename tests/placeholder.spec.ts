@@ -25,11 +25,23 @@ test("a photo list shows empty entries as tiles, and one can be filled", async (
     await expect(empties).toHaveCount(before - 1);
 });
 
+test("Home shows a page's sample content until the page goes live", async ({ page }) => {
+    await signUpToEditor(page, ["links"]);
+    await page.goto("/app");
+    const phone = page.locator(".pv iframe").contentFrame();
+    await expect(phone.locator("a.b-btn")).toHaveCount(2);
+    await expect(phone.locator("a.b-btn").first()).toHaveText("My website");
+});
+
 test("the live preview drops a missing photo where the block can do without", async ({ page }) => {
     await signUpToEditor(page);
     await addSection(page, "spotlight");
     await panel(page).getByLabel("Title", { exact: true }).fill("My own");
+    await panel(page).getByRole("textbox", { name: "Link", exact: true }).fill("own.example.com");
     await page.locator(".saved[data-state=saved]").waitFor({ state: "attached" });
+    await page.locator(".publish").click();
+    await page.getByRole("button", { name: "Publish without these" }).click();
+    await expect(page.getByRole("heading", { name: "Your page is live" })).toBeVisible();
     await page.goto("/app");
     const phone = page.locator(".pv iframe").contentFrame();
     await expect(phone.locator(".b-feature")).toContainText("My own");

@@ -31,7 +31,7 @@ test("the start flow builds the page, step by step, with the address from the ma
     await expect(frame.locator("html")).toHaveClass(/noir/);
     await expect(frame.locator("#t-header h1")).toHaveAttribute("aria-label", "Tide Bakery");
     await expect(frame.locator("#t-header .wm-poster")).toHaveCount(1);
-    await expect(frame.locator("#t-blocks > section.t-s").first().locator(".b-btn")).toHaveCount(3);
+    await expect(frame.locator("#t-blocks > section.t-s").first().locator(".b-btn")).toHaveCount(2);
 
     // Coming back goes straight to the editor.
     await page.reload();
