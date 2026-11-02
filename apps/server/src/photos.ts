@@ -40,7 +40,64 @@ const hostOf = (origin: string) => {
 };
 
 const sha = (value: Uint8Array | string) => createHash("sha256").update(value).digest("hex");
-export const folderFor = (userId: string) => `uploads/${sha(userId).slice(0, 16)}/`;
+/** Each page has its own folder, so image addresses don't connect one person's pages. A person's
+ * own folder holds what's uploaded before their first page exists. */
+export const folderFor = (id: string) => `uploads/${sha(id).slice(0, 16)}/`;
+
+type PhotoPages = Pick<PageStore, "listPages">;
+
+export async function foldersOf(pages: PhotoPages, userId: string): Promise<string[]> {
+    const own = await pages.listPages(userId);
+    return [...new Set([userId, ...own.map((page) => page.id)])].map(folderFor);
+}
+
+/** Everything one person has stored, across their folders. It's what the photo limit counts. */
+export async function listPhotos(
+    storage: Storage,
+    pages: PhotoPages,
+    userId: string,
+): Promise<string[]> {
+    const folders = await foldersOf(pages, userId);
+    return (await Promise.all(folders.map((folder) => storage.list(folder)))).flat();
+}
+
+/** Who a new photo's folder belongs to: the page asked for, or the person. Null if it isn't theirs. */
+export async function photoOwner(
+    pages: Pick<PageStore, "findDraft">,
+    userId: string,
+    pageId: string | undefined,
+): Promise<string | null> {
+    if (!pageId) return userId;
+    return (await pages.findDraft(userId, pageId)) ? pageId : null;
+}
+
+/**
+ * Empties a page's folder before the page goes. Photos other pages still use move to the person's own
+ * folder, because nothing could find that folder again once its page has gone.
+ */
+export async function clearPageFolder(
+    storage: Storage,
+    pages: Pick<PageStore, "documentsOf" | "movePhotos">,
+    userId: string,
+    pageId: string,
+): Promise<void> {
+    const from = folderFor(pageId);
+    const to = folderFor(userId);
+    const files = await storage.list(from);
+    if (!files.length) return;
+    const documents = await pages.documentsOf(userId);
+    const inUse = new Set(photosIn(documents).map((photo) => photo.file));
+    await Promise.all(
+        files
+            .filter((file) => inUse.has(file))
+            .map(async (file) => {
+                const bytes = await storage.get(file);
+                if (bytes) await storage.put(file.replace(from, to), bytes, "image/webp");
+            }),
+    );
+    await pages.movePhotos(userId, from, to);
+    await Promise.all(files.map((file) => storage.remove(file)));
+}
 
 export const isBusy = () => converting >= MAX_CONVERTING;
 
@@ -50,7 +107,7 @@ export const isBusy = () => converting >= MAX_CONVERTING;
  */
 export async function storePhoto(
     storage: Storage,
-    userId: string,
+    owner: string,
     input: Uint8Array,
 ): Promise<string | null> {
     if (!isAllowedImage(input)) return null;
@@ -66,7 +123,7 @@ export async function storePhoto(
             converting -= 1;
         });
     if (!output) return null;
-    const file = `${folderFor(userId)}${sha(output).slice(0, 32)}.webp`;
+    const file = `${folderFor(owner)}${sha(output).slice(0, 32)}.webp`;
     await storage.put(file, output, "image/webp");
     return file;
 }
@@ -107,7 +164,7 @@ export function mountPhotos(
     app.get(routes.photos, async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        const files = storage ? await storage.list(folderFor(person.id)) : [];
+        const files = storage ? await listPhotos(storage, pages, person.id) : [];
         return c.json<PhotosResponse>({ files });
     });
 
@@ -137,8 +194,9 @@ export function mountPhotos(
             const refused = "Use a JPEG, PNG or WebP photo.";
             if (!isAllowedImage(input)) return fail(c, 415, refused);
 
-            const folder = folderFor(person.id);
-            const existing = await storage.list(folder);
+            const owner = await photoOwner(pages, person.id, c.req.query("page"));
+            if (!owner) return fail(c, 404, "We couldn't find that page.");
+            const existing = await listPhotos(storage, pages, person.id);
             const limits = await limitsOfPerson(person.id);
             if (existing.length >= limits.photos) {
                 return fail(c, 413, photoLimitMessage(limits), "plan_limit");
@@ -147,7 +205,7 @@ export function mountPhotos(
             if (isBusy()) {
                 return fail(c, 503, "We're busy with other photos. Try again in a moment.");
             }
-            const file = await storePhoto(storage, person.id, input);
+            const file = await storePhoto(storage, owner, input);
             if (!file) return fail(c, 415, refused);
             return c.json({ file }, 201);
         },
@@ -167,15 +225,12 @@ export function mountPhotos(
         if (!allowUpload(person.id)) {
             return fail(c, 429, "That's a lot of photos at once. Wait a little and try again.");
         }
-        const key = `${folderFor(person.id)}${c.req.param("file")}`;
-        if (!UPLOAD_KEY.test(key)) return fail(c, 404, "We couldn't find that photo.");
-        const own = await pages.listPages(person.id);
-        const documents = await Promise.all(
-            own.flatMap(({ id }) => [
-                pages.findDraft(person.id, id).then((draft) => draft?.page ?? null),
-                pages.findOwnLive(person.id, id),
-            ]),
-        );
+        const key = c.req.param("file") ?? "";
+        const folders = await foldersOf(pages, person.id);
+        if (!UPLOAD_KEY.test(key) || !folders.some((folder) => key.startsWith(folder))) {
+            return fail(c, 404, "We couldn't find that photo.");
+        }
+        const documents = await pages.documentsOf(person.id);
         if (photosIn(documents).some((photo) => photo.file === key)) {
             return fail(c, 409, "This photo is on your page. Take it off first.");
         }

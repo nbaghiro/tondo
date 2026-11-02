@@ -302,3 +302,30 @@ test("a second page on Starter offers Pro when publishing", async ({ page }) => 
     await page.goto(`/app/edit?page=${id}&panel=publish`);
     await expect(page.locator("[data-plan=pro]")).toBeVisible();
 });
+
+const ONE_PIXEL = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg==",
+    "base64",
+);
+
+test("two pages' image addresses have different folders", async ({ page }) => {
+    test.skip(!isDesktop(page), "The API doesn't depend on the screen");
+    await signUpToEditor(page);
+    const me = (await (await page.request.get("/api/v1/me")).json()) as { pages: { id: string }[] };
+    const first = me.pages[0]?.id ?? "";
+    const { id } = (await (await addPage(page, unique("pics"))).json()) as { id: string };
+    const upload = async (pageId: string) => {
+        const res = await page.request.post(`/api/v1/me/photos?page=${pageId}`, {
+            multipart: {
+                photo: { name: "me.png", mimeType: "image/png", buffer: ONE_PIXEL },
+            },
+        });
+        expect(res.status()).toBe(201);
+        return ((await res.json()) as { file: string }).file;
+    };
+    const one = await upload(first);
+    const two = await upload(id);
+    expect(one.split("/")[1]).not.toBe(two.split("/")[1]);
+    const list = await page.request.get("/api/v1/me/photos");
+    expect(((await list.json()) as { files: string[] }).files.sort()).toEqual([one, two].sort());
+});

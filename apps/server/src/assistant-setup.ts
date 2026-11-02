@@ -13,7 +13,7 @@ const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 export function assistantFromEnv(
     env: NodeJS.ProcessEnv,
     usage: UsageStore,
-): Omit<AssistantDeps, "storage"> | null {
+): Omit<AssistantDeps, "storage" | "pages"> | null {
     const key = env["GOOGLE_API_KEY"];
     const dailyUsd = Number(env["ASSISTANT_DAILY_USD"] ?? 20);
     if (env["TONDO_FAKE_AI"] === "1") {

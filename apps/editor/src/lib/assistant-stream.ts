@@ -11,6 +11,7 @@ import type {
     AssistantTurn,
     ErrorResponse,
 } from "@tondo/contract";
+import { withPhotoPage } from "./api";
 
 const send = (path: string, body: object, signal?: AbortSignal) =>
     fetch(path, {
@@ -70,14 +71,14 @@ export async function makeImages(body: {
     count: number;
     name: string;
 }): Promise<{ files: string[]; creditsLeft: number } | { error: string }> {
-    const res = await send(routes.assistantImage, body).catch(() => null);
+    const res = await send(withPhotoPage(routes.assistantImage), body).catch(() => null);
     if (!res) return { error: "The connection dropped. Please try again." };
     if (!res.ok) return { error: await problem(res) };
     return assistantImageResponse.parse(await res.json());
 }
 
 export async function keepPhoto(url: string): Promise<{ file: string } | { error: string }> {
-    const res = await send(routes.assistantPhoto, { url }).catch(() => null);
+    const res = await send(withPhotoPage(routes.assistantPhoto), { url }).catch(() => null);
     if (!res) return { error: "The connection dropped. Please try again." };
     if (!res.ok) return { error: await problem(res) };
     return assistantPhotoResponse.parse(await res.json());

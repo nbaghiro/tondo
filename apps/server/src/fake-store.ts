@@ -177,6 +177,22 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
             rows.delete(pageId);
             return Promise.resolve(true);
         },
+        documentsOf: (userId) =>
+            Promise.resolve(
+                ofUser(userId).flatMap(([, row]) =>
+                    row.published ? [row.draft, row.published] : [row.draft],
+                ),
+            ),
+        movePhotos: (userId, from, to) => {
+            const moved = (page: Page) =>
+                JSON.parse(JSON.stringify(page).replaceAll(from, to)) as Page;
+            for (const [, row] of ofUser(userId)) {
+                row.draft = moved(row.draft);
+                if (row.published) row.published = moved(row.published);
+                row.updatedAt += 1;
+            }
+            return Promise.resolve();
+        },
         setHandle: (userId, pageId, handle) => {
             const taken = [...rows].some(([id, row]) => row.handle === handle && id !== pageId);
             if (taken) return Promise.resolve(false);

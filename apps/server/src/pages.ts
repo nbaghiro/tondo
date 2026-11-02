@@ -55,12 +55,14 @@ export function mountPages(
         onHandleChange: (before: string | null, after: string | null) => void;
         /** Which of someone's pages visitors see can depend on any of the others. */
         onLivePagesChange: (userId: string) => Promise<void>;
+        /** Called before a page goes, so its stored files can go first and be tried again. */
+        onPageRemoving: (userId: string, pageId: string) => Promise<void>;
     },
 ): void {
-    const { scale, limitsOfPerson, onHandleChange, onLivePagesChange } = options;
+    const { scale, limitsOfPerson, onHandleChange, onLivePagesChange, onPageRemoving } = options;
     const fail = (
         c: Context,
-        status: 400 | 401 | 403 | 404 | 409 | 413 | 415 | 429,
+        status: 400 | 401 | 403 | 404 | 409 | 413 | 415 | 429 | 503,
         error: string,
         code?: string,
     ) => c.json<ErrorResponse>({ error, ...(code ? { code } : {}) }, status);
@@ -176,9 +178,15 @@ export function mountPages(
         if (!draft) return missing(c);
         if (draft.suspended)
             return fail(c, 403, "This page was taken down, so it can't be deleted here.");
-        if (!(await store.deletePage(person.id, pageId(c)))) {
-            return fail(c, 409, "This is your only page, so it can't be deleted here.");
+        const ONLY = "This is your only page, so it can't be deleted here.";
+        if ((await store.listPages(person.id)).length < 2) return fail(c, 409, ONLY);
+        try {
+            await onPageRemoving(person.id, pageId(c));
+        } catch (error) {
+            process.stderr.write(`Couldn't remove a page's photos: ${String(error)}\n`);
+            return fail(c, 503, "We couldn't remove this page's photos. Please try again.");
         }
+        if (!(await store.deletePage(person.id, pageId(c)))) return fail(c, 409, ONLY);
         onHandleChange(draft.handle, null);
         await onLivePagesChange(person.id);
         return c.body(null, 204);

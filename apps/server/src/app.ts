@@ -14,7 +14,7 @@ import { limitsOf } from "./limits";
 import { mountBilling } from "./billing";
 import { NO_PAGE } from "./no-page";
 import { mountPages } from "./pages";
-import { folderFor, mountPhotos } from "./photos";
+import { clearPageFolder, listPhotos, mountPhotos } from "./photos";
 import type { Storage } from "./storage";
 import type { Payments } from "./stripe";
 import { clientIp, countsAsVisit, createCache, limit } from "./traffic";
@@ -35,7 +35,7 @@ export interface AppDeps {
     /** Multiplies the rate limits. Tests share one address, so they raise it. */
     scale?: Scale;
     /** Help me. Without this, its button doesn't appear and everything else works. */
-    assistant?: Omit<AssistantDeps, "storage"> | null | undefined;
+    assistant?: Omit<AssistantDeps, "storage" | "pages"> | null | undefined;
     /** Stripe. Without this, the billing routes don't exist. */
     payments?: Payments | null | undefined;
 }
@@ -137,7 +137,7 @@ export function createApp({
         },
         removeFiles: async (userId) => {
             if (!storage) return;
-            const files = await storage.list(folderFor(userId));
+            const files = await listPhotos(storage, pages, userId);
             await Promise.all(files.map((file) => storage.remove(file)));
         },
     });
@@ -147,6 +147,9 @@ export function createApp({
         limitsOfPerson,
         onHandleChange,
         onLivePagesChange: dropPagesOf,
+        onPageRemoving: async (userId, pageId) => {
+            if (storage) await clearPageFolder(storage, pages, userId, pageId);
+        },
     });
     if (payments) {
         mountBilling(app, {
@@ -165,7 +168,7 @@ export function createApp({
     mountPhotos(app, storage ?? null, currentPerson, { scale, pages, limitsOfPerson });
     mountAssistant(
         app,
-        assistant ? { ...assistant, storage: storage ?? null } : null,
+        assistant ? { ...assistant, storage: storage ?? null, pages } : null,
         currentPerson,
         scale,
         limitsOfPerson,

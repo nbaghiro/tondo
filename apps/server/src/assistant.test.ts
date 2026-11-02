@@ -2,6 +2,7 @@ import { routes } from "@tondo/contract";
 import { samplePage } from "@tondo/page";
 import type { Page } from "@tondo/page";
 import { Hono } from "hono";
+import { createFakePages } from "./fake-store";
 import { describe, expect, it, vi } from "vitest";
 import { mountAssistant } from "./assistant";
 import type { AssistantDeps } from "./assistant";
@@ -344,7 +345,7 @@ describe("the route", () => {
     const person = { id: "u1", name: "Maya", email: "maya@example.com" };
     const build = (spent = 0) => {
         const totals = new Map<string, number>([["u1", spent]]);
-        const deps: Omit<AssistantDeps, "storage"> = {
+        const deps: Omit<AssistantDeps, "storage" | "pages"> = {
             model: standIn,
             usage: {
                 spentThisMonth: (id) => Promise.resolve(totals.get(id) ?? 0),
@@ -363,7 +364,7 @@ describe("the route", () => {
         const app = new Hono();
         mountAssistant(
             app,
-            { ...deps, storage: null },
+            { ...deps, storage: null, pages: createFakePages().store },
             () => Promise.resolve(person),
             (max) => max,
         );

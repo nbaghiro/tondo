@@ -7,7 +7,7 @@ import {
 } from "@tondo/contract";
 import type { AssistantEvent, AssistantStatus, ErrorResponse } from "@tondo/contract";
 import { monthOf } from "@tondo/db";
-import type { UsageStore } from "@tondo/db";
+import type { PageStore, UsageStore } from "@tondo/db";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
@@ -20,7 +20,7 @@ import { imageRefusal } from "./image-make";
 import { isBlockedLink } from "./blocked";
 import { limitsOf, photoLimitMessage } from "./limits";
 import type { LimitsOfPerson } from "./limits";
-import { folderFor, isBusy, storePhoto } from "./photos";
+import { foldersOf, isBusy, listPhotos, photoOwner, storePhoto } from "./photos";
 import type { Storage } from "./storage";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
@@ -40,6 +40,7 @@ export interface AssistantDeps {
     model: Model;
     usage: UsageStore;
     storage: Storage | null;
+    pages: Pick<PageStore, "listPages" | "findDraft">;
     reach: Reach;
     /** Makes one image. Left out, nothing offers images. */
     makeImage?: ((prompt: string, signal: AbortSignal) => Promise<Uint8Array | null>) | undefined;
@@ -100,7 +101,7 @@ export function mountAssistant(
     });
 
     if (!deps) return;
-    const { model, usage, storage, reach, makeImage, download } = deps;
+    const { model, usage, storage, pages, reach, makeImage, download } = deps;
 
     app.post(
         routes.assistantTurn,
@@ -236,7 +237,9 @@ export function mountAssistant(
             );
         }
         const limits = await limitsOfPerson(person.id);
-        const stored = await storage.list(folderFor(person.id));
+        const owner = await photoOwner(pages, person.id, c.req.query("page"));
+        if (!owner) return fail(c, 400, "We couldn't find that page.");
+        const stored = await listPhotos(storage, pages, person.id);
         if (stored.length + count > limits.photos) {
             return fail(c, 413, photoLimitMessage(limits), "plan_limit");
         }
@@ -249,7 +252,7 @@ export function mountAssistant(
         const files = (
             await Promise.all(
                 made.map((bytes) =>
-                    bytes ? storePhoto(storage, person.id, bytes) : Promise.resolve(null),
+                    bytes ? storePhoto(storage, owner, bytes) : Promise.resolve(null),
                 ),
             )
         ).filter((file): file is string => file !== null);
@@ -274,7 +277,9 @@ export function mountAssistant(
         if (!parsed.success) return fail(c, 400, "Choose a photo.");
         if (!allowPick(person.id)) return fail(c, 429, "That's a lot of photos. Try again later.");
         if (isBusy()) return fail(c, 503, "We're busy with other photos. Try again in a moment.");
-        const existing = await storage.list(folderFor(person.id));
+        const owner = await photoOwner(pages, person.id, c.req.query("page"));
+        if (!owner) return fail(c, 400, "We couldn't find that page.");
+        const existing = await listPhotos(storage, pages, person.id);
         const limits = await limitsOfPerson(person.id);
         if (existing.length >= limits.photos) {
             return fail(c, 413, photoLimitMessage(limits), "plan_limit");
@@ -282,7 +287,7 @@ export function mountAssistant(
         const bytes = await download(parsed.data.url, AbortSignal.timeout(IMAGE_MS)).catch(
             () => null,
         );
-        const file = bytes ? await storePhoto(storage, person.id, bytes) : null;
+        const file = bytes ? await storePhoto(storage, owner, bytes) : null;
         if (!file) return fail(c, 503, "That photo couldn't be downloaded. Try another one.");
         return c.json({ file }, 201);
     });
@@ -296,10 +301,13 @@ export function mountAssistant(
             await c.req.json<unknown>().catch(() => null),
         );
         if (!parsed.success) return fail(c, 400, "That didn't work.");
-        const folder = folderFor(person.id);
+        const folders = await foldersOf(pages, person.id);
         await Promise.all(
             parsed.data.files
-                .filter((file) => file.startsWith(folder) && !file.includes(".."))
+                .filter(
+                    (file) =>
+                        folders.some((folder) => file.startsWith(folder)) && !file.includes(".."),
+                )
                 .map((file) => storage?.remove(file) ?? Promise.resolve()),
         );
         return c.body(null, 204);

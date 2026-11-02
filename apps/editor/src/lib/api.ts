@@ -21,6 +21,15 @@ import { pageHash } from "@tondo/page";
 import type { Page, PublishIssue } from "@tondo/page";
 import { clearBackup, loadBackup } from "../state/storage";
 
+// Which page new photos belong to. Left empty in the start flow, before the first page exists.
+let photoPage = "";
+export const setPhotoPage = (pageId: string): void => {
+    photoPage = pageId;
+};
+/** Added to an address that stores a new photo. */
+export const withPhotoPage = (path: string): string =>
+    photoPage ? `${path}?page=${photoPage}` : path;
+
 const send = (method: string, path: string, body: object) =>
     fetch(path, {
         method,
@@ -219,8 +228,7 @@ export async function loadBilling(): Promise<BillingResponse | null> {
 
 /** Returns what went wrong, or null if the photo's gone. */
 export async function removePhoto(file: string): Promise<string | null> {
-    const name = file.split("/").pop() ?? file;
-    const res = await send("DELETE", routes.photo(name), {}).catch(() => null);
+    const res = await send("DELETE", routes.photo(file), {}).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? null : problemIn(res);
 }
@@ -230,7 +238,7 @@ export async function uploadPhoto(file: File): Promise<{ file: string } | { erro
     const body = new FormData();
     body.append("photo", file);
     try {
-        const res = await fetch(routes.photos, { method: "POST", body });
+        const res = await fetch(withPhotoPage(routes.photos), { method: "POST", body });
         if (res.ok) return (await res.json()) as { file: string };
         const { error } = (await res.json()) as ErrorResponse;
         return { error };

@@ -68,6 +68,10 @@ export interface PageStore {
     createPage: (userId: string, handle: string, page: Page) => Promise<string | null>;
     /** False if this is the person's last page, or isn't theirs. */
     deletePage: (userId: string, pageId: string) => Promise<boolean>;
+    /** Every draft and live copy this person has, for working out which photos are in use. */
+    documentsOf: (userId: string) => Promise<Page[]>;
+    /** Points this person's pages at another folder, after their files have been copied there. */
+    movePhotos: (userId: string, from: string, to: string) => Promise<void>;
     /** False if the address is taken. */
     setHandle: (userId: string, pageId: string, handle: string) => Promise<boolean>;
 }
@@ -246,6 +250,28 @@ export function createPageStore(db: Db): PageStore {
                 .where(and(pageOf(userId, pageId), exists(others)))
                 .returning({ id: pages.id });
             return rows.length > 0;
+        },
+        documentsOf: async (userId) => {
+            const rows = await db
+                .select({ draft: pages.draft, published: pages.published })
+                .from(pages)
+                .where(eq(pages.userId, userId));
+            return rows.flatMap((row) =>
+                row.published ? [read(row.draft), read(row.published)] : [read(row.draft)],
+            );
+        },
+        movePhotos: async (userId, from, to) => {
+            const moved = (column: typeof pages.draft | typeof pages.published) =>
+                sql`replace(${column}::text, ${from}, ${to})::jsonb`;
+            // Moving `updated_at` means a tab still holding the old paths can't save over this.
+            await db
+                .update(pages)
+                .set({
+                    draft: moved(pages.draft),
+                    published: moved(pages.published),
+                    updatedAt: sql`now()`,
+                })
+                .where(eq(pages.userId, userId));
         },
         setHandle: async (userId, pageId, handle) => {
             try {

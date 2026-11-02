@@ -44,10 +44,10 @@ function setup() {
         storage,
         auth: { store: createFakeStore(), siteUrl: "http://site", editorUrl: "http://e", neon },
     });
-    const upload = (bytes: Uint8Array | string, who = "june", origin?: string) => {
+    const upload = (bytes: Uint8Array | string, who = "june", origin?: string, page?: string) => {
         const form = new FormData();
         form.append("photo", new File([bytes], "photo.bin"));
-        return app.request("http://localhost/api/v1/me/photos", {
+        return app.request(`http://localhost/api/v1/me/photos${page ? `?page=${page}` : ""}`, {
             method: "POST",
             headers: {
                 cookie: `__Secure-neon-auth.session_token=${who}`,
@@ -121,7 +121,7 @@ describe("photo uploads", () => {
 
 describe("plans and photos", () => {
     const remove = (app: ReturnType<typeof createApp>, file: string, who = "june") =>
-        app.request(`http://localhost/api/v1/me/photos/${file}`, {
+        app.request(`http://localhost/api/v1/me/photos/${encodeURIComponent(file)}`, {
             method: "DELETE",
             headers: {
                 "content-type": "application/json",
@@ -154,16 +154,94 @@ describe("plans and photos", () => {
     it("removes only a person's own photo that's not in use", async () => {
         const { app, upload, pages, storage } = setup();
         const { file } = (await (await upload(await png())).json()) as { file: string };
-        const name = file.split("/").pop() ?? "";
-        await remove(app, name, "maya");
+        await remove(app, file, "maya");
         expect(await storage.get(file)).not.toBeNull();
         pages.setDraft("june", {
             ...starterPage("June"),
             header: { ...starterPage("June").header, photo: { file } },
         });
-        expect((await remove(app, name)).status).toBe(409);
+        expect((await remove(app, file)).status).toBe(409);
         pages.setDraft("june", starterPage("June"));
-        expect((await remove(app, name)).status).toBe(204);
+        expect((await remove(app, file)).status).toBe(204);
         expect((await remove(app, "../../etc")).status).toBe(404);
+    });
+});
+
+describe("photos by page", () => {
+    const list = async (app: ReturnType<typeof createApp>) => {
+        const res = await app.request("http://localhost/api/v1/me/photos", {
+            headers: { cookie: "__Secure-neon-auth.session_token=june" },
+        });
+        return ((await res.json()) as { files: string[] }).files;
+    };
+    const fileFrom = async (res: Response) => ((await res.json()) as { file: string }).file;
+
+    it("keeps each page in its own folder, and lists and limits them together", async () => {
+        const { app, upload, pages } = setup();
+        const second = await pages.store.createPage("june", "band", starterPage("Band"));
+        const own = await fileFrom(await upload(await png()));
+        const band = await fileFrom(await upload(await png(), "june", undefined, second ?? ""));
+        expect(band.split("/")[1]).not.toBe(own.split("/")[1]);
+        expect(await list(app)).toHaveLength(2);
+    });
+
+    it("won't store a photo on someone else's page", async () => {
+        const { upload, pages } = setup();
+        pages.addUser("rae", "rae", starterPage("Rae"));
+        expect((await upload(await png(), "june", undefined, "rae")).status).toBe(404);
+    });
+
+    it("refuses to remove a photo used on another of the person's pages", async () => {
+        const { app, upload, pages } = setup();
+        const second = (await pages.store.createPage("june", "band", starterPage("Band"))) ?? "";
+        const file = await fileFrom(await upload(await png(), "june", undefined, second));
+        pages.setDraft("june", {
+            ...starterPage("June"),
+            header: { ...starterPage("June").header, photo: { file } },
+        });
+        const res = await app.request(
+            `http://localhost/api/v1/me/photos/${encodeURIComponent(file)}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "content-type": "application/json",
+                    cookie: "__Secure-neon-auth.session_token=june",
+                },
+                body: "{}",
+            },
+        );
+        expect(res.status).toBe(409);
+    });
+
+    it("clears a deleted page's folder, keeping what another page still uses", async () => {
+        const { app, upload, pages, storage } = setup();
+        const second = (await pages.store.createPage("june", "band", starterPage("Band"))) ?? "";
+        const kept = await fileFrom(await upload(await png(), "june", undefined, second));
+        const other = await sharp({
+            create: { width: 40, height: 40, channels: 3, background: "#123456" },
+        })
+            .png()
+            .toBuffer();
+        const dropped = await fileFrom(await upload(other, "june", undefined, second));
+        pages.setDraft("june", {
+            ...starterPage("June"),
+            header: { ...starterPage("June").header, photo: { file: kept } },
+        });
+        const res = await app.request(`http://localhost/api/v1/me/pages/${second}`, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+                cookie: "__Secure-neon-auth.session_token=june",
+            },
+            body: "{}",
+        });
+        expect(res.status).toBe(204);
+        expect(await storage.get(kept)).toBeNull();
+        expect(await storage.get(dropped)).toBeNull();
+        const moved = (await pages.store.findDraft("june", "june"))?.page.header.photo;
+        const file = moved && "file" in moved ? moved.file : "";
+        expect(file.startsWith(folderFor("june"))).toBe(true);
+        expect(await storage.get(file)).not.toBeNull();
+        expect(await list(app)).toEqual([file]);
     });
 });

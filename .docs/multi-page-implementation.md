@@ -2,7 +2,7 @@
 
 This plan builds option 2 in [multi-page.md](multi-page.md): every page has its own address.
 
-**Status:** P1, P2 and P3 are built: the migration, the stores, routes and editor by page id, the switcher, the pencil and New page. P4 and P5 are next. Sections below that describe the Free draft, read-only pages and Free's prompts were written before the plans changed, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
+**Status:** P1 to P4 are built: the migration, the stores, routes and editor by page id, the switcher, the pencil, New page and photos by page. P5 is next. Sections below that describe the Free draft, read-only pages and Free's prompts were written before the plans changed, so read them with [What changed while building](#what-changed-while-building). Sizes were my estimates for one developer.
 
 **Changed by the simplified plans of 2026-11-01** (see [plans-implementation.md](plans-implementation.md)). These parts of this plan no longer apply: the Free draft and `Limits.drafts`, `isReadOnly` and read-only pages, "Publish with free choices" and "Not now" around a page count, and the downgrade decisions. `Limits` now has `pages` (can build) and `live` (can be online). Free builds 1 page and has none live. A person's live pages count oldest first, and those past the plan's `live` number go offline, stay editable and come back when the number allows, which is derived with no column. Publishing past the number offers a plan instead of a plain issue. Starter builds up to 5 pages with 1 live. Coming back from checkout now carries `page`, so it opens the page being published. P3 to P5 are still to do, and the page switcher will need to show which pages are offline, using `offline` on the draft response or the same ranking.
 
@@ -369,6 +369,13 @@ In P3:
 - **A person's list is read again each time the menu opens,** so a page published in another tab shows its status.
 - **Left out:** the line on Home naming other pages that need attention, and the switcher in `labs.tsx`, since the plan lab has been removed. Neither is in a milestone's main files.
 - **Offline pages** show as Offline in the menu, ranked in the browser with the same `isOnline` the server uses.
+
+In P4:
+
+- **Deleting a page clears its folder.** The plan didn't say what happens to it. Nothing could find that folder once its page has gone, so photos another page still uses are copied to the person's own folder and that page's documents are rewritten to match, in `clearPageFolder`. If storage can't be reached, the page stays and the person is asked to try again.
+- **Only a person's own folders are ever listed, removed or counted.** Listing paths found in documents would let someone write another person's photo path into a page and have it deleted with their account.
+- **Removing a photo sends its full path,** since the same photo can sit in two folders.
+- **`documentsOf` and `movePhotos` are new in the page store.** Moving moves `updated_at`, so a tab still holding old paths gets the usual conflict.
 
 ## Decisions that would change this plan
 
