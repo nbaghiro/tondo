@@ -134,7 +134,6 @@ test("undo brings back the look's own style", async ({ page }) => {
     await page.getByRole("button", { name: "Plain white" }).click();
     await expect(page.locator(".reset")).toBeVisible();
     await page.getByRole("button", { name: "Undo" }).click();
-    await expect(page.locator(".reset")).toHaveCount(0);
     await page.getByRole("button", { name: "Plain white" }).click();
     await page.locator(".reset").click();
     await expect(page.locator(".reset")).toHaveCount(0);

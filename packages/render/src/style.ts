@@ -1,3 +1,4 @@
+import { buttonArrow, buttonStyleCss, buttonWordsLeft } from "@tondo/page";
 import type { Page, PageStyle } from "@tondo/page";
 import { paint } from "./art";
 import type { Look } from "./define-look";
@@ -468,13 +469,25 @@ export function styleCss(page: Pick<Page, "look" | "style">, assetBase: string):
         vars += `--rb:${button};--r:${corner};`;
         extra += `${sel} .b-btn,${sel} .b-chip{border-radius:${button}!important}`;
     }
-    const buttons = `${sel} .b-btn,${sel} .b-chip,${sel} .b-sm`;
+    const regular = `${sel} .b-btn:not(.b-sm):not(.b-soft):not(.b-rows):not(.b-card)`;
+    const buttons = `${regular},${sel} .b-chip,${sel} .b-sm`;
     if (style.fill === "outline") {
         extra += `${buttons}{background:transparent!important;color:var(--fg)!important;border:1.5px solid var(--btn)!important;box-shadow:none!important}`;
     }
     if (style.fill === "soft") {
-        extra += `${buttons}{background:color-mix(in srgb,var(--btn) 15%,var(--bg))!important;color:var(--fg)!important;border:0!important;box-shadow:none!important}`;
+        extra += buttonStyleCss(`${sel} .b-chip,${sel} .b-sm,${regular}`, "soft");
     }
+    if (style.fill === "rows" || style.fill === "lead") extra += buttonStyleCss(regular, "rows");
+    if (style.fill === "card") extra += buttonStyleCss(regular, "card");
+    if (style.fill === "lead") {
+        // Blocks can be wrapped, so a button comes later if anything before its wrapper has one.
+        const first = `${regular}:not(.b-btn~.b-btn):not(:has(.b-btn:not(.b-sm))~* .b-btn)`;
+        extra += `${first}{background:var(--btn)!important;color:var(--btnfg)!important;border:0!important;border-radius:var(--rb)!important;padding:14px 16px;margin-bottom:6px}${first}::after{color:var(--btnfg)}`;
+    }
+    if (style.words === "left") extra += buttonWordsLeft(regular);
+    if (style.words === "centre") extra += `${regular}{justify-content:center;text-align:center}`;
+    if (style.arrow) extra += buttonArrow(regular);
+    if (style.arrow === false) extra += `${regular}::after{display:none}`;
     if (style.bg) {
         extra += `${sel} .p-paint{display:none}${sel} .page{background:transparent!important}${sel} .page::before{display:none}`;
     }

@@ -335,10 +335,8 @@ export function MakeItYours(props: { editor: EditorState }) {
     const fontLabel = () =>
         fontChoices.find((choice) => choice.id === style().font)?.label ?? "The look's own";
     const buttonLabel = () => {
-        const parts = [style().shape, style().fill].filter(Boolean) as string[];
-        return parts.length
-            ? parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(", ")
-            : "The look's own";
+        const name = style().fill ?? style().shape;
+        return name ? name.charAt(0).toUpperCase() + name.slice(1) : "The look's own";
     };
     const bgLabel = () =>
         ({ solid: "None", gradient: "Soft fade", photo: "A photo" })[style().bg ?? "solid"] &&
@@ -558,13 +556,13 @@ export function MakeItYours(props: { editor: EditorState }) {
                         class="sh"
                         aria-pressed={!style().fill}
                         onClick={() => {
-                            set({ fill: undefined });
+                            set({ fill: undefined, words: undefined, arrow: undefined });
                         }}
                     >
                         <i class="f-filled" />
                         Filled
                     </button>
-                    <For each={["outline", "soft"] as const}>
+                    <For each={["outline", "soft", "rows", "card", "lead"] as const}>
                         {(fill) => (
                             <button
                                 type="button"
@@ -572,7 +570,12 @@ export function MakeItYours(props: { editor: EditorState }) {
                                 data-fill={fill}
                                 aria-pressed={style().fill === fill}
                                 onClick={() => {
-                                    set({ fill });
+                                    const calm = fill !== "outline";
+                                    set({
+                                        fill,
+                                        words: calm ? "left" : undefined,
+                                        arrow: calm ? true : undefined,
+                                    });
                                 }}
                             >
                                 <i class={`f-${fill}`} />
@@ -580,6 +583,34 @@ export function MakeItYours(props: { editor: EditorState }) {
                             </button>
                         )}
                     </For>
+                </div>
+                <div class="shs">
+                    <For each={["left", "centre"] as const}>
+                        {(words) => (
+                            <button
+                                type="button"
+                                class="sh"
+                                data-words={words}
+                                aria-pressed={(style().words ?? "centre") === words}
+                                onClick={() => {
+                                    set({ words });
+                                }}
+                            >
+                                Words {words}
+                            </button>
+                        )}
+                    </For>
+                    <button
+                        type="button"
+                        class="sh"
+                        data-arrow
+                        aria-pressed={Boolean(style().arrow)}
+                        onClick={() => {
+                            set({ arrow: !style().arrow });
+                        }}
+                    >
+                        Arrow
+                    </button>
                 </div>
             </Group>
             <Group id="bg" open={open()} onOpen={setOpen} label="Background" value={bgLabel()}>

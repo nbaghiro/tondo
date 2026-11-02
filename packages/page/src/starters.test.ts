@@ -57,3 +57,8 @@ it("doesn't let an icon still waiting for its link hold up publishing", () => {
     expect(waiting.header.links.length).toBe(3);
     expect(publishIssues(waiting).filter((issue) => issue.target === "header")).toEqual([]);
 });
+
+it("gives new pages calm buttons", () => {
+    expect(starterPage("Maya").style?.fill).toBe("soft");
+    expect(starterPage("Maya").style?.arrow).toBe(true);
+});

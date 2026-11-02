@@ -1428,6 +1428,9 @@ small.todo::before {
 }
 .sh i.f-filled,
 .sh i.f-outline,
+.sh i.f-rows,
+.sh i.f-card,
+.sh i.f-lead,
 .sh i.f-soft {
     border-radius: 7px;
 }
@@ -2429,4 +2432,21 @@ small.todo::before {
 }
 .team-look p {
     margin: 0 0 10px;
+}
+
+.sh i.f-rows {
+    background: none;
+    border-radius: 0;
+    border-bottom: 1.5px solid var(--ink);
+}
+
+.sh i.f-card {
+    background: none;
+    border: 1px solid var(--ink);
+    box-shadow: inset -10px 0 0 var(--ink);
+}
+
+.sh i.f-lead {
+    background: var(--ink);
+    box-shadow: 0 5px 0 -3px var(--ink);
 }

@@ -10,8 +10,9 @@ export function Preview(props: { page: Page; onClose: () => void }) {
         renderDocument(props.page, {
             title: "Preview",
             assetBase: "/photos/",
-            editable: false,
-            live: true,
+            // The person's own view, so sample content shows until it's replaced.
+            editable: true,
+            editorCss: 'a[href="#"]{pointer-events:none}',
         }).replace("<head>", '<head><base target="_blank">');
     const onKey = (e: KeyboardEvent) => {
         if (e.key === "Escape") props.onClose();

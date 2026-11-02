@@ -83,6 +83,9 @@ export const sectionDefinitions: readonly SectionDefinition[] = [
                 type: "button",
                 variant: "outline",
             },
+            { id: "soft", label: "Soft", wire: "rows", type: "button", variant: "soft" },
+            { id: "rows", label: "Rows", wire: "rows", type: "button", variant: "rows" },
+            { id: "card", label: "Card", wire: "card", type: "button", variant: "card" },
             {
                 id: "cards",
                 label: "With photos",

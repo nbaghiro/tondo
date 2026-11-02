@@ -28,7 +28,7 @@ test.describe("every layout", () => {
                 (sum, definition) => sum + Object.keys(definition.layouts).length,
                 0,
             );
-            expect(count).toBe(67);
+            expect(count).toBe(70);
             const overflowing = await page.evaluate(() => {
                 const clipped = (node: Element | null): boolean => {
                     for (let at = node; at; at = at.parentElement) {

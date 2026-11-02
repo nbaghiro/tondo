@@ -53,7 +53,7 @@ const styleShape = {
         .optional(),
     font: z.enum(fontPairs).optional(),
     shape: z.enum(["square", "soft", "round"]).optional(),
-    fill: z.enum(["filled", "outline", "soft"]).optional(),
+    fill: z.enum(["filled", "outline", "soft", "rows", "card", "lead"]).optional(),
     bg: z.enum(["solid", "gradient"]).optional(),
     reset: z.boolean().optional().describe("Goes back to the look's own choices"),
 };

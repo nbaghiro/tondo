@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 
 test("styles are drawn, and trying one loses nothing", async ({ page }) => {
     await addSection(page, "links");
-    await expect(panel(page).locator(".st")).toHaveCount(4);
+    await expect(panel(page).locator(".st")).toHaveCount(7);
     await panel(page).locator(".st svg").first().waitFor();
     await panel(page).locator("[data-style]", { hasText: "With photos" }).click();
     await expect(canvas(page).locator(".b-btn")).toHaveCount(0);

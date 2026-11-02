@@ -57,14 +57,16 @@ test("a pasted link becomes the right section", async ({ page }) => {
     await expect(canvas(page).locator('a[href="mailto:hello@example.com"]')).toHaveCount(1);
 });
 
-test("preview shows the page as visitors see it, and comes back", async ({ page }) => {
+test("preview shows the page with its sample content, and comes back", async ({ page }) => {
+    await addSection(page, "links");
+    await page.keyboard.press("Escape");
     await addSection(page, "about");
     await panel(page).locator("textarea").first().fill("My own words about my work.");
     await page.keyboard.press("Escape");
     await openPreview(page);
     const shown = page.frameLocator(".preview iframe");
     await expect(shown.locator("h2")).toHaveCount(1);
-    await expect(shown.locator(".t-block")).toHaveCount(0);
+    await expect(shown.locator("a.b-btn").first()).toContainText("My website");
     await page.locator(".preview-back").click();
     await expect(page.locator(".preview")).toHaveCount(0);
     await openPreview(page);

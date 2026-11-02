@@ -22,7 +22,8 @@ describe("the team's look", () => {
     });
 
     it("removes the person's colours when the team has none", () => {
-        const merged = withTeamLook(own, teamLookOf(team));
+        const { style: _style, ...plain } = team;
+        const merged = withTeamLook(own, teamLookOf(plain));
         expect(merged.paint).toBeUndefined();
         expect(merged.style).toBeUndefined();
     });

@@ -68,11 +68,19 @@ export const samplePage: Page = {
     ],
 };
 
+/** Calm buttons, for pages made from now on. Pages that already exist keep what they have. */
+export const newPageStyle = {
+    fill: "soft",
+    words: "left",
+    arrow: true,
+} as const;
+
 /** What a new person starts with. */
 export function starterPage(name: string): Page {
     return {
         version: PAGE_VERSION,
         look: "porcelain",
+        style: newPageStyle,
         header: { layout: "look", name, links: [] },
         blocks: [],
     };

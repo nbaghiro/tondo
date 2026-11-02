@@ -3,6 +3,7 @@ import type { HandleResponse } from "@tondo/contract";
 import {
     addSection,
     defaultStarterUse,
+    newPageStyle,
     normaliseHandle,
     PAGE_VERSION,
     sectionAvailable,
@@ -101,6 +102,7 @@ export function StartFlow(props: {
         if (ready) {
             return {
                 ...ready,
+                style: ready.style ?? newPageStyle,
                 look: look(),
                 header: {
                     ...ready.header,
@@ -113,6 +115,7 @@ export function StartFlow(props: {
         let next: Page = {
             version: PAGE_VERSION,
             look: look(),
+            style: newPageStyle,
             header: {
                 layout: "look",
                 name: name().trim() || "Your name",

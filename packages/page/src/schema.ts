@@ -118,7 +118,10 @@ export const pageStyleSchema = z.strictObject({
         .optional(),
     font: z.enum(fontPairs).optional(),
     shape: z.enum(["square", "soft", "round"]).optional(),
-    fill: z.enum(["outline", "soft"]).optional(),
+    fill: z.enum(["outline", "soft", "rows", "card", "lead"]).optional(),
+    /** Where a regular button's words sit. Centred unless a style asks otherwise. */
+    words: z.enum(["left", "centre"]).optional(),
+    arrow: z.boolean().optional(),
     bg: z.enum(["solid", "gradient", "photo"]).optional(),
     bgPhoto: photoValue.optional(),
 });

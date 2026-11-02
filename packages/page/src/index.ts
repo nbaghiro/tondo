@@ -136,3 +136,5 @@ export {
     starterTagline,
     starterUses,
 } from "./starters";
+export { buttonArrow, buttonStyleCss, buttonWordsLeft } from "./blocks/button";
+export { newPageStyle } from "./samples";
