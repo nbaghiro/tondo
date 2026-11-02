@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/brightdental/book-a-check-up",
             "text": "Book a check-up"
         },
         {
@@ -37,7 +37,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b5",
-            "url": "",
+            "url": "tel:6045550100",
             "text": "Tooth pain today? Call us"
         },
         {
@@ -58,21 +58,21 @@
                     "name": "Check-up and clean",
                     "detail": "45 min",
                     "price": "$180",
-                    "url": ""
+                    "url": "https://example.com/brightdental/check-up-and-clean"
                 },
                 {
                     "id": "i9",
                     "name": "Children's visit",
                     "detail": "Under 12, 30 min",
                     "price": "$95",
-                    "url": ""
+                    "url": "https://example.com/brightdental/children-s-visit"
                 },
                 {
                     "id": "i10",
                     "name": "Whitening",
                     "detail": "Take-home kit",
                     "price": "$320",
-                    "url": ""
+                    "url": "https://example.com/brightdental/whitening"
                 }
             ],
             "cta": "Book"

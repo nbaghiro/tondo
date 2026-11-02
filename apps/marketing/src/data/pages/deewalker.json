@@ -64,14 +64,14 @@
                     "id": "i10",
                     "name": "Online",
                     "price": "£59 a month",
-                    "url": "",
+                    "url": "https://example.com/deewalker/online",
                     "included": "Your own program\nForm checks by video\nMonthly review"
                 },
                 {
                     "id": "i11",
                     "name": "Hybrid",
                     "price": "£149 a month",
-                    "url": "",
+                    "url": "https://example.com/deewalker/hybrid",
                     "included": "Everything in Online\nTwo sessions in person\nWeekly review",
                     "popular": true
                 },
@@ -79,7 +79,7 @@
                     "id": "i12",
                     "name": "One to one",
                     "price": "£320 a month",
-                    "url": "",
+                    "url": "https://example.com/deewalker/one-to-one",
                     "included": "Three sessions a week\nFood guidance\nMessage me any time"
                 }
             ],

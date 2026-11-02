@@ -33,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/alderandwick/shop-this-season-s-scents",
             "text": "Shop this season's scents"
         },
         {
@@ -57,7 +57,7 @@
                     },
                     "name": "Salt air and fig",
                     "price": "£26, 40 hours",
-                    "url": ""
+                    "url": "https://example.com/alderandwick/salt-air-and-fig"
                 },
                 {
                     "id": "i8",
@@ -66,7 +66,7 @@
                     },
                     "name": "Woodsmoke",
                     "price": "£26, 40 hours",
-                    "url": ""
+                    "url": "https://example.com/alderandwick/woodsmoke"
                 }
             ]
         },
@@ -87,14 +87,14 @@
                     "id": "i11",
                     "name": "Refill",
                     "price": "£14 per pour",
-                    "url": "",
+                    "url": "https://example.com/alderandwick/refill",
                     "included": "Send back your jar\nWe clean and refill it\nFree return label"
                 },
                 {
                     "id": "i12",
                     "name": "Every season",
                     "price": "£48 a year",
-                    "url": "",
+                    "url": "https://example.com/alderandwick/every-season",
                     "included": "Four new scents\nFirst pick of each batch\nSkip when you like",
                     "popular": true
                 }

@@ -33,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/theolindqvist/book-a-shoot",
             "text": "Book a shoot"
         },
         {
@@ -41,7 +41,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/theolindqvist/see-the-portfolio",
             "text": "See the portfolio"
         },
         {
@@ -95,7 +95,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b14",
-            "url": "",
+            "url": "https://example.com/theolindqvist/lake-first-snow",
             "title": "Lake, first snow",
             "text": "Archival print from $90",
             "photo": {
@@ -107,7 +107,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b14",
-            "url": "",
+            "url": "https://example.com/theolindqvist/above-the-fog",
             "title": "Above the fog",
             "text": "Archival print from $90",
             "photo": {
@@ -122,7 +122,7 @@
             "items": [
                 {
                     "id": "i18",
-                    "url": "",
+                    "url": "https://example.com/theolindqvist/six-days-in-the-fjords-on-one-roll-a-day",
                     "title": "Six days in the fjords, on one roll a day",
                     "meta": "Short film, 12 min",
                     "cover": {

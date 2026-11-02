@@ -103,7 +103,7 @@
             "items": [
                 {
                     "id": "i18",
-                    "url": "",
+                    "url": "https://example.com/kaimercer/i-walked-until-the-road-ran-out",
                     "title": "I walked until the road ran out",
                     "meta": "2.1M views",
                     "cover": {
@@ -112,7 +112,7 @@
                 },
                 {
                     "id": "i19",
-                    "url": "",
+                    "url": "https://example.com/kaimercer/free-beach-no-signs",
                     "title": "Free beach, no signs",
                     "meta": "860K views",
                     "cover": {
@@ -121,7 +121,7 @@
                 },
                 {
                     "id": "i20",
-                    "url": "",
+                    "url": "https://example.com/kaimercer/the-last-bus-home",
                     "title": "The last bus home",
                     "meta": "412K views",
                     "cover": {
@@ -175,7 +175,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b28",
-            "url": "",
+            "url": "https://example.com/kaimercer/enquire-about-a-campaign",
             "text": "Enquire about a campaign"
         }
     ]

@@ -33,19 +33,19 @@
                     "id": "i5",
                     "name": "Card",
                     "price": "Free for residents",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/card"
                 },
                 {
                     "id": "i6",
                     "name": "Open today",
                     "price": "9 am to 8 pm",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/open-today"
                 },
                 {
                     "id": "i7",
                     "name": "Late fees",
                     "price": "None",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/late-fees"
                 }
             ]
         },
@@ -54,7 +54,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/eastvalelibrary/search-the-catalogue",
             "text": "Search the catalogue"
         },
         {
@@ -62,7 +62,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b9",
-            "url": "",
+            "url": "https://example.com/eastvalelibrary/get-a-library-card",
             "text": "Get a library card"
         },
         {
@@ -83,21 +83,21 @@
                     "name": "Story time",
                     "at": "2026-11-03T10:00",
                     "place": "Ages 2 to 5, 10:30 am",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/story-time"
                 },
                 {
                     "id": "i13",
                     "name": "Computer help",
                     "at": "2026-11-05T10:00",
                     "place": "One to one, book a slot",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/computer-help"
                 },
                 {
                     "id": "i14",
                     "name": "Seed swap",
                     "at": "2026-11-07T10:00",
                     "place": "Bring seeds, or don't",
-                    "url": ""
+                    "url": "https://example.com/eastvalelibrary/seed-swap"
                 }
             ],
             "cta": "Free"

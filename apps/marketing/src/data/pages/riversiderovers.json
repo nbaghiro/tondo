@@ -35,7 +35,7 @@
                     "name": "Rovers v Ashton Town",
                     "at": "2026-11-08T10:00",
                     "place": "Next match, under 12s. Riverside Park",
-                    "url": ""
+                    "url": "https://example.com/riversiderovers/rovers-v-ashton-town"
                 }
             ],
             "cta": "Details"
@@ -45,7 +45,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b6",
-            "url": "",
+            "url": "https://example.com/riversiderovers/join-a-team",
             "text": "Join a team"
         },
         {
@@ -66,21 +66,21 @@
                     "name": "U12s v Ashton Town",
                     "at": "2026-11-08T10:00",
                     "place": "Home, 10 am",
-                    "url": ""
+                    "url": "https://example.com/riversiderovers/u12s-v-ashton-town"
                 },
                 {
                     "id": "i10",
                     "name": "U9s v Bedminster",
                     "at": "2026-11-08T10:00",
                     "place": "Away, 11:30 am",
-                    "url": ""
+                    "url": "https://example.com/riversiderovers/u9s-v-bedminster"
                 },
                 {
                     "id": "i11",
                     "name": "U14s v Clifton Colts",
                     "at": "2026-11-15T10:00",
                     "place": "Home, 2 pm",
-                    "url": ""
+                    "url": "https://example.com/riversiderovers/u14s-v-clifton-colts"
                 }
             ],
             "cta": "Map"
@@ -120,7 +120,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b17",
-            "url": "",
+            "url": "https://example.com/riversiderovers/training-is-free-to-try",
             "title": "Training is free to try",
             "text": "Come along to two sessions before you sign up.",
             "photo": {

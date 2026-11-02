@@ -58,21 +58,21 @@
                     "title": "The $40 haircut, line by line",
                     "date": "October 25",
                     "text": "Rent, chairs, tips and what's left for the owner.",
-                    "url": ""
+                    "url": "https://example.com/themargin/the-40-haircut-line-by-line"
                 },
                 {
                     "id": "i9",
                     "title": "Why every café sells merch now",
                     "date": "October 18",
                     "text": "It's mostly about margin on a slow Tuesday.",
-                    "url": ""
+                    "url": "https://example.com/themargin/why-every-cafe-sells-merch-now"
                 },
                 {
                     "id": "i10",
                     "title": "Running a shop with no staff",
                     "date": "October 11",
                     "text": "Three owners explain what they gave up.",
-                    "url": ""
+                    "url": "https://example.com/themargin/running-a-shop-with-no-staff"
                 }
             ]
         },
@@ -94,7 +94,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b13",
-            "url": "",
+            "url": "https://example.com/themargin/read-the-archive",
             "text": "Read the archive"
         }
     ]

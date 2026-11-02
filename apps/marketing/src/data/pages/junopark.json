@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/junopark/commissions-open-for-february",
             "text": "Commissions open for February"
         },
         {
@@ -52,7 +52,7 @@
                     },
                     "name": "Night garden",
                     "price": "A3, $45",
-                    "url": ""
+                    "url": "https://example.com/junopark/night-garden"
                 },
                 {
                     "id": "i8",
@@ -61,7 +61,7 @@
                     },
                     "name": "Big leaf",
                     "price": "A3, $45",
-                    "url": ""
+                    "url": "https://example.com/junopark/big-leaf"
                 }
             ]
         },

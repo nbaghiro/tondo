@@ -21,7 +21,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b2",
-            "url": "",
+            "url": "https://example.com/smallwebday/buy-a-ticket-for-85",
             "text": "Buy a ticket for €85"
         },
         {
@@ -59,21 +59,21 @@
                                     "name": "Doors and coffee",
                                     "label": "9:30",
                                     "place": "Main hall",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/doors-and-coffee"
                                 },
                                 {
                                     "id": "i9",
                                     "name": "Why small sites last",
                                     "label": "10:15",
                                     "place": "Ana Ruiz",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/why-small-sites-last"
                                 },
                                 {
                                     "id": "i10",
                                     "name": "Hosting for less than lunch",
                                     "label": "11:15",
                                     "place": "Will Tran",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/hosting-for-less-than-lunch"
                                 }
                             ]
                         }
@@ -94,21 +94,21 @@
                                     "name": "Workshops",
                                     "label": "13:30",
                                     "place": "Pick one of three",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/workshops"
                                 },
                                 {
                                     "id": "i14",
                                     "name": "Lightning talks",
                                     "label": "15:30",
                                     "place": "Eight people, five minutes each",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/lightning-talks"
                                 },
                                 {
                                     "id": "i15",
                                     "name": "Drinks on the roof",
                                     "label": "17:00",
                                     "place": "Weather permitting",
-                                    "url": ""
+                                    "url": "https://example.com/smallwebday/drinks-on-the-roof"
                                 }
                             ]
                         }

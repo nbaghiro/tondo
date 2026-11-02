@@ -42,21 +42,21 @@
                     "name": "Quiet service",
                     "label": "Sun 9 am",
                     "place": "Said, 40 minutes",
-                    "url": ""
+                    "url": "https://example.com/staidans/quiet-service"
                 },
                 {
                     "id": "i7",
                     "name": "Family service",
                     "label": "Sun 11 am",
                     "place": "Choir and Sunday school",
-                    "url": ""
+                    "url": "https://example.com/staidans/family-service"
                 },
                 {
                     "id": "i8",
                     "name": "Evening prayer",
                     "label": "Wed 7 pm",
                     "place": "Also streamed",
-                    "url": ""
+                    "url": "https://example.com/staidans/evening-prayer"
                 }
             ]
         },
@@ -65,7 +65,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b9",
-            "url": "",
+            "url": "https://example.com/staidans/watch-last-sunday-s-service",
             "text": "Watch last Sunday's service"
         },
         {
@@ -86,14 +86,14 @@
                     "name": "Community supper",
                     "at": "2026-11-14T10:00",
                     "place": "All welcome, no charge",
-                    "url": ""
+                    "url": "https://example.com/staidans/community-supper"
                 },
                 {
                     "id": "i13",
                     "name": "Advent carols",
                     "at": "2026-12-06T10:00",
                     "place": "With the North End choir",
-                    "url": ""
+                    "url": "https://example.com/staidans/advent-carols"
                 }
             ],
             "cta": "RSVP"

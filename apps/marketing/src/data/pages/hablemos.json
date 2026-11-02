@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/hablemos/book-a-free-trial-lesson",
             "text": "Book a free trial lesson"
         },
         {
@@ -50,21 +50,21 @@
                     "name": "Beginners group",
                     "label": "Mon 6 pm",
                     "place": "Two places left",
-                    "url": ""
+                    "url": "https://example.com/hablemos/beginners-group"
                 },
                 {
                     "id": "i8",
                     "name": "Conversation club",
                     "label": "Wed 7 pm",
                     "place": "Intermediate",
-                    "url": ""
+                    "url": "https://example.com/hablemos/conversation-club"
                 },
                 {
                     "id": "i9",
                     "name": "One to one",
                     "label": "Sat 10 am",
                     "place": "50 minutes",
-                    "url": ""
+                    "url": "https://example.com/hablemos/one-to-one"
                 }
             ],
             "cta": "Join"
@@ -87,21 +87,21 @@
                     "name": "Group class",
                     "detail": "Four weeks",
                     "price": "$72",
-                    "url": ""
+                    "url": "https://example.com/hablemos/group-class"
                 },
                 {
                     "id": "i13",
                     "name": "One to one",
                     "detail": "50 minutes",
                     "price": "$38",
-                    "url": ""
+                    "url": "https://example.com/hablemos/one-to-one"
                 },
                 {
                     "id": "i14",
                     "name": "Travel crash course",
                     "detail": "Three lessons",
                     "price": "$99",
-                    "url": ""
+                    "url": "https://example.com/hablemos/travel-crash-course"
                 }
             ],
             "cta": "Join"

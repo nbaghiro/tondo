@@ -56,7 +56,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/crumbschool/join-the-january-class",
             "text": "Join the January class"
         },
         {
@@ -109,14 +109,14 @@
                     "id": "i16",
                     "name": "Self-paced",
                     "price": "$79 once",
-                    "url": "",
+                    "url": "https://example.com/crumbschool/self-paced",
                     "included": "All videos, for life\nRecipe book\nStudent forum"
                 },
                 {
                     "id": "i17",
                     "name": "With feedback",
                     "price": "$169 once",
-                    "url": "",
+                    "url": "https://example.com/crumbschool/with-feedback",
                     "included": "Everything in Self-paced\nSix live sessions\nI check your bakes",
                     "popular": true
                 }
@@ -131,7 +131,7 @@
             "items": [
                 {
                     "id": "i19",
-                    "url": "",
+                    "url": "https://example.com/crumbschool/watch-lesson-one-for-free",
                     "title": "Watch lesson one for free",
                     "meta": "Making a starter, 9 min",
                     "cover": {

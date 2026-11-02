@@ -34,7 +34,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/secondstreet/book-a-chair",
             "text": "Book a chair"
         },
         {
@@ -55,28 +55,28 @@
                     "name": "Haircut",
                     "detail": "30 min",
                     "price": "$38",
-                    "url": ""
+                    "url": "https://example.com/secondstreet/haircut"
                 },
                 {
                     "id": "i8",
                     "name": "Skin fade",
                     "detail": "45 min",
                     "price": "$46",
-                    "url": ""
+                    "url": "https://example.com/secondstreet/skin-fade"
                 },
                 {
                     "id": "i9",
                     "name": "Beard trim",
                     "detail": "20 min",
                     "price": "$24",
-                    "url": ""
+                    "url": "https://example.com/secondstreet/beard-trim"
                 },
                 {
                     "id": "i10",
                     "name": "Hot towel shave",
                     "detail": "40 min",
                     "price": "$44",
-                    "url": ""
+                    "url": "https://example.com/secondstreet/hot-towel-shave"
                 }
             ],
             "cta": "Book"

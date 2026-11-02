@@ -49,7 +49,7 @@
             "items": [
                 {
                     "id": "i7",
-                    "url": "",
+                    "url": "https://example.com/smallrooms/episode-84-running-a-bakery-with-four-people",
                     "title": "Episode 84: Running a bakery with four people",
                     "meta": "Watch, 52 min",
                     "cover": {
@@ -63,7 +63,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/smallrooms/listen-on-spotify",
             "text": "Listen on Spotify"
         },
         {
@@ -71,7 +71,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/smallrooms/listen-on-apple-podcasts",
             "text": "Listen on Apple Podcasts"
         },
         {
@@ -86,7 +86,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b10",
-            "url": "",
+            "url": "https://example.com/smallrooms/83-why-we-stopped-hiring",
             "title": "83: Why we stopped hiring",
             "text": "48 min",
             "photo": {
@@ -98,7 +98,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b10",
-            "url": "",
+            "url": "https://example.com/smallrooms/82-a-record-label-in-a-garage",
             "title": "82: A record label in a garage",
             "text": "61 min",
             "photo": {

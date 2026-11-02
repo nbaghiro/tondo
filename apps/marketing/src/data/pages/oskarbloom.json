@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/oskarbloom/start-a-project",
             "text": "Start a project"
         },
         {
@@ -67,7 +67,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b9",
-            "url": "",
+            "url": "https://example.com/oskarbloom/halden",
             "title": "Halden",
             "text": "A banking app for small shops, redesigned around cash flow.",
             "photo": {
@@ -79,7 +79,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b11",
-            "url": "",
+            "url": "https://example.com/oskarbloom/kiln",
             "title": "Kiln",
             "text": "Scheduling for shared pottery studios.",
             "photo": {
@@ -91,7 +91,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b12",
-            "url": "",
+            "url": "https://example.com/oskarbloom/marlow-bank",
             "title": "Marlow Bank",
             "text": "A support inbox that three people can run.",
             "photo": {

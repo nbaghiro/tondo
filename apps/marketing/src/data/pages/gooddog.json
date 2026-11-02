@@ -33,7 +33,7 @@
             "type": "booking",
             "variant": "slots",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/gooddog/pick-a-time-for-friday",
             "title": "Pick a time for Friday",
             "sub": "Friday, November 6",
             "cta": "Book this time",
@@ -64,21 +64,21 @@
                     "name": "Full groom",
                     "detail": "Bath, cut and nails. 2 hours",
                     "price": "$85",
-                    "url": ""
+                    "url": "https://example.com/gooddog/full-groom"
                 },
                 {
                     "id": "i8",
                     "name": "Bath and tidy",
                     "detail": "1 hour",
                     "price": "$50",
-                    "url": ""
+                    "url": "https://example.com/gooddog/bath-and-tidy"
                 },
                 {
                     "id": "i9",
                     "name": "Nail trim",
                     "detail": "15 min",
                     "price": "$18",
-                    "url": ""
+                    "url": "https://example.com/gooddog/nail-trim"
                 }
             ],
             "cta": "Book"

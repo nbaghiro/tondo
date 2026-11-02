@@ -34,7 +34,7 @@
             "type": "booking",
             "variant": "slots",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/priyaraman/book-a-free-20-minute-call",
             "title": "Book a free 20-minute call",
             "sub": "Next available: Tuesday, November 3",
             "cta": "Book this time",
@@ -59,7 +59,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/priyaraman/the-two-week-reset",
             "title": "The two-week reset",
             "text": "A simple meal plan with shopping lists. PDF, 32 pages.",
             "photo": {
@@ -72,7 +72,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b7",
-            "url": "",
+            "url": "https://example.com/priyaraman/lunches-that-keep",
             "title": "Lunches that keep",
             "text": "12 recipes to make on Sunday",
             "photo": {
@@ -84,7 +84,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b7",
-            "url": "",
+            "url": "https://example.com/priyaraman/eating-around-your-training",
             "title": "Eating around your training",
             "text": "Free guide",
             "photo": {

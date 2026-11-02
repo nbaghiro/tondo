@@ -38,7 +38,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/nightferries/listen-to-low-water",
             "text": "Listen to Low Water"
         },
         {
@@ -59,21 +59,21 @@
                     "name": "Dublin",
                     "at": "2027-02-03T10:00",
                     "place": "Whelan's Back Room",
-                    "url": ""
+                    "url": "https://example.com/nightferries/dublin"
                 },
                 {
                     "id": "i9",
                     "name": "Glasgow",
                     "at": "2027-02-06T10:00",
                     "place": "The Lantern",
-                    "url": ""
+                    "url": "https://example.com/nightferries/glasgow"
                 },
                 {
                     "id": "i10",
                     "name": "London",
                     "at": "2027-02-09T10:00",
                     "place": "Sea Wall",
-                    "url": ""
+                    "url": "https://example.com/nightferries/london"
                 }
             ],
             "cta": "Tickets"
@@ -98,7 +98,7 @@
                     },
                     "name": "Low Water on vinyl",
                     "price": "€28",
-                    "url": ""
+                    "url": "https://example.com/nightferries/low-water-on-vinyl"
                 },
                 {
                     "id": "i14",
@@ -107,7 +107,7 @@
                     },
                     "name": "Tour poster, signed",
                     "price": "€15",
-                    "url": ""
+                    "url": "https://example.com/nightferries/tour-poster-signed"
                 }
             ]
         },

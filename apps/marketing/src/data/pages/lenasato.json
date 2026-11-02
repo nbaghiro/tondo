@@ -40,7 +40,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/lenasato/the-quiet-room",
             "title": "The Quiet Room",
             "text": "My second book of essays, out in March.",
             "photo": {
@@ -73,7 +73,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/lenasato/on-leaving-a-house-in-winter",
             "text": "On leaving a house in winter"
         },
         {
@@ -81,7 +81,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/lenasato/what-the-kettle-knows",
             "text": "What the kettle knows"
         },
         {
@@ -89,7 +89,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/lenasato/letters-i-didn-t-send",
             "text": "Letters I didn't send"
         },
         {

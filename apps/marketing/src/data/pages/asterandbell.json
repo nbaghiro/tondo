@@ -61,7 +61,7 @@
                     },
                     "name": "Market bouquet",
                     "price": "From $55",
-                    "url": ""
+                    "url": "https://example.com/asterandbell/market-bouquet"
                 },
                 {
                     "id": "i8",
@@ -71,7 +71,7 @@
                     },
                     "name": "Weekly subscription",
                     "price": "From $40 a week",
-                    "url": ""
+                    "url": "https://example.com/asterandbell/weekly-subscription"
                 }
             ]
         },

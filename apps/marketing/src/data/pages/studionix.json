@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/studionix/book-with-nix",
             "text": "Book with Nix"
         },
         {
@@ -50,21 +50,21 @@
                     "name": "Gel manicure",
                     "detail": "60 min",
                     "price": "$65",
-                    "url": ""
+                    "url": "https://example.com/studionix/gel-manicure"
                 },
                 {
                     "id": "i8",
                     "name": "Structured gel",
                     "detail": "90 min",
                     "price": "$85",
-                    "url": ""
+                    "url": "https://example.com/studionix/structured-gel"
                 },
                 {
                     "id": "i9",
                     "name": "Hand-painted art",
                     "detail": "Add to any set",
                     "price": "From $20",
-                    "url": ""
+                    "url": "https://example.com/studionix/hand-painted-art"
                 }
             ],
             "cta": "Book"
@@ -81,7 +81,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b10",
-            "url": "",
+            "url": "https://example.com/studionix/this-month-s-colours",
             "title": "This month's colours",
             "text": "Twelve new shades, from tomato to wine.",
             "photo": {

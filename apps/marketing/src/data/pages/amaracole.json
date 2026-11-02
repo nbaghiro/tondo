@@ -28,7 +28,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b3",
-            "url": "",
+            "url": "https://example.com/amaracole/book-a-free-15-minute-call",
             "text": "Book a free 15-minute call"
         },
         {
@@ -81,14 +81,14 @@
                     "name": "Individual session",
                     "detail": "50 minutes",
                     "price": "$165",
-                    "url": ""
+                    "url": "https://example.com/amaracole/individual-session"
                 },
                 {
                     "id": "i12",
                     "name": "Reduced fee",
                     "detail": "A few places, ask me",
                     "price": "$90",
-                    "url": ""
+                    "url": "https://example.com/amaracole/reduced-fee"
                 }
             ],
             "cta": "Book"

@@ -41,7 +41,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/northshorewalkers/join-the-group-chat",
             "text": "Join the group chat"
         },
         {
@@ -62,21 +62,21 @@
                     "name": "Lynn Headwaters",
                     "at": "2026-11-07T10:00",
                     "place": "9 km, easy",
-                    "url": ""
+                    "url": "https://example.com/northshorewalkers/lynn-headwaters"
                 },
                 {
                     "id": "i9",
                     "name": "Quarry Rock",
                     "at": "2026-11-14T10:00",
                     "place": "4 km, with kids",
-                    "url": ""
+                    "url": "https://example.com/northshorewalkers/quarry-rock"
                 },
                 {
                     "id": "i10",
                     "name": "Capilano Canyon",
                     "at": "2026-11-28T10:00",
                     "place": "12 km, moderate",
-                    "url": ""
+                    "url": "https://example.com/northshorewalkers/capilano-canyon"
                 }
             ],
             "cta": "Going"

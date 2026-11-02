@@ -57,21 +57,21 @@
                     "name": "Panel upgrade",
                     "detail": "100 to 200 amp",
                     "price": "From $2,400",
-                    "url": ""
+                    "url": "https://example.com/rivetelectric/panel-upgrade"
                 },
                 {
                     "id": "i9",
                     "name": "EV charger",
                     "detail": "Supply and install",
                     "price": "From $900",
-                    "url": ""
+                    "url": "https://example.com/rivetelectric/ev-charger"
                 },
                 {
                     "id": "i10",
                     "name": "Pot lights",
                     "detail": "Per light",
                     "price": "From $110",
-                    "url": ""
+                    "url": "https://example.com/rivetelectric/pot-lights"
                 }
             ],
             "cta": "Quote"

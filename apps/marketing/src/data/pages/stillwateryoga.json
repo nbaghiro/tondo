@@ -33,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/stillwateryoga/book-your-first-class-free",
             "text": "Book your first class free"
         },
         {
@@ -64,14 +64,14 @@
                                     "name": "Morning stretch",
                                     "label": "7:00 am",
                                     "place": "45 min, all levels",
-                                    "url": ""
+                                    "url": "https://example.com/stillwateryoga/morning-stretch"
                                 },
                                 {
                                     "id": "i10",
                                     "name": "Slow flow",
                                     "label": "6:00 pm",
                                     "place": "60 min",
-                                    "url": ""
+                                    "url": "https://example.com/stillwateryoga/slow-flow"
                                 }
                             ],
                             "cta": "Book"
@@ -93,14 +93,14 @@
                                     "name": "Lunch break yoga",
                                     "label": "12:15 pm",
                                     "place": "30 min",
-                                    "url": ""
+                                    "url": "https://example.com/stillwateryoga/lunch-break-yoga"
                                 },
                                 {
                                     "id": "i14",
                                     "name": "Yin and breath",
                                     "label": "7:30 pm",
                                     "place": "75 min",
-                                    "url": ""
+                                    "url": "https://example.com/stillwateryoga/yin-and-breath"
                                 }
                             ],
                             "cta": "Book"
@@ -122,7 +122,7 @@
                                     "name": "Beginners",
                                     "label": "9:00 am",
                                     "place": "60 min, four places left",
-                                    "url": ""
+                                    "url": "https://example.com/stillwateryoga/beginners"
                                 }
                             ],
                             "cta": "Book"
@@ -149,21 +149,21 @@
                     "name": "Single class",
                     "detail": "Valid for a month",
                     "price": "$24",
-                    "url": ""
+                    "url": "https://example.com/stillwateryoga/single-class"
                 },
                 {
                     "id": "i21",
                     "name": "Five classes",
                     "detail": "Valid for three months",
                     "price": "$100",
-                    "url": ""
+                    "url": "https://example.com/stillwateryoga/five-classes"
                 },
                 {
                     "id": "i22",
                     "name": "Unlimited",
                     "detail": "Per month",
                     "price": "$145",
-                    "url": ""
+                    "url": "https://example.com/stillwateryoga/unlimited"
                 }
             ],
             "cta": "Buy"

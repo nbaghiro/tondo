@@ -54,7 +54,7 @@
                     },
                     "name": "Huila, Colombia",
                     "price": "Toffee and plum. $24",
-                    "url": ""
+                    "url": "https://example.com/slowpour/huila-colombia"
                 },
                 {
                     "id": "i8",
@@ -63,7 +63,7 @@
                     },
                     "name": "Guji, Ethiopia",
                     "price": "Peach and jasmine. $26",
-                    "url": ""
+                    "url": "https://example.com/slowpour/guji-ethiopia"
                 }
             ]
         },
@@ -84,14 +84,14 @@
                     "id": "i11",
                     "name": "Solo",
                     "price": "$22 a fortnight",
-                    "url": "",
+                    "url": "https://example.com/slowpour/solo",
                     "included": "250 g of the current roast\nFree postage\nPause any time"
                 },
                 {
                     "id": "i12",
                     "name": "Household",
                     "price": "$38 a fortnight",
-                    "url": "",
+                    "url": "https://example.com/slowpour/household",
                     "included": "500 g, two different roasts\nFree postage\nTasting notes",
                     "popular": true
                 }
@@ -110,7 +110,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b13",
-            "url": "",
+            "url": "https://example.com/slowpour/coffee-bar-saturdays-only",
             "title": "Coffee bar, Saturdays only",
             "text": "We pour whatever we roasted that week.",
             "photo": {

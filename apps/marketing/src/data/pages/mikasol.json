@@ -45,7 +45,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b6",
-            "url": "",
+            "url": "https://example.com/mikasol/get-tickets",
             "text": "Get tickets"
         },
         {
@@ -60,7 +60,7 @@
             "type": "music",
             "variant": "full",
             "section": "b8",
-            "url": "",
+            "url": "https://example.com/mikasol/night-bus",
             "title": "Night Bus",
             "sub": "Mix 12, 58 minutes",
             "cover": {
@@ -94,7 +94,7 @@
             "items": [
                 {
                     "id": "i13",
-                    "url": "",
+                    "url": "https://example.com/mikasol/closing-set-warehouse-9",
                     "title": "Closing set, Warehouse 9",
                     "meta": "48K views",
                     "cover": {
@@ -103,7 +103,7 @@
                 },
                 {
                     "id": "i14",
-                    "url": "",
+                    "url": "https://example.com/mikasol/how-i-build-a-transition",
                     "title": "How I build a transition",
                     "meta": "122K views",
                     "cover": {
@@ -112,7 +112,7 @@
                 },
                 {
                     "id": "i15",
-                    "url": "",
+                    "url": "https://example.com/mikasol/last-record-of-the-night",
                     "title": "Last record of the night",
                     "meta": "31K views",
                     "cover": {

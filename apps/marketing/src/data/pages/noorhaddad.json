@@ -43,7 +43,7 @@
             "type": "music",
             "variant": "full",
             "section": "b6",
-            "url": "",
+            "url": "https://example.com/noorhaddad/slow-weather",
             "title": "Slow Weather",
             "sub": "New album, 9 songs",
             "cover": {
@@ -85,21 +85,21 @@
                     "name": "Vancouver",
                     "at": "2026-11-20T10:00",
                     "place": "The Rail Room",
-                    "url": ""
+                    "url": "https://example.com/noorhaddad/vancouver"
                 },
                 {
                     "id": "i13",
                     "name": "Seattle",
                     "at": "2026-11-27T10:00",
                     "place": "Northlight Hall",
-                    "url": ""
+                    "url": "https://example.com/noorhaddad/seattle"
                 },
                 {
                     "id": "i14",
                     "name": "Portland",
                     "at": "2026-12-04T10:00",
                     "place": "The Ember",
-                    "url": ""
+                    "url": "https://example.com/noorhaddad/portland"
                 }
             ],
             "cta": "Tickets"
@@ -112,7 +112,7 @@
             "items": [
                 {
                     "id": "i16",
-                    "url": "",
+                    "url": "https://example.com/noorhaddad/slow-weather-live-at-the-rail-room",
                     "title": "Slow Weather, live at the Rail Room",
                     "meta": "Live video, 4 min",
                     "cover": {
@@ -126,7 +126,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b17",
-            "url": "",
+            "url": "https://example.com/noorhaddad/tour-shirts-and-vinyl",
             "title": "Tour shirts and vinyl",
             "text": "Ships in two weeks",
             "photo": {

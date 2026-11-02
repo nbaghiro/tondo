@@ -41,7 +41,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b6",
-            "url": "",
+            "url": "https://example.com/pixelpip/watch-the-stream",
             "text": "Watch the stream"
         },
         {
@@ -85,21 +85,21 @@
                     "name": "Farm game, year three",
                     "label": "Tue 7 pm",
                     "place": "Chill",
-                    "url": ""
+                    "url": "https://example.com/pixelpip/farm-game-year-three"
                 },
                 {
                     "id": "i14",
                     "name": "Viewer picks",
                     "label": "Thu 7 pm",
                     "place": "You vote in the chat",
-                    "url": ""
+                    "url": "https://example.com/pixelpip/viewer-picks"
                 },
                 {
                     "id": "i15",
                     "name": "Slow speedrun",
                     "label": "Sun 2 pm",
                     "place": "Long one",
-                    "url": ""
+                    "url": "https://example.com/pixelpip/slow-speedrun"
                 }
             ]
         },
@@ -118,7 +118,7 @@
             "items": [
                 {
                     "id": "i18",
-                    "url": "",
+                    "url": "https://example.com/pixelpip/clip-1",
                     "title": "",
                     "meta": "",
                     "cover": {
@@ -127,7 +127,7 @@
                 },
                 {
                     "id": "i19",
-                    "url": "",
+                    "url": "https://example.com/pixelpip/clip-2",
                     "title": "",
                     "meta": "",
                     "cover": {
@@ -136,7 +136,7 @@
                 },
                 {
                     "id": "i20",
-                    "url": "",
+                    "url": "https://example.com/pixelpip/clip-3",
                     "title": "",
                     "meta": "",
                     "cover": {
@@ -162,14 +162,14 @@
                     "id": "i23",
                     "name": "Member",
                     "price": "$5 a month",
-                    "url": "",
+                    "url": "https://example.com/pixelpip/member",
                     "included": "Emotes\nMembers' chat\nEarly videos"
                 },
                 {
                     "id": "i24",
                     "name": "Co-op",
                     "price": "$12 a month",
-                    "url": "",
+                    "url": "https://example.com/pixelpip/co-op",
                     "included": "Everything in Member\nMonthly game night\nName in the credits",
                     "popular": true
                 }

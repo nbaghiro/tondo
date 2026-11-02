@@ -29,7 +29,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/cleanriver/help-us-remove-40-tonnes-this-year",
             "title": "Help us remove 40 tonnes this year",
             "text": "Every dollar goes to boats, bags and disposal.",
             "photo": {
@@ -107,14 +107,14 @@
                     "name": "Steveston shore",
                     "at": "2026-11-07T10:00",
                     "place": "Gloves and bags provided",
-                    "url": ""
+                    "url": "https://example.com/cleanriver/steveston-shore"
                 },
                 {
                     "id": "i17",
                     "name": "Barnston Island",
                     "at": "2026-11-21T10:00",
                     "place": "Boat crew needed",
-                    "url": ""
+                    "url": "https://example.com/cleanriver/barnston-island"
                 }
             ],
             "cta": "Join"

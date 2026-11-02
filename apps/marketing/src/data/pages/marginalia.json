@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/marginalia/order-a-book-for-collection",
             "text": "Order a book for collection"
         },
         {
@@ -44,7 +44,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/marginalia/the-salt-path-home",
             "title": "The Salt Path Home",
             "text": "Rhona says: read it on a train, and miss your stop.",
             "photo": {
@@ -57,7 +57,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b7",
-            "url": "",
+            "url": "https://example.com/marginalia/letters-from-a-small-harbour",
             "title": "Letters from a Small Harbour",
             "text": "Paperback, £11",
             "photo": {
@@ -82,14 +82,14 @@
                     "name": "Poetry night",
                     "at": "2026-11-12T10:00",
                     "place": "Open mic, from 7 pm",
-                    "url": ""
+                    "url": "https://example.com/marginalia/poetry-night"
                 },
                 {
                     "id": "i11",
                     "name": "Book club: winter novels",
                     "at": "2026-11-26T10:00",
                     "place": "Tea provided",
-                    "url": ""
+                    "url": "https://example.com/marginalia/book-club-winter-novels"
                 }
             ],
             "cta": "Free"
@@ -112,13 +112,13 @@
                     "title": "What we're reading this month",
                     "date": "October 30",
                     "text": "Eleven short reviews from the team.",
-                    "url": ""
+                    "url": "https://example.com/marginalia/what-we-re-reading-this-month"
                 },
                 {
                     "id": "i15",
                     "title": "How to sell us your books",
                     "date": "October 2",
-                    "url": ""
+                    "url": "https://example.com/marginalia/how-to-sell-us-your-books"
                 }
             ]
         },

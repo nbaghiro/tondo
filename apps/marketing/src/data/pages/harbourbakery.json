@@ -30,7 +30,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/harbourbakery/order-for-pickup",
             "text": "Order for pickup"
         },
         {
@@ -61,7 +61,7 @@
                     },
                     "name": "Butter croissant",
                     "price": "$4.75",
-                    "url": ""
+                    "url": "https://example.com/harbourbakery/butter-croissant"
                 },
                 {
                     "id": "i9",
@@ -71,7 +71,7 @@
                     },
                     "name": "Country sourdough",
                     "price": "$9",
-                    "url": ""
+                    "url": "https://example.com/harbourbakery/country-sourdough"
                 },
                 {
                     "id": "i10",
@@ -80,7 +80,7 @@
                     },
                     "name": "Almond croissant",
                     "price": "$5.50",
-                    "url": ""
+                    "url": "https://example.com/harbourbakery/almond-croissant"
                 },
                 {
                     "id": "i11",
@@ -90,7 +90,7 @@
                     },
                     "name": "Jam and butter",
                     "price": "$6",
-                    "url": ""
+                    "url": "https://example.com/harbourbakery/jam-and-butter"
                 }
             ]
         },
@@ -106,7 +106,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b12",
-            "url": "",
+            "url": "https://example.com/harbourbakery/coffee-and-a-seat-by-the-window",
             "title": "Coffee and a seat by the window",
             "text": "Dogs welcome outside.",
             "photo": {

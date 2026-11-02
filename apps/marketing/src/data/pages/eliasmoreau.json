@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/eliasmoreau/book-a-free-trial-lesson",
             "text": "Book a free trial lesson"
         },
         {
@@ -57,14 +57,14 @@
                     "id": "i8",
                     "name": "30 minutes",
                     "price": "$38 a lesson",
-                    "url": "",
+                    "url": "https://example.com/eliasmoreau/30-minutes",
                     "included": "Ages 6 to 10\nWeekly\nPractice plan"
                 },
                 {
                     "id": "i9",
                     "name": "45 minutes",
                     "price": "$54 a lesson",
-                    "url": "",
+                    "url": "https://example.com/eliasmoreau/45-minutes",
                     "included": "Teens and adults\nTheory included\nExam preparation",
                     "popular": true
                 }
@@ -76,7 +76,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b10",
-            "url": "",
+            "url": "https://example.com/eliasmoreau/i-ve-never-played-is-it-too-late",
             "title": "I've never played. Is it too late?",
             "text": "No. About a third of my students started as adults.",
             "photo": {

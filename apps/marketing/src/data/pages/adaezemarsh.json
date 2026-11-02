@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/adaezemarsh/book-a-30-minute-first-meeting",
             "text": "Book a 30-minute first meeting"
         },
         {
@@ -49,19 +49,19 @@
                     "id": "i7",
                     "name": "Separation and divorce",
                     "detail": "Agreements and court applications",
-                    "url": ""
+                    "url": "https://example.com/adaezemarsh/separation-and-divorce"
                 },
                 {
                     "id": "i8",
                     "name": "Children",
                     "detail": "Parenting time and decision-making",
-                    "url": ""
+                    "url": "https://example.com/adaezemarsh/children"
                 },
                 {
                     "id": "i9",
                     "name": "Money",
                     "detail": "Support and dividing property",
-                    "url": ""
+                    "url": "https://example.com/adaezemarsh/money"
                 }
             ]
         },

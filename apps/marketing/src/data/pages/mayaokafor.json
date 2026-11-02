@@ -39,7 +39,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/mayaokafor/the-autumn-studio-sale",
             "title": "The autumn studio sale",
             "text": "Seconds, test glazes and a few favourites, until November 22.",
             "photo": {
@@ -69,7 +69,7 @@
                     },
                     "name": "Tall ash vase",
                     "price": "$145 CAD",
-                    "url": ""
+                    "url": "https://example.com/mayaokafor/tall-ash-vase"
                 },
                 {
                     "id": "i9",
@@ -78,7 +78,7 @@
                     },
                     "name": "Made to order mugs",
                     "price": "From $48 CAD",
-                    "url": ""
+                    "url": "https://example.com/mayaokafor/made-to-order-mugs"
                 }
             ]
         },
@@ -100,21 +100,21 @@
                     "name": "Wheel throwing for beginners",
                     "at": "2026-11-14T10:00",
                     "place": "Saturday, 10 am. 4 places left",
-                    "url": ""
+                    "url": "https://example.com/mayaokafor/wheel-throwing-for-beginners"
                 },
                 {
                     "id": "i13",
                     "name": "Glazing with ash",
                     "at": "2026-11-21T10:00",
                     "place": "Saturday, 1 pm",
-                    "url": ""
+                    "url": "https://example.com/mayaokafor/glazing-with-ash"
                 },
                 {
                     "id": "i14",
                     "name": "Make a holiday mug",
                     "at": "2026-12-05T10:00",
                     "place": "Saturday, 10 am",
-                    "url": ""
+                    "url": "https://example.com/mayaokafor/make-a-holiday-mug"
                 }
             ],
             "cta": "Book"

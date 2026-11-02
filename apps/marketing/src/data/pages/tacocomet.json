@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/tacocomet/order-ahead-for-pickup",
             "text": "Order ahead for pickup"
         },
         {
@@ -50,21 +50,21 @@
                     "name": "Pier 9 Market",
                     "label": "Today",
                     "place": "11 am to 8 pm",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/pier-9-market"
                 },
                 {
                     "id": "i8",
                     "name": "Dockside Brewing",
                     "label": "Thu",
                     "place": "4 pm to 10 pm",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/dockside-brewing"
                 },
                 {
                     "id": "i9",
                     "name": "Northside Night Market",
                     "label": "Sat",
                     "place": "5 pm to 11 pm",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/northside-night-market"
                 }
             ]
         },
@@ -80,7 +80,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b10",
-            "url": "",
+            "url": "https://example.com/tacocomet/three-tacos-one-drink",
             "title": "Three tacos, one drink",
             "text": "Our usual order, for $14.",
             "photo": {
@@ -99,21 +99,21 @@
                     "name": "Birria",
                     "detail": "Slow beef, consommé to dip",
                     "price": "$5.50",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/birria"
                 },
                 {
                     "id": "i14",
                     "name": "Baja fish",
                     "detail": "Crisp cod, cabbage, lime",
                     "price": "$5",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/baja-fish"
                 },
                 {
                     "id": "i15",
                     "name": "Mushroom al pastor",
                     "detail": "Pineapple, onion, cilantro",
                     "price": "$4.50",
-                    "url": ""
+                    "url": "https://example.com/tacocomet/mushroom-al-pastor"
                 }
             ]
         },
@@ -129,7 +129,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b16",
-            "url": "",
+            "url": "https://example.com/tacocomet/ask-about-your-party",
             "text": "Ask about your party"
         }
     ]

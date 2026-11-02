@@ -108,7 +108,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b14",
-            "url": "",
+            "url": "https://example.com/inesandtomas/see-our-registry",
             "text": "See our registry"
         },
         {
@@ -116,7 +116,7 @@
             "type": "button",
             "variant": "outline",
             "section": "b16",
-            "url": "",
+            "url": "https://example.com/inesandtomas/where-to-stay-nearby",
             "text": "Where to stay nearby"
         }
     ]

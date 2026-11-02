@@ -47,7 +47,7 @@
             "type": "link-card",
             "variant": "large",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/claravoss/2840-lonsdale-avenue",
             "title": "2840 Lonsdale Avenue",
             "text": "4 beds, 3 baths, ocean views. Open Saturday 2 to 4 pm.",
             "photo": {
@@ -61,7 +61,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b7",
-            "url": "",
+            "url": "https://example.com/claravoss/1104-188-keith-road",
             "title": "1104, 188 Keith Road",
             "text": "2 beds, 2 baths. $1,120,000",
             "photo": {
@@ -73,7 +73,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b7",
-            "url": "",
+            "url": "https://example.com/claravoss/37-forbes-lane",
             "title": "37 Forbes Lane",
             "text": "3 beds, 2 baths. $1,685,000",
             "photo": {

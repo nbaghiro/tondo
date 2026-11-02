@@ -29,7 +29,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/lowtidesurf/book-a-lesson",
             "text": "Book a lesson"
         },
         {
@@ -73,21 +73,21 @@
                     "name": "First wave",
                     "detail": "2 hours, group",
                     "price": "$95",
-                    "url": ""
+                    "url": "https://example.com/lowtidesurf/first-wave"
                 },
                 {
                     "id": "i12",
                     "name": "Private lesson",
                     "detail": "90 minutes",
                     "price": "$180",
-                    "url": ""
+                    "url": "https://example.com/lowtidesurf/private-lesson"
                 },
                 {
                     "id": "i13",
                     "name": "Family morning",
                     "detail": "Up to five people",
                     "price": "$340",
-                    "url": ""
+                    "url": "https://example.com/lowtidesurf/family-morning"
                 }
             ],
             "cta": "Book"

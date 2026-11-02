@@ -33,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/osterialume/reserve-a-table",
             "text": "Reserve a table"
         },
         {
@@ -57,28 +57,28 @@
                                     "name": "Tagliatelle al ragù",
                                     "detail": "Beef and pork, slow cooked",
                                     "price": "$26",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/tagliatelle-al-ragu"
                                 },
                                 {
                                     "id": "i9",
                                     "name": "Cacio e pepe",
                                     "detail": "Tonnarelli, pecorino, black pepper",
                                     "price": "$22",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/cacio-e-pepe"
                                 },
                                 {
                                     "id": "i10",
                                     "name": "Pasta al limone",
                                     "detail": "Lemon, butter, parmesan",
                                     "price": "$23",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/pasta-al-limone"
                                 },
                                 {
                                     "id": "i11",
                                     "name": "Burnt cheesecake",
                                     "detail": "With roasted plums",
                                     "price": "$12",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/burnt-cheesecake"
                                 }
                             ]
                         }
@@ -99,21 +99,21 @@
                                     "name": "Glass of the week",
                                     "detail": "Ask what's open tonight",
                                     "price": "$13",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/glass-of-the-week"
                                 },
                                 {
                                     "id": "i15",
                                     "name": "Skin-contact white",
                                     "detail": "Friuli, by the bottle",
                                     "price": "$58",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/skin-contact-white"
                                 },
                                 {
                                     "id": "i16",
                                     "name": "Light red",
                                     "detail": "Etna, by the bottle",
                                     "price": "$64",
-                                    "url": ""
+                                    "url": "https://example.com/osterialume/light-red"
                                 }
                             ]
                         }

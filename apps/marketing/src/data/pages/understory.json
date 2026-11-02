@@ -32,7 +32,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/understory/shop-all-plants",
             "text": "Shop all plants"
         },
         {
@@ -47,7 +47,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/understory/croton-petra",
             "title": "Croton Petra",
             "text": "Medium, 30 cm. £24",
             "photo": {
@@ -59,7 +59,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/understory/velvet-philodendron",
             "title": "Velvet philodendron",
             "text": "Small, 20 cm. £18",
             "photo": {
@@ -71,7 +71,7 @@
             "type": "link-card",
             "variant": "small",
             "section": "b5",
-            "url": "",
+            "url": "https://example.com/understory/string-of-hearts",
             "title": "String of hearts",
             "text": "Hanging pot. £22",
             "photo": {
@@ -118,19 +118,19 @@
                     "id": "i14",
                     "title": "Five plants for a north-facing flat",
                     "date": "October 22",
-                    "url": ""
+                    "url": "https://example.com/understory/five-plants-for-a-north-facing-flat"
                 },
                 {
                     "id": "i15",
                     "title": "Why your leaves are going yellow",
                     "date": "October 8",
-                    "url": ""
+                    "url": "https://example.com/understory/why-your-leaves-are-going-yellow"
                 },
                 {
                     "id": "i16",
                     "title": "Repotting, and when not to",
                     "date": "September 19",
-                    "url": ""
+                    "url": "https://example.com/understory/repotting-and-when-not-to"
                 }
             ]
         }
