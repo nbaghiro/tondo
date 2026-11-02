@@ -35,6 +35,7 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 | `teams` | id, owner_id, invites_from | A team. Its name and look come from its oldest page of its own. A person's team is the one they own, or the one their joined page is on. See [teams-implementation.md](teams-implementation.md) |
 | `pages` | id, user_id, team_id, handle, draft, published, updated_at, created_at | The page being edited and its live copy, each one JSONB document. `handle` is the page's own address, unique across everyone. `created_at` keeps the list in order |
 
+| `domains` | page_id, host, verified_at | A page's own domain, see [custom-domains.md](custom-domains.md). Only a verified row is served, and only one page can hold a host |
 | `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
 
 **Tables that arrive with their feature:**

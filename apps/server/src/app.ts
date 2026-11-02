@@ -3,6 +3,7 @@ import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { LivePage, PageStore, TeamStore } from "@tondo/db";
 import type { Page } from "@tondo/page";
 import {
+    canUseDomain,
     handleSchema,
     isCovered,
     isPageOnline,
@@ -18,6 +19,9 @@ import type { AssistantDeps } from "./assistant";
 import { AuthUnavailable, mountAuth } from "./auth";
 import type { AuthConfig } from "./auth";
 import { isBlockedLink } from "./blocked";
+import { mountCustomHosts } from "./custom-hosts";
+import { mountDomains } from "./domains";
+import type { DomainDeps } from "./domains";
 import { createInvites } from "./invites";
 import { limitsOf } from "./limits";
 import { mountBilling } from "./billing";
@@ -51,6 +55,8 @@ export interface AppDeps {
     assistant?: Omit<AssistantDeps, "storage" | "pages"> | null | undefined;
     /** Stripe. Without this, the billing routes don't exist. */
     payments?: Payments | null | undefined;
+    /** Customer domains. Without this, every address serves the whole site, as it did before. */
+    domains?: DomainDeps | null | undefined;
 }
 
 // Public pages hold other people's content and need no scripts, so the browser is told to run none.
@@ -78,10 +84,13 @@ export function createApp({
     scale = (max) => max,
     assistant = null,
     payments = null,
+    domains = null,
 }: AppDeps) {
     const app = new Hono();
     const notFound: ErrorResponse = { error: "We couldn't find that page." };
-    const cache = createCache<LivePage | null>(PAGE_CACHE_MS);
+    type Found = LivePage & { domain: string | null };
+    const cache = createCache<Found | null>(PAGE_CACHE_MS);
+    const holders = createCache<string | null>(PAGE_CACHE_MS);
     // A count that fails to save shouldn't stop anyone reaching a page.
     const add: Count =
         count ??
@@ -94,11 +103,70 @@ export function createApp({
     const live = async (raw: string) => {
         const handle = normaliseHandle(raw);
         if (!handleSchema.safeParse(handle).success) return null;
-        const found = await cache.get(handle, () => pages.findLive(handle));
+        const found = await cache.get(handle, async () => {
+            const page = await pages.findLive(handle);
+            if (!page) return null;
+            const row = await domains?.store.find(page.id);
+            return { ...page, domain: row?.verified ? row.host : null };
+        });
         if (!found || !isPageOnline(found.standing, limitsOf)) return null;
         const applies = isCovered(found.standing.team, limitsOf);
-        return { ...found, page: withTeamLook(found.page, applies ? found.teamLook : null) };
+        return {
+            ...found,
+            page: withTeamLook(found.page, applies ? found.teamLook : null),
+            // The plan can end between reads, so whether the domain counts is worked out each time.
+            domain: canUseDomain(found.standing, limitsOf) ? found.domain : null,
+        };
     };
+    const byIp = (c: Context) => clientIp(c);
+    const mainOrigin = publicOrigin ?? auth.siteUrl;
+
+    const followLink = (c: Context, found: Found, target: string) => {
+        const url = findLink(found.page, target);
+        // A link added to the blocklist after publishing stops working straight away.
+        if (!url || isBlockedLink(url)) return c.text(notFound.error, 404);
+        if (countsAsVisit(c)) add(found.id, target);
+        c.header("Cache-Control", "no-store");
+        return c.redirect(url, 302);
+    };
+
+    const drawPage = (c: Context, found: Found, handle: string, onDomain: boolean) => {
+        if (countsAsVisit(c)) add(found.id, "");
+        const origin = publicOrigin ?? new URL(c.req.url).origin;
+        const { page } = found;
+        return c.html(
+            renderDocument(page, {
+                title: page.header.name,
+                assetBase: "/photos/",
+                editable: false,
+                live: true,
+                badge: !page.hideBadge,
+                trackAs: handle,
+                shareUrl: found.domain ? `https://${found.domain}/` : `${origin}/${handle}`,
+                ...(onDomain ? { reportOrigin: origin } : {}),
+                onDrawError: (type, error) => {
+                    process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);
+                },
+            }),
+            200,
+            PAGE_HEADERS,
+        );
+    };
+
+    if (domains) {
+        mountCustomHosts(app, {
+            appHosts: domains.appHosts,
+            mainOrigin,
+            holderOf: (host) =>
+                holders.get(host, async () => (await domains.store.holder(host))?.handle ?? null),
+            live,
+            draw: (c, found, handle) => drawPage(c, found, handle, true),
+            follow: followLink,
+            scale,
+            byIp,
+            headers: PAGE_HEADERS,
+        });
+    }
 
     // A sandboxed frame or a data: page sends this, and neither should be able to act for someone.
     app.use("/api/*", async (c, next) => {
@@ -137,6 +205,12 @@ export function createApp({
     app.get(routes.health, (c) => c.json<HealthResponse>({ status: "ok" }));
 
     const limitsOfPerson = async (userId: string) => limitsOf(await auth.store.findPlan(userId));
+    // A domain left at the host isn't served, because our row decides that, so this never stops a delete.
+    const offHosting = async (host: string) => {
+        await domains?.hosting.remove(host).catch((error: unknown) => {
+            process.stderr.write(`Couldn't remove ${host} from hosting: ${String(error)}\n`);
+        });
+    };
     const onHandleChange = (before: string | null, after: string | null) => {
         if (before) cache.drop(before);
         if (after) cache.drop(after);
@@ -156,6 +230,10 @@ export function createApp({
             if (customer) await payments?.deleteCustomer(customer);
         },
         removeFiles: async (userId) => {
+            if (domains) {
+                const held = await domains.store.heldBy(userId);
+                await Promise.all(held.map(offHosting));
+            }
             if (!storage) return;
             const files = await listPhotos(storage, pages, userId);
             await Promise.all(files.map((file) => storage.remove(file)));
@@ -171,6 +249,11 @@ export function createApp({
         },
         beforeLivePagesChange: (pageId) => pages.handlesAffected(pageId),
         onPageRemoving: async (userId, pageId) => {
+            const row = await domains?.store.find(pageId);
+            if (row?.verified) {
+                holders.drop(row.host);
+                await offHosting(row.host);
+            }
             if (!storage) return;
             const scope = await photoScope(pages, userId, pageId, limitsOfPerson);
             if (scope) await clearPageFolder(storage, scope, pageId);
@@ -227,6 +310,18 @@ export function createApp({
             appUrl,
         });
     }
+    if (domains) {
+        mountDomains(app, {
+            ...domains,
+            pages,
+            currentPerson,
+            scale,
+            onChange: (host, handle) => {
+                holders.drop(host);
+                cache.drop(handle);
+            },
+        });
+    }
     mountAssistant(
         app,
         assistant ? { ...assistant, storage: storage ?? null, pages } : null,
@@ -238,26 +333,29 @@ export function createApp({
     );
     if (photos) app.get("/photos/*", photos);
 
-    const byIp = (c: Context) => clientIp(c);
-
     // The destination comes from the live page, so this can't be used to send people elsewhere.
     app.get("/l/:handle/:target", limit(scale(120), byIp), async (c) => {
         const found = await live(c.req.param("handle"));
-        const target = c.req.param("target");
-        const url = found ? findLink(found.page, target) : null;
-        // A link added to the blocklist after publishing stops working straight away.
-        if (!found || !url || isBlockedLink(url)) return c.text(notFound.error, 404);
-        if (countsAsVisit(c)) add(found.id, target);
-        c.header("Cache-Control", "no-store");
-        return c.redirect(url, 302);
+        if (!found) return c.text(notFound.error, 404);
+        return followLink(c, found, c.req.param("target"));
     });
 
     const sitemap = createCache<string>(SITEMAP_CACHE_MS);
     app.get("/sitemap.xml", limit(scale(60), byIp), async (c) => {
         const origin = publicOrigin ?? new URL(c.req.url).origin;
-        const xml = await sitemap.get("all", async () =>
-            sitemapXml(origin, await pages.listPublished()),
-        );
+        // A page at its own domain is listed by that domain's sitemap, and not twice.
+        const xml = await sitemap.get("all", async () => {
+            const held = new Set(
+                ((await domains?.store.listHeld()) ?? []).map((row) => row.handle),
+            );
+            const published = await pages.listPublished();
+            return sitemapXml(
+                origin,
+                published.filter(
+                    (page) => !held.has(page.handle) || !canUseDomain(page.standing, limitsOf),
+                ),
+            );
+        });
         return c.body(xml, 200, { "Content-Type": "application/xml; charset=utf-8" });
     });
 
@@ -267,25 +365,7 @@ export function createApp({
         const handle = normaliseHandle(c.req.param("handle"));
         const found = await live(handle);
         if (!found) return c.html(NO_PAGE, 404, PAGE_HEADERS);
-        if (countsAsVisit(c)) add(found.id, "");
-        const origin = publicOrigin ?? new URL(c.req.url).origin;
-        const { page } = found;
-        return c.html(
-            renderDocument(page, {
-                title: page.header.name,
-                assetBase: "/photos/",
-                editable: false,
-                live: true,
-                badge: !page.hideBadge,
-                trackAs: handle,
-                shareUrl: `${origin}/${handle}`,
-                onDrawError: (type, error) => {
-                    process.stderr.write(`Couldn't draw a ${type} block: ${String(error)}\n`);
-                },
-            }),
-            200,
-            PAGE_HEADERS,
-        );
+        return drawPage(c, found, handle, false);
     });
 
     return app;

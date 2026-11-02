@@ -196,6 +196,15 @@ Nobody has tried any of this on real hardware or in another browser.
 - [ ] Hand the team over, and delete a team. Everyone should keep their own pages.
 - [ ] Try the owner's account deletion. It should say to hand over or delete the team first.
 
+## Custom domains: needs you, once Render is set up
+
+The tests only use a stand-in for Render. With `RENDER_API_KEY` set on a real deploy, using a domain you own:
+
+1. **Connect.** In Page settings, add the domain and add its three records at the registrar. Check now should move to Connected. Note how long the certificate takes.
+2. **Visit.** The page shows at the domain over HTTPS, and `www` goes to the bare name. Share the link in a chat and see the preview.
+3. **Nothing else is there.** `/app`, `/login` and `/api/v1/me` at the domain all say there's no page.
+4. **Remove.** The domain stops showing the page, and it's gone from Render's dashboard.
+
 ## Plans: needs you, once plans are on
 
 These are off today. To try them locally, set `PLANS_ON=true` with a stand-in or sandbox for Stripe. Automated tests cover the flows, and these need a person.

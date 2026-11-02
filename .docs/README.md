@@ -17,6 +17,7 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [plans-implementation.md](plans-implementation.md) | What's built for the current plans at the top, off until `PLANS_ON`, with no Stripe account yet. The earlier plan follows as history |
 | [multi-page.md](multi-page.md) | The decision on several pages: own address per page (option 2), now built, with the other options, competitors, Home design and working defaults |
 | [multi-page-implementation.md](multi-page-implementation.md) | Built: one address per page, routes and editor by page id, the switcher, New page, photos by page, the sitemap and tests, with what changed while building |
+| [custom-domains.md](custom-domains.md) | Render against Cloudflare for SaaS, the choice of Render, how a page connects its own domain, what the owner sets up and what isn't verified |
 | [ai-chat.md](ai-chat.md) | Help me, the AI chat for setting up and editing a page: what's built, architecture, UX, safety, costs, evals and what's left |
 | [ai-blocks.md](ai-blocks.md) | Reference for AI chat: every block, section, header field, look and style choice, what the model may change and how a person asks |
 | [inspector-design.md](inspector-design.md) | The original inspector design. `builder-port.md` is what was built |

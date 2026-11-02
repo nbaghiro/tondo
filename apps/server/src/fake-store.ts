@@ -1,5 +1,5 @@
 import { summarise } from "@tondo/db";
-import type { AccountStore, Draft, PageStore, PageSummary } from "@tondo/db";
+import type { AccountStore, DomainStore, Draft, PageStore, PageSummary } from "@tondo/db";
 import { teamLookOf } from "@tondo/page";
 import type { Page, Plan, Standing } from "@tondo/page";
 
@@ -298,4 +298,51 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
         if (row) row.draft = page;
     };
     return { store, counts, addUser, suspend, setDraft, setPlan };
+}
+
+/** Keeps domains in memory, for tests. `handles` says which address each page id has. */
+export function createFakeDomains(handles: ReadonlyMap<string, string>): DomainStore {
+    const rows = new Map<string, { host: string; verified: boolean }>();
+    const held = () => [...rows].filter(([, row]) => row.verified);
+    const find = (pageId: string) => {
+        const row = rows.get(pageId);
+        return row ? { pageId, ...row } : null;
+    };
+    return {
+        find: (pageId) => Promise.resolve(find(pageId)),
+        holder: (host) => {
+            const pageId = held().find(([, row]) => row.host === host)?.[0];
+            return Promise.resolve(pageId ? { pageId, handle: handles.get(pageId) ?? "" } : null);
+        },
+        listHeld: () =>
+            Promise.resolve(
+                held().map(([pageId, row]) => ({
+                    host: row.host,
+                    handle: handles.get(pageId) ?? "",
+                })),
+            ),
+        add: (pageId, host) => {
+            if (rows.has(pageId)) return Promise.resolve(false);
+            rows.set(pageId, { host, verified: false });
+            return Promise.resolve(true);
+        },
+        verify: (pageId) => {
+            const row = rows.get(pageId);
+            if (!row || held().some(([, other]) => other.host === row.host)) {
+                return Promise.resolve(false);
+            }
+            row.verified = true;
+            return Promise.resolve(true);
+        },
+        release: (pageId) => {
+            const row = rows.get(pageId);
+            if (row) row.verified = false;
+            return Promise.resolve();
+        },
+        remove: (pageId) => {
+            rows.delete(pageId);
+            return Promise.resolve();
+        },
+        heldBy: () => Promise.resolve(held().map(([, row]) => row.host)),
+    };
 }

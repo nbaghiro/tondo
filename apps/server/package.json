@@ -19,6 +19,7 @@
         "hono": "^4.13.14",
         "sharp": "^0.35.5",
         "stripe": "^23.1.0",
+        "tldts": "^7.4.19",
         "zod": "catalog:"
     },
     "devDependencies": {

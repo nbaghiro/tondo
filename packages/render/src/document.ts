@@ -77,6 +77,8 @@ export interface DocumentOptions extends RenderContext {
     live?: boolean;
     /** The full address of the live page, for link previews in chats and social apps. */
     shareUrl?: string;
+    /** Where the report page is, for a page shown at another address. */
+    reportOrigin?: string;
     /** Adds "Made with Tondo" at the foot of the page. */
     badge?: boolean | undefined;
     onDrawError?: (type: string, error: unknown) => void;
@@ -104,19 +106,19 @@ function shareTags(page: Page, title: string, url: string): string {
 // Every live page says how to report it, because link pages attract phishing.
 const BADGE = `<p data-badge style="margin:0;padding:18px 18px 0;text-align:center;font-size:13px"><a href="https://tondo.page" style="color:inherit;text-decoration:none"><svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="4" fill="currentColor"/></svg>Made with Tondo</a></p>`;
 
-const reportLink = (handle: string) =>
-    `<p style="margin:0;padding:18px;text-align:center;font-size:12px"><a href="/report?page=${encodeURIComponent(handle)}" style="color:inherit;opacity:.7">Report this page</a></p>`;
+const reportLink = (handle: string, origin = "") =>
+    `<p style="margin:0;padding:18px;text-align:center;font-size:12px"><a href="${escapeHtml(origin)}/report?page=${encodeURIComponent(handle)}" style="color:inherit;opacity:.7">Report this page</a></p>`;
 
 export function renderDocument(saved: Page, options: DocumentOptions): string {
     const { title, editorCss = "", now, assetBase, editable, trackAs, live, onDrawError } = options;
-    const { shareUrl, badge } = options;
+    const { shareUrl, badge, reportOrigin } = options;
     const page = live ? liveContent(saved).page : saved;
     const ctx = { assetBase, editable, live, ...(onDrawError ? { onDrawError } : {}) };
     const body = renderBody(page, ctx, now);
     const description = page.description
         ? `<meta name="description" content="${escapeHtml(page.description)}">`
         : "";
-    return `<!doctype html><html lang="en" class="look ${page.look}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(page.title ?? title)}</title>${description}${shareUrl ? shareTags(page, title, shareUrl) : ""}<link rel="icon" href="${escapeHtml(ctx.assetBase)}favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link id="t-fonts" rel="stylesheet" href="${escapeHtml(fontsHref(page))}"><style id="t-styles">${renderCss(page, assetBase)}</style>${editorCss ? `<style>${editorCss}</style>` : ""}</head><body>${trackAs ? trackLinks(body, trackAs) : body}${badge ? BADGE : ""}${trackAs ? reportLink(trackAs) : ""}</body></html>`;
+    return `<!doctype html><html lang="en" class="look ${page.look}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(page.title ?? title)}</title>${description}${shareUrl ? `<link rel="canonical" href="${escapeHtml(shareUrl)}">${shareTags(page, title, shareUrl)}` : ""}<link rel="icon" href="${escapeHtml(ctx.assetBase)}favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link id="t-fonts" rel="stylesheet" href="${escapeHtml(fontsHref(page))}"><style id="t-styles">${renderCss(page, assetBase)}</style>${editorCss ? `<style>${editorCss}</style>` : ""}</head><body>${trackAs ? trackLinks(body, trackAs) : body}${badge ? BADGE : ""}${trackAs ? reportLink(trackAs, reportOrigin) : ""}</body></html>`;
 }
 
 /** The address a tracked link goes to, or null if the live page has no such link. */

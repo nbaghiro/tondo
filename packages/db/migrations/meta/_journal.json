@@ -64,6 +64,13 @@
       "when": 1793587006553,
       "tag": "0008_charming_lorna_dane",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793591631766,
+      "tag": "0009_bumpy_katie_power",
+      "breakpoints": true
     }
   ]
 }

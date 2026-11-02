@@ -17,6 +17,8 @@ One Hono server serves the marketing site, the editor at `/app`, public pages, a
 | `PUBLIC_ORIGIN` | The address used in share tags, such as `https://tondo.page`. Falls back to the request's own | No |
 | `BLOCKED_HOSTS` | Comma-separated hosts that can't be linked from a published page. This is the phishing hook, and there's no threat feed behind it yet | No |
 | `TRUSTED_PROXY_HOPS` | How many of our proxies add to `X-Forwarded-For`. 0 uses the connection's address. `render.yaml` sets 1 for Render, which hasn't been checked against a real deploy. Add 1 if Cloudflare goes in front. Too low lets people forge addresses, and too high counts everyone as one | In production |
+| `RENDER_API_KEY` | Render, Account Settings. Turns customer domains on, with `RENDER_SERVICE_ID` and `RENDER_EXTERNAL_HOSTNAME`, which Render sets itself. See [custom-domains.md](custom-domains.md) | For custom domains |
+| `APP_HOSTS` | Comma-separated names that reach the whole site, beyond `PUBLIC_ORIGIN`, `SITE_URL`, `EDITOR_URL` and the Render name. With domains on, any other name reaches only the page holding that domain | No |
 | `RATE_LIMIT_SCALE` | Multiplies every rate limit. Only the tests change it | No |
 | `COUNT_FLUSH_MS` | How often waiting view and click counts are written. Defaults to 5 seconds | No |
 
@@ -98,6 +100,7 @@ Rate limits read the client address from the left of `X-Forwarded-For`. This has
 
 ## Before launch
 
+- Custom domains are off until `RENDER_API_KEY` is set. Pro is sold with them, so set that and try one real domain before switching plans on. The steps are in [custom-domains.md](custom-domains.md).
 - Create `report@tondo.page`. The report page sends mail there.
 - Deleting an account asks Neon to delete the user, and that hasn't been tried against real Neon. If Neon refuses, the person is told their sign-in is still stored.
 - To hide someone for abuse: `pnpm --filter @tondo/db suspend <handle>`. This takes down all of that person's pages, whichever of their addresses you name.

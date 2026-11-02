@@ -22,6 +22,8 @@ export const routes = {
     pages: "/api/v1/me/pages",
     page: (id: string) => `/api/v1/me/pages/${id}`,
     pageHandle: (id: string) => `/api/v1/me/pages/${id}/handle`,
+    pageDomain: (id: string) => `/api/v1/me/pages/${id}/domain`,
+    pageDomainCheck: (id: string) => `/api/v1/me/pages/${id}/domain/check`,
     publish: (id: string) => `/api/v1/me/pages/${id}/publish`,
     live: (id: string) => `/api/v1/me/pages/${id}/live`,
     publishCheck: (id: string) => `/api/v1/me/pages/${id}/check`,
@@ -67,6 +69,7 @@ const limits = z.strictObject({
     credits: z.number(),
     creditsOnce: z.boolean(),
     team: z.boolean(),
+    domain: z.boolean(),
 });
 export const pageSummary = z.strictObject({
     id: z.string(),
@@ -260,6 +263,30 @@ export const newPageResponse = z.strictObject({ id: z.string() });
 export type NewPageResponse = z.infer<typeof newPageResponse>;
 export const handleChangedResponse = z.strictObject({ handle: z.string() });
 export type HandleChangedResponse = z.infer<typeof handleChangedResponse>;
+export const domainRequest = z.strictObject({ domain: z.string().max(300) });
+const domainRecord = z.strictObject({
+    type: z.enum(["A", "CNAME", "TXT"]),
+    name: z.string(),
+    value: z.string(),
+});
+export const domainResponse = z.strictObject({
+    /** Whether this page's plan includes a domain. */
+    allowed: z.boolean(),
+    /** Whether this person can connect or remove one. */
+    canChange: z.boolean(),
+    domain: z
+        .strictObject({
+            host: z.string(),
+            /** Waiting for the records, showing the page, or connected with a plan that doesn't cover it. */
+            status: z.enum(["waiting", "live", "paused"]),
+            /** While waiting, what a check didn't find. Null before the first check. */
+            missing: z.enum(["code", "address"]).nullable(),
+            records: z.array(domainRecord),
+        })
+        .nullable(),
+});
+export type DomainResponse = z.infer<typeof domainResponse>;
+export type DomainRecord = z.infer<typeof domainRecord>;
 export const issuesResponse = z.strictObject({
     error: z.string(),
     issues: z.array(

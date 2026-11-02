@@ -17,7 +17,8 @@
             "sharp",
             "aws4fetch",
             "zod",
-            "stripe"
+            "stripe",
+            "tldts"
         ],
         "node": true
     },

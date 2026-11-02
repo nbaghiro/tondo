@@ -11,6 +11,7 @@ import {
     unpublish,
 } from "../lib/api";
 import { CopyPageForm } from "./CopyPageForm";
+import { DomainSection } from "./DomainSection";
 import { createToast, PageHeader, SettingsSection } from "./Parts";
 
 export function SettingsPage(props: {
@@ -194,6 +195,11 @@ export function SettingsPage(props: {
                                 </form>
                             </Show>
                         </SettingsSection>
+                        <DomainSection
+                            pageId={props.page.id}
+                            handle={current()}
+                            published={loaded().published}
+                        />
                         <SettingsSection
                             title="Sharing and search"
                             lead="What shows in browser tabs, and when your link is shared in a chat."

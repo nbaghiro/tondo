@@ -71,6 +71,24 @@ export const pages = pgTable(
     ],
 );
 
+// A page's own domain, one per page. Several pages can ask for the same domain, because asking proves
+// nothing. Whichever proves it's theirs first gets `verified_at`, and only then can visitors see it there.
+export const domains = pgTable(
+    "domains",
+    {
+        pageId: uuid("page_id")
+            .primaryKey()
+            .references(() => pages.id, { onDelete: "cascade" }),
+        host: text("host").notNull(),
+        verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    },
+    (table) => [
+        uniqueIndex("domains_verified_host")
+            .on(table.host)
+            .where(sql`verified_at is not null`),
+    ],
+);
+
 // Daily counts. An empty target is a view of the page, and any other target is one of its links.
 export const stats = pgTable(
     "stats",

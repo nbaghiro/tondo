@@ -26,6 +26,7 @@ describe("the plans", () => {
             credits: 15,
             creditsOnce: true,
             team: false,
+            domain: false,
         });
         expect(PLANS.starter).toMatchObject({ live: 1, photos: 2000, credits: 100 });
         expect(PLANS.pro).toMatchObject({ live: 5, photos: 2000, credits: 300, team: true });

@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import type { ServerResponse } from "node:http";
 import { PORTS } from "../scripts/ports";
+import { renderStandIn } from "./render-stand-in";
 import { stripeStandIn } from "./stripe-stand-in";
 import { TEST_CODE } from "./test-code";
 
@@ -92,6 +93,7 @@ const server = createServer((req, res) => {
             standInStorage(req.method ?? "GET", req.url, bytes, res);
             return;
         }
+        if (renderStandIn(req.method ?? "GET", req.url ?? "/", req.headers, raw, res)) return;
         if (stripeStandIn(req.method ?? "GET", req.url ?? "/", req.headers, raw, res)) return;
         const path = new URL(req.url ?? "/", "http://stand-in").pathname.replace("/auth/", "");
         const body = (raw ? JSON.parse(raw) : {}) as Record<string, string>;

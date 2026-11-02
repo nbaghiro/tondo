@@ -3,6 +3,7 @@ import type {
     BillingResponse,
     CheckoutRequest,
     DeleteAccountResponse,
+    DomainResponse,
     DraftResponse,
     ErrorResponse,
     HandleResponse,
@@ -139,6 +140,35 @@ export async function unpublish(pageId: string): Promise<string | null> {
 
 export async function changeAddress(pageId: string, handle: string): Promise<string | null> {
     const res = await send("PATCH", routes.pageHandle(pageId), { handle }).catch(() => null);
+    if (!res) return "That didn't work. Check your connection and try again.";
+    return res.ok ? null : problemIn(res);
+}
+
+/** Null when custom domains are off here. */
+export async function loadDomain(pageId: string): Promise<DomainResponse | null> {
+    const res = await fetch(routes.pageDomain(pageId)).catch(() => null);
+    return res?.ok ? ((await res.json()) as DomainResponse) : null;
+}
+
+const domainAnswer = async (res: Response | null) => {
+    if (!res) return { problem: "That didn't work. Check your connection and try again." };
+    if (!res.ok) return { problem: await problemIn(res) };
+    return (await res.json()) as DomainResponse;
+};
+
+export async function connectDomain(pageId: string, domain: string) {
+    return domainAnswer(
+        await send("POST", routes.pageDomain(pageId), { domain }).catch(() => null),
+    );
+}
+
+export async function checkDomain(pageId: string) {
+    return domainAnswer(await postEmpty(routes.pageDomainCheck(pageId)).catch(() => null));
+}
+
+/** Returns what went wrong, or null if it worked. */
+export async function removeDomain(pageId: string): Promise<string | null> {
+    const res = await send("DELETE", routes.pageDomain(pageId), {}).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? null : problemIn(res);
 }

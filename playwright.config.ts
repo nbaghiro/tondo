@@ -53,6 +53,12 @@ export default defineConfig({
                 STRIPE_KEY: "rk_test_stand_in",
                 STRIPE_WEBHOOK_SECRET: STRIPE_TEST_SECRET,
                 STRIPE_API_BASE: `http://127.0.0.1:${String(PORTS.testNeon)}`,
+                RENDER_API_KEY: "rnd_stand_in",
+                RENDER_SERVICE_ID: "srv-stand-in",
+                RENDER_EXTERNAL_HOSTNAME: "tondo-stand-in.onrender.com",
+                RENDER_API_BASE: `http://127.0.0.1:${String(PORTS.testNeon)}`,
+                // The Stripe stand-in posts its events to this address.
+                APP_HOSTS: "127.0.0.1",
                 NEON_AUTH_COOKIE_SECRET: "a-test-secret-that-is-long-enough-to-use",
                 S3_ENDPOINT: `http://127.0.0.1:${String(PORTS.testNeon)}/s3`,
                 S3_ACCESS_KEY: "test",

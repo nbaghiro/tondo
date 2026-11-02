@@ -663,6 +663,92 @@ th.n {
     font-size: 13.5px;
     font-weight: 600;
 }
+.dns-steps {
+    max-width: 560px;
+    margin: 0 0 14px;
+    padding-left: 20px;
+    font-size: 14px;
+}
+.dns-steps li {
+    margin-bottom: 8px;
+}
+.dns-steps small {
+    color: var(--soft);
+    font-size: 13px;
+}
+.dns {
+    width: 100%;
+    margin: 8px 0 4px;
+    border: 1px solid var(--line2);
+    border-radius: 8px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13.5px;
+}
+.dns th,
+.dns td {
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+.dns th {
+    color: var(--soft);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+.dns td {
+    border-top: 1px solid var(--line2);
+    border-bottom: 0;
+    overflow-wrap: anywhere;
+}
+.dns td:first-child,
+.dns td:nth-child(2) {
+    white-space: nowrap;
+}
+.dns-value {
+    overflow-wrap: anywhere;
+    text-align: left;
+}
+.dns-acts {
+    justify-content: flex-start;
+    margin-bottom: 8px;
+}
+@media (max-width: 760px) {
+    .dns thead {
+        display: none;
+    }
+    .dns tr {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2px 10px;
+        padding: 8px 10px;
+        border-top: 1px solid var(--line2);
+    }
+    .dns tr:first-child {
+        border-top: 0;
+    }
+    .dns td {
+        padding: 0;
+        border: 0;
+    }
+    .dns td:last-child {
+        grid-column: 1 / -1;
+    }
+}
+.dns-state {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 12px;
+    font-size: 14px;
+}
+.dns-confirm {
+    max-width: 480px;
+    margin: 0 0 12px;
+    font-size: 13.5px;
+    color: var(--soft);
+}
 .empty {
     display: grid;
     justify-items: center;

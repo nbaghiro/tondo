@@ -14,6 +14,8 @@ export type {
 } from "./pages";
 export { createAccountStore } from "./accounts";
 export type { AccountStore } from "./accounts";
+export { createDomainStore } from "./domains";
+export type { DomainRow, DomainStore } from "./domains";
 export { createUsageStore, monthOf } from "./usage";
 export type { UsageStore } from "./usage";
 export { createTeamStore } from "./teams";

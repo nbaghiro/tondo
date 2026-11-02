@@ -116,6 +116,7 @@ export {
     isCovered,
     isOnline,
     isPageOnline,
+    canUseDomain,
     limitsFor,
     MOST_PACKS,
     PACK_PAGES,

@@ -22,13 +22,39 @@ export interface Limits {
     creditsOnce: boolean;
     /** Whether this plan covers a team. */
     team: boolean;
+    /** Whether a page can show at the person's own domain. */
+    domain: boolean;
 }
 
 // `free` isn't sold as a plan. It's what an account has before it subscribes, or after it stops.
 export const PLANS: Readonly<Record<Plan, Limits>> = {
-    free: { pages: 1, live: 0, photos: 25, credits: 15, creditsOnce: true, team: false },
-    starter: { pages: 1, live: 1, photos: 2000, credits: 100, creditsOnce: false, team: false },
-    pro: { pages: 5, live: 5, photos: 2000, credits: 300, creditsOnce: false, team: true },
+    free: {
+        pages: 1,
+        live: 0,
+        photos: 25,
+        credits: 15,
+        creditsOnce: true,
+        team: false,
+        domain: false,
+    },
+    starter: {
+        pages: 1,
+        live: 1,
+        photos: 2000,
+        credits: 100,
+        creditsOnce: false,
+        team: false,
+        domain: false,
+    },
+    pro: {
+        pages: 5,
+        live: 5,
+        photos: 2000,
+        credits: 300,
+        creditsOnce: false,
+        team: true,
+        domain: true,
+    },
 };
 
 /** Pro is sold in packs of this many pages. */
@@ -144,4 +170,10 @@ export function canPublishStanding(standing: Standing, limitsOf: LimitsOf): bool
     const covered = isCovered(standing.team, limitsOf);
     const live = standing.personalLive + (standing.joinedLive && !covered ? 1 : 0);
     return canPublishPage(limitsOf(standing.account), live, null);
+}
+
+/** Whether this page can show at its own domain. A covered team's plan pays for its pages. */
+export function canUseDomain(standing: Standing, limitsOf: LimitsOf): boolean {
+    if (standing.kind !== "personal" && isCovered(standing.team, limitsOf)) return true;
+    return standing.kind !== "team" && limitsOf(standing.account).domain;
 }

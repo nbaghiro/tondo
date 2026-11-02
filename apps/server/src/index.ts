@@ -3,12 +3,15 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import {
     createAccountStore,
     createDb,
+    createDomainStore,
     createPageStore,
     createTeamStore,
     createUsageStore,
 } from "@tondo/db";
 import { createApp } from "./app";
 import { assistantFromEnv } from "./assistant-setup";
+import { hostOf } from "./custom-hosts";
+import { hostingFromEnv } from "./hosting";
 import { mountSite } from "./site";
 import { plansOn } from "./limits";
 import { createS3Storage, storageConfig } from "./storage";
@@ -47,17 +50,38 @@ if (plansOn()) {
     });
 }
 process.stdout.write(`Plans are ${plansOn() ? "on" : "off"}.\n`);
+const publicOrigin =
+    process.env["PUBLIC_ORIGIN"] ?? (production ? "https://tondo.page" : undefined);
+const siteUrl = process.env["SITE_URL"] ?? (production ? "" : "http://localhost:8103");
+const editorUrl = process.env["EDITOR_URL"] ?? (production ? "/app" : "http://localhost:8100");
+const hosting = hostingFromEnv(process.env);
+process.stdout.write(`Custom domains are ${hosting ? "on" : "off"}.\n`);
+// Every name that reaches the whole site. Anything else can only reach the page holding that domain.
+const appHosts = new Set(
+    [
+        publicOrigin,
+        siteUrl,
+        editorUrl,
+        process.env["RENDER_EXTERNAL_HOSTNAME"],
+        ...(process.env["APP_HOSTS"] ?? "").split(","),
+        ...(production ? [] : ["localhost", "127.0.0.1"]),
+    ].flatMap((value) => {
+        const host = value && hostOf(value.replace(/^https?:\/\//, ""));
+        return host ? [host] : [];
+    }),
+);
 const app = createApp({
     payments,
+    domains: hosting ? { store: createDomainStore(db), hosting, appHosts } : null,
     assistant: assistantFromEnv(process.env, createUsageStore(db)),
     storage,
     count: counter.count,
-    publicOrigin: process.env["PUBLIC_ORIGIN"] ?? (production ? "https://tondo.page" : undefined),
+    publicOrigin,
     scale: (max) => max * limitScale,
     auth: {
         store: createAccountStore(db),
-        siteUrl: process.env["SITE_URL"] ?? (production ? "" : "http://localhost:8103"),
-        editorUrl: process.env["EDITOR_URL"] ?? (production ? "/app" : "http://localhost:8100"),
+        siteUrl,
+        editorUrl,
         neon: baseUrl && cookieSecret ? { baseUrl, cookieSecret } : undefined,
     },
     mountSite: production ? mountSite : undefined,

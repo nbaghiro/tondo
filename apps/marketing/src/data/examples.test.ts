@@ -86,7 +86,7 @@ describe("example pages are ordinary pages", () => {
             now: GALLERY_DATE,
         };
         expect(exampleHtml(page)).toBe(renderDocument(page, person));
-        // Only counting clicks, the share tags and the report link set a real address apart.
+        // Only counting clicks, the canonical link, the share tags and the report link set a real address apart.
         const address = renderDocument(page, {
             ...person,
             trackAs: handle,
@@ -94,6 +94,7 @@ describe("example pages are ordinary pages", () => {
         });
         const bare = (html: string) =>
             html
+                .replace(/<link rel="canonical"[^>]*>/, "")
                 .replace(/<meta (property="og:|name="twitter:)[^>]*>/g, "")
                 .replace(/<p style="[^"]*"><a href="\/report[^]*?<\/p>/, "")
                 .replace(/<a ([^>]*)href="[^"]*"/g, "<a $1href");
