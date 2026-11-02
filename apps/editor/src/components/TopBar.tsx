@@ -49,6 +49,8 @@ export function TopBar(props: TopBarProps) {
             live: false,
             changed: true,
             updatedAt: "",
+            side: "own" as const,
+            offline: false,
         };
     // Everything typed here goes to the server first, so nothing waits behind in this browser.
     const leaveTo = (path: string) => {

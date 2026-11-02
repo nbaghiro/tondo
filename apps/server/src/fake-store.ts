@@ -1,10 +1,30 @@
 import { summarise } from "@tondo/db";
 import type { AccountStore, Draft, PageStore, PageSummary } from "@tondo/db";
-import type { Page, Plan } from "@tondo/page";
+import { teamLookOf } from "@tondo/page";
+import type { Page, Plan, Standing } from "@tondo/page";
+
+const FREE = { plan: "free" as const, endsAt: null };
+
+const personalStanding = (
+    account: { plan: Plan; endsAt: Date | null },
+    rank: number,
+    personalLive: number,
+    published: boolean,
+): Standing => ({
+    kind: "personal",
+    account,
+    team: null,
+    rank,
+    joinedOlder: false,
+    personalLive,
+    joinedLive: false,
+    published,
+});
 
 /** Keeps addresses in memory, for tests. */
 export function createFakeStore(): AccountStore & {
     suspend: (userId: string) => void;
+    teamOwners: Set<string>;
     plans: Map<string, { plan: Plan; endsAt: Date | null }>;
     customers: Map<string, string>;
 } {
@@ -12,6 +32,7 @@ export function createFakeStore(): AccountStore & {
     const owners = new Map<string, string>();
     const plans = new Map<string, { plan: Plan; endsAt: Date | null }>();
     const suspended = new Set<string>();
+    const teamOwners = new Set<string>();
     const handlesOf = (userId: string) =>
         [...owners].filter(([, owner]) => owner === userId).map(([handle]) => handle);
     const summary = (handle: string): PageSummary => ({
@@ -23,7 +44,10 @@ export function createFakeStore(): AccountStore & {
         live: false,
         changed: true,
         updatedAt: "1",
+        side: "own",
+        standing: personalStanding(FREE, 0, 0, false),
     });
+    const listPages = (userId: string) => Promise.resolve(handlesOf(userId).map(summary));
     return {
         plans,
         customers,
@@ -40,7 +64,10 @@ export function createFakeStore(): AccountStore & {
             return Promise.resolve(userId);
         },
         findPlan: (userId) => Promise.resolve(plans.get(userId) ?? { plan: "free", endsAt: null }),
-        listPages: (userId) => Promise.resolve(handlesOf(userId).map(summary)),
+        listPages,
+        listReachable: listPages,
+        ownsTeam: (userId) => Promise.resolve(teamOwners.has(userId)),
+        teamOwners,
         handleTaken: (handle) => Promise.resolve(owners.has(handle)),
         claimHandle: (userId, handle) => {
             const held = handlesOf(userId);
@@ -72,8 +99,6 @@ interface Row {
     plan?: { plan: Plan; endsAt: Date | null };
 }
 
-const FREE = { plan: "free" as const, endsAt: null };
-
 /** Keeps pages in memory, for tests. `addUser` gives a person's first page their own id. */
 export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
     const rows = new Map<string, Row>(
@@ -89,56 +114,78 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
     };
     const ofUser = (userId: string) => [...rows].filter(([, row]) => row.userId === userId);
     const isChanged = (row: Row) => JSON.stringify(row.draft) !== JSON.stringify(row.published);
-    const toDraft = (row: Row): Draft => ({
+    const standingFor = (id: string, row: Row) => {
+        const live = ofUser(row.userId).filter(([, other]) => other.published);
+        const at = live.findIndex(([other]) => other === id);
+        const older = at < 0 ? live.filter(([other]) => other < id).length : at;
+        return personalStanding(row.plan ?? FREE, older, live.length, row.published !== null);
+    };
+    const toDraft = (id: string, row: Row): Draft => ({
         page: row.draft,
         handle: row.handle,
         updatedAt: String(row.updatedAt),
         published: row.published !== null,
         changed: isChanged(row),
         suspended: row.suspended === true,
+        userId: row.userId,
+        side: "own",
+        standing: standingFor(id, row),
+        team: null,
+        liveLook: row.published ? teamLookOf(row.published) : null,
     });
+    const listOf = (userId: string) =>
+        Promise.resolve(
+            ofUser(userId).map(([id, row]): PageSummary => ({
+                id,
+                handle: row.handle,
+                name: row.draft.header.name,
+                look: row.draft.look,
+                seed: row.draft.seed ?? null,
+                live: row.published !== null,
+                changed: isChanged(row),
+                updatedAt: String(row.updatedAt),
+                side: "own",
+                standing: standingFor(id, row),
+            })),
+        );
     const store: PageStore = {
         findLive: (handle) => {
             const row = [...rows].find(([, other]) => other.handle === handle);
             if (!row?.[1].published || row[1].suspended) return Promise.resolve(null);
-            const rank = ofUser(row[1].userId)
-                .filter(([, other]) => other.published)
-                .findIndex(([id]) => id === row[0]);
             return Promise.resolve({
                 id: row[0],
                 page: row[1].published,
-                ...(row[1].plan ?? FREE),
-                rank,
+                standing: standingFor(row[0], row[1]),
+                teamLook: null,
             });
         },
         listPublished: () => {
-            const seen = new Map<string, number>();
             return Promise.resolve(
-                [...rows.values()]
-                    .filter((row) => row.published && !row.suspended)
-                    .map((row) => {
-                        const rank = seen.get(row.userId) ?? 0;
-                        seen.set(row.userId, rank + 1);
-                        return { handle: row.handle, ...(row.plan ?? FREE), rank };
-                    }),
+                [...rows]
+                    .filter(([, row]) => row.published && !row.suspended)
+                    .map(([id, row]) => ({ handle: row.handle, standing: standingFor(id, row) })),
             );
         },
-        listPages: (userId) =>
-            Promise.resolve(
-                ofUser(userId).map(([id, row]) => ({
-                    id,
-                    handle: row.handle,
-                    name: row.draft.header.name,
-                    look: row.draft.look,
-                    seed: row.draft.seed ?? null,
-                    live: row.published !== null,
-                    changed: isChanged(row),
-                    updatedAt: String(row.updatedAt),
-                })),
-            ),
+        listPages: (userId) => listOf(userId),
+        listReachable: (userId) => listOf(userId),
+        teamPageIds: () => Promise.resolve([]),
+        documentsOfTeam: () => Promise.resolve([]),
+        moveTeamPhotos: () => Promise.resolve(),
+        documentsOfPage: (pageId) => {
+            const row = rows.get(pageId);
+            return Promise.resolve(
+                row ? (row.published ? [row.draft, row.published] : [row.draft]) : [],
+            );
+        },
+        replaceInPage: () => Promise.resolve(),
+        handlesAround: (userId) => Promise.resolve(ofUser(userId).map(([, row]) => row.handle)),
+        handlesAffected: (pageId) => {
+            const row = rows.get(pageId);
+            return Promise.resolve(row ? ofUser(row.userId).map(([, other]) => other.handle) : []);
+        },
         findDraft: (userId, pageId) => {
             const row = own(userId, pageId);
-            return Promise.resolve(row ? toDraft(row) : null);
+            return Promise.resolve(row ? toDraft(pageId, row) : null);
         },
         saveDraft: (userId, pageId, page, updatedAt) => {
             const row = own(userId, pageId);
@@ -176,12 +223,20 @@ export function createFakePages(seed: Readonly<Record<string, Page>> = {}) {
                 ),
             );
         },
-        createPage: (userId, handle, page) => {
+        createPage: (userId, handle, page, given) => {
             if ([...rows.values()].some((row) => row.handle === handle)) {
                 return Promise.resolve(null);
             }
-            const id = crypto.randomUUID();
-            rows.set(id, { userId, handle, draft: page, published: null, updatedAt: 1 });
+            const id = given ?? crypto.randomUUID();
+            const plan = ofUser(userId)[0]?.[1].plan;
+            rows.set(id, {
+                userId,
+                handle,
+                draft: page,
+                published: null,
+                updatedAt: 1,
+                ...(plan ? { plan } : {}),
+            });
             return Promise.resolve(id);
         },
         deletePage: (userId, pageId) => {

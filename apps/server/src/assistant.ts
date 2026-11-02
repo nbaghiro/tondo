@@ -7,7 +7,7 @@ import {
 } from "@tondo/contract";
 import type { AssistantEvent, AssistantStatus, ErrorResponse } from "@tondo/contract";
 import { monthOf } from "@tondo/db";
-import type { PageStore, UsageStore } from "@tondo/db";
+import type { UsageStore } from "@tondo/db";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { streamSSE } from "hono/streaming";
@@ -20,7 +20,7 @@ import { imageRefusal } from "./image-make";
 import { isBlockedLink } from "./blocked";
 import { limitsOf, photoLimitMessage } from "./limits";
 import type { LimitsOfPerson } from "./limits";
-import { foldersOf, isBusy, listPhotos, photoOwner, storePhoto } from "./photos";
+import { isBusy, listInScope, photoScope, storePhoto } from "./photos";
 import type { Storage } from "./storage";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
@@ -40,7 +40,7 @@ export interface AssistantDeps {
     model: Model;
     usage: UsageStore;
     storage: Storage | null;
-    pages: Pick<PageStore, "listPages" | "findDraft">;
+    pages: Parameters<typeof photoScope>[0];
     reach: Reach;
     /** Makes one image. Left out, nothing offers images. */
     makeImage?: ((prompt: string, signal: AbortSignal) => Promise<Uint8Array | null>) | undefined;
@@ -59,6 +59,7 @@ export function mountAssistant(
     scale: Scale,
     limitsOfPerson: LimitsOfPerson = () =>
         Promise.resolve(limitsOf({ plan: "free", endsAt: null })),
+    photoLimits: LimitsOfPerson = limitsOfPerson,
 ): void {
     const fail = (
         c: Context,
@@ -236,10 +237,10 @@ export function mountAssistant(
                 `That needs ${String(cost)} credits, and you have ${String(left)}.`,
             );
         }
-        const limits = await limitsOfPerson(person.id);
-        const owner = await photoOwner(pages, person.id, c.req.query("page"));
-        if (!owner) return fail(c, 400, "We couldn't find that page.");
-        const stored = await listPhotos(storage, pages, person.id);
+        const scope = await photoScope(pages, person.id, c.req.query("page"), photoLimits);
+        if (!scope) return fail(c, 400, "We couldn't find that page.");
+        const { limits } = scope;
+        const stored = await listInScope(storage, scope);
         if (stored.length + count > limits.photos) {
             return fail(c, 413, photoLimitMessage(limits), "plan_limit");
         }
@@ -252,7 +253,7 @@ export function mountAssistant(
         const files = (
             await Promise.all(
                 made.map((bytes) =>
-                    bytes ? storePhoto(storage, owner, bytes) : Promise.resolve(null),
+                    bytes ? storePhoto(storage, scope.folder, bytes) : Promise.resolve(null),
                 ),
             )
         ).filter((file): file is string => file !== null);
@@ -277,17 +278,17 @@ export function mountAssistant(
         if (!parsed.success) return fail(c, 400, "Choose a photo.");
         if (!allowPick(person.id)) return fail(c, 429, "That's a lot of photos. Try again later.");
         if (isBusy()) return fail(c, 503, "We're busy with other photos. Try again in a moment.");
-        const owner = await photoOwner(pages, person.id, c.req.query("page"));
-        if (!owner) return fail(c, 400, "We couldn't find that page.");
-        const existing = await listPhotos(storage, pages, person.id);
-        const limits = await limitsOfPerson(person.id);
+        const scope = await photoScope(pages, person.id, c.req.query("page"), photoLimits);
+        if (!scope) return fail(c, 400, "We couldn't find that page.");
+        const { limits } = scope;
+        const existing = await listInScope(storage, scope);
         if (existing.length >= limits.photos) {
             return fail(c, 413, photoLimitMessage(limits), "plan_limit");
         }
         const bytes = await download(parsed.data.url, AbortSignal.timeout(IMAGE_MS)).catch(
             () => null,
         );
-        const file = bytes ? await storePhoto(storage, owner, bytes) : null;
+        const file = bytes ? await storePhoto(storage, scope.folder, bytes) : null;
         if (!file) return fail(c, 503, "That photo couldn't be downloaded. Try another one.");
         return c.json({ file }, 201);
     });
@@ -301,7 +302,8 @@ export function mountAssistant(
             await c.req.json<unknown>().catch(() => null),
         );
         if (!parsed.success) return fail(c, 400, "That didn't work.");
-        const folders = await foldersOf(pages, person.id);
+        const scope = await photoScope(pages, person.id, c.req.query("page"), photoLimits);
+        const folders = scope?.folders ?? [];
         await Promise.all(
             parsed.data.files
                 .filter(

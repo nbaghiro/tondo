@@ -2,14 +2,18 @@ import { starterPage } from "@tondo/page";
 import type { Page, Plan } from "@tondo/page";
 import { and, eq, isNull, sql, TransactionRollbackError } from "drizzle-orm";
 import type { Db } from "./client";
-import { listPagesOf } from "./pages";
+import { listPagesOf, listReachableBy } from "./pages";
 import type { PageSummary } from "./pages";
-import { pages, usage, users } from "./schema";
+import { pages, teams, usage, users } from "./schema";
 
 /** The parts of an account Tondo keeps. People themselves live in Neon Auth. */
 export interface AccountStore {
     /** Oldest first. None means this person hasn't claimed an address yet. */
     listPages: (userId: string) => Promise<PageSummary[]>;
+    /** Their own pages and every page they can edit on a team. */
+    listReachable: (userId: string) => Promise<PageSummary[]>;
+    /** Whether they own a team, which has to be handed over or deleted before they can go. */
+    ownsTeam: (userId: string) => Promise<boolean>;
     handleTaken: (handle: string) => Promise<boolean>;
     /** False if the address is taken. Someone who already has pages keeps them. */
     claimHandle: (userId: string, handle: string, page: Page) => Promise<boolean>;
@@ -33,6 +37,14 @@ export interface AccountStore {
 export function createAccountStore(db: Db): AccountStore {
     return {
         listPages: (userId) => listPagesOf(db, userId),
+        listReachable: (userId) => listReachableBy(db, userId),
+        ownsTeam: async (userId) => {
+            const [row] = await db
+                .select({ id: teams.id })
+                .from(teams)
+                .where(eq(teams.ownerId, userId));
+            return row !== undefined;
+        },
         handleTaken: async (handle) => {
             const [row] = await db
                 .select({ id: pages.id })

@@ -23,6 +23,7 @@ import {
 import type { Context, Hono, MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { limitsOf, plansOn } from "./limits";
+import { summaryOut } from "./summaries";
 import { clientIp, createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 
@@ -136,7 +137,7 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         return {
             email: person.email,
             name: nameOf(person),
-            pages: await store.listPages(person.id),
+            pages: (await store.listReachable(person.id)).map(summaryOut),
             plan: account.plan,
             limits: limitsOf(account),
             endsAt: account.endsAt?.toISOString() ?? null,
@@ -295,6 +296,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
         );
         if (parsed.data?.email.trim().toLowerCase() !== person.email.toLowerCase()) {
             return fail(c, 400, "Type your email to confirm.");
+        }
+        // This comes first, so nothing is lost before they're told what to do.
+        if (await store.ownsTeam(person.id)) {
+            return fail(c, 409, "Hand your team to someone else, or delete it, before you go.");
         }
         const handles = (await store.listPages(person.id)).map((page) => page.handle);
         const stoppedAt = (error: unknown, what: string, photosRemoved: boolean) => {

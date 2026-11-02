@@ -1,8 +1,8 @@
 // Gives Pro for free: pnpm --filter @tondo/db comp <address> [--months 12], or --all instead of an
 // address. Anyone paying through Stripe is skipped.
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, isNull, sql } from "drizzle-orm";
 import { createDb } from "./client";
-import { pages, users } from "./schema";
+import { users } from "./schema";
 
 const args = process.argv.slice(2);
 const at = args.indexOf("--months");
@@ -21,13 +21,11 @@ const rows = await db
             isNull(users.stripeId),
             all
                 ? undefined
-                : inArray(
-                      users.id,
-                      db
-                          .select({ id: pages.userId })
-                          .from(pages)
-                          .where(eq(pages.handle, handle ?? "")),
-                  ),
+                : sql`${users.id} = (
+                      select coalesce(p.user_id, t.owner_id)
+                      from pages p left join teams t on t.id = p.team_id
+                      where p.handle = ${handle ?? ""}
+                  )`,
         ),
     )
     .returning({ id: users.id });

@@ -2,12 +2,13 @@ import { createHash } from "node:crypto";
 import { routes } from "@tondo/contract";
 import type { PageStore } from "@tondo/db";
 import { photosIn } from "@tondo/page";
+import type { Limits, Page } from "@tondo/page";
 import type { ErrorResponse, PhotosResponse } from "@tondo/contract";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import sharp from "sharp";
 import type { CurrentPerson } from "./auth";
-import { photoLimitMessage } from "./limits";
+import { limitsOf, photoLimitMessage } from "./limits";
 import type { LimitsOfPerson } from "./limits";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
@@ -61,32 +62,85 @@ export async function listPhotos(
     return (await Promise.all(folders.map((folder) => storage.list(folder)))).flat();
 }
 
-/** Who a new photo's folder belongs to: the page asked for, or the person. Null if it isn't theirs. */
-export async function photoOwner(
-    pages: Pick<PageStore, "findDraft">,
-    userId: string,
-    pageId: string | undefined,
-): Promise<string | null> {
-    if (!pageId) return userId;
-    return (await pages.findDraft(userId, pageId)) ? pageId : null;
+/** Whose photos are in play when someone works on a page. Null if they can't reach it. */
+export interface PhotoScope {
+    /** The id of the folder a new photo goes in. */
+    folder: string;
+    folders: string[];
+    limits: Limits;
+    documents: () => Promise<Page[]>;
+    /** Moves the pages in this scope to another folder's paths, after the files are copied. */
+    move: (from: string, to: string) => Promise<void>;
+    /** The folder for photos still in use when a page goes. */
+    fallback: string;
 }
 
+type ScopePages = Pick<
+    PageStore,
+    | "findDraft"
+    | "listPages"
+    | "documentsOf"
+    | "movePhotos"
+    | "teamPageIds"
+    | "documentsOfTeam"
+    | "moveTeamPhotos"
+>;
+
+const personScope = async (
+    pages: ScopePages,
+    userId: string,
+    folder: string,
+    limitsOfPerson: LimitsOfPerson,
+): Promise<PhotoScope> => ({
+    folder,
+    folders: await foldersOf(pages, userId),
+    limits: await limitsOfPerson(userId),
+    documents: () => pages.documentsOf(userId),
+    move: (from, to) => pages.movePhotos(userId, from, to),
+    fallback: userId,
+});
+
+// A team's own pages have the owner's allowance, and a joined page has its person's, whoever's editing.
+export async function photoScope(
+    pages: ScopePages,
+    userId: string,
+    pageId: string | undefined,
+    limitsOfPerson: LimitsOfPerson,
+): Promise<PhotoScope | null> {
+    if (!pageId) return personScope(pages, userId, userId, limitsOfPerson);
+    const draft = await pages.findDraft(userId, pageId);
+    if (!draft) return null;
+    if (draft.userId) return personScope(pages, draft.userId, pageId, limitsOfPerson);
+    const { team } = draft;
+    if (!team) return null;
+    const ids = await pages.teamPageIds(team.id);
+    return {
+        folder: pageId,
+        folders: ids.map(folderFor),
+        limits: limitsOf(draft.standing.account),
+        documents: () => pages.documentsOfTeam(team.id),
+        move: (from, to) => pages.moveTeamPhotos(team.id, from, to),
+        fallback: team.lookPageId,
+    };
+}
+
+export const listInScope = async (storage: Storage, scope: PhotoScope): Promise<string[]> =>
+    (await Promise.all(scope.folders.map((folder) => storage.list(folder)))).flat();
+
 /**
- * Empties a page's folder before the page goes. Photos other pages still use move to the person's own
+ * Empties a page's folder before the page goes. Photos other pages still use move to the fallback
  * folder, because nothing could find that folder again once its page has gone.
  */
 export async function clearPageFolder(
     storage: Storage,
-    pages: Pick<PageStore, "documentsOf" | "movePhotos">,
-    userId: string,
+    scope: Pick<PhotoScope, "documents" | "move" | "fallback">,
     pageId: string,
 ): Promise<void> {
     const from = folderFor(pageId);
-    const to = folderFor(userId);
+    const to = folderFor(scope.fallback);
     const files = await storage.list(from);
     if (!files.length) return;
-    const documents = await pages.documentsOf(userId);
-    const inUse = new Set(photosIn(documents).map((photo) => photo.file));
+    const inUse = new Set(photosIn(await scope.documents()).map((photo) => photo.file));
     await Promise.all(
         files
             .filter((file) => inUse.has(file))
@@ -95,8 +149,51 @@ export async function clearPageFolder(
                 if (bytes) await storage.put(file.replace(from, to), bytes, "image/webp");
             }),
     );
-    await pages.movePhotos(userId, from, to);
+    await scope.move(from, to);
     await Promise.all(files.map((file) => storage.remove(file)));
+}
+
+const isUpload = (file: string) => UPLOAD_KEY.test(file);
+
+/** A document with its own copies of the photos it uses, in this page's folder. */
+export async function copyPhotosInto(storage: Storage, page: Page, pageId: string): Promise<Page> {
+    const to = folderFor(pageId);
+    let text = JSON.stringify(page);
+    const files = new Set(
+        photosIn(page)
+            .map((photo) => photo.file)
+            .filter(isUpload),
+    );
+    for (const file of files) {
+        const bytes = await storage.get(file);
+        if (!bytes) continue;
+        const copy = `${to}${file.slice(file.lastIndexOf("/") + 1)}`;
+        await storage.put(copy, bytes, "image/webp");
+        text = text.replaceAll(file, copy);
+    }
+    return JSON.parse(text) as Page;
+}
+
+/** Brings a page's photos from other folders into its own, once it has a person of its own. */
+export async function ownPhotos(
+    storage: Storage,
+    pages: Pick<PageStore, "documentsOfPage" | "replaceInPage">,
+    pageId: string,
+): Promise<void> {
+    const to = folderFor(pageId);
+    const documents = await pages.documentsOfPage(pageId);
+    const files = new Set(
+        photosIn(documents)
+            .map((photo) => photo.file)
+            .filter((file) => isUpload(file) && !file.startsWith(to)),
+    );
+    for (const file of files) {
+        const bytes = await storage.get(file);
+        if (!bytes) continue;
+        const copy = `${to}${file.slice(file.lastIndexOf("/") + 1)}`;
+        await storage.put(copy, bytes, "image/webp");
+        await pages.replaceInPage(pageId, file, copy);
+    }
 }
 
 export const isBusy = () => converting >= MAX_CONVERTING;
@@ -164,7 +261,9 @@ export function mountPhotos(
     app.get(routes.photos, async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        const files = storage ? await listPhotos(storage, pages, person.id) : [];
+        const scope = await photoScope(pages, person.id, c.req.query("page"), limitsOfPerson);
+        if (!scope) return fail(c, 404, "We couldn't find that page.");
+        const files = storage ? await listInScope(storage, scope) : [];
         return c.json<PhotosResponse>({ files });
     });
 
@@ -194,10 +293,10 @@ export function mountPhotos(
             const refused = "Use a JPEG, PNG or WebP photo.";
             if (!isAllowedImage(input)) return fail(c, 415, refused);
 
-            const owner = await photoOwner(pages, person.id, c.req.query("page"));
-            if (!owner) return fail(c, 404, "We couldn't find that page.");
-            const existing = await listPhotos(storage, pages, person.id);
-            const limits = await limitsOfPerson(person.id);
+            const scope = await photoScope(pages, person.id, c.req.query("page"), limitsOfPerson);
+            if (!scope) return fail(c, 404, "We couldn't find that page.");
+            const { limits } = scope;
+            const existing = await listInScope(storage, scope);
             if (existing.length >= limits.photos) {
                 return fail(c, 413, photoLimitMessage(limits), "plan_limit");
             }
@@ -205,7 +304,7 @@ export function mountPhotos(
             if (isBusy()) {
                 return fail(c, 503, "We're busy with other photos. Try again in a moment.");
             }
-            const file = await storePhoto(storage, owner, input);
+            const file = await storePhoto(storage, scope.folder, input);
             if (!file) return fail(c, 415, refused);
             return c.json({ file }, 201);
         },
@@ -226,11 +325,11 @@ export function mountPhotos(
             return fail(c, 429, "That's a lot of photos at once. Wait a little and try again.");
         }
         const key = c.req.param("file") ?? "";
-        const folders = await foldersOf(pages, person.id);
-        if (!UPLOAD_KEY.test(key) || !folders.some((folder) => key.startsWith(folder))) {
+        const scope = await photoScope(pages, person.id, c.req.query("page"), limitsOfPerson);
+        if (!UPLOAD_KEY.test(key) || !scope?.folders.some((folder) => key.startsWith(folder))) {
             return fail(c, 404, "We couldn't find that photo.");
         }
-        const documents = await pages.documentsOf(person.id);
+        const documents = await scope.documents();
         if (photosIn(documents).some((photo) => photo.file === key)) {
             return fail(c, 409, "This photo is on your page. Take it off first.");
         }

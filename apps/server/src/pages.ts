@@ -20,20 +20,23 @@ import type {
 import type { Draft, PageStore } from "@tondo/db";
 import {
     canAddPage,
-    canPublishPage,
-    isOnline,
+    canPublishStanding,
+    isCovered,
+    isPageOnline,
     pageHash,
     publishIssues,
+    sameTeamLook,
     starterPage,
 } from "@tondo/page";
-import type { Limits, Page, PublishIssue } from "@tondo/page";
+import type { Page, PublishIssue } from "@tondo/page";
 import { linkTargets } from "@tondo/render";
 import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
 import { blockedIssues } from "./blocked";
-import { livePageIssue } from "./limits";
+import { limitsOf, livePageIssue } from "./limits";
 import type { LimitsOfPerson } from "./limits";
+import { summaryOut } from "./summaries";
 import { createLimiter } from "./traffic";
 import type { Scale } from "./traffic";
 
@@ -43,8 +46,8 @@ const STAT_RANGES = [7, 30, 90];
 const SUSPENDED =
     "This page was taken down for breaking our rules, so it can't go live. Contact support if you think that's a mistake.";
 
-// Every route here names a page by id, and the store only finds it if it belongs to the signed-in
-// person, so someone else's page answers the same as one that doesn't exist.
+// Every route here names a page by id, and the store only finds it if the signed-in person can edit it,
+// so a page they can't reach answers the same as one that doesn't exist.
 export function mountPages(
     app: Hono,
     store: PageStore,
@@ -54,12 +57,17 @@ export function mountPages(
         limitsOfPerson: LimitsOfPerson;
         onHandleChange: (before: string | null, after: string | null) => void;
         /** Which of someone's pages visitors see can depend on any of the others. */
-        onLivePagesChange: (userId: string) => Promise<void>;
+        onLivePagesChange: (pageId: string) => Promise<void>;
+        /** A team's pages are cleared once they've gone, so their addresses are read first. */
+        beforeLivePagesChange?: (pageId: string) => Promise<string[]>;
         /** Called before a page goes, so its stored files can go first and be tried again. */
-        onPageRemoving: (userId: string, pageId: string) => Promise<void>;
+        onPageRemoving: (userId: string, pageId: string, draft: Draft) => Promise<void>;
+        /** Gives a new page its own copies of photos that belong to someone else. */
+        copyPhotos?: (page: Page, pageId: string) => Promise<Page>;
     },
 ): void {
     const { scale, limitsOfPerson, onHandleChange, onLivePagesChange, onPageRemoving } = options;
+    const { copyPhotos } = options;
     const fail = (
         c: Context,
         status: 400 | 401 | 403 | 404 | 409 | 413 | 415 | 429 | 503,
@@ -70,6 +78,7 @@ export function mountPages(
         fail(c, 409, "This page was changed somewhere else. Reload to get the latest version.");
     const missing = (c: Context) => fail(c, 404, "We couldn't find that page.");
     const TAKEN = "That address is taken. Try another one.";
+    const ONLY_OWNER_LOOK = "Only the team's owner can change the team's look.";
 
     const jsonBody = bodyLimit({
         maxSize: MAX_PAGE_BYTES,
@@ -89,19 +98,41 @@ export function mountPages(
     const allowChange = createLimiter(scale(10), 60_000);
     const slowDown = (c: Context) => fail(c, 429, "Too many tries. Wait a little and try again.");
     const pageId = (c: Context) => c.req.param("id") ?? "";
-    // Oldest first, as the store lists them. Null if this page isn't live.
-    const liveNumbers = async (userId: string, id: string) => {
-        const live = (await store.listPages(userId)).filter((other) => other.live);
-        const at = live.findIndex((other) => other.id === id);
-        return { live: live.length, rank: at < 0 ? null : at };
+    const isOffline = (draft: Draft) => draft.published && !isPageOnline(draft.standing, limitsOf);
+    // What's for the browser, leaving out whose page it is and how its plan was worked out.
+    const draftOut = (draft: Draft, id: string): DraftResponse => {
+        const { team } = draft;
+        const covered = team ? isCovered(draft.standing.team, limitsOf) : false;
+        // The look page draws itself, so the owner sees the draft they're changing.
+        const look = team && covered && !team.isLookPage ? team.look : null;
+        return {
+            page: draft.page,
+            handle: draft.handle,
+            updatedAt: draft.updatedAt,
+            published: draft.published,
+            changed: draft.changed,
+            suspended: draft.suspended,
+            offline: isOffline(draft),
+            side: draft.side,
+            team: team && {
+                name: team.name,
+                role: team.role,
+                lookPageId: team.lookPageId,
+                isLookPage: team.lookPageId === id,
+                covered,
+                look,
+                locked: team.isLookPage ? team.role !== "owner" : look !== null,
+            },
+        };
     };
-    const isOffline = (limits: Limits, rank: number | null) =>
-        rank !== null && !isOnline(limits, rank);
+    const isOwnersLook = (draft: Draft) => draft.team?.isLookPage && draft.team.role !== "owner";
 
     app.get(routes.pages, async (c) => {
         const person = await currentPerson(c);
         if (!person) return fail(c, 401, "You're not logged in.");
-        return c.json<PagesResponse>({ pages: await store.listPages(person.id) });
+        return c.json<PagesResponse>({
+            pages: (await store.listReachable(person.id)).map(summaryOut),
+        });
     });
 
     app.post(routes.pages, jsonBody, async (c) => {
@@ -118,18 +149,25 @@ export function mountPages(
             );
         }
         const { name, handle, look, from } = parsed.data;
-        const total = (await store.listPages(person.id)).length;
-        if (!total) return fail(c, 409, "Choose your first address first.");
-        if (!canAddPage(await limitsOfPerson(person.id), total)) {
+        const own = await store.listPages(person.id);
+        if (!own.length) return fail(c, 409, "Choose your first address first.");
+        // A joined page is paid for by the team, so it doesn't use one of this person's.
+        const personal = own.filter((other) => other.side === "own").length;
+        if (!canAddPage(await limitsOfPerson(person.id), personal)) {
             return fail(c, 403, "You're using all the pages your plan allows.", "plan_limit");
         }
         const source = from ? await store.findDraft(person.id, from) : null;
         if (from && !source) return missing(c);
         const blank = starterPage(name);
-        const page: Page = source
+        const made: Page = source
             ? { ...source.page, header: { ...source.page.header, name } }
             : { ...blank, look: look ?? blank.look };
-        const id = await store.createPage(person.id, handle, page);
+        const newId = crypto.randomUUID();
+        const page =
+            source && source.userId !== person.id && copyPhotos
+                ? await copyPhotos(made, newId)
+                : made;
+        const id = await store.createPage(person.id, handle, page, newId);
         if (!id) return fail(c, 409, TAKEN);
         onHandleChange(null, handle);
         return c.json<NewPageResponse>({ id }, 201);
@@ -140,11 +178,7 @@ export function mountPages(
         if (!person) return fail(c, 401, "You're not logged in.");
         const draft = await store.findDraft(person.id, pageId(c));
         if (!draft) return missing(c);
-        const { rank } = await liveNumbers(person.id, pageId(c));
-        return c.json<DraftResponse>({
-            ...draft,
-            offline: isOffline(await limitsOfPerson(person.id), rank),
-        });
+        return c.json<DraftResponse>(draftOut(draft, pageId(c)));
     });
 
     app.put(routes.page(":id"), jsonBody, async (c) => {
@@ -156,6 +190,11 @@ export function mountPages(
         if (!parsed.success) return fail(c, 400, "This page has something that can't be saved.");
         const { page, updatedAt, previous } = parsed.data;
         const id = pageId(c);
+        const before = await store.findDraft(person.id, id);
+        if (!before) return missing(c);
+        if (isOwnersLook(before) && !sameTeamLook(page, before.page)) {
+            return fail(c, 403, ONLY_OWNER_LOOK);
+        }
         const saved = await store.saveDraft(person.id, id, page, updatedAt);
         if (saved) return c.json<SaveResponse>({ updatedAt: saved });
         const current = await store.findDraft(person.id, id);
@@ -179,16 +218,33 @@ export function mountPages(
         if (draft.suspended)
             return fail(c, 403, "This page was taken down, so it can't be deleted here.");
         const ONLY = "This is your only page, so it can't be deleted here.";
-        if ((await store.listPages(person.id)).length < 2) return fail(c, 409, ONLY);
+        const id = pageId(c);
+        if (draft.side === "teammate") {
+            return fail(c, 403, "Only the person whose page this is can delete it.");
+        }
+        if (draft.side === "joined") {
+            return fail(c, 409, "This page is on your team. Leave the team first to delete it.");
+        }
+        if (draft.side === "team") {
+            if (draft.team?.role !== "owner") {
+                return fail(c, 403, "Only the team's owner can delete the team's pages.");
+            }
+            if (draft.team.isLookPage) {
+                return fail(c, 409, "This page holds the team's look, so it can't be deleted.");
+            }
+        } else if ((await store.listPages(person.id)).length < 2) {
+            return fail(c, 409, ONLY);
+        }
         try {
-            await onPageRemoving(person.id, pageId(c));
+            await onPageRemoving(person.id, id, draft);
         } catch (error) {
             process.stderr.write(`Couldn't remove a page's photos: ${String(error)}\n`);
             return fail(c, 503, "We couldn't remove this page's photos. Please try again.");
         }
-        if (!(await store.deletePage(person.id, pageId(c)))) return fail(c, 409, ONLY);
+        const affected = (await options.beforeLivePagesChange?.(id)) ?? [];
+        if (!(await store.deletePage(person.id, id))) return fail(c, 409, ONLY);
         onHandleChange(draft.handle, null);
-        await onLivePagesChange(person.id);
+        for (const handle of affected) onHandleChange(handle, null);
         return c.body(null, 204);
     });
 
@@ -202,6 +258,11 @@ export function mountPages(
         if (draft.suspended) {
             return fail(c, 403, "This page was taken down, so its address can't be changed.");
         }
+        const canChange =
+            draft.side === "own" ||
+            draft.side === "joined" ||
+            (draft.side === "team" && draft.team?.role === "owner");
+        if (!canChange) return fail(c, 403, "Only the page's owner can change its address.");
         const parsed = changeHandleRequest.safeParse(await c.req.json<unknown>().catch(() => null));
         if (!parsed.success) {
             return fail(c, 400, "Use 1 to 30 lowercase letters, numbers or hyphens.");
@@ -213,16 +274,34 @@ export function mountPages(
     });
 
     // What only the server can know. The editor adds these to its own list before anyone presses Publish.
-    const serverIssues = async (
-        userId: string,
-        id: string,
-        draft: Draft,
-    ): Promise<PublishIssue[]> => {
-        const limits = await limitsOfPerson(userId);
-        const { live, rank } = await liveNumbers(userId, id);
+    const serverIssues = (draft: Draft): PublishIssue[] => {
+        const needsPlan = !canPublishStanding(draft.standing, limitsOf);
+        const yours = draft.side === "own" || draft.side === "joined";
+        const waiting =
+            isOwnersLook(draft) && (!draft.liveLook || !sameTeamLook(draft.page, draft.liveLook));
         return [
             ...(draft.suspended ? [{ target: "page", message: SUSPENDED }] : []),
-            ...(canPublishPage(limits, live, rank) ? [] : [livePageIssue(limits)]),
+            ...(needsPlan && yours ? [livePageIssue(limitsOf(draft.standing.account))] : []),
+            ...(needsPlan && !yours
+                ? [
+                      {
+                          target: "page",
+                          message:
+                              draft.team?.role === "owner"
+                                  ? "A team's pages need you to be on Pro."
+                                  : "The team's owner needs to be on Pro to put this page online.",
+                          ...(draft.team?.role === "owner" ? { plan: "pro" as const } : {}),
+                      },
+                  ]
+                : []),
+            ...(waiting
+                ? [
+                      {
+                          target: "page",
+                          message: "The owner has changes to the team's look that aren't live yet.",
+                      },
+                  ]
+                : []),
             ...blockedIssues(draft.page),
         ];
     };
@@ -233,7 +312,7 @@ export function mountPages(
         const draft = await store.findDraft(person.id, pageId(c));
         if (!draft) return missing(c);
         return c.json<PublishCheckResponse>({
-            issues: await serverIssues(person.id, pageId(c), draft),
+            issues: serverIssues(draft),
         });
     });
 
@@ -247,15 +326,12 @@ export function mountPages(
         const id = pageId(c);
         const draft = await store.findDraft(person.id, id);
         if (!draft) return missing(c);
-        const issues = [
-            ...(await serverIssues(person.id, id, draft)),
-            ...publishIssues(draft.page),
-        ];
+        const issues = [...serverIssues(draft), ...publishIssues(draft.page)];
         if (issues.length) {
             return c.json<IssuesResponse>({ error: "Fix these before publishing.", issues }, 422);
         }
         if (!(await store.publish(person.id, id, parsed.data.updatedAt))) return conflict(c);
-        await onLivePagesChange(person.id);
+        await onLivePagesChange(id);
         return c.body(null, 204);
     });
 
@@ -266,8 +342,11 @@ export function mountPages(
         if (!allowUnpublish(person.id)) return slowDown(c);
         const draft = await store.findDraft(person.id, pageId(c));
         if (!draft) return missing(c);
+        if (isOwnersLook(draft)) {
+            return fail(c, 403, "Only the team's owner can take down the page holding its look.");
+        }
         await store.unpublish(person.id, pageId(c));
-        await onLivePagesChange(person.id);
+        await onLivePagesChange(pageId(c));
         return c.body(null, 204);
     });
 

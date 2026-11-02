@@ -1,5 +1,5 @@
 import type { PageSummary } from "@tondo/contract";
-import { isOnline, lookNames } from "@tondo/page";
+import { lookNames } from "@tondo/page";
 import type { Limits, LookName } from "@tondo/page";
 import { looks, paint } from "@tondo/render";
 import { createSignal, For, onCleanup, Show } from "solid-js";
@@ -25,19 +25,13 @@ export function PageSwatch(props: { page: Pick<PageSummary, "look" | "seed"> }) 
     );
 }
 
-/** Whether each page is live for visitors, counting live pages oldest first as the server does. */
-function statuses(pages: readonly PageSummary[], limits: Pick<Limits, "live">) {
-    let rank = 0;
-    return pages.map((page) => {
-        if (!page.live) return { tone: "", label: "Not live yet" };
-        const online = isOnline(limits, rank);
-        rank += 1;
-        if (!online) return { tone: "", label: "Offline" };
-        return page.changed
-            ? { tone: "warn", label: "Live, with unpublished changes" }
-            : { tone: "ok", label: "Live" };
-    });
-}
+const statusOf = (page: PageSummary) => {
+    if (!page.live) return { tone: "", label: "Not live yet" };
+    if (page.offline) return { tone: "", label: "Offline" };
+    return page.changed
+        ? { tone: "warn", label: "Live, with unpublished changes" }
+        : { tone: "ok", label: "Live" };
+};
 
 /** Opens a menu of the person's pages, oldest first, with New page at the end. */
 export function PageSwitcher(props: {
@@ -106,8 +100,8 @@ export function PageSwitcher(props: {
             <Show when={open()}>
                 <div class="psw-menu" role="menu" aria-label="Your pages">
                     <For each={props.pages}>
-                        {(page, index) => {
-                            const status = () => statuses(props.pages, props.limits)[index()];
+                        {(page) => {
+                            const status = () => statusOf(page);
                             return (
                                 <button
                                     type="button"
@@ -126,10 +120,10 @@ export function PageSwitcher(props: {
                                         <small>tondo.page/{page.handle}</small>
                                     </span>
                                     <i
-                                        class={`psw-state ${status()?.tone ?? ""}`}
+                                        class={`psw-state ${status().tone}`}
                                         role="img"
-                                        aria-label={status()?.label}
-                                        title={status()?.label}
+                                        aria-label={status().label}
+                                        title={status().label}
                                     />
                                 </button>
                             );

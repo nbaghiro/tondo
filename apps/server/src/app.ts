@@ -1,7 +1,8 @@
 import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { LivePage, PageStore } from "@tondo/db";
-import { handleSchema, isOnline, normaliseHandle } from "@tondo/page";
+import type { Page } from "@tondo/page";
+import { handleSchema, isCovered, isPageOnline, normaliseHandle, withTeamLook } from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
@@ -14,7 +15,7 @@ import { limitsOf } from "./limits";
 import { mountBilling } from "./billing";
 import { NO_PAGE } from "./no-page";
 import { mountPages } from "./pages";
-import { clearPageFolder, listPhotos, mountPhotos } from "./photos";
+import { clearPageFolder, copyPhotosInto, listPhotos, mountPhotos, photoScope } from "./photos";
 import { sitemapXml } from "./sitemap";
 import type { Storage } from "./storage";
 import type { Payments } from "./stripe";
@@ -82,7 +83,9 @@ export function createApp({
         const handle = normaliseHandle(raw);
         if (!handleSchema.safeParse(handle).success) return null;
         const found = await cache.get(handle, () => pages.findLive(handle));
-        return found && isOnline(limitsOf(found), found.rank) ? found : null;
+        if (!found || !isPageOnline(found.standing, limitsOf)) return null;
+        const applies = isCovered(found.standing.team, limitsOf);
+        return { ...found, page: withTeamLook(found.page, applies ? found.teamLook : null) };
     };
 
     // A sandboxed frame or a data: page sends this, and neither should be able to act for someone.
@@ -126,8 +129,11 @@ export function createApp({
         if (before) cache.drop(before);
         if (after) cache.drop(after);
     };
+    const dropHandles = (handles: readonly string[]) => {
+        for (const handle of handles) cache.drop(handle);
+    };
     const dropPagesOf = async (userId: string) => {
-        for (const { handle } of await pages.listPages(userId)) cache.drop(handle);
+        dropHandles(await pages.handlesAround(userId));
     };
     const currentPerson = mountAuth(app, {
         ...auth,
@@ -148,10 +154,18 @@ export function createApp({
         scale,
         limitsOfPerson,
         onHandleChange,
-        onLivePagesChange: dropPagesOf,
-        onPageRemoving: async (userId, pageId) => {
-            if (storage) await clearPageFolder(storage, pages, userId, pageId);
+        onLivePagesChange: async (pageId) => {
+            dropHandles(await pages.handlesAffected(pageId));
         },
+        beforeLivePagesChange: (pageId) => pages.handlesAffected(pageId),
+        onPageRemoving: async (userId, pageId) => {
+            if (!storage) return;
+            const scope = await photoScope(pages, userId, pageId, limitsOfPerson);
+            if (scope) await clearPageFolder(storage, scope, pageId);
+        },
+        ...(storage
+            ? { copyPhotos: (page: Page, pageId: string) => copyPhotosInto(storage, page, pageId) }
+            : {}),
     });
     if (payments) {
         mountBilling(app, {

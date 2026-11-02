@@ -66,6 +66,10 @@ export const pageSummary = z.strictObject({
     live: z.boolean(),
     changed: z.boolean(),
     updatedAt: z.string(),
+    /** Whose it is, seen from the person asking. */
+    side: z.enum(["own", "joined", "team", "teammate"]),
+    /** Published, and not shown to visitors because a plan doesn't cover it now. */
+    offline: z.boolean(),
 });
 export const pagesResponse = z.strictObject({ pages: z.array(pageSummary) });
 export type PageSummary = z.infer<typeof pageSummary>;
@@ -105,6 +109,19 @@ export type CheckoutRequest = z.infer<typeof checkoutRequest>;
 export type BillingResponse = z.infer<typeof billingResponse>;
 
 export const liveResponse = z.strictObject({ page: pageSchema });
+const draftTeam = z.strictObject({
+    name: z.string(),
+    role: z.enum(["owner", "editor", "member"]),
+    lookPageId: z.string(),
+    isLookPage: z.boolean(),
+    /** Whether the owner's plan covers the team now. */
+    covered: z.boolean(),
+    /** What to draw this page with. Editor state stays the page's own, so this is never saved. */
+    look: pageSchema.pick({ look: true, paint: true, style: true }).nullable(),
+    /** Whether this person can change this page's look. */
+    locked: z.boolean(),
+});
+export type DraftTeamResponse = z.infer<typeof draftTeam>;
 export const draftResponse = z.strictObject({
     page: pageSchema,
     handle: z.string(),
@@ -115,6 +132,8 @@ export const draftResponse = z.strictObject({
     suspended: z.boolean(),
     /** Published, and not shown to visitors because the plan doesn't cover it now. */
     offline: z.boolean(),
+    side: pageSummary.shape.side,
+    team: draftTeam.nullable(),
 });
 // Always the text the server sent back. Anything else is refused before it reaches the database.
 const stamp = z
