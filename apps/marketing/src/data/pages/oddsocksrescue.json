@@ -1,0 +1,183 @@
+{
+    "version": 2,
+    "look": "bake",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#1f6fbd"
+        },
+        "font": "friendly"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Odd Socks",
+        "tagline": "Dog rescue, run by volunteers",
+        "bio": "Every dog here is somebody's next best friend. Most of them just need a sofa and a bit of patience.",
+        "photo": {
+            "file": "rescue0.jpg",
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/oddsocksrescue/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "countdown",
+            "variant": "inline",
+            "section": "b4",
+            "at": "2026-11-22T11:00",
+            "label": "until adoption day at the rec",
+            "done": "Adoption day is on"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "filled",
+            "section": "b5",
+            "url": "https://example.com/oddsocksrescue/see-who-s-looking-for-a-home",
+            "text": "See who's looking for a home"
+        },
+        {
+            "id": "b6",
+            "type": "button",
+            "variant": "outline",
+            "section": "b6",
+            "url": "https://example.com/oddsocksrescue/give-5-towards-dinner",
+            "text": "Give £5 towards dinner"
+        },
+        {
+            "id": "b7",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b7",
+            "text": "Meet them"
+        },
+        {
+            "id": "b8",
+            "type": "link-card",
+            "variant": "large",
+            "section": "b7",
+            "url": "https://example.com/oddsocksrescue/ears-for-days-loves-children-and-hates-the-hoover-gets-on-with-cats-and-we-have-the-video",
+            "title": "Biscuit, about 7",
+            "text": "Ears for days. Loves children and hates the hoover. Gets on with cats, and we have the video.",
+            "photo": {
+                "file": "rescue1.jpg",
+                "y": 38
+            },
+            "cta": "Meet Biscuit",
+            "tag": "New this week"
+        },
+        {
+            "id": "b9",
+            "type": "link-card",
+            "variant": "small",
+            "section": "b9",
+            "url": "https://example.com/oddsocksrescue/bouncy-needs-a-garden-and-someone-who-runs",
+            "title": "Mabel, 2",
+            "text": "Bouncy. Needs a garden and someone who runs.",
+            "photo": {
+                "file": "rescue2.jpg",
+                "y": 25
+            }
+        },
+        {
+            "id": "b10",
+            "type": "link-card",
+            "variant": "small",
+            "section": "b9",
+            "url": "https://example.com/oddsocksrescue/shy-for-a-week-then-your-shadow-forever",
+            "title": "Pickle, 4",
+            "text": "Shy for a week, then your shadow forever.",
+            "photo": {
+                "file": "rescue3.jpg",
+                "y": 20
+            }
+        },
+        {
+            "id": "b11",
+            "type": "stats",
+            "variant": "row",
+            "section": "b11",
+            "items": [
+                {
+                    "id": "i12",
+                    "number": "1,284",
+                    "label": "Dogs rehomed"
+                },
+                {
+                    "id": "i13",
+                    "number": "62",
+                    "label": "Foster homes"
+                },
+                {
+                    "id": "i14",
+                    "number": "0",
+                    "label": "Paid staff"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "Can't adopt? Foster."
+        },
+        {
+            "id": "b16",
+            "type": "text",
+            "variant": "card",
+            "section": "b15",
+            "text": "We pay for food and vets, and we'll match you with a dog that suits your home. A foster stay lasts about six weeks, and you can say no at any point."
+        },
+        {
+            "id": "b17",
+            "type": "button",
+            "variant": "filled",
+            "section": "b17",
+            "url": "https://example.com/oddsocksrescue/become-a-foster-home",
+            "text": "Become a foster home"
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b18",
+            "text": "Questions"
+        },
+        {
+            "id": "b19",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b18",
+            "items": [
+                {
+                    "id": "i20",
+                    "question": "How much does it cost to adopt?",
+                    "answer": "£180, which covers vaccinations, neutering and a microchip."
+                },
+                {
+                    "id": "i21",
+                    "question": "Do you rehome outside the county?",
+                    "answer": "Yes, as long as we can do a home visit first. It's a friendly chat, and we bring a dog."
+                }
+            ]
+        }
+    ]
+}

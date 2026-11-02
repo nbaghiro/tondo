@@ -9,157 +9,13 @@
         "shows": "Sale banner, products, workshops"
     },
     {
-        "id": "theo",
-        "handle": "theolindqvist",
-        "name": "Theo Lindqvist",
-        "role": "film photographer",
-        "look": "Noir",
-        "kind": "Creators and personal pages",
-        "shows": "Full photo header, gallery, prints"
-    },
-    {
-        "id": "aster",
-        "handle": "asterandbell",
-        "name": "Aster & Bell",
-        "role": "floral studio",
-        "look": "Sap",
+        "id": "kerb",
+        "handle": "kerbtheory",
+        "name": "Kerb Theory",
+        "role": "streetwear label",
+        "look": "Riso",
         "kind": "Shops and makers",
-        "shows": "Arch header, team, carousel"
-    },
-    {
-        "id": "noor",
-        "handle": "noorhaddad",
-        "name": "Noor Haddad",
-        "role": "musician",
-        "look": "Dusk",
-        "kind": "Creators and personal pages",
-        "shows": "Music player, tour dates, video"
-    },
-    {
-        "id": "priya",
-        "handle": "priyaraman",
-        "name": "Priya Raman",
-        "role": "nutrition coach",
-        "look": "Indigo",
-        "kind": "Health and beauty",
-        "shows": "Time slots, paid guide, quote"
-    },
-    {
-        "id": "sam",
-        "handle": "smallrooms",
-        "name": "Sam Ortiz",
-        "role": "podcast host",
-        "look": "Signal",
-        "kind": "Creators and personal pages",
-        "shows": "Video, ribbon, listen buttons"
-    },
-    {
-        "id": "harbour",
-        "handle": "harbourbakery",
-        "name": "Harbour Bakery",
-        "role": "neighbourhood bakery",
-        "look": "Bakehouse",
-        "kind": "Food and stays",
-        "shows": "Product grid, opening hours"
-    },
-    {
-        "id": "lena",
-        "handle": "lenasato",
-        "name": "Lena Sato",
-        "role": "writer",
-        "look": "Sumi",
-        "kind": "Creators and personal pages",
-        "shows": "Painted ring, book, essays"
-    },
-    {
-        "id": "lume",
-        "handle": "osterialume",
-        "name": "Osteria Lume",
-        "role": "restaurant",
-        "look": "Lume",
-        "kind": "Food and stays",
-        "shows": "Tabs, menu, map, reservations"
-    },
-    {
-        "id": "second",
-        "handle": "secondstreet",
-        "name": "Second Street Barbers",
-        "role": "barbershop",
-        "look": "Second Street",
-        "kind": "Health and beauty",
-        "shows": "Service menu, reviews, barbers, map"
-    },
-    {
-        "id": "kai",
-        "handle": "kaimercer",
-        "name": "Kai Mercer",
-        "role": "travel creator",
-        "look": "Lagoon",
-        "kind": "Creators and personal pages",
-        "shows": "Instagram and TikTok feeds, stats, media kit"
-    },
-    {
-        "id": "ines",
-        "handle": "inesandtomas",
-        "name": "Ines and Tomas",
-        "role": "wedding",
-        "look": "Vellum",
-        "kind": "Events, teams and communities",
-        "shows": "Countdown, schedule, RSVP, map, registry"
-    },
-    {
-        "id": "dee",
-        "handle": "deewalker",
-        "name": "Dee Walker",
-        "role": "strength coach",
-        "look": "Volt",
-        "kind": "Health and beauty",
-        "shows": "Price tiers, stats, reviews, FAQ"
-    },
-    {
-        "id": "oskar",
-        "handle": "oskarbloom",
-        "name": "Oskar Bloom",
-        "role": "product designer",
-        "look": "Bloom",
-        "kind": "Creators and personal pages",
-        "shows": "Drawn flower header, work as product screens, work history"
-    },
-    {
-        "id": "clara",
-        "handle": "claravoss",
-        "name": "Clara Voss",
-        "role": "real estate agent",
-        "look": "Estate",
-        "kind": "Trades and professionals",
-        "shows": "Listings, contact list, sales stats"
-    },
-    {
-        "id": "river",
-        "handle": "cleanriver",
-        "name": "Clean River Project",
-        "role": "non-profit",
-        "look": "Tide",
-        "kind": "Events, teams and communities",
-        "shows": "Donations, goal progress, volunteer events"
-    },
-    {
-        "id": "mika",
-        "handle": "mikasol",
-        "name": "Mika Sol",
-        "role": "DJ",
-        "look": "Rave",
-        "kind": "Creators and personal pages",
-        "shows": "Next show countdown, tips, videos, music"
-    },
-    {
-        "id": "gooddog",
-        "handle": "gooddog",
-        "name": "Good Dog Grooming",
-        "role": "dog groomer",
-        "look": "Biscuit",
-        "kind": "Trades and professionals",
-        "shows": "Service list, calendar booking, FAQ"
+        "shows": "Drop countdown, products, fit questions"
     },
     {
         "id": "understory",
@@ -180,67 +36,22 @@
         "shows": "Single product, drop countdown, carousel"
     },
     {
-        "id": "margin",
-        "handle": "themargin",
-        "name": "The Margin",
-        "role": "newsletter",
-        "look": "Press",
-        "kind": "Creators and personal pages",
-        "shows": "Posts from RSS, subscriber count, sign-up"
+        "id": "alderwick",
+        "handle": "alderandwick",
+        "name": "Alder and Wick",
+        "role": "candle maker",
+        "look": "Wax",
+        "kind": "Shops and makers",
+        "shows": "Bottle label header, scents, refill subscription"
     },
     {
-        "id": "walkers",
-        "handle": "northshorewalkers",
-        "name": "North Shore Walkers",
-        "role": "walking club",
-        "look": "Trail",
-        "kind": "Events, teams and communities",
-        "shows": "Next event, group chat, FAQ, map"
-    },
-    {
-        "id": "hana",
-        "handle": "hanaito",
-        "name": "Hana Ito",
-        "role": "interior designer",
-        "look": "Plaster",
-        "kind": "Trades and professionals",
-        "shows": "Enquiry form, project gallery, process"
-    },
-    {
-        "id": "lantern",
-        "handle": "blacklantern",
-        "name": "Black Lantern",
-        "role": "tattoo studio",
-        "look": "Ink",
-        "kind": "Health and beauty",
-        "shows": "Artist tabs, booking status, consent FAQ"
-    },
-    {
-        "id": "slowpour",
-        "handle": "slowpour",
-        "name": "Slow Pour",
-        "role": "coffee roaster",
-        "look": "Roast",
-        "kind": "Food and stays",
-        "shows": "Round photo header, subscription tiers, products"
-    },
-    {
-        "id": "stillwater",
-        "handle": "stillwateryoga",
-        "name": "Stillwater Yoga",
-        "role": "yoga teacher",
-        "look": "Lilac",
-        "kind": "Health and beauty",
-        "shows": "Oval photo, weekly schedule in tabs, class passes"
-    },
-    {
-        "id": "lowtide",
-        "handle": "lowtidesurf",
-        "name": "Low Tide Surf",
-        "role": "surf school",
-        "look": "Surf",
-        "kind": "Teaching and learning",
-        "shows": "Drawn sun header, lessons, reviews, FAQ"
+        "id": "aster",
+        "handle": "asterandbell",
+        "name": "Aster & Bell",
+        "role": "floral studio",
+        "look": "Sap",
+        "kind": "Shops and makers",
+        "shows": "Arch header, team, carousel"
     },
     {
         "id": "bookshop",
@@ -252,49 +63,49 @@
         "shows": "Book plate header, staff picks, reading events"
     },
     {
-        "id": "ferries",
-        "handle": "nightferries",
-        "name": "The Night Ferries",
-        "role": "band",
-        "look": "Riso",
-        "kind": "Creators and personal pages",
-        "shows": "Two-colour poster header, tour, merch"
+        "id": "eggs",
+        "handle": "halfpasteggs",
+        "name": "Half Past Eggs",
+        "role": "brunch cafe",
+        "look": "Sap",
+        "kind": "Food, stays and travel",
+        "shows": "Arch photo, menu, opening hours"
     },
     {
-        "id": "amara",
-        "handle": "amaracole",
-        "name": "Amara Cole",
-        "role": "therapist",
-        "look": "Calm",
-        "kind": "Health and beauty",
-        "shows": "Text-led header, what to expect, private contact"
-    },
-    {
-        "id": "smallweb",
-        "handle": "smallwebday",
-        "name": "Small Web Day",
-        "role": "conference",
-        "look": "Ticket",
-        "kind": "Events, teams and communities",
-        "shows": "Ticket header, schedule tabs, speakers, sponsors"
-    },
-    {
-        "id": "fieldoffice",
-        "handle": "fieldoffice",
-        "name": "Field Office",
-        "role": "design agency",
-        "look": "Office",
-        "kind": "Events, teams and communities",
-        "shows": "Team directory linking to each person's page"
-    },
-    {
-        "id": "alderwick",
-        "handle": "alderandwick",
-        "name": "Alder and Wick",
-        "role": "candle maker",
+        "id": "measure",
+        "handle": "quietmeasure",
+        "name": "The Quiet Measure",
+        "role": "cocktail bar",
         "look": "Wax",
-        "kind": "Shops and makers",
-        "shows": "Bottle label header, scents, refill subscription"
+        "kind": "Food, stays and travel",
+        "shows": "Glowing photo, drinks list, tasting nights"
+    },
+    {
+        "id": "harbour",
+        "handle": "harbourbakery",
+        "name": "Harbour Bakery",
+        "role": "neighbourhood bakery",
+        "look": "Bakehouse",
+        "kind": "Food, stays and travel",
+        "shows": "Product grid, opening hours"
+    },
+    {
+        "id": "slowpour",
+        "handle": "slowpour",
+        "name": "Slow Pour",
+        "role": "coffee roaster",
+        "look": "Roast",
+        "kind": "Food, stays and travel",
+        "shows": "Round photo header, subscription tiers, products"
+    },
+    {
+        "id": "ridge",
+        "handle": "ridgeandrook",
+        "name": "Ridge & Rook",
+        "role": "walking tours",
+        "look": "Lagoon",
+        "kind": "Food, stays and travel",
+        "shows": "Full photo, departures, trip tiers"
     },
     {
         "id": "comet",
@@ -302,7 +113,7 @@
         "name": "Taco Comet",
         "role": "food truck",
         "look": "Comet",
-        "kind": "Food and stays",
+        "kind": "Food, stays and travel",
         "shows": "Sunburst header, this week's locations, short menu"
     },
     {
@@ -311,7 +122,7 @@
         "name": "The Salt House",
         "role": "guesthouse",
         "look": "Brine",
-        "kind": "Food and stays",
+        "kind": "Food, stays and travel",
         "shows": "Window pane header, rooms, stay dates, map"
     },
     {
@@ -320,8 +131,53 @@
         "name": "Greengage Farm",
         "role": "organic farm",
         "look": "Harvest",
-        "kind": "Food and stays",
+        "kind": "Food, stays and travel",
         "shows": "Crate stencil header, weekly box, pickup points"
+    },
+    {
+        "id": "lume",
+        "handle": "osterialume",
+        "name": "Osteria Lume",
+        "role": "restaurant",
+        "look": "Lume",
+        "kind": "Food, stays and travel",
+        "shows": "Tabs, menu, map, reservations"
+    },
+    {
+        "id": "stillwater",
+        "handle": "stillwateryoga",
+        "name": "Stillwater Yoga",
+        "role": "yoga teacher",
+        "look": "Lilac",
+        "kind": "Health and fitness",
+        "shows": "Oval photo, weekly schedule in tabs, class passes"
+    },
+    {
+        "id": "dee",
+        "handle": "deewalker",
+        "name": "Dee Walker",
+        "role": "strength coach",
+        "look": "Volt",
+        "kind": "Health and fitness",
+        "shows": "Price tiers, stats, reviews, FAQ"
+    },
+    {
+        "id": "marrow",
+        "handle": "marrowlanephysio",
+        "name": "Marrow Lane Physio",
+        "role": "physiotherapist",
+        "look": "Smile",
+        "kind": "Health and fitness",
+        "shows": "Arc header, online booking, treatments"
+    },
+    {
+        "id": "tannery",
+        "handle": "tannerylaneboxing",
+        "name": "Tannery Lane",
+        "role": "boxing gym",
+        "look": "Second Street",
+        "kind": "Health and fitness",
+        "shows": "Full photo, class schedule, memberships"
     },
     {
         "id": "bright",
@@ -329,8 +185,44 @@
         "name": "Bright Street Dental",
         "role": "dental clinic",
         "look": "Smile",
-        "kind": "Health and beauty",
+        "kind": "Health and fitness",
         "shows": "Curved header, new patients, insurance answers"
+    },
+    {
+        "id": "priya",
+        "handle": "priyaraman",
+        "name": "Priya Raman",
+        "role": "nutrition coach",
+        "look": "Indigo",
+        "kind": "Health and fitness",
+        "shows": "Time slots, paid guide, quote"
+    },
+    {
+        "id": "amara",
+        "handle": "amaracole",
+        "name": "Amara Cole",
+        "role": "therapist",
+        "look": "Calm",
+        "kind": "Health and fitness",
+        "shows": "Text-led header, what to expect, private contact"
+    },
+    {
+        "id": "ottilie",
+        "handle": "ottilierowe",
+        "name": "Ottilie Rowe Hair",
+        "role": "hair salon",
+        "look": "Brine",
+        "kind": "Beauty and style",
+        "shows": "Window photo, price list, stylists"
+    },
+    {
+        "id": "second",
+        "handle": "secondstreet",
+        "name": "Second Street Barbers",
+        "role": "barbershop",
+        "look": "Second Street",
+        "kind": "Beauty and style",
+        "shows": "Service menu, reviews, barbers, map"
     },
     {
         "id": "nix",
@@ -338,8 +230,89 @@
         "name": "Studio Nix",
         "role": "nail studio",
         "look": "Lacquer",
-        "kind": "Health and beauty",
+        "kind": "Beauty and style",
         "shows": "Painted nail header, service menu, deposit policy"
+    },
+    {
+        "id": "vesna",
+        "handle": "vesnakolar",
+        "name": "Vesna Kolar",
+        "role": "makeup artist",
+        "look": "Roast",
+        "kind": "Beauty and style",
+        "shows": "Round portrait, portfolio, bridal rates"
+    },
+    {
+        "id": "odile",
+        "handle": "odilemarchetti",
+        "name": "Odile Marchetti",
+        "role": "fashion stylist",
+        "look": "Sumi",
+        "kind": "Beauty and style",
+        "shows": "Black and white photo, lookbooks, wardrobe edits"
+    },
+    {
+        "id": "lantern",
+        "handle": "blacklantern",
+        "name": "Black Lantern",
+        "role": "tattoo studio",
+        "look": "Ink",
+        "kind": "Beauty and style",
+        "shows": "Artist tabs, booking status, consent FAQ"
+    },
+    {
+        "id": "clara",
+        "handle": "claravoss",
+        "name": "Clara Voss",
+        "role": "real estate agent",
+        "look": "Estate",
+        "kind": "Trades and professionals",
+        "shows": "Listings, contact list, sales stats"
+    },
+    {
+        "id": "delphine",
+        "handle": "delphineashgrove",
+        "name": "Delphine Ashgrove",
+        "role": "real estate agent",
+        "look": "Office",
+        "kind": "Trades and professionals",
+        "shows": "Bold photo, listings, recent sales"
+    },
+    {
+        "id": "hedgerow",
+        "handle": "hedgerowdaughters",
+        "name": "Hedgerow & Daughters",
+        "role": "gardeners and landscapers",
+        "look": "Trail",
+        "kind": "Trades and professionals",
+        "shows": "Hedge photo, seasonal work, free quote"
+    },
+    {
+        "id": "gooddog",
+        "handle": "gooddog",
+        "name": "Good Dog Grooming",
+        "role": "dog groomer",
+        "look": "Biscuit",
+        "kind": "Trades and professionals",
+        "shows": "Service list, calendar booking, FAQ"
+    },
+    {
+        "id": "hana",
+        "handle": "hanaito",
+        "name": "Hana Ito",
+        "role": "interior designer",
+        "look": "Plaster",
+        "kind": "Trades and professionals",
+        "shows": "Enquiry form, project gallery, process"
+    },
+    {
+        "id": "fieldoffice",
+        "handle": "fieldoffice",
+        "name": "Field Office",
+        "role": "design agency",
+        "look": "Office",
+        "kind": "Trades and professionals",
+        "shows": "Team directory linking to each person's page"
     },
     {
         "id": "rivetelectric",
@@ -351,13 +324,13 @@
         "shows": "Hazard tape header, call button, quote form"
     },
     {
-        "id": "marsh",
-        "handle": "adaezemarsh",
-        "name": "Adaeze Marsh",
-        "role": "family lawyer",
+        "id": "renata",
+        "handle": "renataholt",
+        "name": "Renata Holt",
+        "role": "brand consultant",
         "look": "Letterhead",
         "kind": "Trades and professionals",
-        "shows": "Letterhead header, how it works, plain fees"
+        "shows": "Letterhead, packages, client quote"
     },
     {
         "id": "tally",
@@ -369,13 +342,22 @@
         "shows": "Ledger paper, price sums, tax deadline, checklist"
     },
     {
-        "id": "hablemos",
-        "handle": "hablemos",
-        "name": "Hablemos",
-        "role": "language tutor",
-        "look": "Postal",
+        "id": "marsh",
+        "handle": "adaezemarsh",
+        "name": "Adaeze Marsh",
+        "role": "family lawyer",
+        "look": "Letterhead",
+        "kind": "Trades and professionals",
+        "shows": "Letterhead header, how it works, plain fees"
+    },
+    {
+        "id": "thimble",
+        "handle": "thimblehill",
+        "name": "Thimble Hill",
+        "role": "nursery school",
+        "look": "Cutout",
         "kind": "Teaching and learning",
-        "shows": "Postcard header, lesson slots, free worksheet"
+        "shows": "Paper shapes, sessions, open days"
     },
     {
         "id": "keystudio",
@@ -387,6 +369,15 @@
         "shows": "Piano key header, recital date, trial lessons"
     },
     {
+        "id": "hablemos",
+        "handle": "hablemos",
+        "name": "Hablemos",
+        "role": "language tutor",
+        "look": "Postal",
+        "kind": "Teaching and learning",
+        "shows": "Postcard header, lesson slots, free worksheet"
+    },
+    {
         "id": "crumbschool",
         "handle": "crumbschool",
         "name": "Crumb School",
@@ -396,13 +387,157 @@
         "shows": "Diagonal photo header, course outline, paid tiers"
     },
     {
+        "id": "lowtide",
+        "handle": "lowtidesurf",
+        "name": "Low Tide Surf",
+        "role": "surf school",
+        "look": "Surf",
+        "kind": "Teaching and learning",
+        "shows": "Drawn sun header, lessons, reviews, FAQ"
+    },
+    {
+        "id": "imara",
+        "handle": "imaravale",
+        "name": "Imara Vale",
+        "role": "lifestyle creator",
+        "look": "Lilac",
+        "kind": "Creators and writers",
+        "shows": "Oval portrait, shop my looks, brand enquiries"
+    },
+    {
+        "id": "tenth",
+        "handle": "tenthframe",
+        "name": "tenthframe",
+        "role": "competitive streamer",
+        "look": "Rave",
+        "kind": "Creators and writers",
+        "shows": "Neon photo, stream schedule, memberships"
+    },
+    {
+        "id": "kai",
+        "handle": "kaimercer",
+        "name": "Kai Mercer",
+        "role": "travel creator",
+        "look": "Lagoon",
+        "kind": "Creators and writers",
+        "shows": "Instagram and TikTok feeds, stats, media kit"
+    },
+    {
+        "id": "sam",
+        "handle": "smallrooms",
+        "name": "Sam Ortiz",
+        "role": "podcast host",
+        "look": "Signal",
+        "kind": "Creators and writers",
+        "shows": "Video, ribbon, listen buttons"
+    },
+    {
+        "id": "lena",
+        "handle": "lenasato",
+        "name": "Lena Sato",
+        "role": "writer",
+        "look": "Sumi",
+        "kind": "Creators and writers",
+        "shows": "Painted ring, book, essays"
+    },
+    {
         "id": "pip",
         "handle": "pixelpip",
         "name": "pixelpip",
         "role": "game streamer",
         "look": "Pixel",
-        "kind": "Creators and personal pages",
+        "kind": "Creators and writers",
         "shows": "Live banner, stream schedule, clips, memberships"
+    },
+    {
+        "id": "bea",
+        "handle": "supperwithbea",
+        "name": "Supper with Bea",
+        "role": "food creator",
+        "look": "Crumb",
+        "kind": "Creators and writers",
+        "shows": "Split photo, recipe cards, cookbook"
+    },
+    {
+        "id": "evidence",
+        "handle": "slowevidence",
+        "name": "Slow Evidence",
+        "role": "true crime podcast",
+        "look": "Rivet",
+        "kind": "Creators and writers",
+        "shows": "Tape header, latest episode, live shows"
+    },
+    {
+        "id": "margin",
+        "handle": "themargin",
+        "name": "The Margin",
+        "role": "newsletter",
+        "look": "Press",
+        "kind": "Creators and writers",
+        "shows": "Posts from RSS, subscriber count, sign-up"
+    },
+    {
+        "id": "noor",
+        "handle": "noorhaddad",
+        "name": "Noor Haddad",
+        "role": "musician",
+        "look": "Dusk",
+        "kind": "Music",
+        "shows": "Music player, tour dates, video"
+    },
+    {
+        "id": "ferries",
+        "handle": "nightferries",
+        "name": "The Night Ferries",
+        "role": "band",
+        "look": "Riso",
+        "kind": "Music",
+        "shows": "Two-colour poster header, tour, merch"
+    },
+    {
+        "id": "kofi",
+        "handle": "kofimarlowe",
+        "name": "Kofi Marlowe",
+        "role": "rapper",
+        "look": "Signal",
+        "kind": "Music",
+        "shows": "Loud poster name, new album, tour"
+    },
+    {
+        "id": "mika",
+        "handle": "mikasol",
+        "name": "Mika Sol",
+        "role": "DJ",
+        "look": "Rave",
+        "kind": "Music",
+        "shows": "Next show countdown, tips, videos, music"
+    },
+    {
+        "id": "theo",
+        "handle": "theolindqvist",
+        "name": "Theo Lindqvist",
+        "role": "film photographer",
+        "look": "Noir",
+        "kind": "Art, photo and design",
+        "shows": "Full photo header, gallery, prints"
+    },
+    {
+        "id": "wren",
+        "handle": "wrenhollis",
+        "name": "Wren Hollis",
+        "role": "wedding photographer",
+        "look": "Atelier",
+        "kind": "Art, photo and design",
+        "shows": "Arch photo, packages, recent weddings"
+    },
+    {
+        "id": "tobias",
+        "handle": "tobiasrenn",
+        "name": "Tobias Renn",
+        "role": "videographer",
+        "look": "Ticket",
+        "kind": "Art, photo and design",
+        "shows": "Ticket header, showreel, day rates"
     },
     {
         "id": "juno",
@@ -410,8 +545,44 @@
         "name": "Juno Park",
         "role": "illustrator",
         "look": "Cutout",
-        "kind": "Creators and personal pages",
+        "kind": "Art, photo and design",
         "shows": "Cut paper header, prints, commissions status"
+    },
+    {
+        "id": "oskar",
+        "handle": "oskarbloom",
+        "name": "Oskar Bloom",
+        "role": "product designer",
+        "look": "Bloom",
+        "kind": "Art, photo and design",
+        "shows": "Drawn flower header, work as product screens, work history"
+    },
+    {
+        "id": "ilse",
+        "handle": "ilsevarga",
+        "name": "Ilse Varga",
+        "role": "painter",
+        "look": "Madder",
+        "kind": "Art, photo and design",
+        "shows": "Painted header, originals, open studio"
+    },
+    {
+        "id": "jonah",
+        "handle": "jonahreyes",
+        "name": "Jonah Reyes",
+        "role": "job seeker",
+        "look": "Stacks",
+        "kind": "Personal pages",
+        "shows": "Library card, CV timeline, projects"
+    },
+    {
+        "id": "tunde",
+        "handle": "tundeashworth",
+        "name": "Tunde Ashworth",
+        "role": "sprinter",
+        "look": "Volt",
+        "kind": "Personal pages",
+        "shows": "Starting blocks photo, season bests, sponsors"
     },
     {
         "id": "lucia",
@@ -419,8 +590,35 @@
         "name": "Lucía Ferrer",
         "role": "personal page",
         "look": "Scrapbook",
-        "kind": "Creators and personal pages",
+        "kind": "Personal pages",
         "shows": "Taped photo header, résumé, projects, contact"
+    },
+    {
+        "id": "ines",
+        "handle": "inesandtomas",
+        "name": "Ines and Tomas",
+        "role": "wedding",
+        "look": "Vellum",
+        "kind": "Events, teams and communities",
+        "shows": "Countdown, schedule, RSVP, map, registry"
+    },
+    {
+        "id": "marlow",
+        "handle": "marlowthistle",
+        "name": "Marlow & Thistle",
+        "role": "wedding and event planner",
+        "look": "Shelf",
+        "kind": "Events, teams and communities",
+        "shows": "Framed name, full-service tiers, venues"
+    },
+    {
+        "id": "oddsocks",
+        "handle": "oddsocksrescue",
+        "name": "Odd Socks",
+        "role": "dog rescue",
+        "look": "Bakehouse",
+        "kind": "Events, teams and communities",
+        "shows": "Gingham header, dogs to adopt, adoption day"
     },
     {
         "id": "staidan",
@@ -439,6 +637,33 @@
         "look": "Rovers",
         "kind": "Events, teams and communities",
         "shows": "Kit stripes and crest, fixtures, results, sign-up"
+    },
+    {
+        "id": "river",
+        "handle": "cleanriver",
+        "name": "Clean River Project",
+        "role": "non-profit",
+        "look": "Tide",
+        "kind": "Events, teams and communities",
+        "shows": "Donations, goal progress, volunteer events"
+    },
+    {
+        "id": "smallweb",
+        "handle": "smallwebday",
+        "name": "Small Web Day",
+        "role": "conference",
+        "look": "Ticket",
+        "kind": "Events, teams and communities",
+        "shows": "Ticket header, schedule tabs, speakers, sponsors"
+    },
+    {
+        "id": "walkers",
+        "handle": "northshorewalkers",
+        "name": "North Shore Walkers",
+        "role": "walking club",
+        "look": "Trail",
+        "kind": "Events, teams and communities",
+        "shows": "Next event, group chat, FAQ, map"
     },
     {
         "id": "eastvale",

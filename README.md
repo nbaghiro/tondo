@@ -17,7 +17,7 @@ Tondo isn't launched yet. Nothing is deployed, so `tondo.page` doesn't serve thi
 
 ## Page looks
 
-A page's look sets its colours, type, shapes and art. The repo has 50 looks and 50 example pages, saved as ordinary page documents and drawn by the same renderer that draws a published page.
+A page's look sets its colours, type, shapes and art. The repo has 50 looks and 75 example pages, saved as ordinary page documents and drawn by the same renderer that draws a published page.
 
 <p align="center">
     <img src=".github/readme/pages.jpg" alt="A strip of example pages in different looks, including a bookshop, a taco truck, a photographer, a parish and a surf school" width="830">

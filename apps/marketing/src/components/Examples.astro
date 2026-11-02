@@ -2,6 +2,40 @@
 import examples from "../data/examples.json";
 import ExampleCard from "./ExampleCard.astro";
 import PagePreview from "./PagePreview.astro";
+
+// A selection, in an order that keeps similar pages apart. The gallery shows them all.
+const strip = [
+    "maya",
+    "theo",
+    "kerb",
+    "understory",
+    "ines",
+    "vesna",
+    "harbour",
+    "noor",
+    "clara",
+    "thimble",
+    "measure",
+    "secondact",
+    "kofi",
+    "hana",
+    "tannery",
+    "delphine",
+    "evidence",
+    "ridge",
+    "mika",
+    "imara",
+    "lantern",
+    "wren",
+    "tenth",
+    "eggs",
+    "alderwick",
+    "juno",
+    "marlow",
+    "oddsocks",
+    "sam",
+    "odile",
+].flatMap((id) => examples.filter((example) => example.id === id));
 ---
 
 <section id="pages" style="padding-top:60px">
@@ -14,7 +48,7 @@ import PagePreview from "./PagePreview.astro";
     </div>
     <div class="ex-row" data-strip aria-label="Pages made with Tondo" role="group">
         <div class="ex-track">
-            {examples.map((example) => (
+            {strip.map((example) => (
                 <ExampleCard
                     id={example.id}
                     handle={example.handle}

@@ -1,0 +1,165 @@
+{
+    "version": 2,
+    "look": "smile",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#a4552f"
+        },
+        "font": "quiet"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Marrow Lane Physio",
+        "tagline": "Sore backs, stiff shoulders, running knees",
+        "bio": "I'm Agnes. I treat one person at a time for a full hour, and you'll leave knowing what to do at home.",
+        "photo": {
+            "file": "physio0.jpg",
+            "x": 45,
+            "y": 16,
+            "zoom": 1.5
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com/marrowlanephysio/pin"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "booking",
+            "variant": "card",
+            "section": "b4",
+            "url": "https://example.com/marrowlanephysio/first-appointment-60-minutes",
+            "title": "First appointment, 60 minutes",
+            "sub": "Assessment and treatment. Next opening is Thursday",
+            "cta": "See open times"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "What I treat"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "list",
+            "section": "b5",
+            "cta": "Book",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "Back and neck pain",
+                    "detail": "Desk-related and long-standing",
+                    "price": "$95",
+                    "url": "https://example.com/marrowlanephysio/back-and-neck-pain"
+                },
+                {
+                    "id": "i8",
+                    "name": "Running injuries",
+                    "detail": "Includes a look at your stride",
+                    "price": "$95",
+                    "url": "https://example.com/marrowlanephysio/running-injuries"
+                },
+                {
+                    "id": "i9",
+                    "name": "After surgery",
+                    "detail": "Hips, knees and shoulders",
+                    "price": "$95",
+                    "url": "https://example.com/marrowlanephysio/after-surgery"
+                },
+                {
+                    "id": "i10",
+                    "name": "Follow-up",
+                    "detail": "A shorter visit, 45 minutes",
+                    "price": "$78",
+                    "url": "https://example.com/marrowlanephysio/follow-up"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "image",
+            "variant": "full",
+            "section": "b11",
+            "photo": {
+                "file": "physio1.jpg",
+                "y": 45
+            },
+            "caption": "Taping a shoulder after a climbing injury"
+        },
+        {
+            "id": "b12",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b12",
+            "items": [
+                {
+                    "id": "i13",
+                    "text": "My back had been bad for six years. Agnes gave me three exercises, and I actually do them.",
+                    "by": "Yusuf, patient since March"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b14",
+            "text": "Before you come"
+        },
+        {
+            "id": "b15",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b14",
+            "items": [
+                {
+                    "id": "i16",
+                    "question": "Do I need a referral?",
+                    "answer": "No. You can book directly, and most extended health plans cover my visits. I'll give you a receipt."
+                },
+                {
+                    "id": "i17",
+                    "question": "What should I wear?",
+                    "answer": "Something you can move in. Shorts are useful if it's your knee or hip."
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "location",
+            "variant": "both",
+            "section": "b18",
+            "address": "3 Marrow Lane, upstairs",
+            "note": "Step-free entrance on the side",
+            "hours": [
+                {
+                    "id": "i19",
+                    "days": "Mon to Thu",
+                    "time": "8 am to 6 pm"
+                },
+                {
+                    "id": "i20",
+                    "days": "Friday",
+                    "time": "8 am to 1 pm"
+                }
+            ]
+        }
+    ]
+}

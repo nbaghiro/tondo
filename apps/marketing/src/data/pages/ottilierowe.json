@@ -1,0 +1,169 @@
+{
+    "version": 2,
+    "look": "brine",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#1c3f73"
+        },
+        "font": "elegant",
+        "shape": "soft"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Ottilie Rowe Hair",
+        "tagline": "Cut and colour, by appointment",
+        "bio": "A two-chair salon with one very large mirror. We'd sooner give you a good cut that grows out well than a clever one that doesn't.",
+        "photo": {
+            "file": "salon0.jpg",
+            "y": 45
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/ottilierowe/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com/ottilierowe/pin"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "booking",
+            "variant": "card",
+            "section": "b4",
+            "url": "https://example.com/ottilierowe/book-a-chair",
+            "title": "Book a chair",
+            "sub": "New clients get a free 15-minute chat first",
+            "cta": "See times"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "Prices"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "list",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "Restyle and cut",
+                    "detail": "With a blow dry, 60 minutes",
+                    "price": "from $78",
+                    "url": "https://example.com/ottilierowe/restyle-and-cut"
+                },
+                {
+                    "id": "i8",
+                    "name": "Trim",
+                    "detail": "Keeping the shape, 30 minutes",
+                    "price": "$46",
+                    "url": "https://example.com/ottilierowe/trim"
+                },
+                {
+                    "id": "i9",
+                    "name": "Full colour",
+                    "detail": "Root to tip, 2 hours",
+                    "price": "from $110",
+                    "url": "https://example.com/ottilierowe/full-colour"
+                },
+                {
+                    "id": "i10",
+                    "name": "Balayage",
+                    "detail": "Hand painted, 3 hours",
+                    "price": "from $185",
+                    "url": "https://example.com/ottilierowe/balayage"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "gallery",
+            "variant": "mosaic",
+            "section": "b11",
+            "photos": [
+                {
+                    "file": "salon1.jpg",
+                    "y": 60,
+                    "id": "i12"
+                },
+                {
+                    "file": "salon3.jpg",
+                    "y": 50,
+                    "id": "i13"
+                },
+                {
+                    "file": "salon4.jpg",
+                    "y": 30,
+                    "id": "i14"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "Who you'll see"
+        },
+        {
+            "id": "b16",
+            "type": "team",
+            "variant": "circles",
+            "section": "b15",
+            "items": [
+                {
+                    "id": "i17",
+                    "name": "Ottilie Rowe",
+                    "role": "Colour and long hair",
+                    "photo": {
+                        "file": "salon2.jpg",
+                        "y": 15
+                    }
+                },
+                {
+                    "id": "i18",
+                    "name": "Bram Kessel",
+                    "role": "Short cuts and curls",
+                    "photo": {
+                        "file": "salon5.jpg",
+                        "y": 15,
+                        "x": 62
+                    }
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "quotes",
+            "variant": "carousel",
+            "section": "b19",
+            "items": [
+                {
+                    "id": "i20",
+                    "text": "Three years of bad fringes, fixed in one appointment.",
+                    "by": "Kit, on her second visit"
+                },
+                {
+                    "id": "i21",
+                    "text": "They told me not to go blonde, and they were right.",
+                    "by": "Dara, regular"
+                }
+            ]
+        }
+    ]
+}

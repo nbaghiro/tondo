@@ -1,0 +1,174 @@
+{
+    "version": 2,
+    "look": "crumb",
+    "style": {
+        "font": "handmade"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Supper with Bea",
+        "tagline": "Dinners for tired people",
+        "bio": "Thirty minutes, one pan, and whatever's in the bottom of your fridge. New recipe every Thursday.",
+        "photo": {
+            "file": "cook0.jpg",
+            "y": 40
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "youtube",
+                "value": "https://example.com/supperwithbea/youtube"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com/supperwithbea/tiktok"
+            },
+            {
+                "id": "l3",
+                "type": "instagram",
+                "value": "https://example.com/supperwithbea/instagram"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "link-card",
+            "variant": "large",
+            "section": "b4",
+            "url": "https://example.com/supperwithbea/my-first-book-90-dinners-none-longer-than-a-podcast-episode-out-november-19",
+            "title": "Too Tired to Cook",
+            "text": "My first book: 90 dinners, none longer than a podcast episode. Out November 19.",
+            "photo": {
+                "file": "pasta2.jpg"
+            },
+            "cta": "Pre-order, $28",
+            "tag": "New book"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "This week's recipes"
+        },
+        {
+            "id": "b6",
+            "type": "posts",
+            "variant": "cards",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i7",
+                    "title": "Brown butter gnocchi with whatever greens",
+                    "date": "October 29",
+                    "text": "20 minutes, one pan",
+                    "url": "https://example.com/supperwithbea/brown-butter-gnocchi-with-whatever-greens"
+                },
+                {
+                    "id": "i8",
+                    "title": "The lazy chicken tray",
+                    "date": "October 22",
+                    "text": "Oven does everything",
+                    "url": "https://example.com/supperwithbea/the-lazy-chicken-tray"
+                },
+                {
+                    "id": "i9",
+                    "title": "Tinned bean soup you'd serve to guests",
+                    "date": "October 15",
+                    "text": "Honest, you would",
+                    "url": "https://example.com/supperwithbea/tinned-bean-soup-you-d-serve-to-guests"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b10",
+            "text": "Watch me make a mess"
+        },
+        {
+            "id": "b11",
+            "type": "video",
+            "variant": "row",
+            "section": "b10",
+            "items": [
+                {
+                    "id": "i12",
+                    "title": "Pasta dough, no machine",
+                    "meta": "14 minutes",
+                    "cover": {
+                        "file": "cook2.jpg",
+                        "y": 55
+                    },
+                    "url": "https://example.com/supperwithbea/pasta-dough-no-machine"
+                },
+                {
+                    "id": "i13",
+                    "title": "How to knead by feel",
+                    "meta": "6 minutes",
+                    "cover": {
+                        "file": "cook1.jpg",
+                        "y": 50
+                    },
+                    "url": "https://example.com/supperwithbea/how-to-knead-by-feel"
+                },
+                {
+                    "id": "i14",
+                    "title": "Tacos for a Tuesday",
+                    "meta": "9 minutes",
+                    "cover": {
+                        "file": "taco3.jpg"
+                    },
+                    "url": "https://example.com/supperwithbea/tacos-for-a-tuesday"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "stats",
+            "variant": "row",
+            "section": "b15",
+            "items": [
+                {
+                    "id": "i16",
+                    "number": "1.2M",
+                    "label": "Home cooks"
+                },
+                {
+                    "id": "i17",
+                    "number": "640",
+                    "label": "Recipes, all free"
+                },
+                {
+                    "id": "i18",
+                    "number": "1",
+                    "label": "Pan, usually"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "quotes",
+            "variant": "large",
+            "section": "b19",
+            "items": [
+                {
+                    "id": "i20",
+                    "text": "My kids ate a vegetable and didn't notice. I've told everyone at work.",
+                    "by": "Tomás, in the comments"
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "button",
+            "variant": "filled",
+            "section": "b21",
+            "url": "https://example.com/supperwithbea/get-thursday-s-recipe-by-email",
+            "text": "Get Thursday's recipe by email"
+        }
+    ]
+}

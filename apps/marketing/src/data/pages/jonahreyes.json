@@ -1,0 +1,156 @@
+{
+    "version": 2,
+    "look": "stacks",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#1f4fbf"
+        }
+    },
+    "header": {
+        "layout": "look",
+        "name": "Jonah Reyes",
+        "tagline": "Junior data analyst, available from January",
+        "bio": "I've just finished my master's in statistics and I'm looking for a first analyst role in Toronto or remote. I like messy data and clear charts.",
+        "photo": {
+            "file": "grad0.jpg",
+            "y": 18,
+            "x": 45
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "globe",
+                "value": "https://example.com/jonahreyes/globe"
+            },
+            {
+                "id": "l2",
+                "type": "chat",
+                "value": "https://example.com/jonahreyes/chat"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/jonahreyes/download-my-cv",
+            "text": "Download my CV"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "outline",
+            "section": "b5",
+            "url": "https://example.com/jonahreyes/email-me",
+            "text": "Email me"
+        },
+        {
+            "id": "b6",
+            "type": "stats",
+            "variant": "row",
+            "section": "b6",
+            "items": [
+                {
+                    "id": "i7",
+                    "number": "3",
+                    "label": "Internships"
+                },
+                {
+                    "id": "i8",
+                    "number": "Python",
+                    "label": "SQL and R too"
+                },
+                {
+                    "id": "i9",
+                    "number": "3.9",
+                    "label": "Master's GPA"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b10",
+            "text": "Experience"
+        },
+        {
+            "id": "b11",
+            "type": "timeline",
+            "variant": "line",
+            "section": "b10",
+            "items": [
+                {
+                    "id": "i12",
+                    "title": "Data intern, Fennel Health",
+                    "date": "Summer 2026",
+                    "detail": "Built the clinic wait-time report that replaced a weekly spreadsheet"
+                },
+                {
+                    "id": "i13",
+                    "title": "Research assistant, statistics dept",
+                    "date": "2025 to 2026",
+                    "detail": "Cleaned ten years of transit data for a paper on winter delays"
+                },
+                {
+                    "id": "i14",
+                    "title": "MSc Statistics",
+                    "date": "2024 to 2026",
+                    "detail": "Thesis on missing data in small surveys"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "Things I've made"
+        },
+        {
+            "id": "b16",
+            "type": "link-card",
+            "variant": "side",
+            "section": "b15",
+            "url": "https://example.com/jonahreyes/a-map-and-write-up-from-18-million-location-pings",
+            "title": "Where do Toronto's buses actually bunch?",
+            "text": "A map and write-up from 18 million location pings",
+            "photo": {
+                "file": "street2.jpg"
+            }
+        },
+        {
+            "id": "b17",
+            "type": "link-card",
+            "variant": "side",
+            "section": "b17",
+            "url": "https://example.com/jonahreyes/an-open-source-r-package-with-about-400-users",
+            "title": "A cleaner way to read survey results",
+            "text": "An open-source R package, with about 400 users",
+            "photo": {
+                "file": "laptop8.jpg"
+            }
+        },
+        {
+            "id": "b18",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b18",
+            "items": [
+                {
+                    "id": "i19",
+                    "text": "Jonah asked better questions than most of my senior staff, and then answered them.",
+                    "by": "Dr. Lwazi Pretorius, supervisor"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,190 @@
+{
+    "version": 2,
+    "look": "rave",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#ff2d9a"
+        },
+        "font": "modern",
+        "shape": "square"
+    },
+    "header": {
+        "layout": "look",
+        "wordmark": "poster",
+        "name": "tenthframe",
+        "tagline": "Ranked shooters, zero excuses, some crying",
+        "bio": "I grind tactical shooters six nights a week, and I'll explain every mistake I make on the way up.",
+        "photo": {
+            "file": "rig0.jpg",
+            "y": 45
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "youtube",
+                "value": "https://example.com/tenthframe/youtube"
+            },
+            {
+                "id": "l2",
+                "type": "chat",
+                "value": "https://example.com/tenthframe/chat"
+            },
+            {
+                "id": "l3",
+                "type": "globe",
+                "value": "https://example.com/tenthframe/globe"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/tenthframe/watch-live-weeknights-at-8",
+            "text": "Watch live, weeknights at 8"
+        },
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "128K",
+                    "label": "Followers"
+                },
+                {
+                    "id": "i7",
+                    "number": "Top 500",
+                    "label": "Current rank"
+                },
+                {
+                    "id": "i8",
+                    "number": "6",
+                    "label": "Nights a week"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b9",
+            "text": "Schedule"
+        },
+        {
+            "id": "b10",
+            "type": "events",
+            "variant": "schedule",
+            "section": "b9",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Ranked grind",
+                    "label": "Mon-Thu 8 pm",
+                    "place": "Four hours or until I tilt",
+                    "url": "https://example.com/tenthframe/ranked-grind"
+                },
+                {
+                    "id": "i12",
+                    "name": "Viewer VOD reviews",
+                    "label": "Fri 7 pm",
+                    "place": "Send me your worst round",
+                    "url": "https://example.com/tenthframe/viewer-vod-reviews"
+                },
+                {
+                    "id": "i13",
+                    "name": "Community scrims",
+                    "label": "Sun 4 pm",
+                    "place": "Members first",
+                    "url": "https://example.com/tenthframe/community-scrims"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b14",
+            "text": "Best bits"
+        },
+        {
+            "id": "b15",
+            "type": "video",
+            "variant": "row",
+            "section": "b14",
+            "items": [
+                {
+                    "id": "i16",
+                    "title": "The 1v5 I still think about",
+                    "meta": "0:48",
+                    "cover": {
+                        "file": "rig1.jpg",
+                        "y": 50
+                    },
+                    "url": "https://example.com/tenthframe/the-1v5-i-still-think-about"
+                },
+                {
+                    "id": "i17",
+                    "title": "How I fixed my crosshair placement",
+                    "meta": "11 minutes",
+                    "cover": {
+                        "file": "rig2.jpg",
+                        "y": 50
+                    },
+                    "url": "https://example.com/tenthframe/how-i-fixed-my-crosshair-placement"
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b18",
+            "text": "Join the squad"
+        },
+        {
+            "id": "b19",
+            "type": "services",
+            "variant": "tiers",
+            "section": "b18",
+            "cta": "Join",
+            "items": [
+                {
+                    "id": "i20",
+                    "name": "Viewer",
+                    "price": "Free",
+                    "included": "Community server\nWeekly tips",
+                    "url": "https://example.com/tenthframe/viewer"
+                },
+                {
+                    "id": "i21",
+                    "name": "Squad",
+                    "price": "$5 a month",
+                    "included": "Scrim priority\nNo ads on stream\nMonthly VOD review",
+                    "popular": true,
+                    "url": "https://example.com/tenthframe/squad"
+                },
+                {
+                    "id": "i22",
+                    "name": "Coaching",
+                    "price": "$40 an hour",
+                    "included": "One to one over voice\nYour demos, reviewed",
+                    "url": "https://example.com/tenthframe/coaching"
+                }
+            ]
+        },
+        {
+            "id": "b23",
+            "type": "button",
+            "variant": "outline",
+            "section": "b23",
+            "url": "https://example.com/tenthframe/see-my-settings-and-gear",
+            "text": "See my settings and gear"
+        }
+    ]
+}

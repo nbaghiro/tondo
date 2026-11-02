@@ -1,0 +1,147 @@
+{
+    "version": 2,
+    "look": "madder",
+    "paint": [
+        "#2c56b0",
+        "#e3a42b",
+        "#17837f",
+        "#c7452f"
+    ],
+    "seed": 23,
+    "header": {
+        "layout": "look",
+        "name": "Ilse Varga",
+        "tagline": "Paintings in acrylic and pigment, Budapest",
+        "bio": "I paint big, flat colour fields with one thing going wrong in them. Originals ship rolled, worldwide.",
+        "photo": {
+            "file": "canvas5.jpg",
+            "y": 55
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/ilsevarga/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com/ilsevarga/pin"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "image",
+            "variant": "full",
+            "section": "b4",
+            "photo": {
+                "file": "canvas0.jpg"
+            },
+            "caption": "Night Crossing, 2026. 120 x 160 cm"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "filled",
+            "section": "b5",
+            "url": "https://example.com/ilsevarga/see-what-s-available",
+            "text": "See what's available"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b6",
+            "text": "Available now"
+        },
+        {
+            "id": "b7",
+            "type": "products",
+            "variant": "grid",
+            "section": "b6",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Red Field, Late",
+                    "price": "€2,400",
+                    "photo": {
+                        "file": "canvas1.jpg"
+                    },
+                    "url": "https://example.com/ilsevarga/red-field-late"
+                },
+                {
+                    "id": "i9",
+                    "name": "Heat Map",
+                    "price": "€1,650",
+                    "photo": {
+                        "file": "canvas2.jpg"
+                    },
+                    "url": "https://example.com/ilsevarga/heat-map"
+                },
+                {
+                    "id": "i10",
+                    "name": "Noon, Interrupted",
+                    "price": "€1,900",
+                    "photo": {
+                        "file": "canvas3.jpg"
+                    },
+                    "url": "https://example.com/ilsevarga/noon-interrupted"
+                },
+                {
+                    "id": "i11",
+                    "name": "Rain on Orange",
+                    "price": "€980",
+                    "photo": {
+                        "file": "canvas4.jpg"
+                    },
+                    "url": "https://example.com/ilsevarga/rain-on-orange"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b12",
+            "text": "See them in person"
+        },
+        {
+            "id": "b13",
+            "type": "events",
+            "variant": "next",
+            "section": "b12",
+            "cta": "Details",
+            "items": [
+                {
+                    "id": "i14",
+                    "name": "Open studio weekend",
+                    "at": "2026-11-28T11:00",
+                    "place": "Studio 4, Kazán Yard",
+                    "url": "https://example.com/ilsevarga/open-studio-weekend"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "text",
+            "variant": "card",
+            "section": "b15",
+            "text": "I've been painting full time since 2014. Each piece takes about a month, and I make around twelve a year. I'm happy to send photos of any painting on a wall, or to talk about commissions."
+        },
+        {
+            "id": "b16",
+            "type": "button",
+            "variant": "outline",
+            "section": "b16",
+            "url": "https://example.com/ilsevarga/ask-about-a-commission",
+            "text": "Ask about a commission"
+        }
+    ]
+}

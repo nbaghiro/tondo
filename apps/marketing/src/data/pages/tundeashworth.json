@@ -1,0 +1,192 @@
+{
+    "version": 2,
+    "look": "volt",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#18c29c"
+        },
+        "font": "bold"
+    },
+    "header": {
+        "layout": "full",
+        "name": "Tunde Ashworth",
+        "tagline": "400 metres. Road to the 2027 championships",
+        "bio": "Full-time sprinter, part-time physics teacher. Coached by Ellen Mburu in Loughborough.",
+        "photo": {
+            "file": "track0.jpg",
+            "y": 50
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/tundeashworth/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com/tundeashworth/youtube"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "stats",
+            "variant": "row",
+            "section": "b4",
+            "items": [
+                {
+                    "id": "i5",
+                    "number": "45.92",
+                    "label": "400 m best"
+                },
+                {
+                    "id": "i6",
+                    "number": "20.81",
+                    "label": "200 m best"
+                },
+                {
+                    "id": "i7",
+                    "number": "3rd",
+                    "label": "Nationals 2026"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "section": "b8",
+            "url": "https://example.com/tundeashworth/partner-with-me",
+            "text": "Partner with me"
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b9",
+            "text": "Next races"
+        },
+        {
+            "id": "b10",
+            "type": "events",
+            "variant": "list",
+            "section": "b9",
+            "cta": "Details",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Indoor opener",
+                    "at": "2027-01-16T14:00",
+                    "place": "Sheffield",
+                    "url": "https://example.com/tundeashworth/indoor-opener"
+                },
+                {
+                    "id": "i12",
+                    "name": "Winter Tour, Glasgow",
+                    "at": "2027-02-06T16:00",
+                    "place": "Glasgow",
+                    "url": "https://example.com/tundeashworth/winter-tour-glasgow"
+                },
+                {
+                    "id": "i13",
+                    "name": "National indoors",
+                    "at": "2027-02-20T13:00",
+                    "place": "Birmingham",
+                    "url": "https://example.com/tundeashworth/national-indoors"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b14",
+            "text": "Season so far"
+        },
+        {
+            "id": "b15",
+            "type": "timeline",
+            "variant": "line",
+            "section": "b14",
+            "items": [
+                {
+                    "id": "i16",
+                    "title": "3rd, national championships",
+                    "date": "July 2026",
+                    "detail": "45.92, a personal best by four tenths"
+                },
+                {
+                    "id": "i17",
+                    "title": "Back from a hamstring tear",
+                    "date": "March 2026",
+                    "detail": "Eleven weeks out, with a lot of pool running"
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "gallery",
+            "variant": "grid",
+            "section": "b18",
+            "photos": [
+                {
+                    "file": "track1.jpg",
+                    "y": 50,
+                    "id": "i19"
+                },
+                {
+                    "file": "track2.jpg",
+                    "y": 60,
+                    "id": "i20"
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "video",
+            "variant": "card",
+            "section": "b21",
+            "items": [
+                {
+                    "id": "i22",
+                    "title": "Inside a 400: what lap two really feels like",
+                    "meta": "9 minutes",
+                    "cover": {
+                        "file": "track3.jpg",
+                        "y": 30
+                    },
+                    "url": "https://example.com/tundeashworth/inside-a-400-what-lap-two-really-feels-like"
+                }
+            ]
+        },
+        {
+            "id": "b23",
+            "type": "logos",
+            "variant": "row",
+            "section": "b23",
+            "label": "With thanks to",
+            "items": [
+                {
+                    "id": "i24",
+                    "name": "Fieldhouse Physio"
+                },
+                {
+                    "id": "i25",
+                    "name": "Oatline"
+                },
+                {
+                    "id": "i26",
+                    "name": "Soar Valley Striders"
+                }
+            ]
+        }
+    ]
+}

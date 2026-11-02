@@ -1,0 +1,158 @@
+{
+    "version": 2,
+    "look": "riso",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#e4481c"
+        },
+        "font": "modern",
+        "shape": "square"
+    },
+    "header": {
+        "layout": "look",
+        "wordmark": "poster",
+        "name": "Kerb Theory",
+        "bio": "Heavyweight hoodies, cut and printed in small runs in Rotterdam. When a drop is gone, it's gone.",
+        "photo": {
+            "file": "orbit0.jpg",
+            "y": 28
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/kerbtheory/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com/kerbtheory/tiktok"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "countdown",
+            "variant": "large",
+            "section": "b4",
+            "at": "2026-11-13T12:00",
+            "label": "Drop 07 goes live",
+            "done": "Drop 07 is live"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "filled",
+            "section": "b5",
+            "url": "https://example.com/kerbtheory/get-on-the-drop-list",
+            "text": "Get on the drop list"
+        },
+        {
+            "id": "b6",
+            "type": "ribbon",
+            "variant": "moving",
+            "section": "b6",
+            "text": "Drop 07, 120 pieces, Friday at noon"
+        },
+        {
+            "id": "b7",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b7",
+            "text": "In Drop 07"
+        },
+        {
+            "id": "b8",
+            "type": "products",
+            "variant": "grid",
+            "section": "b7",
+            "items": [
+                {
+                    "id": "i9",
+                    "name": "Night bus hoodie",
+                    "price": "€98",
+                    "photo": {
+                        "file": "orbit1.jpg",
+                        "y": 25
+                    },
+                    "url": "https://example.com/kerbtheory/night-bus-hoodie"
+                },
+                {
+                    "id": "i10",
+                    "name": "Loading bay hoodie",
+                    "price": "€98",
+                    "photo": {
+                        "file": "orbit2.jpg",
+                        "y": 20
+                    },
+                    "url": "https://example.com/kerbtheory/loading-bay-hoodie"
+                },
+                {
+                    "id": "i11",
+                    "name": "Platform overshirt",
+                    "price": "€124",
+                    "photo": {
+                        "file": "orbit3.jpg",
+                        "y": 25
+                    },
+                    "url": "https://example.com/kerbtheory/platform-overshirt"
+                },
+                {
+                    "id": "i12",
+                    "name": "Last tram print hoodie",
+                    "price": "€108",
+                    "photo": {
+                        "file": "orbit4.jpg",
+                        "y": 20
+                    },
+                    "url": "https://example.com/kerbtheory/last-tram-print-hoodie"
+                }
+            ]
+        },
+        {
+            "id": "b13",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b13",
+            "text": "Before you order"
+        },
+        {
+            "id": "b14",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b13",
+            "items": [
+                {
+                    "id": "i15",
+                    "question": "How do they fit?",
+                    "answer": "Boxy and dropped at the shoulder. Take your usual size for a loose fit, or one down for a closer one."
+                },
+                {
+                    "id": "i16",
+                    "question": "Will you make more?",
+                    "answer": "No. Each design is printed once, and the run number is on the inside of the neck."
+                },
+                {
+                    "id": "i17",
+                    "question": "Where do you ship?",
+                    "answer": "Across the EU in two to four days, and to the UK with duties paid."
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "button",
+            "variant": "outline",
+            "section": "b18",
+            "url": "https://example.com/kerbtheory/see-the-drop-06-archive",
+            "text": "See the Drop 06 archive"
+        }
+    ]
+}

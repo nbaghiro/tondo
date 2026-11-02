@@ -50,8 +50,8 @@ function expectSections(blocks: readonly Block[]) {
 }
 
 describe("example pages are ordinary pages", () => {
-    it("has all 52", () => {
-        expect(examples).toHaveLength(52);
+    it("has all 77", () => {
+        expect(examples).toHaveLength(77);
     });
 
     it.each(examples)("%s", (handle, raw) => {

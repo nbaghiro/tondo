@@ -1,0 +1,168 @@
+{
+    "version": 2,
+    "look": "atelier",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#8c5a3c"
+        },
+        "font": "quiet",
+        "bg": "solid"
+    },
+    "header": {
+        "layout": "arch",
+        "name": "Wren Hollis",
+        "tagline": "Wedding photographer in Devon and beyond",
+        "bio": "I'm quiet, I don't line anyone up for long, and I shoot a little film alongside digital.",
+        "photo": {
+            "file": "bride0.jpg",
+            "y": 55
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/wrenhollis/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com/wrenhollis/pin"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/wrenhollis/check-my-2027-dates",
+            "text": "Check my 2027 dates"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "Recent weddings"
+        },
+        {
+            "id": "b6",
+            "type": "gallery",
+            "variant": "mosaic",
+            "section": "b5",
+            "photos": [
+                {
+                    "file": "bride1.jpg",
+                    "y": 40,
+                    "id": "i7"
+                },
+                {
+                    "file": "bride3.jpg",
+                    "y": 30,
+                    "id": "i8"
+                },
+                {
+                    "file": "bride2.jpg",
+                    "y": 75,
+                    "id": "i9"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "link-card",
+            "variant": "over",
+            "section": "b10",
+            "url": "https://example.com/wrenhollis/a-september-wedding-with-rain-until-the-first-dance",
+            "title": "Asha and Dan, in the orchard",
+            "text": "A September wedding, with rain until the first dance",
+            "photo": {
+                "file": "bride4.jpg",
+                "y": 30
+            },
+            "cta": "See the full story"
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b11",
+            "text": "Packages"
+        },
+        {
+            "id": "b12",
+            "type": "services",
+            "variant": "list",
+            "section": "b11",
+            "cta": "Enquire",
+            "items": [
+                {
+                    "id": "i13",
+                    "name": "The ceremony",
+                    "detail": "Four hours, about 250 photos",
+                    "price": "£1,350",
+                    "url": "https://example.com/wrenhollis/the-ceremony"
+                },
+                {
+                    "id": "i14",
+                    "name": "The whole day",
+                    "detail": "Getting ready to first dance",
+                    "price": "£2,200",
+                    "url": "https://example.com/wrenhollis/the-whole-day"
+                },
+                {
+                    "id": "i15",
+                    "name": "Add a roll of film",
+                    "detail": "Developed and scanned by hand",
+                    "price": "£180",
+                    "url": "https://example.com/wrenhollis/add-a-roll-of-film"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "quotes",
+            "variant": "large",
+            "section": "b16",
+            "items": [
+                {
+                    "id": "i17",
+                    "text": "We forgot she was there, and then we got the pictures and cried all over again.",
+                    "by": "Asha, married in September"
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b18",
+            "text": "A few things couples ask"
+        },
+        {
+            "id": "b19",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b18",
+            "items": [
+                {
+                    "id": "i20",
+                    "question": "When do we get our photos?",
+                    "answer": "Within six weeks, in a private online gallery you can share and download from."
+                },
+                {
+                    "id": "i21",
+                    "question": "Will you travel?",
+                    "answer": "Yes. Devon and Cornwall are included, and I'll quote travel for anywhere further."
+                }
+            ]
+        }
+    ]
+}

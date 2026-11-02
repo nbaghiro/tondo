@@ -1,0 +1,180 @@
+{
+    "version": 2,
+    "look": "lilac",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#b8456a"
+        },
+        "font": "elegant",
+        "bg": "gradient"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Imara Vale",
+        "tagline": "Slow mornings, thrifted outfits, honest reviews",
+        "bio": "Hi, I'm Imara. Everything I link here I've bought or worn myself, and I'll say when something's sponsored.",
+        "photo": {
+            "file": "vale0.jpg",
+            "y": 30
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/imaravale/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "tiktok",
+                "value": "https://example.com/imaravale/tiktok"
+            },
+            {
+                "id": "l3",
+                "type": "youtube",
+                "value": "https://example.com/imaravale/youtube"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/imaravale/shop-what-i-m-wearing",
+            "text": "Shop what I'm wearing"
+        },
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "412K",
+                    "label": "On TikTok"
+                },
+                {
+                    "id": "i7",
+                    "number": "186K",
+                    "label": "On Instagram"
+                },
+                {
+                    "id": "i8",
+                    "number": "3x",
+                    "label": "Videos a week"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b9",
+            "text": "Lately"
+        },
+        {
+            "id": "b10",
+            "type": "video",
+            "variant": "vertical",
+            "section": "b9",
+            "items": [
+                {
+                    "id": "i11",
+                    "title": "Packing for 5 days in a carry-on",
+                    "meta": "2:48",
+                    "cover": {
+                        "file": "beach10.jpg"
+                    },
+                    "url": "https://example.com/imaravale/packing-for-5-days-in-a-carry-on"
+                },
+                {
+                    "id": "i12",
+                    "title": "Thrift flip: the black dress",
+                    "meta": "1:12",
+                    "cover": {
+                        "file": "clothes10.jpg"
+                    },
+                    "url": "https://example.com/imaravale/thrift-flip-the-black-dress"
+                },
+                {
+                    "id": "i13",
+                    "title": "A picnic that's actually easy",
+                    "meta": "3:05",
+                    "cover": {
+                        "file": "salad0.jpg"
+                    },
+                    "url": "https://example.com/imaravale/a-picnic-that-s-actually-easy"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b14",
+            "text": "Saved for you"
+        },
+        {
+            "id": "b15",
+            "type": "link-card",
+            "variant": "small",
+            "section": "b14",
+            "url": "https://example.com/imaravale/i-ve-replaced-them-twice-because-i-keep-sitting-on-them",
+            "title": "My everyday sunglasses, under $40",
+            "text": "I've replaced them twice because I keep sitting on them",
+            "photo": {
+                "file": "vale0.jpg",
+                "y": 30
+            }
+        },
+        {
+            "id": "b16",
+            "type": "link-card",
+            "variant": "small",
+            "section": "b14",
+            "url": "https://example.com/imaravale/everything-from-that-video-with-what-i-d-skip",
+            "title": "The picnic list",
+            "text": "Everything from that video, with what I'd skip",
+            "photo": {
+                "file": "salad2.jpg"
+            }
+        },
+        {
+            "id": "b17",
+            "type": "link-card",
+            "variant": "small",
+            "section": "b14",
+            "url": "https://example.com/imaravale/where-i-go-in-14-cities-updated-this-month",
+            "title": "Thrifting by city",
+            "text": "Where I go in 14 cities, updated this month",
+            "photo": {
+                "file": "clothes2.jpg"
+            }
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b18",
+            "text": "Work with me"
+        },
+        {
+            "id": "b19",
+            "type": "text",
+            "variant": "card",
+            "section": "b18",
+            "text": "I take on four brand partnerships a year, and only for things I already use. My media kit has rates and audience numbers."
+        },
+        {
+            "id": "b20",
+            "type": "button",
+            "variant": "outline",
+            "section": "b20",
+            "url": "https://example.com/imaravale/get-my-media-kit",
+            "text": "Get my media kit"
+        }
+    ]
+}

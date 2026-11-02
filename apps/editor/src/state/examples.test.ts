@@ -31,8 +31,8 @@ afterEach(() => {
 });
 
 describe("example pages in the builder", () => {
-    it("reads all 52", () => {
-        expect(examples).toHaveLength(52);
+    it("reads all 77", () => {
+        expect(examples).toHaveLength(77);
     });
 
     it.each(examples)("%s edits, undoes and saves without losing anything", async (handle, raw) => {

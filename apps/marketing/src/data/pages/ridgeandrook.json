@@ -1,0 +1,195 @@
+{
+    "version": 2,
+    "look": "lagoon",
+    "style": {
+        "colour": {
+            "mode": "plain",
+            "brand": "#0f6d78"
+        },
+        "font": "clean",
+        "shape": "soft"
+    },
+    "header": {
+        "layout": "full",
+        "name": "Ridge & Rook",
+        "tagline": "Small-group walking holidays",
+        "bio": "Eight walkers at most, and a guide who was born in the valley. We've been doing this for eleven years.",
+        "photo": {
+            "file": "ridge0.jpg",
+            "y": 45
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/ridgeandrook/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com/ridgeandrook/youtube"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "stats",
+            "variant": "row",
+            "section": "b4",
+            "items": [
+                {
+                    "id": "i5",
+                    "number": "8 max",
+                    "label": "In each group"
+                },
+                {
+                    "id": "i6",
+                    "number": "11 yrs",
+                    "label": "Leading trips"
+                },
+                {
+                    "id": "i7",
+                    "number": "14",
+                    "label": "Valleys we know"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "button",
+            "variant": "filled",
+            "section": "b8",
+            "url": "https://example.com/ridgeandrook/find-a-walk",
+            "text": "Find a walk"
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b9",
+            "text": "Next departures"
+        },
+        {
+            "id": "b10",
+            "type": "events",
+            "variant": "list",
+            "section": "b9",
+            "cta": "Places",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "High Tatras hut to hut, 7 days",
+                    "at": "2027-02-14T09:00",
+                    "place": "4 places left",
+                    "url": "https://example.com/ridgeandrook/high-tatras-hut-to-hut-7-days"
+                },
+                {
+                    "id": "i12",
+                    "name": "Atlas foothills, 6 days",
+                    "at": "2027-03-06T09:00",
+                    "place": "6 places left",
+                    "url": "https://example.com/ridgeandrook/atlas-foothills-6-days"
+                },
+                {
+                    "id": "i13",
+                    "name": "Picos in spring, 8 days",
+                    "at": "2027-05-01T09:00",
+                    "place": "Just opened",
+                    "url": "https://example.com/ridgeandrook/picos-in-spring-8-days"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b14",
+            "text": "How hard do you want it?"
+        },
+        {
+            "id": "b15",
+            "type": "services",
+            "variant": "tiers",
+            "section": "b14",
+            "cta": "See walks",
+            "items": [
+                {
+                    "id": "i16",
+                    "name": "Valley",
+                    "price": "from $1,450",
+                    "included": "Up to 12 km a day\nBags carried for you\nInns and guesthouses",
+                    "url": "https://example.com/ridgeandrook/valley"
+                },
+                {
+                    "id": "i17",
+                    "name": "Ridge",
+                    "price": "from $1,890",
+                    "included": "Up to 20 km a day\nBags carried for you\nInns and mountain huts",
+                    "popular": true,
+                    "url": "https://example.com/ridgeandrook/ridge"
+                },
+                {
+                    "id": "i18",
+                    "name": "Summit",
+                    "price": "from $2,350",
+                    "included": "Long days and scrambling\nYou carry a day pack\nMountain huts",
+                    "url": "https://example.com/ridgeandrook/summit"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "gallery",
+            "variant": "grid",
+            "section": "b19",
+            "photos": [
+                {
+                    "file": "ridge1.jpg",
+                    "y": 45,
+                    "id": "i20"
+                },
+                {
+                    "file": "ridge2.jpg",
+                    "y": 60,
+                    "id": "i21"
+                },
+                {
+                    "file": "ridge3.jpg",
+                    "y": 50,
+                    "id": "i22"
+                }
+            ]
+        },
+        {
+            "id": "b23",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b23",
+            "text": "Good to know"
+        },
+        {
+            "id": "b24",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b23",
+            "items": [
+                {
+                    "id": "i25",
+                    "question": "Do I need to be very fit?",
+                    "answer": "For Valley walks, you need to be happy walking most of a day. Ask us and we'll tell you honestly which trip suits."
+                },
+                {
+                    "id": "i26",
+                    "question": "Can I come alone?",
+                    "answer": "About half of our walkers do. There's no single supplement on the Valley trips."
+                }
+            ]
+        }
+    ]
+}

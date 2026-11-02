@@ -1,0 +1,191 @@
+{
+    "version": 2,
+    "look": "second",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#e0301e"
+        },
+        "font": "bold",
+        "shape": "square"
+    },
+    "header": {
+        "layout": "look",
+        "wordmark": "poster",
+        "name": "Tannery Lane",
+        "tagline": "Boxing club, since 1987",
+        "bio": "A proper gym with a ring, heavy bags and no mirrors. Beginners are always welcome, and nobody spars until they want to.",
+        "photo": {
+            "file": "boxing0.jpg",
+            "y": 100
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/tannerylaneboxing/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com/tannerylaneboxing/youtube"
+            },
+            {
+                "id": "l3",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/tannerylaneboxing/try-a-free-class",
+            "text": "Try a free class"
+        },
+        {
+            "id": "b5",
+            "type": "stats",
+            "variant": "row",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i6",
+                    "number": "39",
+                    "label": "Years open"
+                },
+                {
+                    "id": "i7",
+                    "number": "210",
+                    "label": "Members"
+                },
+                {
+                    "id": "i8",
+                    "number": "4",
+                    "label": "Coaches"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b9",
+            "text": "This week"
+        },
+        {
+            "id": "b10",
+            "type": "events",
+            "variant": "schedule",
+            "section": "b9",
+            "items": [
+                {
+                    "id": "i11",
+                    "name": "Beginners, no sparring",
+                    "label": "Mon 6 pm",
+                    "place": "Coach Ramona",
+                    "url": "https://example.com/tannerylaneboxing/beginners-no-sparring"
+                },
+                {
+                    "id": "i12",
+                    "name": "Pads and bag work",
+                    "label": "Tue 7 pm",
+                    "place": "Coach Dez",
+                    "url": "https://example.com/tannerylaneboxing/pads-and-bag-work"
+                },
+                {
+                    "id": "i13",
+                    "name": "Women's boxing",
+                    "label": "Wed 6 pm",
+                    "place": "Coach Ramona",
+                    "url": "https://example.com/tannerylaneboxing/women-s-boxing"
+                },
+                {
+                    "id": "i14",
+                    "name": "Open ring",
+                    "label": "Sat 10 am",
+                    "place": "All levels",
+                    "url": "https://example.com/tannerylaneboxing/open-ring"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "image",
+            "variant": "full",
+            "section": "b15",
+            "photo": {
+                "file": "boxing2.jpg",
+                "y": 40
+            },
+            "caption": "Tuesday night, after the pads"
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b16",
+            "text": "Membership"
+        },
+        {
+            "id": "b17",
+            "type": "services",
+            "variant": "tiers",
+            "section": "b16",
+            "cta": "Join",
+            "items": [
+                {
+                    "id": "i18",
+                    "name": "Drop in",
+                    "price": "$18 a class",
+                    "included": "Any class\nGloves to borrow",
+                    "url": "https://example.com/tannerylaneboxing/drop-in"
+                },
+                {
+                    "id": "i19",
+                    "name": "Monthly",
+                    "price": "$79 a month",
+                    "included": "Unlimited classes\nOpen ring on Saturdays\nYour own locker",
+                    "popular": true,
+                    "url": "https://example.com/tannerylaneboxing/monthly"
+                },
+                {
+                    "id": "i20",
+                    "name": "Juniors",
+                    "price": "$39 a month",
+                    "included": "Ages 11 to 16\nTwo classes a week",
+                    "url": "https://example.com/tannerylaneboxing/juniors"
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "gallery",
+            "variant": "grid",
+            "section": "b21",
+            "photos": [
+                {
+                    "file": "boxing1.jpg",
+                    "y": 70,
+                    "id": "i22"
+                },
+                {
+                    "file": "boxing3.jpg",
+                    "y": 50,
+                    "id": "i23"
+                }
+            ]
+        },
+        {
+            "id": "b24",
+            "type": "location",
+            "variant": "map",
+            "section": "b24",
+            "address": "Unit 6, Tannery Lane",
+            "note": "Round the back, by the loading bay"
+        }
+    ]
+}

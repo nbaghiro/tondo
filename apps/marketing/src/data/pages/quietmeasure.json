@@ -1,0 +1,183 @@
+{
+    "version": 2,
+    "look": "wax",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#c97a3d"
+        },
+        "font": "quiet"
+    },
+    "header": {
+        "layout": "look",
+        "name": "The Quiet Measure",
+        "tagline": "Twenty seats, one bartender, no standing",
+        "bio": "A small basement bar under the old print works. We pour slowly, so please book.",
+        "photo": {
+            "file": "cocktail0.jpg",
+            "y": 42
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/quietmeasure/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com/quietmeasure/pin"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/quietmeasure/reserve-two-seats",
+            "text": "Reserve two seats"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "On the card this month"
+        },
+        {
+            "id": "b6",
+            "type": "services",
+            "variant": "menu",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i7",
+                    "name": "The Compositor",
+                    "detail": "Rye, burnt orange, black walnut",
+                    "price": "$17",
+                    "url": "https://example.com/quietmeasure/the-compositor"
+                },
+                {
+                    "id": "i8",
+                    "name": "Proof Copy",
+                    "detail": "Mezcal, pear, smoked salt",
+                    "price": "$18",
+                    "url": "https://example.com/quietmeasure/proof-copy"
+                },
+                {
+                    "id": "i9",
+                    "name": "Late Edition",
+                    "detail": "Espresso, amaro, a little cream",
+                    "price": "$16",
+                    "url": "https://example.com/quietmeasure/late-edition"
+                },
+                {
+                    "id": "i10",
+                    "name": "Second Printing",
+                    "detail": "Gin, verjus, thyme, no alcohol if you ask",
+                    "price": "$15",
+                    "url": "https://example.com/quietmeasure/second-printing"
+                }
+            ]
+        },
+        {
+            "id": "b11",
+            "type": "gallery",
+            "variant": "carousel",
+            "section": "b11",
+            "photos": [
+                {
+                    "file": "cocktail1.jpg",
+                    "y": 50,
+                    "id": "i12"
+                },
+                {
+                    "file": "cocktail2.jpg",
+                    "y": 50,
+                    "id": "i13"
+                },
+                {
+                    "file": "cocktail3.jpg",
+                    "y": 55,
+                    "id": "i14"
+                },
+                {
+                    "file": "cocktail4.jpg",
+                    "y": 55,
+                    "id": "i15"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b16",
+            "text": "Tasting nights"
+        },
+        {
+            "id": "b17",
+            "type": "events",
+            "variant": "list",
+            "section": "b16",
+            "cta": "Book",
+            "items": [
+                {
+                    "id": "i18",
+                    "name": "Five amari, one long evening",
+                    "at": "2026-11-18T19:30",
+                    "place": "At the bar, 8 seats",
+                    "url": "https://example.com/quietmeasure/five-amari-one-long-evening"
+                },
+                {
+                    "id": "i19",
+                    "name": "A night of agave",
+                    "at": "2026-12-02T19:30",
+                    "place": "At the bar, 8 seats",
+                    "url": "https://example.com/quietmeasure/a-night-of-agave"
+                },
+                {
+                    "id": "i20",
+                    "name": "Winter card launch",
+                    "at": "2026-12-16T18:00",
+                    "place": "Open to all",
+                    "url": "https://example.com/quietmeasure/winter-card-launch"
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b21",
+            "text": "Come down the stairs"
+        },
+        {
+            "id": "b22",
+            "type": "location",
+            "variant": "hours",
+            "section": "b21",
+            "address": "Under 9 Printers Yard",
+            "note": "Look for the green lamp",
+            "hours": [
+                {
+                    "id": "i23",
+                    "days": "Wed to Thu",
+                    "time": "5 pm to midnight"
+                },
+                {
+                    "id": "i24",
+                    "days": "Fri and Sat",
+                    "time": "5 pm to 1 am"
+                }
+            ]
+        }
+    ]
+}

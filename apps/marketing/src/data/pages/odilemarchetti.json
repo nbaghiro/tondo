@@ -1,0 +1,181 @@
+{
+    "version": 2,
+    "look": "sumi",
+    "style": {
+        "font": "quiet"
+    },
+    "header": {
+        "layout": "full",
+        "name": "Odile Marchetti",
+        "tagline": "Stylist. Editorial and private clients, Milan",
+        "bio": "Most wardrobes need less, not more. I take out what doesn't work and show you what you already own.",
+        "photo": {
+            "file": "style0.jpg",
+            "y": 20
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/odilemarchetti/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com/odilemarchetti/pin"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/odilemarchetti/book-a-wardrobe-edit",
+            "text": "Book a wardrobe edit"
+        },
+        {
+            "id": "b5",
+            "type": "logos",
+            "variant": "row",
+            "section": "b5",
+            "label": "Styled for",
+            "items": [
+                {
+                    "id": "i6",
+                    "name": "Vireo"
+                },
+                {
+                    "id": "i7",
+                    "name": "Rue Seize"
+                },
+                {
+                    "id": "i8",
+                    "name": "Halden Press"
+                },
+                {
+                    "id": "i9",
+                    "name": "Mano"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b10",
+            "text": "Autumn stories"
+        },
+        {
+            "id": "b11",
+            "type": "gallery",
+            "variant": "mosaic",
+            "section": "b10",
+            "photos": [
+                {
+                    "file": "style1.jpg",
+                    "y": 25,
+                    "id": "i12"
+                },
+                {
+                    "file": "style2.jpg",
+                    "y": 55,
+                    "id": "i13"
+                },
+                {
+                    "file": "style3.jpg",
+                    "y": 40,
+                    "id": "i14"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "Working with me"
+        },
+        {
+            "id": "b16",
+            "type": "services",
+            "variant": "list",
+            "section": "b15",
+            "cta": "Enquire",
+            "items": [
+                {
+                    "id": "i17",
+                    "name": "Wardrobe edit",
+                    "detail": "One long afternoon at your home",
+                    "price": "€380",
+                    "url": "https://example.com/odilemarchetti/wardrobe-edit"
+                },
+                {
+                    "id": "i18",
+                    "name": "Seasonal shop",
+                    "detail": "A list, then a day of fittings",
+                    "price": "€650",
+                    "url": "https://example.com/odilemarchetti/seasonal-shop"
+                },
+                {
+                    "id": "i19",
+                    "name": "Editorial styling",
+                    "detail": "Day rate, pulls and returns included",
+                    "price": "€900",
+                    "url": "https://example.com/odilemarchetti/editorial-styling"
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b20",
+            "text": "Notes"
+        },
+        {
+            "id": "b21",
+            "type": "posts",
+            "variant": "list",
+            "section": "b20",
+            "items": [
+                {
+                    "id": "i22",
+                    "title": "The coat is the outfit",
+                    "date": "October 26",
+                    "text": "Spend here, and on nothing else this winter.",
+                    "url": "https://example.com/odilemarchetti/the-coat-is-the-outfit"
+                },
+                {
+                    "id": "i23",
+                    "title": "Why I hem everything",
+                    "date": "October 12",
+                    "url": "https://example.com/odilemarchetti/why-i-hem-everything"
+                },
+                {
+                    "id": "i24",
+                    "title": "Six things I'd never lend",
+                    "date": "September 28",
+                    "url": "https://example.com/odilemarchetti/six-things-i-d-never-lend"
+                }
+            ]
+        },
+        {
+            "id": "b25",
+            "type": "image",
+            "variant": "full",
+            "section": "b25",
+            "photo": {
+                "file": "style4.jpg",
+                "y": 30
+            },
+            "caption": "For Rue Seize, September issue"
+        }
+    ]
+}

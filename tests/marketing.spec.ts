@@ -4,7 +4,7 @@ import type { Page } from "@playwright/test";
 test.describe("the gallery", () => {
     test("shows every example page, drawn by the real renderer", async ({ page }) => {
         await page.goto("/gallery");
-        await expect(page.locator(".exgrid .ex")).toHaveCount(50);
+        await expect(page.locator(".exgrid .ex")).toHaveCount(75);
         await page.goto("/mayaokafor");
         await expect(page.locator("h1")).toHaveText("Maya Okafor");
         await expect(page.locator(".b-feature, .b-f-large").first()).toBeVisible();

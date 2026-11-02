@@ -10,7 +10,7 @@ interface Props {
 
 const { title } = Astro.props;
 
-// Every example page once, in an order that keeps similar looks apart. Sam's yellow is left out.
+// 56 example pages, none twice, spread out so similar looks stay apart. Sam's yellow is left out.
 const pages = examples.map((example) => example.id).filter((id) => id !== "sam");
 const COLUMNS = 8;
 const PER_COLUMN = 7;

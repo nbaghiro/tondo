@@ -1,0 +1,193 @@
+{
+    "version": 2,
+    "look": "rivet",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#4fb3d9"
+        },
+        "font": "bold",
+        "shape": "square"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Slow Evidence",
+        "bio": "One unsolved case a season, told slowly, with the people who were actually there. Hosted by Marit Oyen.",
+        "links": [
+            {
+                "id": "l1",
+                "type": "spotify",
+                "value": "https://example.com/slowevidence/spotify"
+            },
+            {
+                "id": "l2",
+                "type": "youtube",
+                "value": "https://example.com/slowevidence/youtube"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "image",
+            "variant": "full",
+            "section": "b4",
+            "photo": {
+                "file": "fog0.jpg",
+                "y": 70
+            },
+            "caption": "Season 4: The Halloran road"
+        },
+        {
+            "id": "b5",
+            "type": "music",
+            "variant": "full",
+            "section": "b5",
+            "url": "https://example.com/slowevidence/episode-6-the-second-car",
+            "title": "Episode 6: The second car",
+            "sub": "Season 4, new on Tuesday",
+            "cover": {
+                "file": "fog1.jpg",
+                "y": 60
+            },
+            "tracks": [
+                {
+                    "id": "i6",
+                    "name": "Cold open",
+                    "length": "3:14"
+                },
+                {
+                    "id": "i7",
+                    "name": "What the farmer saw",
+                    "length": "22:40"
+                },
+                {
+                    "id": "i8",
+                    "name": "The call log",
+                    "length": "18:05"
+                }
+            ]
+        },
+        {
+            "id": "b9",
+            "type": "button",
+            "variant": "filled",
+            "section": "b9",
+            "url": "https://example.com/slowevidence/listen-wherever-you-get-podcasts",
+            "text": "Listen wherever you get podcasts"
+        },
+        {
+            "id": "b10",
+            "type": "button",
+            "variant": "outline",
+            "section": "b10",
+            "url": "https://example.com/slowevidence/send-us-a-tip-privately",
+            "text": "Send us a tip, privately"
+        },
+        {
+            "id": "b11",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b11",
+            "text": "Start here"
+        },
+        {
+            "id": "b12",
+            "type": "posts",
+            "variant": "list",
+            "section": "b11",
+            "items": [
+                {
+                    "id": "i13",
+                    "title": "Season 1: The lighthouse ledger",
+                    "date": "8 episodes",
+                    "text": "Most people start with this one",
+                    "url": "https://example.com/slowevidence/season-1-the-lighthouse-ledger"
+                },
+                {
+                    "id": "i14",
+                    "title": "Season 2: Nobody called Ana",
+                    "date": "10 episodes",
+                    "url": "https://example.com/slowevidence/season-2-nobody-called-ana"
+                },
+                {
+                    "id": "i15",
+                    "title": "Season 3: A locked room in Tromsø",
+                    "date": "9 episodes",
+                    "url": "https://example.com/slowevidence/season-3-a-locked-room-in-troms"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b16",
+            "text": "Live, with the case files"
+        },
+        {
+            "id": "b17",
+            "type": "events",
+            "variant": "list",
+            "section": "b16",
+            "cta": "Tickets",
+            "items": [
+                {
+                    "id": "i18",
+                    "name": "Slow Evidence live",
+                    "at": "2026-11-27T20:00",
+                    "place": "Cordwainers Hall, Leeds",
+                    "url": "https://example.com/slowevidence/slow-evidence-live"
+                },
+                {
+                    "id": "i19",
+                    "name": "Slow Evidence live",
+                    "at": "2026-12-04T20:00",
+                    "place": "Pump Yard Rooms, Bath",
+                    "url": "https://example.com/slowevidence/slow-evidence-live"
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "stats",
+            "variant": "row",
+            "section": "b20",
+            "items": [
+                {
+                    "id": "i21",
+                    "number": "31M",
+                    "label": "Downloads"
+                },
+                {
+                    "id": "i22",
+                    "number": "4",
+                    "label": "Seasons"
+                },
+                {
+                    "id": "i23",
+                    "number": "2",
+                    "label": "Cases reopened"
+                }
+            ]
+        },
+        {
+            "id": "b24",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b24",
+            "items": [
+                {
+                    "id": "i25",
+                    "text": "I had to pull over at the end of episode five. Then I sat there and played it again.",
+                    "by": "Listener review"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,187 @@
+{
+    "version": 2,
+    "look": "trail",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#2f6b3b"
+        },
+        "font": "editorial"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Hedgerow & Daughters",
+        "tagline": "Gardeners and landscapers, since 1994",
+        "bio": "My dad started this with one van. My sister and I run it now, and we still do every hedge by hand.",
+        "photo": {
+            "file": "hedge0.jpg",
+            "y": 45
+        },
+        "buttonText": "Get a free quote",
+        "buttonUrl": "https://example.com/hedgerowdaughters/quote",
+        "links": [
+            {
+                "id": "l1",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            },
+            {
+                "id": "l2",
+                "type": "instagram",
+                "value": "https://example.com/hedgerowdaughters/instagram"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "stats",
+            "variant": "row",
+            "section": "b4",
+            "items": [
+                {
+                    "id": "i5",
+                    "number": "32",
+                    "label": "Years going"
+                },
+                {
+                    "id": "i6",
+                    "number": "6",
+                    "label": "On the crew"
+                },
+                {
+                    "id": "i7",
+                    "number": "0",
+                    "label": "Leaf blowers"
+                }
+            ]
+        },
+        {
+            "id": "b8",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b8",
+            "text": "What we do"
+        },
+        {
+            "id": "b9",
+            "type": "services",
+            "variant": "list",
+            "section": "b8",
+            "cta": "Quote",
+            "items": [
+                {
+                    "id": "i10",
+                    "name": "Hedges and topiary",
+                    "detail": "Cut by hand, twice a year",
+                    "price": "from £90",
+                    "url": "https://example.com/hedgerowdaughters/hedges-and-topiary"
+                },
+                {
+                    "id": "i11",
+                    "name": "Regular upkeep",
+                    "detail": "Fortnightly, March to November",
+                    "price": "from £48 a visit",
+                    "url": "https://example.com/hedgerowdaughters/regular-upkeep"
+                },
+                {
+                    "id": "i12",
+                    "name": "Garden redesign",
+                    "detail": "Planting plan, paths and walls",
+                    "price": "from £1,400",
+                    "url": "https://example.com/hedgerowdaughters/garden-redesign"
+                },
+                {
+                    "id": "i13",
+                    "name": "Clearing out",
+                    "detail": "Overgrown or just inherited",
+                    "price": "from £220",
+                    "url": "https://example.com/hedgerowdaughters/clearing-out"
+                }
+            ]
+        },
+        {
+            "id": "b14",
+            "type": "image",
+            "variant": "full",
+            "section": "b14",
+            "photo": {
+                "file": "hedge3.jpg",
+                "y": 60
+            },
+            "caption": "Stripes and borders, kept up since 2011"
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "Recent gardens"
+        },
+        {
+            "id": "b16",
+            "type": "gallery",
+            "variant": "grid",
+            "section": "b15",
+            "photos": [
+                {
+                    "file": "hedge1.jpg",
+                    "y": 40,
+                    "id": "i17"
+                },
+                {
+                    "file": "hedge2.jpg",
+                    "y": 40,
+                    "id": "i18"
+                },
+                {
+                    "file": "plant11.jpg",
+                    "id": "i19"
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b20",
+            "items": [
+                {
+                    "id": "i21",
+                    "text": "They turned up when they said they would. In this trade, I can't tell you how rare that is.",
+                    "by": "Mrs Oyelaran, Tuesdays since 2019"
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b22",
+            "text": "A few questions"
+        },
+        {
+            "id": "b23",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b22",
+            "items": [
+                {
+                    "id": "i24",
+                    "question": "Do you take the clippings away?",
+                    "answer": "Always. We compost them at the yard, and it's included in the price."
+                },
+                {
+                    "id": "i25",
+                    "question": "How far do you go?",
+                    "answer": "About 15 miles around Ludlow. Ask if you're further out, and we'll see who else is nearby."
+                }
+            ]
+        }
+    ]
+}

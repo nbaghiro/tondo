@@ -1,0 +1,187 @@
+{
+    "version": 2,
+    "look": "conf",
+    "style": {
+        "colour": {
+            "mode": "dark",
+            "brand": "#ef4b3a"
+        },
+        "font": "modern"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Tobias Renn",
+        "tagline": "Now showing: documentary and brand films, Lisbon",
+        "bio": "I shoot and edit small films for people doing interesting work. Usually it's just me and one camera.",
+        "photo": {
+            "file": "film0.jpg",
+            "y": 28,
+            "x": 62
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "globe",
+                "value": "https://example.com/tobiasrenn/globe"
+            },
+            {
+                "id": "l2",
+                "type": "instagram",
+                "value": "https://example.com/tobiasrenn/instagram"
+            },
+            {
+                "id": "l3",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "video",
+            "variant": "card",
+            "section": "b4",
+            "items": [
+                {
+                    "id": "i5",
+                    "title": "Showreel 2026",
+                    "meta": "1:40",
+                    "cover": {
+                        "file": "film4.jpg",
+                        "y": 30
+                    },
+                    "url": "https://example.com/tobiasrenn/showreel-2026"
+                }
+            ]
+        },
+        {
+            "id": "b6",
+            "type": "button",
+            "variant": "filled",
+            "section": "b6",
+            "url": "https://example.com/tobiasrenn/tell-me-about-your-film",
+            "text": "Tell me about your film"
+        },
+        {
+            "id": "b7",
+            "type": "logos",
+            "variant": "row",
+            "section": "b7",
+            "label": "Made films for",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Salt & Cork"
+                },
+                {
+                    "id": "i9",
+                    "name": "Atlas Ferries"
+                },
+                {
+                    "id": "i10",
+                    "name": "Ofício"
+                },
+                {
+                    "id": "i11",
+                    "name": "Casa Marés"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b12",
+            "text": "Recent films"
+        },
+        {
+            "id": "b13",
+            "type": "video",
+            "variant": "row",
+            "section": "b12",
+            "items": [
+                {
+                    "id": "i14",
+                    "title": "The last net maker in Peniche",
+                    "meta": "12 minutes",
+                    "cover": {
+                        "file": "film2.jpg",
+                        "y": 35
+                    },
+                    "url": "https://example.com/tobiasrenn/the-last-net-maker-in-peniche"
+                },
+                {
+                    "id": "i15",
+                    "title": "A year at Salt & Cork",
+                    "meta": "4 minutes",
+                    "cover": {
+                        "file": "film3.jpg",
+                        "y": 30
+                    },
+                    "url": "https://example.com/tobiasrenn/a-year-at-salt-cork"
+                },
+                {
+                    "id": "i16",
+                    "title": "Atlas Ferries: crossing",
+                    "meta": "2 minutes",
+                    "cover": {
+                        "file": "film1.jpg",
+                        "y": 40
+                    },
+                    "url": "https://example.com/tobiasrenn/atlas-ferries-crossing"
+                }
+            ]
+        },
+        {
+            "id": "b17",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b17",
+            "text": "Rates"
+        },
+        {
+            "id": "b18",
+            "type": "services",
+            "variant": "list",
+            "section": "b17",
+            "cta": "Enquire",
+            "items": [
+                {
+                    "id": "i19",
+                    "name": "Half day on location",
+                    "detail": "Shooting only, 5 hours",
+                    "price": "€650",
+                    "url": "https://example.com/tobiasrenn/half-day-on-location"
+                },
+                {
+                    "id": "i20",
+                    "name": "Short brand film",
+                    "detail": "2 to 4 minutes, shot and edited",
+                    "price": "from €3,200",
+                    "url": "https://example.com/tobiasrenn/short-brand-film"
+                },
+                {
+                    "id": "i21",
+                    "name": "Short documentary",
+                    "detail": "Up to 15 minutes, over several weeks",
+                    "price": "from €8,500",
+                    "url": "https://example.com/tobiasrenn/short-documentary"
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b22",
+            "items": [
+                {
+                    "id": "i23",
+                    "text": "He stayed with us for a week and we forgot the camera was there. It's the best thing anyone has made about us.",
+                    "by": "Inês, Salt & Cork"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,168 @@
+{
+    "version": 2,
+    "look": "sap",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#c9411f"
+        },
+        "font": "handmade",
+        "shape": "round"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Half Past Eggs",
+        "tagline": "Brunch until 3, every day but Monday",
+        "bio": "Soufflé pancakes, proper coffee and the red booth by the window, if you're quick.",
+        "photo": {
+            "file": "brunch0.jpg",
+            "y": 62
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "instagram",
+                "value": "https://example.com/halfpasteggs/instagram"
+            },
+            {
+                "id": "l2",
+                "type": "pin",
+                "value": "https://example.com/halfpasteggs/pin"
+            },
+            {
+                "id": "l3",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/halfpasteggs/book-a-table",
+            "text": "Book a table"
+        },
+        {
+            "id": "b5",
+            "type": "button",
+            "variant": "outline",
+            "section": "b5",
+            "url": "https://example.com/halfpasteggs/see-today-s-specials",
+            "text": "See today's specials"
+        },
+        {
+            "id": "b6",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b6",
+            "text": "The ones people come back for"
+        },
+        {
+            "id": "b7",
+            "type": "services",
+            "variant": "menu",
+            "section": "b6",
+            "items": [
+                {
+                    "id": "i8",
+                    "name": "Soufflé pancakes",
+                    "detail": "Salted caramel, whipped ricotta",
+                    "price": "$17",
+                    "url": "https://example.com/halfpasteggs/souffl-pancakes"
+                },
+                {
+                    "id": "i9",
+                    "name": "Eggs in purgatory",
+                    "detail": "Two eggs, tomato, chilli, grilled sourdough",
+                    "price": "$16",
+                    "url": "https://example.com/halfpasteggs/eggs-in-purgatory"
+                },
+                {
+                    "id": "i10",
+                    "name": "The long brunch",
+                    "detail": "Bacon, eggs, beans, toast, juice and a flat white",
+                    "price": "$24",
+                    "url": "https://example.com/halfpasteggs/the-long-brunch"
+                },
+                {
+                    "id": "i11",
+                    "name": "Filter coffee",
+                    "detail": "Roasted across the road, refills are free",
+                    "price": "$4",
+                    "url": "https://example.com/halfpasteggs/filter-coffee"
+                }
+            ]
+        },
+        {
+            "id": "b12",
+            "type": "gallery",
+            "variant": "mosaic",
+            "section": "b12",
+            "photos": [
+                {
+                    "file": "brunch1.jpg",
+                    "y": 70,
+                    "id": "i13"
+                },
+                {
+                    "file": "brunch2.jpg",
+                    "y": 40,
+                    "id": "i14"
+                },
+                {
+                    "file": "brunch3.jpg",
+                    "y": 80,
+                    "id": "i15"
+                }
+            ]
+        },
+        {
+            "id": "b16",
+            "type": "quotes",
+            "variant": "large",
+            "section": "b16",
+            "items": [
+                {
+                    "id": "i17",
+                    "text": "Came for the pancakes. Stayed for a second round of pancakes.",
+                    "by": "Marisol, who sits in the red booth"
+                }
+            ]
+        },
+        {
+            "id": "b18",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b18",
+            "text": "Find us"
+        },
+        {
+            "id": "b19",
+            "type": "location",
+            "variant": "both",
+            "section": "b18",
+            "address": "14 Quince Row",
+            "note": "Walk-ins welcome before 10",
+            "hours": [
+                {
+                    "id": "i20",
+                    "days": "Tue to Fri",
+                    "time": "7:30 am to 3 pm"
+                },
+                {
+                    "id": "i21",
+                    "days": "Sat and Sun",
+                    "time": "8 am to 3 pm"
+                },
+                {
+                    "id": "i22",
+                    "days": "Monday",
+                    "time": "Closed"
+                }
+            ]
+        }
+    ]
+}

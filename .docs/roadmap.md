@@ -4,7 +4,7 @@ This is where things stand on 2026-10-31. The builder is in the real app, and th
 
 ## Built
 
-- **Marketing site** in `apps/marketing`, with a gallery of 50 example pages drawn by the real renderer.
+- **Marketing site** in `apps/marketing`, with a gallery of 75 example pages drawn by the real renderer.
 - **Accounts** through Neon Auth: email and password with verification and reset codes, and Google.
 - **Editor** in `apps/editor`: all available blocks, 50 looks, the inspector, tabs, preview, phone layout, photo uploads and server saving.
 - **Publishing:** checks before going live, public pages and click counts.

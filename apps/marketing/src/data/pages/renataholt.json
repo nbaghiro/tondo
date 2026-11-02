@@ -1,0 +1,185 @@
+{
+    "version": 2,
+    "look": "counsel",
+    "style": {
+        "colour": {
+            "mode": "preset",
+            "brand": "#2748c9"
+        }
+    },
+    "header": {
+        "layout": "look",
+        "name": "Renata Holt",
+        "tagline": "Independent brand strategy",
+        "bio": "I help founders of small companies say clearly what they do, in the six weeks before a launch or a raise.",
+        "photo": {
+            "file": "strategy0.jpg",
+            "y": 12
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "chat",
+                "value": "https://example.com/renataholt/chat"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "globe",
+                "value": "https://example.com/renataholt/globe"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "booking",
+            "variant": "card",
+            "section": "b4",
+            "url": "https://example.com/renataholt/a-free-30-minute-call",
+            "title": "A free 30-minute call",
+            "sub": "Two openings left for January",
+            "cta": "Pick a time"
+        },
+        {
+            "id": "b5",
+            "type": "logos",
+            "variant": "row",
+            "section": "b5",
+            "label": "Recent clients",
+            "items": [
+                {
+                    "id": "i6",
+                    "name": "Tessel"
+                },
+                {
+                    "id": "i7",
+                    "name": "Northgate Pantry"
+                },
+                {
+                    "id": "i8",
+                    "name": "Common Hours"
+                },
+                {
+                    "id": "i9",
+                    "name": "Lumen & Fife"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b10",
+            "text": "Ways to work together"
+        },
+        {
+            "id": "b11",
+            "type": "services",
+            "variant": "tiers",
+            "section": "b10",
+            "cta": "Enquire",
+            "items": [
+                {
+                    "id": "i12",
+                    "name": "The audit",
+                    "price": "$3,200",
+                    "included": "Two weeks\nInterviews with your customers\nA written report",
+                    "url": "https://example.com/renataholt/the-audit"
+                },
+                {
+                    "id": "i13",
+                    "name": "The rewrite",
+                    "price": "$11,500",
+                    "included": "Six weeks\nPositioning and messaging\nYour site's words, finished",
+                    "popular": true,
+                    "url": "https://example.com/renataholt/the-rewrite"
+                },
+                {
+                    "id": "i14",
+                    "name": "On call",
+                    "price": "$1,800 a month",
+                    "included": "Three month minimum\nReviews of whatever you're writing",
+                    "url": "https://example.com/renataholt/on-call"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b15",
+            "text": "How it goes"
+        },
+        {
+            "id": "b16",
+            "type": "timeline",
+            "variant": "line",
+            "section": "b15",
+            "items": [
+                {
+                    "id": "i17",
+                    "title": "Listen",
+                    "date": "Weeks 1 and 2",
+                    "detail": "I talk to your customers and to the people who didn't buy"
+                },
+                {
+                    "id": "i18",
+                    "title": "Write",
+                    "date": "Weeks 3 and 4",
+                    "detail": "One page saying what you are, tested on real prospects"
+                },
+                {
+                    "id": "i19",
+                    "title": "Hand over",
+                    "date": "Weeks 5 and 6",
+                    "detail": "Your team has the words, and knows how to use them"
+                }
+            ]
+        },
+        {
+            "id": "b20",
+            "type": "quotes",
+            "variant": "large",
+            "section": "b20",
+            "items": [
+                {
+                    "id": "i21",
+                    "text": "Renata took out most of our homepage, and enquiries went up. I still don't entirely forgive her.",
+                    "by": "Founder of Tessel"
+                }
+            ]
+        },
+        {
+            "id": "b22",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b22",
+            "text": "Things I've written"
+        },
+        {
+            "id": "b23",
+            "type": "posts",
+            "variant": "list",
+            "section": "b22",
+            "items": [
+                {
+                    "id": "i24",
+                    "title": "Your tagline isn't your problem",
+                    "date": "October 21",
+                    "url": "https://example.com/renataholt/your-tagline-isn-t-your-problem"
+                },
+                {
+                    "id": "i25",
+                    "title": "What lost deals will tell you",
+                    "date": "September 29",
+                    "url": "https://example.com/renataholt/what-lost-deals-will-tell-you"
+                }
+            ]
+        }
+    ]
+}

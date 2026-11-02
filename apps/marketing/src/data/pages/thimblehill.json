@@ -1,0 +1,193 @@
+{
+    "version": 2,
+    "look": "cutout",
+    "style": {
+        "font": "friendly"
+    },
+    "header": {
+        "layout": "look",
+        "name": "Thimble Hill",
+        "tagline": "Nursery school for ages 2 to 5",
+        "bio": "Mud, paint, songs and a lot of snacks, with twenty-four children and six teachers who stay for years.",
+        "photo": {
+            "file": "crayon0.jpg",
+            "y": 55
+        },
+        "links": [
+            {
+                "id": "l1",
+                "type": "phone",
+                "value": "tel:+15555550142"
+            },
+            {
+                "id": "l2",
+                "type": "mail",
+                "value": "mailto:hello@example.com"
+            },
+            {
+                "id": "l3",
+                "type": "pin",
+                "value": "https://example.com/thimblehill/pin"
+            }
+        ]
+    },
+    "blocks": [
+        {
+            "id": "b4",
+            "type": "button",
+            "variant": "filled",
+            "section": "b4",
+            "url": "https://example.com/thimblehill/come-and-see-us",
+            "text": "Come and see us"
+        },
+        {
+            "id": "b5",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b5",
+            "text": "Open mornings"
+        },
+        {
+            "id": "b6",
+            "type": "posts",
+            "variant": "list",
+            "section": "b5",
+            "items": [
+                {
+                    "id": "i7",
+                    "title": "Winter open morning",
+                    "date": "November 21",
+                    "text": "9:30 am, bring your little one",
+                    "url": "https://example.com/thimblehill/winter-open-morning"
+                },
+                {
+                    "id": "i8",
+                    "title": "New parents' evening",
+                    "date": "December 3",
+                    "text": "6 pm, adults only, with cake",
+                    "url": "https://example.com/thimblehill/new-parents-evening"
+                },
+                {
+                    "id": "i9",
+                    "title": "January starters' play day",
+                    "date": "January 9",
+                    "text": "10 am, for families who've joined",
+                    "url": "https://example.com/thimblehill/january-starters-play-day"
+                }
+            ]
+        },
+        {
+            "id": "b10",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b10",
+            "text": "A normal week"
+        },
+        {
+            "id": "b11",
+            "type": "services",
+            "variant": "list",
+            "section": "b10",
+            "cta": "Enquire",
+            "items": [
+                {
+                    "id": "i12",
+                    "name": "Mornings",
+                    "detail": "8:30 to 12:30, with snack",
+                    "price": "$38 a day",
+                    "url": "https://example.com/thimblehill/mornings"
+                },
+                {
+                    "id": "i13",
+                    "name": "School days",
+                    "detail": "8:30 to 3:00, with a hot lunch",
+                    "price": "$58 a day",
+                    "url": "https://example.com/thimblehill/school-days"
+                },
+                {
+                    "id": "i14",
+                    "name": "Long days",
+                    "detail": "8:00 to 5:30",
+                    "price": "$72 a day",
+                    "url": "https://example.com/thimblehill/long-days"
+                }
+            ]
+        },
+        {
+            "id": "b15",
+            "type": "gallery",
+            "variant": "mosaic",
+            "section": "b15",
+            "photos": [
+                {
+                    "file": "crayon1.jpg",
+                    "y": 50,
+                    "id": "i16"
+                },
+                {
+                    "file": "crayon2.jpg",
+                    "y": 40,
+                    "id": "i17"
+                },
+                {
+                    "file": "crayon3.jpg",
+                    "y": 55,
+                    "id": "i18"
+                }
+            ]
+        },
+        {
+            "id": "b19",
+            "type": "quotes",
+            "variant": "card",
+            "section": "b19",
+            "items": [
+                {
+                    "id": "i20",
+                    "text": "Our son cried for one morning and has complained about going home ever since.",
+                    "by": "Parent of Ezra, age 3"
+                }
+            ]
+        },
+        {
+            "id": "b21",
+            "type": "heading",
+            "variant": "plain",
+            "section": "b21",
+            "text": "Parents ask"
+        },
+        {
+            "id": "b22",
+            "type": "faq",
+            "variant": "accordion",
+            "section": "b21",
+            "items": [
+                {
+                    "id": "i23",
+                    "question": "Do they have to be potty trained?",
+                    "answer": "No. We'll help with that when your child is ready, and we'll keep you in the loop."
+                },
+                {
+                    "id": "i24",
+                    "question": "What about allergies?",
+                    "answer": "We're nut free, and our cook plans around any allergy. Tell us when you visit."
+                }
+            ]
+        },
+        {
+            "id": "b25",
+            "type": "location",
+            "variant": "both",
+            "section": "b25",
+            "address": "2 Thimble Hill Road",
+            "note": "Parking behind the hall",
+            "hours": [
+                {
+                    "id": "i26",
+                    "days": "Mon to Fri",
+                    "time": "8 am to 5:30 pm"
+                }
+            ]
+        }
+    ]
+}
