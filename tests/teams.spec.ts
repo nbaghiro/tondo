@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 import type { APIRequestContext, Browser, BrowserContext, Page } from "@playwright/test";
 import postgres from "postgres";
 import { createInvites } from "../apps/server/src/invites";
-import { signUpToEditor } from "./helpers";
+import { signUpToEditor, signUpToStart } from "./helpers";
+import { TEST_CODE } from "./test-code";
 import { TEST_DATABASE } from "./setup-database";
 
 const TEAM = "/api/v1/me/team";
@@ -637,4 +638,97 @@ test.describe("teams", () => {
         const stranger = await person(browser);
         expect((await join(stranger, invite)).status()).toBe(403);
     });
+});
+
+// By screen, on both sizes.
+test("the owner makes a team and an invitation on the team screen", async ({ page }) => {
+    const handle = await signUpToEditor(page);
+    await page.goto("/app/team");
+    const teamHandle = unique("studio");
+    await page.locator('[data-make-team] input[name="name"]').fill("Fern Studio");
+    await page.locator('[data-make-team] input[name="handle"]').fill(teamHandle);
+    await page.locator('[data-make-team] select[name="join"]').selectOption({ index: 1 });
+    await page.locator("[data-make-team] button[type=submit]").click();
+    await expect(page.locator(".ph p")).toContainText("Fern Studio, 1 person");
+    await expect(page.locator(`[data-person="${handle}"]`)).toContainText("Owner");
+    await expect(page.locator(`[data-team-page="${teamHandle}"]`)).toContainText(
+        "holds the team's look",
+    );
+
+    await page.locator("[data-new-team-page]").click();
+    await page.locator('[data-team-page-form] input[name="name"]').fill("Rae Bell");
+    const rae = unique("rae");
+    await page.locator('[data-team-page-form] input[name="handle"]').fill(rae);
+    await page.locator("[data-add-team-page]").click();
+    await expect(page.locator(`[data-team-page="${rae}"]`)).toBeVisible();
+
+    await page.locator("[data-invite]").click();
+    await page.locator("[data-make-invite]").click();
+    await expect(page.locator('input[name="invite-link"]')).toHaveValue(/\/join\?invite=/);
+
+    await page.goto("/app/");
+    await page.locator("[data-page-switcher]:visible").click();
+    await expect(page.locator("[data-team-pages]")).toHaveText("Fern Studio");
+    await expect(page.locator(`[data-page-item="${teamHandle}"]:visible`)).toBeVisible();
+    await expect(page.locator(".psw-new")).toContainText("0 of 5");
+});
+
+test("someone new signs up through a link, to the page made for them", async ({
+    page,
+    browser,
+}) => {
+    const owner = await person(browser);
+    const team = await makeTeam(owner);
+    const rae = unique("rae");
+    const copy = await owner.api.post(`${TEAM}/pages`, {
+        data: { name: "Rae Bell", handle: rae, from: team.lookPageId },
+    });
+    const { id } = (await copy.json()) as { id: string };
+    const invite = await inviteLink(owner.api, id);
+
+    await page.goto(`/app/join?invite=${invite}`);
+    await page.waitForURL(/\/signup\?invite=/);
+    await expect(page.locator("[data-lead]")).toContainText("Join Aster and Bell");
+    const email = `${unique("new")}@example.com`;
+    await page.locator("input[name=email]").fill(email);
+    await page.locator("input[name=password]").fill("long enough pass");
+    await page.locator(".auth-submit").click();
+    await page.waitForURL(/\/verify/);
+    await page.locator("input[name=code]").fill(TEST_CODE);
+    await page.locator(".auth-submit").click();
+    await page.waitForURL(/\/app\/join/);
+    await expect(page.locator("[data-join]")).toContainText("made for you");
+    await page.locator("[data-join-yes]").click();
+    await page.waitForURL(/\/app\/team/);
+    await expect(page.locator(`[data-person="${rae}"]`)).toContainText("Member");
+    await expect(page.locator("[data-invite]")).toHaveCount(0);
+});
+
+test("someone new with no page made makes one first, and someone with pages chooses", async ({
+    page,
+    browser,
+}) => {
+    const owner = await person(browser);
+    await makeTeam(owner);
+    const invite = await inviteLink(owner.api);
+
+    const handle = await signUpToStart(page);
+    await page.goto(`/app/join?invite=${invite}`);
+    await page.locator("[data-make-first]").click();
+    await page.waitForURL(/\/app\/start/);
+    await page.locator("#start-name").fill("Ana Ruiz");
+    for (let step = 0; step < 4; step++) await page.locator("[data-next]").click();
+    await page.locator("#start-handle").fill(handle);
+    await expect(page.locator("#start-note")).toHaveClass(/ok/);
+    await page.locator("[data-next]").click();
+    await page.waitForURL(/\/app\/join/);
+    await expect(page.locator(".join-pages")).toContainText(handle);
+    await page.locator("[data-join-yes]").click();
+    await page.waitForURL(/\/app\/team/);
+    await expect(page.locator(`[data-person="${handle}"]`)).toBeVisible();
+
+    await page.goto(`/app/join?invite=${invite}`);
+    await expect(page.locator("[data-on-team]")).toContainText("already on");
+    await page.goto("/app/join?invite=nonsense");
+    await expect(page.locator("[data-invite-ended]")).toContainText("has ended");
 });

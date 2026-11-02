@@ -52,9 +52,8 @@ Home is where you land after signing in. It shows your page on a large phone, yo
 
 ## What's still being built
 
-- **Teams.** There's a plan in [`.docs/teams-implementation.md`](.docs/teams-implementation.md), and no team code yet, although the marketing site already has a page describing them.
-- **Several pages.** The data model and routes give each page its own address, but the interface only reaches one page. Home's page switcher isn't built yet.
-- **Plans and billing.** The billing code runs against a stand-in for Stripe and stays off unless `PLANS_ON` is set. There's no Stripe account yet, and the code is being changed to match plans decided recently, described in [`.docs/plans.md`](.docs/plans.md).
+- **Your own domain.** The pricing page lists it on Pro, and it isn't built yet.
+- **Plans and billing.** The code runs against a stand-in for Stripe and stays off unless `PLANS_ON` is set, with no Stripe account yet. The plans are in [`.docs/plans.md`](.docs/plans.md). Terms and Privacy don't yet cover plans, teams or trials.
 - **The four sections that aren't available yet.** Collecting sign-ups and form replies, for example, needs an email provider and storage.
 - **Deployment.** The Render and Neon setup is written down in [`.docs/deploy.md`](.docs/deploy.md), but it hasn't been tried. Sign-in has only been tested against a local stand-in for Neon Auth's API.
 

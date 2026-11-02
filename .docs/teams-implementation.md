@@ -2,7 +2,7 @@
 
 This plan builds what `apps/marketing/src/pages/teams.astro` promises, on top of one address per page and the flat plans. It replaces the earlier version of this file, which predated both decisions. That version is in git history, at `71c2e3d`.
 
-**Status:** see [Milestones](#milestones). The numbers under [Working defaults](#working-defaults) aren't the owner's final choices.
+**Status:** built, with money off until `PLANS_ON`, and not deployed. See [Milestones](#milestones). The numbers under [Working defaults](#working-defaults) aren't the owner's final choices.
 
 ## What's being built
 
@@ -251,6 +251,8 @@ Design stays Porcelain and matches Home and Page settings. The phone comes from 
 - **Stripe work.** There's nothing to do for teams at a flat price, and real Stripe stays untouched.
 - **Roles beyond the three,** several teams per person, and a member bringing more than one page.
 
+**Numbers and order changed while building.** The owner replaced the plans partway through. The first version of this plan had 10 people and 5 pages of a team's own, and those limits are gone. T5 and T6 landed as one commit.
+
 ## Terms and Privacy need
 
 For the owner, ideally with a lawyer. I haven't changed either page.
@@ -267,6 +269,18 @@ For the owner, ideally with a lawyer. I haven't changed either page.
 - If the owner's plan ends, the team's own pages go offline, and joined pages follow each member's own plan.
 - If we take down an owner's account, the team's pages go too.
 - Shared Help me credits: members without their own paid plan spend the owner's credits.
+
+**For the current plans (`terms.astro`):**
+
+- A subscription is what puts a page online. There's no free plan, and an unsubscribed account can hold an address and build one page.
+- The first subscription on an account starts with a 14-day trial, once per account. A card is needed to start it, and it's charged when the trial ends unless cancelled.
+- A trial ending or a cancellation takes pages offline at the end of the period. The content stays, and subscribing again restores it.
+- Pro is priced per 5 pages, up to 100. Adding or removing pages changes the bill, with Stripe charging or crediting the difference.
+- Live pages show "Made with Tondo" unless a subscriber hides it.
+- Prices are $5 or $48 a year, and $12 or $120 a year. The site no longer offers a refund on the first payment, so the Terms should say what the refund position is.
+- Your own domain is sold on Pro and isn't built. The Terms need what it covers, who's responsible for the domain, and what happens to it when a plan ends, once it exists.
+
+**For the current plans (`privacy.astro`):** Stripe holds the card from the start of the trial, and the record that an account has had a trial is kept with Stripe.
 
 **`terms.astro`, existing sections:** "Addresses" should say a team's page address follows the same rules, and "Ending and deletion" needs the sentence on owners. The line about changing an address still says "your account" and should be per page.
 
@@ -300,14 +314,13 @@ Each passes `pnpm check` and `pnpm e2e --workers=3` before its commit.
 
 | # | Milestone | Main files | Status |
 |---|---|---|---|
-| T1 | Migration, numbers, the look merge, `team` and `join` reserved, the online rule | `schema.ts`, `limits.ts`, `team-look.ts`, `handle.ts` | Not started |
-| T2 | Who can edit: `pageOf`, page kinds, routes, the switcher's data, photos by page's owner | `db/pages.ts`, `server/pages.ts`, `photos.ts`, `contract` | Not started |
-| T3 | Team store and routes, signed links, edges, suspension, account deletion | `db/teams.ts`, `server/teams.ts`, `invites.ts`, `auth.ts`, `suspend.ts` | Not started |
-| T4 | The shared look: `findLive`, cache drops, editors and the look, Help me's lock and shared credits | `app.ts`, `assistant.ts`, `LookPanel.tsx`, `Canvas.tsx` | Not started |
-| T5 | Team screen, switcher groups, Settings and Account by role | `TeamPage.tsx`, `PageSwitcher.tsx`, `Shell.tsx` | Not started |
-| T6 | Joining through sign-up, the start flow and the join screen | `JoinPage.tsx`, `auth-form.ts`, `main.tsx`, `auth.ts` | Not started |
-| T7 | Plans: gating on the owner's Pro, the lapse rule on screen | `pages.ts`, `TeamPage.tsx`, `tests/teams.spec.ts` | Not started |
-| T8 | Docs, QA list and the plan's status | `README.md`, `.docs/*` | Not started |
+| T1 | Migration, numbers, the look merge, `team` and `join` reserved, the online rule | `schema.ts`, `limits.ts`, `team-look.ts`, `handle.ts` | Done, `ece8d9a` |
+| T2 | Who can edit: `pageOf`, page kinds, routes, the switcher's data, photos by page's owner | `db/pages.ts`, `server/pages.ts`, `photos.ts`, `contract` | Done, `fb2a813` |
+| T3 | Team store and routes, signed links, edges, suspension, account deletion | `db/teams.ts`, `server/teams.ts`, `invites.ts`, `auth.ts`, `suspend.ts` | Done, `24b6e86` |
+| T4 | The shared look: `findLive`, cache drops, editors and the look, Help me's lock and shared credits | `app.ts`, `assistant.ts`, `LookPanel.tsx`, `Canvas.tsx` | Done, `443cec0` |
+| T5, T6 | Team screen, switcher groups, Settings and Account by role, and joining through sign-up, the start flow and the join screen. They landed together, because each needs the other to be used | `TeamPage.tsx`, `JoinPage.tsx`, `PageSwitcher.tsx`, `auth-form.ts`, `main.tsx` | Done |
+| T7 | Plans: gating on the owner's Pro, the lapse rule on screen. Built within T3, T4 and the plan change, with the rule tested in `tests/teams.spec.ts` | `pages.ts`, `TeamPage.tsx` | Done |
+| T8 | Docs, QA list and the plan's status | `README.md`, `.docs/*` | Done |
 
 The old T6 (team statistics) and T7 and T8 (per-seat billing, 25 team pages) are gone, for the reasons above. T9 was going on sale, which is the owner's step, along with Stripe, Terms and deploying.
 

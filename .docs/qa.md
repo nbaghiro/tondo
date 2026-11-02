@@ -183,6 +183,19 @@ Nobody has tried any of this on real hardware or in another browser.
 - [ ] Scrolling and dragging by touch, including the phone sheet's grip and list items
 - [ ] A screen reader on the editor and on a published page
 
+## Teams
+
+- [ ] Make a team on the Team screen, with and without bringing a page.
+- [ ] Publish the team's page with a new look. Open a member's live page, and check it changed straight away and kept its own words and painting.
+- [ ] Try that look on real content on a phone, with people who have and don't have photos, and with each header layout on a signature look.
+- [ ] Invite someone with a link, in a second browser with no account. Sign up by email and through Google, and accept. Google's return has only been tested at route level.
+- [ ] Make a page for someone by duplicating one, send them its link, and check they get that page.
+- [ ] As an Editor, edit a member's page and the team's page. The look card should be locked and the plan out of reach.
+- [ ] As a Member, check the look panel is locked, and leave. Your own look should come back.
+- [ ] Remove someone, then try their old link. It should say the invitation has ended.
+- [ ] Hand the team over, and delete a team. Everyone should keep their own pages.
+- [ ] Try the owner's account deletion. It should say to hand over or delete the team first.
+
 ## Plans: needs you, once plans are on
 
 These are off today. To try them locally, set `PLANS_ON=true` with a stand-in or sandbox for Stripe. Automated tests cover the flows, and these need a person.

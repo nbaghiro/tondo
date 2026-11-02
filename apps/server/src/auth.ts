@@ -396,6 +396,10 @@ export function mountAuth(app: Hono, config: AuthConfig): CurrentPerson {
 
         const person = await currentPerson(c);
         if (!person) return c.redirect(failed);
+        // Checked here because it goes into a redirect. The route that reads it checks the signature.
+        const invite = c.req.query("invite") ?? "";
+        if (/^[\w.-]{1,1024}$/.test(invite))
+            return c.redirect(`${editorUrl}/join?invite=${invite}`);
         if ((await store.listPages(person.id)).length) return c.redirect(editorUrl);
         // A new person goes through the start flow, with the address they asked for ready to check.
         const wanted = normaliseHandle(c.req.query("handle") ?? "");

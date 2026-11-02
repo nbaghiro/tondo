@@ -317,6 +317,12 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                                 get it back for you.
                                             </p>
                                         </Show>
+                                        <Show when={draft().team?.look}>
+                                            <p class="notice" role="status" data-team-line>
+                                                Part of {draft().team?.name}. This page uses the
+                                                team's look, which the team's owner sets.
+                                            </p>
+                                        </Show>
                                         <Show when={billing()?.failing}>
                                             <p class="notice bad" role="alert" data-payment-failing>
                                                 Your last payment didn't go through. Your plan and

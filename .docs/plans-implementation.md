@@ -659,9 +659,9 @@ Each one ships alone and passes `pnpm check` and `pnpm e2e`, the two being separ
 | M3 | Pro labels, prompts, panel, preview, Analytics, Home notices, `PlanLab` | 3 to 4 days | Dark, since `billing` is false |
 | M4 | Mark, live step-down, cache drop | 2 days | Dark |
 | M5 | `stripe.ts`, `billing.ts`, webhook, stand-in, Account's Plan section, deletion, sandbox pass | 5 to 6 days | Dark, tested against the sandbox |
-| M6 | P1 to P5 in [multi-page-implementation.md](multi-page-implementation.md) | See that plan | Visible, in that plan's order |
+| M6 | P1 to P5 in [multi-page-implementation.md](multi-page-implementation.md). **Done**, landed at `71c2e3d` | Done | Visible |
 | M7 | Terms, Privacy, final pricing, QA, comps, live setup, `PLANS_ON=true` | 2 to 3 days, plus the owner's steps and accountant | Charging opens |
-| M8 | Team billing, dependent on `teams-schema.md` | Part of the Team estimate | Later |
+| M8 | Team billing. **Not needed:** team features are part of Pro, and there's no per-person charge. See [teams-implementation.md](teams-implementation.md) | None | None |
 
 M0 to M5 and M7 come to about 4 to 5 weeks, a little over the 3 to 4 estimated in `plans.md`, and M6 makes it about 7. M6 shipping visibly means anyone on a private release can make up to 10 pages for free for now, which is what the 12 free months would give them anyway.
 
@@ -673,7 +673,7 @@ M0 to M5 and M7 come to about 4 to 5 weeks, a little over the 3 to 4 estimated i
 M0 ────────────────────────────────┐
 M1 ─┬─ M2 ─┬─ M3 ──────────┐       │
     │      └─ M4 ──────────┤       ├─ M7
-    └─ M5 ─────────────────┼─ M6 ──┘
+    └─ M5 ─────────────────┼─ M6 (done) ──┘
 ```
 
 1. **One agent, alone:** M1, since it holds the migration, the contract and the module everything imports. M0 can run beside it, because it only touches marketing. M1 then replaces M0's typed numbers with `PLANS` and adds the parity test.
@@ -681,7 +681,7 @@ M1 ─┬─ M2 ─┬─ M3 ──────────┐       │
    - Agent A takes M2 then M3, in `packages/page` and the editor.
    - Agent B takes M4, in `packages/render` and `app.ts`.
    - Agent C takes M5, in `billing.ts`, `stripe.ts`, the stand-in and `auth.ts`, plus `AccountPage.tsx`.
-3. **Then M6,** which is P1 to P5 in [multi-page-implementation.md](multi-page-implementation.md), after M3 and M5 land.
+3. **M6 is done:** P1 to P5 in [multi-page-implementation.md](multi-page-implementation.md) have landed, and teams followed them.
 4. **Then M7,** one agent with the owner.
 
 Shared files to take turns on: `apps/server/src/app.ts` (B and C), `packages/contract/src/index.ts` (M1 adds what's foreseeable), `tests/helpers.ts`. Only M1 generates a migration, so numbering can't clash. `Editor.tsx`, `Canvas.tsx`, `tests/editor.spec.ts`, `README.md` and `qa.md` have uncommitted work from others today, so re-read them first and commit only your own files.

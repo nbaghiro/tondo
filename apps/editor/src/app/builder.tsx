@@ -29,7 +29,8 @@ export function mountStart(root: HTMLElement, _account: LoadedAccount): void {
     const finish = async (handle: string, page: Page) => {
         const problem = await claimAddress(handle, withTimeZone(page));
         if (problem) return problem;
-        location.assign(appPath("/edit"));
+        const invite = new URLSearchParams(location.search).get("invite");
+        location.assign(appPath(invite ? `/join?invite=${encodeURIComponent(invite)}` : "/edit"));
         return null;
     };
     render(() => <StartFlow wanted={wanted} onDone={finish} />, root);

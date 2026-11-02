@@ -46,6 +46,7 @@ export function PageSwitcher(props: {
     pages: readonly PageSummary[];
     current: PageSummary;
     limits: Pick<Limits, "pages" | "live">;
+    teamName?: string | undefined;
     /** With only the arrow showing, for beside an address that's already on screen. */
     compact?: boolean;
     onOpen?: () => void;
@@ -79,6 +80,37 @@ export function PageSwitcher(props: {
         const step = e.key === "ArrowDown" ? 1 : -1;
         items[(at + step + items.length) % items.length]?.focus();
     };
+    const mine = () => props.pages.filter((page) => page.side === "own" || page.side === "joined");
+    const onTeam = () =>
+        props.pages.filter((page) => page.side === "team" || page.side === "teammate");
+    const item = (page: PageSummary) => {
+        const status = () => statusOf(page);
+        return (
+            <button
+                type="button"
+                class="psw-item"
+                role="menuitem"
+                data-page-item={page.handle}
+                aria-current={page.id === props.current.id}
+                onClick={() => {
+                    setOpen(false);
+                    props.onPick(page);
+                }}
+            >
+                <PageTile page={page} />
+                <span class="psw-text">
+                    <b>{page.name || page.handle}</b>
+                    <small>tondo.page/{page.handle}</small>
+                </span>
+                <i
+                    class={`psw-state ${status().tone}`}
+                    role="img"
+                    aria-label={status().label}
+                    title={status().label}
+                />
+            </button>
+        );
+    };
     const label = () => `Switch page. ${props.current.name || props.current.handle} is open`;
     return (
         <div class="psw-wrap" ref={setWrap} onKeyDown={onKey}>
@@ -107,36 +139,13 @@ export function PageSwitcher(props: {
             </button>
             <Show when={open()}>
                 <div class="psw-menu" role="menu" aria-label="Your pages">
-                    <For each={props.pages}>
-                        {(page) => {
-                            const status = () => statusOf(page);
-                            return (
-                                <button
-                                    type="button"
-                                    class="psw-item"
-                                    role="menuitem"
-                                    data-page-item={page.handle}
-                                    aria-current={page.id === props.current.id}
-                                    onClick={() => {
-                                        setOpen(false);
-                                        props.onPick(page);
-                                    }}
-                                >
-                                    <PageTile page={page} />
-                                    <span class="psw-text">
-                                        <b>{page.name || page.handle}</b>
-                                        <small>tondo.page/{page.handle}</small>
-                                    </span>
-                                    <i
-                                        class={`psw-state ${status().tone}`}
-                                        role="img"
-                                        aria-label={status().label}
-                                        title={status().label}
-                                    />
-                                </button>
-                            );
-                        }}
-                    </For>
+                    <For each={mine()}>{item}</For>
+                    <Show when={onTeam().length}>
+                        <p class="psw-group" data-team-pages>
+                            {props.teamName ?? "Your team"}
+                        </p>
+                        <For each={onTeam()}>{item}</For>
+                    </Show>
                     <div class="psw-sep" />
                     <button
                         type="button"
@@ -150,7 +159,8 @@ export function PageSwitcher(props: {
                     >
                         New page
                         <small>
-                            {props.pages.length} of {props.limits.pages}
+                            {props.pages.filter((page) => page.side === "own").length} of{" "}
+                            {props.limits.pages}
                         </small>
                     </button>
                 </div>

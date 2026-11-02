@@ -4,7 +4,15 @@ import { createEffect, createMemo, createSignal, For, onMount, Show, untrack } f
 import { groupsInOrder, NAV } from "../app/nav";
 import type { NavItem } from "../app/nav";
 import { askedPage, follow, navigate, path } from "../app/router";
-import { appPath, chosenPage, newPagePath, onPage, ownPageCount, SITE_URL } from "../lib/account";
+import {
+    appPath,
+    chosenPage,
+    loadAccount,
+    newPagePath,
+    onPage,
+    ownPageCount,
+    SITE_URL,
+} from "../lib/account";
 import type { Account } from "../lib/account";
 import type { PageSummary } from "@tondo/contract";
 import { AccountPage } from "./AccountPage";
@@ -17,6 +25,7 @@ import { planName } from "../lib/plan-copy";
 import { plan } from "../state/plan";
 import { NavIcon } from "./Parts";
 import { SettingsPage } from "./SettingsPage";
+import { TeamPage } from "./TeamPage";
 
 const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('class="tondo"', "");
 
@@ -123,6 +132,21 @@ export function Shell(props: { account: Account }) {
         history.replaceState(null, "", `${location.pathname}?${asked.toString()}`);
         setAtLimit(!canAdd());
     });
+    const isTeamOwner = () => account().team?.role === "owner";
+    const canDeleteChosen = () => {
+        const { side, id } = chosen();
+        if (side === "own")
+            return (
+                account().pages.filter((one) => one.side === "own" || one.side === "joined")
+                    .length > 1
+            );
+        const look = account().pages.find((one) => one.side === "team");
+        return side === "team" && isTeamOwner() && look?.id !== id;
+    };
+    const canChangeChosen = () => {
+        const { side } = chosen();
+        return side === "own" || side === "joined" || (side === "team" && isTeamOwner());
+    };
     const refreshPages = async () => {
         const pages = await loadPages();
         if (pages) setAccount({ ...account(), pages });
@@ -135,6 +159,7 @@ export function Shell(props: { account: Account }) {
             pages={account().pages}
             current={chosen()}
             limits={account().limits}
+            teamName={account().team?.name}
             onOpen={() => {
                 refreshPages().catch(() => undefined);
             }}
@@ -163,13 +188,27 @@ export function Shell(props: { account: Account }) {
                                 ),
                             });
                         }}
-                        canDelete={account().pages.length > 1}
+                        canDelete={canDeleteChosen()}
+                        canChangeAddress={canChangeChosen()}
                         canAddPage={canAdd()}
                         onPageLimit={() => setAtLimit(true)}
                         onDeleted={() => {
                             const left = account().pages.filter((other) => other.id !== pageId());
                             setAccount({ ...account(), pages: left });
                             navigate("/settings");
+                        }}
+                    />
+                );
+            case "/team":
+                return (
+                    <TeamPage
+                        account={account()}
+                        onChanged={() => {
+                            loadAccount()
+                                .then((next) => {
+                                    if (next) setAccount(next);
+                                })
+                                .catch(() => undefined);
                         }}
                     />
                 );

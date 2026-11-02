@@ -18,6 +18,7 @@ interface TopBarProps {
     pageId: string;
     handle: string;
     pages: readonly PageSummary[];
+    teamName?: string | undefined;
     limits: Pick<Limits, "pages" | "live">;
     onPreview: () => void;
     onPublish: () => void;
@@ -100,6 +101,7 @@ export function TopBar(props: TopBarProps) {
                     pages={pages()}
                     current={current()}
                     limits={props.limits}
+                    teamName={props.teamName}
                     onOpen={() => {
                         loadPages()
                             .then((list) => {

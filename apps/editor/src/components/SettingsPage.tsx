@@ -17,6 +17,7 @@ export function SettingsPage(props: {
     page: PageSummary;
     onAddress: (handle: string) => void;
     canDelete: boolean;
+    canChangeAddress: boolean;
     canAddPage: boolean;
     onPageLimit: () => void;
     onDeleted: () => void;
@@ -143,45 +144,55 @@ export function SettingsPage(props: {
                             title="Address"
                             lead="The link you share, and the one people visit."
                         >
-                            <form
-                                onSubmit={(e) => {
-                                    saveAddress(e).catch(() => undefined);
-                                }}
-                            >
-                                <label class="f">
-                                    Your address
-                                    <span class="pre">
-                                        tondo.page/
-                                        <input
-                                            name="address"
-                                            value={handle()}
-                                            autocomplete="off"
-                                            autocapitalize="off"
-                                            spellcheck={false}
-                                            onInput={(e) => {
-                                                setHandle(e.currentTarget.value);
-                                                setAddressNote("");
-                                            }}
-                                        />
-                                    </span>
-                                </label>
-                                <p class="note">
-                                    The old address stops working at once and someone else can claim
-                                    it. Links and QR codes using it will stop working.
-                                </p>
-                                <Show when={addressNote()}>
-                                    <p class="bad-note" role="alert">
-                                        {addressNote()}
+                            <Show
+                                when={props.canChangeAddress}
+                                fallback={
+                                    <p class="note" data-address-locked>
+                                        tondo.page/{current()}. Only the person whose page this is,
+                                        or the team's owner, can change it.
                                     </p>
-                                </Show>
-                                <button
-                                    class="b"
-                                    type="submit"
-                                    disabled={normaliseHandle(handle()) === current()}
+                                }
+                            >
+                                <form
+                                    onSubmit={(e) => {
+                                        saveAddress(e).catch(() => undefined);
+                                    }}
                                 >
-                                    Change address
-                                </button>
-                            </form>
+                                    <label class="f">
+                                        Your address
+                                        <span class="pre">
+                                            tondo.page/
+                                            <input
+                                                name="address"
+                                                value={handle()}
+                                                autocomplete="off"
+                                                autocapitalize="off"
+                                                spellcheck={false}
+                                                onInput={(e) => {
+                                                    setHandle(e.currentTarget.value);
+                                                    setAddressNote("");
+                                                }}
+                                            />
+                                        </span>
+                                    </label>
+                                    <p class="note">
+                                        The old address stops working at once and someone else can
+                                        claim it. Links and QR codes using it will stop working.
+                                    </p>
+                                    <Show when={addressNote()}>
+                                        <p class="bad-note" role="alert">
+                                            {addressNote()}
+                                        </p>
+                                    </Show>
+                                    <button
+                                        class="b"
+                                        type="submit"
+                                        disabled={normaliseHandle(handle()) === current()}
+                                    >
+                                        Change address
+                                    </button>
+                                </form>
+                            </Show>
                         </SettingsSection>
                         <SettingsSection
                             title="Sharing and search"

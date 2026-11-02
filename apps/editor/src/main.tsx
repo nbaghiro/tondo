@@ -14,6 +14,12 @@ async function open(here: HTMLElement): Promise<void> {
     setPlan(account);
     followLogOut();
     const path = inAppPath();
+    if (path === "/join") {
+        document.title = "Join a team | Tondo";
+        const { mountJoin } = await import("./app/dashboard");
+        mountJoin(here, account);
+        return;
+    }
     if (!account.pages.length) {
         if (path !== "/start") {
             location.replace(`${appPath("/start")}${location.search}`);

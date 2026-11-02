@@ -40,7 +40,7 @@ Invite a small group, with real pages replacing the fictional ones as people agr
 
 ### 7. After the private release
 
-Connected accounts, teams, custom domains and paid plans, following [features.md](features.md).
+Connected accounts, custom domains and paid plans (teams are built), following [features.md](features.md).
 
 ## Blocks
 
@@ -56,5 +56,5 @@ Made on 2026-10-31, and open to change:
 Still open:
 
 - **Domain and name:** the domain is `tondo.page`. No trademark search has been run. This should happen before more work goes into the name, because it's cheap now and costly later.
-- **Plans and prices:** the owner chose the simplified plans on 2026-11-01: Free with no live page, Starter at $4 and Pro at $10. [plans-implementation.md](plans-implementation.md) has what's built. Nothing can be bought yet: it needs the owner's Stripe setup and new Terms and Privacy. The marketing site already states paid plans and teams as available, so it can't go live until they are.
+- **Plans and prices:** see the top of [plans.md](plans.md): no Free plan, Starter at $5, Pro at $12 per 5 pages and a 14-day trial. Built against a stand-in, off until `PLANS_ON`.
 - **Hosting:** compare providers for custom domains and edge caching before step 4.

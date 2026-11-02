@@ -78,10 +78,7 @@ Not built yet: password reset and email verification screens, and terms and priv
 
 ## Teams
 
-Teams aren't modelled yet. [data-model.md](data-model.md) says what they'll change.
-
-
-A team would have a shared look, a member list and one page per person. Owners choose whether members can change only their links or their whole page. A team also has its own page, such as `tondo.page/asterandbell`, which lists its people.
+A team has one owner, who pays through Pro. Each person brings one of their pages, and the team can have pages of its own. The team's oldest page of its own holds the look, and publishing it changes every page on the team at once, with nothing copied into anyone's document. Owner, Editor and Member decide who can edit what. [teams-implementation.md](teams-implementation.md) has the rules.
 
 ## What comes from Galleo
 

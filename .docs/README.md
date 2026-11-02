@@ -12,9 +12,9 @@ Tondo gives a person or a team one address, such as `tondo.page/maya`, for a pag
 | [builder-port.md](builder-port.md) | How the full builder was built: every block's layouts and fields, what was cut, and the order of work |
 | [data-model.md](data-model.md) | How pages and blocks get saved, and why Postgres with JSONB fits |
 | [teams-schema.md](teams-schema.md) | The decision on the teams schema: one `teams` table (option E), with the four earlier options kept as history |
-| [teams-implementation.md](teams-implementation.md) | Plan, not yet built: schema, addresses, who can edit what, routes, edge cases, the shared look, screens, invitations, billing, tests, copy and milestones |
-| [plans.md](plans.md) | The current plans decided on 2026-11-01 at the top: Free with no live page, Starter and Pro. Below that, the earlier proposal with competitor prices, as history |
-| [plans-implementation.md](plans-implementation.md) | What's built for the current plans, off until `PLANS_ON`, with no Stripe account yet: rules, what was removed, what the owner must create in Stripe and testing. The earlier plan follows as history |
+| [teams-implementation.md](teams-implementation.md) | Built, with plans off until `PLANS_ON`: who pays, what stays online, who can do what, invitations, the shared look, Help me, what Terms and Privacy need, and open decisions |
+| [plans.md](plans.md) | The current plans at the top: no Free plan, Starter, Pro per 5 pages and a 14-day trial. Below that, earlier decisions and competitor prices, as history |
+| [plans-implementation.md](plans-implementation.md) | What's built for the current plans at the top, off until `PLANS_ON`, with no Stripe account yet. The earlier plan follows as history |
 | [multi-page.md](multi-page.md) | The decision on several pages: own address per page (option 2), now built, with the other options, competitors, Home design and working defaults |
 | [multi-page-implementation.md](multi-page-implementation.md) | Built: one address per page, routes and editor by page id, the switcher, New page, photos by page, the sitemap and tests, with what changed while building |
 | [ai-chat.md](ai-chat.md) | Help me, the AI chat for setting up and editing a page: what's built, architecture, UX, safety, costs, evals and what's left |

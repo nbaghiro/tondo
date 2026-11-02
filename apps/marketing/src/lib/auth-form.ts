@@ -1,5 +1,5 @@
 import { routes } from "@tondo/contract";
-import type { AuthError, MeResponse } from "@tondo/contract";
+import type { AuthError, InviteResponse, MeResponse } from "@tondo/contract";
 
 const EDITOR_URL =
     (import.meta.env["PUBLIC_EDITOR_URL"] as string | undefined) ??
@@ -38,7 +38,9 @@ const preview = import.meta.env.DEV && params.has("preview");
 // The editor runs the start flow for someone with no address yet, and checks the one they asked for.
 const goOn = (account: Pick<MeResponse, "pages">, handle?: string) => {
     const asked = !account.pages.length && handle ? `?handle=${encodeURIComponent(handle)}` : "";
-    const next = `${EDITOR_URL}${asked}`;
+    const next = invite
+        ? `${EDITOR_URL}/join?invite=${encodeURIComponent(invite)}`
+        : `${EDITOR_URL}${asked}`;
     if (preview) window.parent.postMessage({ tondoGoTo: next }, "*");
     else location.assign(next);
 };
@@ -48,6 +50,7 @@ const PENDING = "tondo-pending";
 interface Pending {
     email: string;
     handle?: string | undefined;
+    invite?: string | undefined;
 }
 const savePending = (pending: Pending) => {
     sessionStorage.setItem(PENDING, JSON.stringify(pending));
@@ -62,6 +65,23 @@ const goTo = (path: string) => {
 };
 
 const pending = loadPending();
+// An invitation link carries through every step, as an address does, with no cookie.
+const invite = params.get("invite") ?? pending?.invite ?? "";
+if (invite) {
+    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+        'a[href="/signup"], a[href="/login"]',
+    )) {
+        link.href = `${link.getAttribute("href") ?? ""}?invite=${encodeURIComponent(invite)}`;
+    }
+    fetch(routes.invite(invite))
+        .then(async (res) => {
+            const lead = document.querySelector<HTMLElement>("[data-lead]");
+            if (!res.ok || !lead) return;
+            const { name } = (await res.json()) as InviteResponse;
+            lead.textContent = `Join ${name} on Tondo.`;
+        })
+        .catch(() => undefined);
+}
 if (kind === "verify" || kind === "reset") {
     if (!pending) location.assign(kind === "verify" ? "/signup" : "/forgot");
     for (const node of document.querySelectorAll("[data-email]")) {
@@ -136,7 +156,7 @@ async function signUp(email: string, password: string, handle: string): Promise<
     if (!res.ok) return authMessage(res);
     const body = (await res.json()) as { user?: { emailVerified?: boolean } };
     if (body.user?.emailVerified === false) {
-        savePending({ email, handle: handle || undefined });
+        savePending({ email, handle: handle || undefined, invite: invite || undefined });
         goTo("/verify");
         return null;
     }
@@ -161,7 +181,7 @@ async function logIn(email: string, password: string): Promise<string | null> {
             .catch(() => ({}))) as AuthError;
         if (body.code === "EMAIL_NOT_VERIFIED") {
             await sendCode(email);
-            savePending({ email });
+            savePending({ email, invite: invite || undefined });
             goTo("/verify");
             return null;
         }
@@ -265,6 +285,7 @@ for (const button of document.querySelectorAll<HTMLButtonElement>("[data-google]
     button.addEventListener("click", () => {
         const back = new URL(routes.authReturn, location.origin);
         if (wanted) back.searchParams.set("handle", wanted);
+        if (invite) back.searchParams.set("invite", invite);
         showError("");
         postJson(routes.signInSocial, { provider: "google", callbackURL: back.href })
             .then(async (res) => {

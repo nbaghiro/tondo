@@ -32,7 +32,8 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 | Table | Columns | What it's for |
 |---|---|---|
 | `users` | id | One person. `id` is Neon Auth's user id. A row appears when they claim their first address. `suspended_at`, when set, stops all their pages being served. `plan`, `stripe_id` and `ends_at` hold their plan, see [plans-implementation.md](plans-implementation.md) |
-| `pages` | id, user_id, handle, draft, published, updated_at, created_at | The page being edited and its live copy, each one JSONB document. `handle` is the page's own address, unique across everyone. `created_at` keeps the list in order |
+| `teams` | id, owner_id, invites_from | A team. Its name and look come from its oldest page of its own. A person's team is the one they own, or the one their joined page is on. See [teams-implementation.md](teams-implementation.md) |
+| `pages` | id, user_id, team_id, handle, draft, published, updated_at, created_at | The page being edited and its live copy, each one JSONB document. `handle` is the page's own address, unique across everyone. `created_at` keeps the list in order |
 
 | `stats` | page_id, target, day, count | Daily counts. An empty target is a page view, and any other is one link |
 
@@ -43,7 +44,7 @@ Emails, passwords and sessions live in Neon Auth's own `neon_auth` schema.
 | `contacts` | id, user_id, email, entries, unsubscribed_at, created_at | Sign-ups and forms |
 | `connections` | id, user_id, provider, credentials, items, fetched_at | Connected accounts |
 
-**Columns that arrive later on `users`:** `domain` with custom domains. `plan` is a copy of what Stripe knows, because asking Stripe on every page load would be too slow.
+**On `users` for teams and Pro:** `editor`, and `packs` copied from Stripe's quantity. **Columns that arrive later on `users`:** `domain` with custom domains. `plan` is a copy of what Stripe knows, because asking Stripe on every page load would be too slow.
 
 Tables only needed for much later features are `links` (standalone QR codes and short links, phase 4), `products` and `orders` (selling, phase 6) and `bookings` (Tondo booking, phase 8).
 

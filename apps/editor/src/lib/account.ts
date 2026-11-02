@@ -54,7 +54,13 @@ export const UNREACHABLE = "We couldn't reach Tondo. Reload this page to try aga
 export async function loadAccount(): Promise<LoadedAccount | null> {
     const res = await fetch(routes.me);
     if (res.status === 401) {
-        location.assign(`${SITE_URL}/login`);
+        // Someone opening an invitation with no account yet starts by making one.
+        const invite = new URLSearchParams(location.search).get("invite");
+        location.assign(
+            invite && location.pathname.endsWith("/join")
+                ? `${SITE_URL}/signup?invite=${encodeURIComponent(invite)}`
+                : `${SITE_URL}/login`,
+        );
         return null;
     }
     if (!res.ok) {

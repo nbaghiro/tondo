@@ -154,6 +154,13 @@
 .psw-state.warn {
     background: #d59a22;
 }
+.psw-group {
+    margin: 8px 0 2px;
+    padding: 4px 8px;
+    color: var(--soft);
+    font-size: 12px;
+    font-weight: 700;
+}
 .psw-sep {
     height: 1px;
     margin: 6px;

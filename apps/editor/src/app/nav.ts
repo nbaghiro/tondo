@@ -23,6 +23,7 @@ export const GROUP_NAMES: Partial<Record<NavGroup, string>> = {
 export const NAV: readonly NavItem[] = [
     { id: "home", label: "Home", icon: "home", group: "top", path: "/" },
     { id: "analytics", label: "Analytics", icon: "chart", group: "top", path: "/analytics" },
+    { id: "team", label: "Team", icon: "team", group: "top", path: "/team" },
     { id: "settings", label: "Page settings", icon: "sliders", group: "manage", path: "/settings" },
     { id: "help", label: "Help", icon: "help", group: "bottom", external: "/support" },
     { id: "account", label: "Account", icon: "person", group: "bottom", path: "/account" },

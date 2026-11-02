@@ -1,7 +1,7 @@
 import { createResource, createSignal, Show } from "solid-js";
 import { MOST_PACKS, PACK_PAGES, PRICES } from "@tondo/page";
 import type { PaidPlan, Period } from "@tondo/page";
-import { logOut, SITE_URL } from "../lib/account";
+import { appPath, logOut, SITE_URL } from "../lib/account";
 import type { Account } from "../lib/account";
 import {
     changePacks,
@@ -148,7 +148,10 @@ export function AccountPage(props: { account: Account }) {
     const [deleted, setDeleted] = createSignal<"all" | "signin-left" | null>(null);
     const toast = createToast();
     const addresses = () =>
-        props.account.pages.map((page) => `tondo.page/${page.handle}`).join(", ");
+        props.account.pages
+            .filter((page) => page.side === "own" || page.side === "joined")
+            .map((page) => `tondo.page/${page.handle}`)
+            .join(", ");
 
     const savePassword = async (e: Event) => {
         e.preventDefault();
@@ -197,6 +200,14 @@ export function AccountPage(props: { account: Account }) {
         >
             <PageHeader title="Account" lead="Your sign-in details." />
             <PlanSection />
+            <Show when={props.account.team && props.account.team.role !== "owner"}>
+                <SettingsSection title="Your team" lead="Who pays for your page on the team.">
+                    <p data-team-pays>
+                        {props.account.team?.name}'s owner pays for your page on the team. Your
+                        other pages follow your own plan.
+                    </p>
+                </SettingsSection>
+            </Show>
             <SettingsSection title="Email" lead="Where your codes and notices go.">
                 <label class="f">
                     Email
@@ -261,7 +272,14 @@ export function AccountPage(props: { account: Account }) {
                         : `This removes ${addresses()}, your photos and your numbers. It can't be undone.`
                 }
             >
+                <Show when={props.account.team?.role === "owner"}>
+                    <p class="note" data-owner-delete>
+                        You own {props.account.team?.name}. Hand it to someone else or delete it on
+                        the <a href={appPath("/team")}>Team page</a> first.
+                    </p>
+                </Show>
                 <form
+                    hidden={props.account.team?.role === "owner"}
                     onSubmit={(e) => {
                         remove(e).catch(() => undefined);
                     }}

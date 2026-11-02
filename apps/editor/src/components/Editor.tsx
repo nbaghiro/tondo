@@ -659,6 +659,7 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                     handle={props.draft.handle}
                     pages={props.account.pages}
                     limits={props.account.limits}
+                    teamName={props.account.team?.name}
                     onPreview={() => setPreviewing(true)}
                     publishing={publishing()}
                     onPublish={startPublish}
