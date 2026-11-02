@@ -13,6 +13,7 @@ export const handleSchema = z
 
 // Render fills in each look. Its record is keyed by this list, so a missing look won't compile.
 export const lookNames = [
+    "porcelain",
     "madder",
     "dusk",
     "sumi",

@@ -5,6 +5,7 @@ import { lookVars } from "./style";
 // One line per look for the assistant, since the looks hold no words about what they suit. The
 // intent lines are hand-written from the example page each look was made for.
 const INTENT: Readonly<Record<LookName, string>> = {
+    porcelain: "Clean white, plum ink and rose paint, in a soft serif. A calm place to start.",
     madder: "warm and painterly, for makers and ceramicists",
     dusk: "calm night sky, for writers and musicians",
     sumi: "quiet ink on paper, for artists and designers",

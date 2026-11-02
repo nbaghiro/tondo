@@ -7,6 +7,7 @@ import type { Field } from "./fields";
 import { linkName } from "./links";
 import type { Page } from "./schema";
 import { sectionDefinitions, sectionsOf } from "./sections";
+import { isStarterTagline, starterSamples } from "./starters";
 
 // A new section starts filled with words that show how it looks. Those words aren't the person's,
 // so a live page leaves them out until they've been changed. Nothing is stored to say what's been
@@ -130,6 +131,7 @@ function samples(): Map<string, Samples> {
             for (const seed of definition.sample(style)) collect(of(seed.type), seed);
         }
     }
+    for (const { type, values } of starterSamples()) collect(of(type), values);
     cached = map;
     return map;
 }
@@ -312,7 +314,9 @@ function trimBlocks(blocks: readonly Block[], leftOut: LeftOut[]): Block[] {
 export function liveContent(page: Page): { page: Page; leftOut: LeftOut[] } {
     const leftOut: LeftOut[] = [];
     const blocks = trimBlocks(page.blocks, leftOut);
-    return { page: { ...page, blocks }, leftOut };
+    const { tagline, ...rest } = page.header;
+    const header = tagline && isStarterTagline(tagline) ? rest : page.header;
+    return { page: { ...page, header, blocks }, leftOut };
 }
 
 /** Whether a section's going to show on the live page as it stands. */

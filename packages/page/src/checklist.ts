@@ -23,7 +23,8 @@ export function setupChecklist(
 ): ChecklistItem[] {
     const { header } = page;
     const hasOwnPhoto = Boolean(header.photo && !isPlaceholder(header.photo));
-    const left = liveContent(page).leftOut[0];
+    const live = liveContent(page);
+    const left = live.leftOut[0];
     const painted = allBlocks(page.blocks).find(
         (block) => !block.hidden && block.type !== "tabs" && hasPlaceholder(block),
     );
@@ -33,7 +34,8 @@ export function setupChecklist(
             label: "Say who you are",
             hint: "A short line under your name",
             done: Boolean(
-                header.name.trim() && [header.tagline, header.bio].some((line) => line?.trim()),
+                header.name.trim() &&
+                [live.page.header.tagline, header.bio].some((line) => line?.trim()),
             ),
             section: HEADER,
             item: "tagline",

@@ -72,7 +72,7 @@ export const samplePage: Page = {
 export function starterPage(name: string): Page {
     return {
         version: PAGE_VERSION,
-        look: "madder",
+        look: "porcelain",
         header: { layout: "look", name, links: [] },
         blocks: [],
     };

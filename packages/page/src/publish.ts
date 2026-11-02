@@ -1,4 +1,5 @@
 import { allBlocks, blockDefinitions } from "./blocks";
+import { isStarterTagline } from "./starters";
 import { isPlaceholder } from "./define-block";
 import type { Photo } from "./define-block";
 import type { Block } from "./blocks";
@@ -101,7 +102,11 @@ export function publishIssues(page: Page): PublishIssue[] {
     }
     const visible = liveContent(page).page;
     const live = allBlocks(visible.blocks).filter((block) => !block.hidden);
-    const hasHeader = [page.header.tagline, page.header.bio, buttonText].some(Boolean);
+    const hasHeader = [
+        isStarterTagline(page.header.tagline) ? "" : page.header.tagline,
+        page.header.bio,
+        buttonText,
+    ].some(Boolean);
     const hasOwnTop = hasHeader || Boolean(page.header.photo) || links.length > 0;
     if (!hasOwnTop && !live.some((block) => block.type !== "heading")) {
         issues.push({

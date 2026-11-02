@@ -2,7 +2,8 @@ import type { Page } from "@tondo/page";
 import { fontsHref, renderBody, renderCss, renderDocument } from "@tondo/render";
 import { createEffect, createSignal, untrack } from "solid-js";
 
-const CTX = { assetBase: "/photos/", editable: false };
+// Editable, so sample buttons and links show here before they have anywhere to go.
+const CTX = { assetBase: "/photos/", editable: true };
 const SHELL_CSS = "html{scrollbar-width:none}a{pointer-events:none}";
 
 /** A page that redraws as it changes, for the start flow. */

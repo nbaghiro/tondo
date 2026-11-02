@@ -306,9 +306,9 @@ test("the header's words can go, and the art changes from its own panel", async 
     await canvas(page).locator("#t-header").click();
     const open = panel(page);
 
-    await open.getByLabel("Short line").fill("A line");
+    await open.getByRole("textbox", { name: "Short line" }).fill("A line");
     await open.getByRole("button", { name: "Clear Short line" }).click();
-    await expect(open.getByLabel("Short line")).toHaveValue("");
+    await expect(open.getByRole("textbox", { name: "Short line" })).toHaveValue("");
 
     await open.getByRole("switch", { name: "Show my name" }).click();
     const name = canvas(page).locator("#t-header h1");

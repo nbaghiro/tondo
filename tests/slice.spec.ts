@@ -54,6 +54,10 @@ test("the toolbar moves, copies and removes", async ({ page }) => {
 });
 
 test("the header draws no empty placeholders, selected or not", async ({ page }) => {
+    await canvas(page).locator("#t-header h1").click();
+    await panel(page).getByRole("button", { name: "Clear Short line" }).click();
+    await page.locator(".status", { hasText: "Saved" }).waitFor();
+    await page.reload();
     await expect(canvas(page).locator("#t-header .p-tag")).toBeHidden();
     await canvas(page).locator("#t-header h1").click();
     await expect(canvas(page).locator("#t-header .p-tag")).toBeHidden();

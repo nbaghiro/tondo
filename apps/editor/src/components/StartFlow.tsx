@@ -2,12 +2,15 @@ import { routes } from "@tondo/contract";
 import type { HandleResponse } from "@tondo/contract";
 import {
     addSection,
-    makeSection,
+    defaultStarterUse,
     normaliseHandle,
     PAGE_VERSION,
     sectionAvailable,
     sectionDefinition,
     sectionDefinitions,
+    starterSection,
+    starterTagline,
+    starterUses,
     wordmarks,
 } from "@tondo/page";
 import type { Block, LookName, Page } from "@tondo/page";
@@ -23,14 +26,6 @@ import { Phone } from "./Phone";
 const LOGO = paint(["#c8385f", "#e8876a", "#a42a55", "#f2b56b"], 9).replace('class="tondo"', "");
 const STEPS = 5;
 const makeId = () => crypto.randomUUID();
-
-const USES = [
-    ["shop", "A shop", ["links", "spotlight", "shop", "find"]],
-    ["services", "My services", ["about", "services", "bookings", "proof", "find"]],
-    ["creator", "My creative work", ["banner", "photos", "media", "links"]],
-    ["place", "A place or event", ["spotlight", "events", "photos", "find"]],
-    ["me", "Just me", ["about", "links", "photos"]],
-] as const;
 
 const WORDMARK_LABELS: Record<string, string> = {
     plain: "Plain text",
@@ -62,10 +57,16 @@ export function StartFlow(props: {
     const markSize = () => Math.max(12, Math.min(30, MARK_ROOM / Math.max(name().length, 1)));
     const [use, setUse] = createSignal<string | null>(null);
     const mainKeys = sectionDefinitions.filter((s) => !s.less).map((s) => s.key);
-    const [order, setOrder] = createSignal<string[]>(mainKeys);
-    const [picked, setPicked] = createSignal<string[]>(["about", "links", "photos"]);
+    const startingWith = (id: string) => {
+        const first =
+            starterUses.find((other) => other.id === id)?.sections.map((s) => s.key) ?? [];
+        return { first, order: [...first, ...mainKeys.filter((key) => !first.includes(key))] };
+    };
+    const opening = startingWith(defaultStarterUse);
+    const [order, setOrder] = createSignal<string[]>(opening.order);
+    const [picked, setPicked] = createSignal<string[]>(opening.first);
     const [mark, setMark] = createSignal<string>("plain");
-    const [look, setLook] = createSignal<LookName>("lagoon");
+    const [look, setLook] = createSignal<LookName>("porcelain");
     const [handle, setHandle] = createSignal(untrack(() => props.wanted));
     const [note, setNote] = createSignal<{ tone: "" | "ok" | "bad"; text: string }>({
         tone: "",
@@ -86,11 +87,11 @@ export function StartFlow(props: {
     const blocksByKey = new Map<string, Block[]>();
 
     const blocksFor = (key: string) => {
-        const known = blocksByKey.get(key);
+        const id = use() ?? defaultStarterUse;
+        const known = blocksByKey.get(`${id}:${key}`);
         if (known) return known;
-        const definition = sectionDefinition(key);
-        const blocks = definition ? makeSection(definition, makeId) : [];
-        blocksByKey.set(key, blocks);
+        const blocks = starterSection(id, key, makeId);
+        blocksByKey.set(`${id}:${key}`, blocks);
         return blocks;
     };
     const page = createMemo<Page>(() => {
@@ -114,6 +115,7 @@ export function StartFlow(props: {
             header: {
                 layout: "look",
                 name: name().trim() || "Your name",
+                tagline: starterTagline(use() ?? defaultStarterUse),
                 links: [],
                 ...(wordmark !== "plain"
                     ? { wordmark: wordmark as (typeof wordmarks)[number] }
@@ -343,15 +345,17 @@ export function StartFlow(props: {
                             <div class="gapped">
                                 <span class="lbl">What's it mostly for?</span>
                                 <div class="chips">
-                                    <For each={USES}>
-                                        {([id, label, picks]) => (
+                                    <For each={starterUses}>
+                                        {({ id, label }) => (
                                             <button
                                                 type="button"
                                                 class="chip"
                                                 aria-pressed={use() === id}
                                                 onClick={() => {
+                                                    const start = startingWith(id);
                                                     setUse(id);
-                                                    setPicked([...picks]);
+                                                    setOrder(start.order);
+                                                    setPicked(start.first);
                                                 }}
                                             >
                                                 {label}

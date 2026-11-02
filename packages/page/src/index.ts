@@ -129,3 +129,4 @@ export {
 export type { Account, Limits, LimitsOf, PaidPlan, Period, Plan, Standing } from "./limits";
 export { sameTeamLook, teamLookOf, withTeamLook } from "./team-look";
 export type { TeamLook } from "./team-look";
+export { defaultStarterUse, starterSection, starterTagline, starterUses } from "./starters";

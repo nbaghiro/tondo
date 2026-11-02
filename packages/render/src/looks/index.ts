@@ -20,6 +20,7 @@ import { indigo } from "./indigo";
 import { ink } from "./ink";
 import { keys } from "./keys";
 import { lagoon } from "./lagoon";
+import { porcelain } from "./porcelain";
 import { ledger } from "./ledger";
 import { lilac } from "./lilac";
 import { lume } from "./lume";
@@ -68,6 +69,7 @@ export const looks: Record<LookName, Look> = {
     atelier,
     vellum,
     plaster,
+    porcelain,
     lagoon,
     tide,
     brine,
