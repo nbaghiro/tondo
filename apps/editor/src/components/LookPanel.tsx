@@ -1,3 +1,4 @@
+import type { DraftResponse } from "@tondo/contract";
 import { lookNames } from "@tondo/page";
 import type { LookName, Page, PageStyle } from "@tondo/page";
 import {
@@ -12,6 +13,7 @@ import {
     themeOf,
 } from "@tondo/render";
 import { createSignal, For, onCleanup, Show } from "solid-js";
+import { appPath, onPage } from "../lib/account";
 import { brandFromPhoto } from "../lib/photo-colour";
 import type { EditorState } from "../state/document";
 import { FieldView } from "./Fields";
@@ -595,5 +597,24 @@ export function MakeItYours(props: { editor: EditorState }) {
                 </button>
             </Show>
         </>
+    );
+}
+
+/** In place of the look's controls, on a page whose look belongs to its team. */
+export function TeamLookCard(props: { draft: DraftResponse }) {
+    const team = () => props.draft.team;
+    return (
+        <div class="team-look" data-team-look>
+            <p>
+                {team()?.isLookPage
+                    ? `Only the owner can change ${team()?.name ?? "the team"}'s look. You can still edit this page's words, photos and links.`
+                    : `This page uses ${team()?.name ?? "your team"}'s look. Its words, photos and links are its own.`}
+            </p>
+            <Show when={team()?.role === "owner" && !team()?.isLookPage}>
+                <a class="lnk" href={appPath(onPage("/edit", team()?.lookPageId ?? ""))}>
+                    Change the look on the team's page
+                </a>
+            </Show>
+        </div>
     );
 }

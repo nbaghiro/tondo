@@ -1,4 +1,5 @@
-import { limitsFor, PACK_PAGES, PLANS, PRICES, proLimits } from "@tondo/page";
+import type { Draft } from "@tondo/db";
+import { isCovered, limitsFor, PACK_PAGES, PLANS, PRICES, proLimits } from "@tondo/page";
 import type { Account, Limits, PublishIssue } from "@tondo/page";
 
 export const plansOn = (): boolean => process.env["PLANS_ON"] === "true";
@@ -9,6 +10,16 @@ export function limitsOf(account: Account, now = new Date()): Limits {
     if (plansOn()) return limitsFor(account, now);
     const credits = process.env["TONDO_PLAN"] === "pro" ? PLANS.pro.credits : PLANS.free.credits;
     return { ...proLimits(account.packs ?? 1), credits };
+}
+
+/**
+ * Whether this person can't change this page's look. On the look page only the owner can. Elsewhere on a
+ * team, the look is locked while the team has one showing.
+ */
+export function isLookLocked({ team, standing }: Pick<Draft, "team" | "standing">): boolean {
+    if (!team) return false;
+    if (team.isLookPage) return team.role !== "owner";
+    return team.look !== null && isCovered(standing.team, limitsOf);
 }
 
 export const photoLimitMessage = ({ photos }: { photos: number }): string =>

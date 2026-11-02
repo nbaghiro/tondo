@@ -23,7 +23,7 @@ import { createAssistant } from "../state/assistant";
 import { createEditor, HEADER } from "../state/document";
 import { Canvas } from "./Canvas";
 import { HelpPanel } from "./HelpPanel";
-import { LookTiles, MakeItYours } from "./LookPanel";
+import { LookTiles, MakeItYours, TeamLookCard } from "./LookPanel";
 import { AddList, Glyph, PagePanel } from "./Panels";
 import { Phone } from "./Phone";
 import { Preview } from "./Preview";
@@ -129,9 +129,18 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
             updatedAt: props.draft.updatedAt,
             changed: props.draft.changed,
             published: props.draft.published,
+            teamLook: props.draft.team?.look ?? null,
             onLoggedOut: toLogin,
         }),
     );
+    const lookLocked = () => props.draft.team?.locked === true;
+    // Publishing the team's look changes other people's live pages, so it's said first.
+    const lookReaches = () => {
+        const { team } = props.draft;
+        if (!team?.isLookPage || !team.others) return [];
+        const pages = team.others === 1 ? "1 other page" : `${String(team.others)} other pages`;
+        return [{ target: "page", message: `This also changes the look on ${pages}.` }];
+    };
     const assistant = createAssistant(
         editor,
         untrack(() => props.draft.handle),
@@ -256,7 +265,7 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
               }
             : {
                   state: "warnings",
-                  warnings: publishWarnings(editor.page()),
+                  warnings: [...publishWarnings(editor.page()), ...lookReaches()],
                   address: `tondo.page/${props.draft.handle}`,
               };
     };
@@ -796,33 +805,40 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                     tall={tall()}
                     onClose={closeRight}
                     extra={
-                        <div class="tab-seg" role="tablist">
-                            <button
-                                type="button"
-                                role="tab"
-                                aria-selected={lookTab() === "looks"}
-                                onClick={() => setLookTab("looks")}
-                            >
-                                All looks
-                            </button>
-                            <button
-                                type="button"
-                                role="tab"
-                                aria-selected={lookTab() === "mine"}
-                                onClick={() => setLookTab("mine")}
-                            >
-                                Make it yours
-                            </button>
-                        </div>
+                        !lookLocked() && (
+                            <div class="tab-seg" role="tablist">
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={lookTab() === "looks"}
+                                    onClick={() => setLookTab("looks")}
+                                >
+                                    All looks
+                                </button>
+                                <button
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={lookTab() === "mine"}
+                                    onClick={() => setLookTab("mine")}
+                                >
+                                    Make it yours
+                                </button>
+                            </div>
+                        )
                     }
                 >
-                    <Show when={lookTab() === "looks"} fallback={<MakeItYours editor={editor} />}>
-                        <LookTiles
-                            page={editor.page}
-                            onPick={(look) => {
-                                editor.setLook(look);
-                            }}
-                        />
+                    <Show when={!lookLocked()} fallback={<TeamLookCard draft={props.draft} />}>
+                        <Show
+                            when={lookTab() === "looks"}
+                            fallback={<MakeItYours editor={editor} />}
+                        >
+                            <LookTiles
+                                page={editor.page}
+                                onPick={(look) => {
+                                    editor.setLook(look);
+                                }}
+                            />
+                        </Show>
                     </Show>
                 </Panel>
             </Show>
@@ -948,7 +964,7 @@ export function Editor(props: { account: Account; pageId: string; draft: DraftRe
                 </div>
             </Show>
             <Show when={previewing()}>
-                <Preview page={editor.page()} onClose={() => setPreviewing(false)} />
+                <Preview page={editor.drawn()} onClose={() => setPreviewing(false)} />
             </Show>
         </div>
     );

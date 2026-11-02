@@ -34,7 +34,7 @@ import type { Context, Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { CurrentPerson } from "./auth";
 import { blockedIssues } from "./blocked";
-import { limitsOf, livePageIssue } from "./limits";
+import { isLookLocked, limitsOf, livePageIssue } from "./limits";
 import type { LimitsOfPerson } from "./limits";
 import { summaryOut } from "./summaries";
 import { createLimiter } from "./traffic";
@@ -119,9 +119,10 @@ export function mountPages(
                 role: team.role,
                 lookPageId: team.lookPageId,
                 isLookPage: team.lookPageId === id,
+                others: team.others,
                 covered,
                 look,
-                locked: team.isLookPage ? team.role !== "owner" : look !== null,
+                locked: isLookLocked(draft),
             },
         };
     };

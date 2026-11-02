@@ -2,7 +2,14 @@ import { routes } from "@tondo/contract";
 import type { ErrorResponse, HealthResponse } from "@tondo/contract";
 import type { LivePage, PageStore, TeamStore } from "@tondo/db";
 import type { Page } from "@tondo/page";
-import { handleSchema, isCovered, isPageOnline, normaliseHandle, withTeamLook } from "@tondo/page";
+import {
+    handleSchema,
+    isCovered,
+    isPageOnline,
+    limitsFor,
+    normaliseHandle,
+    withTeamLook,
+} from "@tondo/page";
 import { findLink, renderDocument } from "@tondo/render";
 import { Hono } from "hono";
 import type { Context, MiddlewareHandler } from "hono";
@@ -195,6 +202,13 @@ export function createApp({
         pages,
         limitsOfPerson: photoLimits,
     });
+    // Someone with their own paid plan spends their own. Anyone else on a covered team spends the owner's.
+    const creditHolder = async (userId: string) => {
+        const own = await auth.store.findPlan(userId);
+        if (limitsFor(own, new Date()).live > 0) return userId;
+        const owner = await teams?.ownerOf(userId);
+        return owner && isCovered(owner.account, limitsOf) ? owner.id : userId;
+    };
     const appUrl = (c: Context) =>
         new URL(
             auth.editorUrl,
@@ -220,6 +234,7 @@ export function createApp({
         scale,
         limitsOfPerson,
         photoLimits,
+        creditHolder,
     );
     if (photos) app.get("/photos/*", photos);
 

@@ -18,7 +18,7 @@ import type { Model } from "./assistant-model";
 import type { CurrentPerson } from "./auth";
 import { imageRefusal } from "./image-make";
 import { isBlockedLink } from "./blocked";
-import { limitsOf, photoLimitMessage } from "./limits";
+import { isLookLocked, limitsOf, photoLimitMessage } from "./limits";
 import type { LimitsOfPerson } from "./limits";
 import { isBusy, listInScope, photoScope, storePhoto } from "./photos";
 import type { Storage } from "./storage";
@@ -64,6 +64,8 @@ export function mountAssistant(
     limitsOfPerson: LimitsOfPerson = () =>
         Promise.resolve(limitsOf({ plan: "free", endsAt: null })),
     photoLimits: LimitsOfPerson = limitsOfPerson,
+    /** Whose credits this person spends, which on a team can be the owner's. */
+    creditHolder: (userId: string) => Promise<string> = (userId) => Promise.resolve(userId),
 ): void {
     const fail = (
         c: Context,
@@ -86,11 +88,12 @@ export function mountAssistant(
     };
 
     const creditsOf = async (userId: string) => {
-        const limits = await limitsOfPerson(userId);
+        const holder = await creditHolder(userId);
+        const limits = await limitsOfPerson(holder);
         const { credits, creditsOnce } = limits;
         const period = creditPeriod(limits);
-        const spent = deps ? await deps.usage.spentThisMonth(userId, period) : 0;
-        return { credits, once: creditsOnce, period, left: Math.max(0, credits - spent) };
+        const spent = deps ? await deps.usage.spentThisMonth(holder, period) : 0;
+        return { holder, credits, once: creditsOnce, period, left: Math.max(0, credits - spent) };
     };
 
     app.get(routes.assistant, async (c) => {
@@ -140,6 +143,9 @@ export function mountAssistant(
                 );
             }
             const { page, message, history, selected, timeZone } = parsed.data;
+            const asked = c.req.query("page");
+            const editing = asked ? await pages.findDraft(person.id, asked) : null;
+            const lookLocked = editing ? isLookLocked(editing) : false;
             running.add(person.id);
             const userId = person.id;
             return streamSSE(c, async (stream) => {
@@ -161,6 +167,7 @@ export function mountAssistant(
                     const result = await runTurn({
                         model,
                         page,
+                        lookLocked,
                         message,
                         history,
                         selected,
@@ -179,9 +186,9 @@ export function mountAssistant(
                     const charge =
                         (result.setup ? CREDITS.setup : CREDITS.turn) +
                         result.sitesRead * CREDITS.site;
-                    const { credits, period } = await creditsOf(userId);
+                    const { holder, credits, period } = await creditsOf(userId);
                     const total = await usage.spend(
-                        userId,
+                        holder,
                         period,
                         Math.min(charge, left),
                         credits,
@@ -238,7 +245,7 @@ export function mountAssistant(
         if (!allowImage(person.id)) return fail(c, 429, "That's a lot of images. Try again later.");
         if (spentToday() >= deps.dailyUsd) return fail(c, 503, UNAVAILABLE);
         const cost = count * CREDITS.image;
-        const { credits, left, period } = await creditsOf(person.id);
+        const { holder, credits, left, period } = await creditsOf(person.id);
         if (left < cost) {
             return fail(
                 c,
@@ -267,7 +274,7 @@ export function mountAssistant(
             )
         ).filter((file): file is string => file !== null);
         if (!files.length) return fail(c, 503, "No image came back, and no credits were used.");
-        const total = await usage.spend(person.id, period, files.length * CREDITS.image, credits);
+        const total = await usage.spend(holder, period, files.length * CREDITS.image, credits);
         return c.json({ files, creditsLeft: total === null ? 0 : Math.max(0, credits - total) });
     });
 

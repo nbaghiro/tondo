@@ -66,7 +66,7 @@ export function Canvas(props: CanvasProps) {
     let ignoreClick = false;
 
     const srcdoc = untrack(() =>
-        renderDocument(props.editor.page(), { ...CTX, title: "Preview", editorCss: canvasCss }),
+        renderDocument(props.editor.drawn(), { ...CTX, title: "Preview", editorCss: canvasCss }),
     );
     const ctxFor = (page: Page) => ({ ...CTX, ...photoStandIns(page) });
 
@@ -246,7 +246,7 @@ export function Canvas(props: CanvasProps) {
         ].join("|");
 
     function sync(d: Document) {
-        const page = props.editor.page();
+        const page = props.editor.drawn();
         const apply = () => {
             syncLook(d, page);
             syncHeader(d, page);
@@ -645,7 +645,7 @@ export function Canvas(props: CanvasProps) {
             onLoad={(e) => {
                 const d = e.currentTarget.contentDocument;
                 if (!d) return;
-                const page = untrack(() => props.editor.page());
+                const page = untrack(() => props.editor.drawn());
                 drawnHeader = "";
                 drawn.clear();
                 const list = d.getElementById("t-blocks");

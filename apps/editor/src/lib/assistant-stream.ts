@@ -34,7 +34,7 @@ export async function streamTurn(
     signal: AbortSignal,
     onEvent: (event: AssistantEvent) => void,
 ): Promise<void> {
-    const res = await send(routes.assistantTurn, turn, signal);
+    const res = await send(withPhotoPage(routes.assistantTurn), turn, signal);
     if (!res.ok || !res.body) {
         const body = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
         throw new Error(body.error ?? "Help me isn't available right now.");
@@ -86,5 +86,5 @@ export async function keepPhoto(url: string): Promise<{ file: string } | { error
 
 export function discardImages(files: string[]): void {
     if (!files.length) return;
-    send(routes.assistantDiscard, { files }).catch(() => undefined);
+    send(withPhotoPage(routes.assistantDiscard), { files }).catch(() => undefined);
 }

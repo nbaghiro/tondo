@@ -202,7 +202,7 @@ export async function checkAddress(handle: string): Promise<HandleResponse | nul
 }
 
 export async function loadPhotos(): Promise<string[]> {
-    const res = await fetch(routes.photos).catch(() => null);
+    const res = await fetch(withPhotoPage(routes.photos)).catch(() => null);
     return res?.ok ? ((await res.json()) as PhotosResponse).files : [];
 }
 
@@ -234,7 +234,7 @@ export async function loadBilling(): Promise<BillingResponse | null> {
 
 /** Returns what went wrong, or null if the photo's gone. */
 export async function removePhoto(file: string): Promise<string | null> {
-    const res = await send("DELETE", routes.photo(file), {}).catch(() => null);
+    const res = await send("DELETE", withPhotoPage(routes.photo(file)), {}).catch(() => null);
     if (!res) return "That didn't work. Check your connection and try again.";
     return res.ok ? null : problemIn(res);
 }

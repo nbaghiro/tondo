@@ -1,6 +1,6 @@
 import { routes } from "@tondo/contract";
 import type { DraftResponse, PageSummary, StatsResponse } from "@tondo/contract";
-import { publishIssues, publishWarnings, setupChecklist } from "@tondo/page";
+import { publishIssues, publishWarnings, setupChecklist, withTeamLook } from "@tondo/page";
 import type { ChecklistItem } from "@tondo/page";
 import { paint, renderDocument } from "@tondo/render";
 import { createResource, createSignal, For, Show } from "solid-js";
@@ -199,7 +199,7 @@ export function HomePage(props: { page: PageSummary; name: string }) {
         }
     };
     const preview = (draft: DraftResponse) =>
-        renderDocument(draft.page, {
+        renderDocument(withTeamLook(draft.page, draft.team?.look ?? null), {
             title: "Preview",
             assetBase: "/photos/",
             editable: false,

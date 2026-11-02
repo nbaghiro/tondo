@@ -141,7 +141,7 @@ test("a saved conflict stops a turn from starting", async ({ page }) => {
 
 test("running out of credits says so, and everything else still works", async ({ page }) => {
     await signUpToEditor(page);
-    await page.route("**/api/v1/me/assistant/turn", (route) =>
+    await page.route("**/api/v1/me/assistant/turn*", (route) =>
         route.fulfill({
             status: 402,
             contentType: "application/json",

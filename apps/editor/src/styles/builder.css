@@ -2423,3 +2423,10 @@ small.todo::before {
     font-size: 13px;
     color: var(--soft);
 }
+.team-look {
+    padding: 16px;
+    font-size: 14px;
+}
+.team-look p {
+    margin: 0 0 10px;
+}

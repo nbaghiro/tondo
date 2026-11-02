@@ -495,4 +495,146 @@ test.describe("teams", () => {
         const held = await owner.api.get(`/api/v1/handles/${team.handle}`);
         expect(((await held.json()) as { available: boolean }).available).toBe(false);
     });
+
+    test("the look reaches every page at once, and stays out of everyone's documents", async ({
+        browser,
+        request,
+    }) => {
+        const owner = await person(browser);
+        const team = await makeTeam(owner);
+        const member = await joined(owner, browser);
+        await publishPage(member.api, member.pageId, { look: "bake", seed: 7 });
+        const other = await member.api.post(PAGES, {
+            data: { name: "Band", handle: unique("band") },
+        });
+        const { id: otherId } = (await other.json()) as { id: string };
+        await publishPage(member.api, otherId, { look: "bake" });
+        const before = (await (await member.api.get(`${PAGES}/${member.pageId}`)).json()) as {
+            updatedAt: string;
+            page: { look: string };
+        };
+        const lookOf = async (handle: string) =>
+            /<html lang="en" class="look ([a-z-]+)"/.exec(
+                await (await request.get(`/${handle}`)).text(),
+            )?.[1];
+
+        await publishPage(owner.api, team.lookPageId, { look: "signal" });
+        expect(await lookOf(member.handle)).toBe("signal");
+        expect(await lookOf(team.handle)).toBe("signal");
+        const live = await (await request.get(`/${member.handle}`)).text();
+        expect(live).not.toContain("<script");
+        expect(live).toContain("Tickets");
+        const otherHandle = (
+            (await (await member.api.get(`${PAGES}/${otherId}`)).json()) as {
+                handle: string;
+            }
+        ).handle;
+        expect(await lookOf(otherHandle)).toBe("bake");
+
+        const after = (await (await member.api.get(`${PAGES}/${member.pageId}`)).json()) as {
+            updatedAt: string;
+            page: { look: string };
+            team: { locked: boolean; look: { look: string } };
+        };
+        expect(after.updatedAt).toBe(before.updatedAt);
+        expect(after.page.look).toBe("bake");
+        expect(after.team.locked).toBe(true);
+        expect(after.team.look.look).toBe("signal");
+
+        expect((await member.api.post(`${TEAM}/leave`, { data: {} })).status()).toBe(204);
+        expect(await lookOf(member.handle)).toBe("bake");
+    });
+
+    test("an editor edits any page and can't change the look or the plan", async ({ browser }) => {
+        const owner = await person(browser);
+        const team = await makeTeam(owner);
+        const editor = await joined(owner, browser);
+        await makeEditor(owner, editor);
+        const member = await joined(owner, browser);
+
+        await publishPage(editor.api, member.pageId);
+        const url = `${PAGES}/${team.lookPageId}`;
+        const draft = (await (await editor.api.get(url)).json()) as {
+            page: { header: object };
+            updatedAt: string;
+        };
+        const words = await editor.api.put(url, {
+            data: {
+                updatedAt: draft.updatedAt,
+                page: { ...draft.page, header: { ...draft.page.header, bio: "From an editor" } },
+            },
+        });
+        expect(words.status()).toBe(200);
+        const fresh = (await words.json()) as { updatedAt: string };
+        const look = await editor.api.put(url, {
+            data: { updatedAt: fresh.updatedAt, page: { ...draft.page, look: "signal" } },
+        });
+        expect(look.status()).toBe(403);
+        expect((await editor.api.post(`${url}/unpublish`, { data: {} })).status()).toBe(403);
+        expect((await editor.api.post("/api/v1/me/billing/portal", { data: {} })).status()).toBe(
+            404,
+        );
+    });
+
+    test("a member's locked page in the builder shows the team's look", async ({ browser }) => {
+        const owner = await person(browser);
+        const team = await makeTeam(owner);
+        await publishPage(owner.api, team.lookPageId, { look: "signal" });
+        const member = await joined(owner, browser);
+        await member.page.goto(`/app/edit?page=${member.pageId}&panel=look`);
+        await expect(member.page.locator("[data-team-look]")).toContainText("Aster and Bell");
+        await expect(member.page.locator(".tab-seg")).toHaveCount(0);
+        const html = member.page.frameLocator("iframe.canvas").locator("html");
+        await expect(html).toHaveClass(/signal/);
+    });
+
+    test("Help me spends the owner's credits for a member with no plan of their own", async ({
+        browser,
+    }) => {
+        const owner = await person(browser);
+        await makeTeam(owner);
+        const free = await person(browser, "free");
+        expect((await join(free, await inviteLink(owner.api))).status()).toBe(201);
+        const paying = await joined(owner, browser, "starter");
+        const status = async (who: Person) =>
+            (await (await who.api.get("/api/v1/me/assistant")).json()) as {
+                credits: number;
+                once: boolean;
+            };
+        expect(await status(free)).toMatchObject({ credits: 300, once: false });
+        expect(await status(paying)).toMatchObject({ credits: 100 });
+        const lone = await person(browser, "free");
+        expect(await status(lone)).toMatchObject({ credits: 15, once: true });
+    });
+
+    test("the rule for what stays online when the owner's plan ends", async ({
+        browser,
+        request,
+    }) => {
+        const owner = await person(browser);
+        const team = await makeTeam(owner);
+        const onFree = await person(browser, "free");
+        const onStarter = await person(browser, "starter");
+        const onPro = await person(browser);
+        const invite = await inviteLink(owner.api);
+        for (const who of [onFree, onStarter, onPro]) {
+            expect((await join(who, invite)).status()).toBe(201);
+            await publishPage(who.api, who.pageId);
+        }
+        const visit = async (handle: string) => (await request.get(`/${handle}`)).status();
+        for (const handle of [team.handle, onFree.handle, onStarter.handle, onPro.handle]) {
+            expect(await visit(handle)).toBe(200);
+        }
+        const sql = postgres(TEST_DATABASE, { max: 1 });
+        const ended = new Date(Date.now() - 86_400_000);
+        await sql`update users set ends_at = ${ended} where id = (select owner_id from teams where id = ${team.id})`;
+        await sql.end();
+        await expect.poll(() => visit(team.handle), { timeout: 20_000 }).toBe(404);
+        await expect.poll(() => visit(onFree.handle), { timeout: 20_000 }).toBe(404);
+        expect(await visit(onStarter.handle)).toBe(200);
+        expect(await visit(onPro.handle)).toBe(200);
+        expect((await owner.api.post(`${TEAM}/invites`, { data: {} })).status()).toBe(403);
+        const stranger = await person(browser);
+        expect((await join(stranger, invite)).status()).toBe(403);
+    });
 });

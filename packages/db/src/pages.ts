@@ -1,6 +1,6 @@
 import { isPlaceholder, pageHash, readPage, teamLookOf } from "@tondo/page";
 import type { Page, Standing, TeamLook } from "@tondo/page";
-import { and, asc, eq, exists, gte, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, exists, gte, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "./client";
@@ -18,6 +18,8 @@ export interface DraftTeam {
     role: TeamRole;
     lookPageId: string;
     isLookPage: boolean;
+    /** Other pages on the team, whose look changes with the look page. */
+    others: number;
     /** What the look page has published. Null if nothing, or its owner was taken down. */
     look: TeamLook | null;
 }
@@ -317,6 +319,11 @@ export async function listOwnOfTeam(
     return rows.map((row) => summaryOf(row, userId));
 }
 
+const teamCount = async (db: Db, teamId: string) => {
+    const [row] = await db.select({ held: count() }).from(pages).where(eq(pages.teamId, teamId));
+    return row?.held ?? 0;
+};
+
 const lookPageOf = async (db: Db, teamId: string) => {
     const [row] = await db
         .select({ id: pages.id, draft: pages.draft, published: pages.published })
@@ -379,6 +386,7 @@ export function createPageStore(db: Db): PageStore {
                     role: row.ownerId === userId ? "owner" : me?.editor ? "editor" : "member",
                     lookPageId: look.id,
                     isLookPage: look.id === row.id,
+                    others: Math.max(0, (await teamCount(db, row.teamId)) - 1),
                     look:
                         look.published && !row.ownerSuspended
                             ? teamLookOf(readPage(look.published))

@@ -207,6 +207,7 @@ const draftTeam = z.strictObject({
     role: z.enum(["owner", "editor", "member"]),
     lookPageId: z.string(),
     isLookPage: z.boolean(),
+    others: z.number(),
     /** Whether the owner's plan covers the team now. */
     covered: z.boolean(),
     /** What to draw this page with. Editor state stays the page's own, so this is never saved. */

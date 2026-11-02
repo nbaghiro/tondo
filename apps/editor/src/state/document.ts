@@ -27,8 +27,9 @@ import {
     setSectionShared,
     setSectionStyle,
     setSectionTitle,
+    withTeamLook,
 } from "@tondo/page";
-import type { Block, LookName, Page, PageStyle, Place } from "@tondo/page";
+import type { Block, LookName, Page, PageStyle, Place, TeamLook } from "@tondo/page";
 import { createSignal } from "solid-js";
 import { createHistory } from "./history";
 import { createSaver } from "./saver";
@@ -44,6 +45,8 @@ interface Start {
     updatedAt: string;
     changed: boolean;
     published?: boolean;
+    /** What the team shows this page with. It's drawn over the page and never saved. */
+    teamLook?: TeamLook | null;
     onLoggedOut: () => void;
 }
 
@@ -136,6 +139,7 @@ export function createEditor(start: Start) {
 
     return {
         page: () => turn() ?? page(),
+        drawn: () => withTeamLook(turn() ?? page(), start.teamLook ?? null),
         /** Locks the page for a Help me turn. */
         beginTurn() {
             setTurn(page());

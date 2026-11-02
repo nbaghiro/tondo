@@ -5,9 +5,11 @@ import {
     createShortIds,
     digestPage,
     pageSchema,
+    teamLookOf,
     toolDeclarations,
     toolInputs,
     toolStatus,
+    withTeamLook,
 } from "@tondo/page";
 import type { Page, ShortIds, ToolContext } from "@tondo/page";
 import { costOf } from "./assistant-model";
@@ -37,6 +39,8 @@ export type SiteRead =
 export interface TurnInput {
     model: Model;
     page: Page;
+    /** A team sets this page's look, so nothing here may change it. */
+    lookLocked?: boolean;
     message: string;
     history: readonly { role: "user" | "model"; text: string }[];
     selected: string | null;
@@ -329,10 +333,14 @@ async function runOne(
         );
     }
 
+    if (input.lookLocked && (name === "set_look" || name === "set_style")) {
+        return refuse("This page uses your team's look, so it's set on the team's page.");
+    }
     const before = result.page;
     const done = applyTool(before, name, args, ctx);
     if (!done.ok) return refuse(done.error);
-    result.page = done.page;
+    // Building a whole page also picks a look, which has to stay the team's.
+    result.page = input.lookLocked ? withTeamLook(done.page, teamLookOf(before)) : done.page;
     if (done.summary) result.changes.push(done.summary);
     ctx.removed += done.removed ?? 0;
     result.setup ||= done.setup === true;
