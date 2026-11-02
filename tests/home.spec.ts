@@ -241,8 +241,6 @@ test("the large phone leads Home, with no edit button on it, and Edit stays in r
         expect(Math.abs(side.y + side.height / 2 - middle)).toBeLessThan(2);
         expect(side.x - (phone.x + phone.width)).toBeLessThanOrEqual(72);
         await expect(page.locator(".side [data-page-switcher]")).toBeVisible();
-        const pencil = await page.locator(".pen").boundingBox();
-        expect(pencil?.x ?? 0).toBeGreaterThanOrEqual(phone.x + phone.width);
     }
 });
 

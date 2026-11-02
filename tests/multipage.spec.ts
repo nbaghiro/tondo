@@ -190,7 +190,7 @@ test("the switcher adds and moves between pages, and the screens follow it", asy
     await expect(page.locator("[data-edit-page]")).toHaveAttribute("href", /\/app\/edit\?page=/);
 });
 
-test("the pencil sits beside the phone, outside it, and a phone keeps its bottom bar", async ({
+test("the pencil sits with the address buttons, and a phone keeps its bottom bar", async ({
     page,
 }, info) => {
     await signUpToEditor(page);
@@ -204,10 +204,8 @@ test("the pencil sits beside the phone, outside it, and a phone keeps its bottom
     }
     const pencil = page.getByRole("link", { name: "Edit page" });
     await expect(pencil).toHaveAttribute("title", "Edit page");
-    const phone = await page.locator(".pv .phone").boundingBox();
-    const box = await pencil.boundingBox();
-    expect(box?.x ?? 0).toBeGreaterThanOrEqual((phone?.x ?? 0) + (phone?.width ?? 0));
-    await expect(page.locator(".pv .phone .pen")).toHaveCount(0);
+    await expect(page.locator(".status-acts .pen")).toBeVisible();
+    await expect(page.locator(".pv .pen")).toHaveCount(0);
     await pencil.click();
     await page.waitForURL(/\/app\/edit\?page=/);
 });

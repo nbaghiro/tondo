@@ -372,6 +372,16 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                                     >
                                                         <NavIcon name="open" />
                                                     </a>
+                                                    <a
+                                                        class="ib pen"
+                                                        href={appPath(
+                                                            onPage("/edit", props.page.id),
+                                                        )}
+                                                        aria-label="Edit page"
+                                                        title="Edit page"
+                                                    >
+                                                        <NavIcon name="edit" />
+                                                    </a>
                                                     <button class="b sm" onClick={share}>
                                                         Share
                                                     </button>
@@ -424,23 +434,13 @@ export function HomePage(props: { page: PageSummary; name: string }) {
                                             node.innerHTML = PHONE_ART;
                                         }}
                                     />
-                                    <div class="pv-phone">
-                                        <Phone>
-                                            <iframe
-                                                title="Your page"
-                                                sandbox="allow-popups"
-                                                srcdoc={preview(draft())}
-                                            />
-                                        </Phone>
-                                        <a
-                                            class="pen"
-                                            href={appPath(onPage("/edit", props.page.id))}
-                                            aria-label="Edit page"
-                                            title="Edit page"
-                                        >
-                                            <NavIcon name="edit" />
-                                        </a>
-                                    </div>
+                                    <Phone>
+                                        <iframe
+                                            title="Your page"
+                                            sandbox="allow-popups"
+                                            srcdoc={preview(draft())}
+                                        />
+                                    </Phone>
                                 </aside>
                             </div>
                         </>
