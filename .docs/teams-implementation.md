@@ -318,7 +318,7 @@ Each passes `pnpm check` and `pnpm e2e --workers=3` before its commit.
 | T2 | Who can edit: `pageOf`, page kinds, routes, the switcher's data, photos by page's owner | `db/pages.ts`, `server/pages.ts`, `photos.ts`, `contract` | Done, `fb2a813` |
 | T3 | Team store and routes, signed links, edges, suspension, account deletion | `db/teams.ts`, `server/teams.ts`, `invites.ts`, `auth.ts`, `suspend.ts` | Done, `24b6e86` |
 | T4 | The shared look: `findLive`, cache drops, editors and the look, Help me's lock and shared credits | `app.ts`, `assistant.ts`, `LookPanel.tsx`, `Canvas.tsx` | Done, `443cec0` |
-| T5, T6 | Team screen, switcher groups, Settings and Account by role, and joining through sign-up, the start flow and the join screen. They landed together, because each needs the other to be used | `TeamPage.tsx`, `JoinPage.tsx`, `PageSwitcher.tsx`, `auth-form.ts`, `main.tsx` | Done |
+| T5, T6 | Team screen, switcher groups, Settings and Account by role, and joining through sign-up, the start flow and the join screen. They landed together, because each needs the other to be used | `TeamPage.tsx`, `JoinPage.tsx`, `PageSwitcher.tsx`, `auth-form.ts`, `main.tsx` | Done, `6882479` |
 | T7 | Plans: gating on the owner's Pro, the lapse rule on screen. Built within T3, T4 and the plan change, with the rule tested in `tests/teams.spec.ts` | `pages.ts`, `TeamPage.tsx` | Done |
 | T8 | Docs, QA list and the plan's status | `README.md`, `.docs/*` | Done |
 

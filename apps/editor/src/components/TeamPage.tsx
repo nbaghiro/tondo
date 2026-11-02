@@ -148,7 +148,7 @@ function NoTeam(props: { account: Account; onMade: () => void }) {
         <>
             <PageHeader
                 title="Team"
-                lead="A team gives each person their own page, in one look that you choose."
+                lead="A team gives each person their own page, in one look that you choose. Making one adds a page for the team at this address."
             />
             <Card title="Make a team">
                 <form
@@ -168,7 +168,6 @@ function NoTeam(props: { account: Account; onMade: () => void }) {
                         onName={fields.onName}
                         onHandle={fields.onHandle}
                     />
-                    <p class="note">This makes a page for the team, at the address above.</p>
                     <label class="f">
                         Bring one of your pages
                         <select

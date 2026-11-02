@@ -1,6 +1,7 @@
 /* The team screen and the invitation screen. */
 .team-form {
-    max-width: 480px;
+    max-width: 516px;
+    padding: 16px 18px 20px;
 }
 .team-form select,
 .join select,
