@@ -1,12 +1,18 @@
 {
     "version": 2,
-    "look": "sap",
+    "look": "madder",
+    "style": {
+        "colour": {
+            "mode": "plain",
+            "brand": "#a42a55"
+        }
+    },
     "header": {
-        "layout": "look",
+        "layout": "full",
         "name": "Aster & Bell",
         "tagline": "Seasonal floral studio in Portland",
         "photo": {
-            "file": "florist7.jpg"
+            "file": "florist9.jpg"
         },
         "links": [
             {
@@ -32,7 +38,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b4",
-            "url": "",
+            "url": "https://example.com/asterandbell/weddings",
             "text": "Plan your wedding flowers"
         },
         {
@@ -51,7 +57,7 @@
                 {
                     "id": "i7",
                     "photo": {
-                        "file": "bouquet9.jpg"
+                        "file": "bouquet10.jpg"
                     },
                     "name": "Market bouquet",
                     "price": "From $55",
@@ -90,7 +96,7 @@
             "section": "b10",
             "photos": [
                 {
-                    "file": "bouquet8.jpg",
+                    "file": "bouquet11.jpg",
                     "id": "i12",
                     "caption": "Bridal bouquets"
                 },
@@ -100,7 +106,7 @@
                     "caption": "Small ceremonies"
                 },
                 {
-                    "file": "florist6.jpg",
+                    "file": "florist10.jpg",
                     "id": "i14",
                     "caption": "Single stems"
                 }
@@ -122,7 +128,7 @@
                 {
                     "id": "i17",
                     "photo": {
-                        "file": "face-24.jpg"
+                        "file": "face-31.jpg"
                     },
                     "name": "June Aster",
                     "role": "Founder"
@@ -130,7 +136,7 @@
                 {
                     "id": "i18",
                     "photo": {
-                        "file": "face-25.jpg"
+                        "file": "face-32.jpg"
                     },
                     "name": "Rae Bell",
                     "role": "Weddings"

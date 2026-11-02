@@ -1,13 +1,18 @@
 {
     "version": 2,
-    "look": "sap",
+    "look": "madder",
+    "style": {
+        "colour": {
+            "mode": "plain",
+            "brand": "#a42a55"
+        }
+    },
     "header": {
-        "layout": "look",
+        "layout": "full",
         "name": "June Aster",
         "tagline": "Founder, Aster & Bell",
         "photo": {
-            "file": "woman24.jpg",
-            "y": 35
+            "file": "woman31.jpg"
         },
         "links": [
             {
@@ -28,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b3",
-            "url": "",
+            "url": "https://example.com/juneaster/book",
             "text": "Book a design call"
         },
         {
@@ -47,7 +52,7 @@
                 {
                     "id": "i6",
                     "photo": {
-                        "file": "bouquet8.jpg"
+                        "file": "bouquet11.jpg"
                     },
                     "name": "Maya and Tom",
                     "price": "September",

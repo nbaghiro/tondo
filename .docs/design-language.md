@@ -55,9 +55,9 @@ Tondo's brand and the looks people use are separate. The studies from the earlie
 
 | Look | Character | Sample page |
 |---|---|---|
-| Madder | Warm serif, rose and sienna | Maya Okafor, ceramicist |
+| Madder | Warm serif, rose and sienna | Maya Okafor, ceramicist. Aster & Bell, floral studio, uses its plain colour style |
 | Noir | Full-bleed photo on black | Theo Lindqvist, photographer |
-| Sap | Greens and arched shapes | Aster & Bell, floral studio |
+| Sap | Greens and arched shapes | None at the moment |
 | Dusk | Glass cards on midnight blue | Noor Haddad, musician |
 | Indigo | Ink outlines and square corners | Priya Raman, nutrition coach |
 | Signal | Bold yellow and black type | Sam Ortiz, podcast host |
@@ -93,4 +93,4 @@ The sample pages use the following blocks, which are also the working list for t
 
 - Sample pages are fictional and are labelled as examples on the marketing page.
 - Nothing claims real customers, user counts or ratings.
-- Demo photos come from Openverse with CC0 or public domain marks, and are listed in `packages/brand/photos/CREDITS.md`. Check each one again before any public launch, including whether a photo of a person suits its use.
+- Demo photos come from Openverse with CC0 or public domain marks, and a few from Pexels under its licence. They're listed in `packages/brand/photos/CREDITS.md`. Check each one again before any public launch, including whether a photo of a person suits its use.

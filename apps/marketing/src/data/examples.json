@@ -49,9 +49,9 @@
         "handle": "asterandbell",
         "name": "Aster & Bell",
         "role": "floral studio",
-        "look": "Sap",
+        "look": "Madder",
         "kind": "Shops and makers",
-        "shows": "Arch header, team, carousel"
+        "shows": "Full photo header, team, carousel"
     },
     {
         "id": "bookshop",

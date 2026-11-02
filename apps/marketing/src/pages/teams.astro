@@ -1,6 +1,6 @@
 ---
 import type { LookName } from "@tondo/page";
-import { baseCss, fontsHref, looks, paint } from "@tondo/render";
+import { baseCss, fontsHref, looks, makeTheme, paint } from "@tondo/render";
 import { blockDefinitions, drawBlock } from "@tondo/page";
 import AppSide from "../components/AppSide.astro";
 import Art from "../components/Art.astro";
@@ -36,39 +36,46 @@ const teamHtml =
         : "";
 
 const demoLooks: { name: LookName; label: string }[] = (
-    ["sap", "madder", "dusk", "indigo", "bake", "signal"] as const
+    ["madder", "sap", "dusk", "indigo", "bake", "signal"] as const
 ).map((name) => ({ name, label: looks[name].label }));
+
+// The example pages' own setting: Madder with its plain colour style.
+const plainMadder = Object.entries(makeTheme("#a42a55", { plain: true }).vars)
+    .map(([key, value]) => `${key}:${value}`)
+    .join(";");
+const demoStyle = (name: LookName) =>
+    name === "madder" ? `${lookStyle(name)};${plainMadder}` : lookStyle(name);
 
 const demoPages = [
     {
         name: "Aster & Bell",
         role: "Seasonal floral studio",
-        photo: "florist7",
+        photo: "florist9",
         cta: "Plan your wedding flowers",
-        shots: ["bouquet9", "flowers0"],
+        shots: ["bouquet10", "flowers0"],
         seed: 120,
     },
     {
         name: "June Aster",
         role: "Founder",
-        photo: "woman24",
+        photo: "face-31",
         cta: "Book a design call",
-        shots: ["bouquet8", "florist8"],
+        shots: ["bouquet11", "florist8"],
         seed: 140,
     },
     {
         name: "Rae Bell",
         role: "Weddings",
-        photo: "woman25",
+        photo: "face-32",
         cta: "Ask about your date",
-        shots: ["florist6", "flowers0"],
+        shots: ["florist10", "flowers0"],
         seed: 160,
     },
 ];
 
 const members = [
-    { name: "June Aster", address: "tondo.page/juneaster", photo: "face-24", role: "Owner" },
-    { name: "Rae Bell", address: "tondo.page/raebell", photo: "face-25", role: "Editor" },
+    { name: "June Aster", address: "tondo.page/juneaster", photo: "face-31", role: "Owner" },
+    { name: "Rae Bell", address: "tondo.page/raebell", photo: "face-32", role: "Editor" },
     { name: "Ana Ruiz", address: "tondo.page/anaruiz", photo: "face-29", role: "Member" },
 ];
 
@@ -133,7 +140,7 @@ const faq = [
     },
 ];
 
-const css = [baseCss, blockDefinitions.team.css, looks.sap.css].join("\n");
+const css = [baseCss, blockDefinitions.team.css, looks.madder.css].join("\n");
 const fonts = demoLooks.map((look) =>
     fontsHref({ ...examplePage("asterandbell"), look: look.name }),
 );
@@ -207,7 +214,7 @@ const heroPhones = [
             <div class="t-tree-art">
                 <div class="t-tree-block">
                     <p>The Team section on Aster & Bell's page</p>
-                    <div class="look sap t-block" set:html={teamHtml} />
+                    <div class="look madder t-block" style={plainMadder} set:html={teamHtml} />
                 </div>
                 <a class="t-mini t-mini-a" href="/juneaster">
                     <img src="/shots/june.jpg" alt="June Aster's example page" loading="lazy" />
@@ -243,7 +250,7 @@ const heroPhones = [
                                 type="button"
                                 aria-pressed={i === 0 ? "true" : "false"}
                                 data-look={look.name}
-                                data-style={lookStyle(look.name)}
+                                data-style={demoStyle(look.name)}
                                 data-label={look.label}
                             >
                                 <LookTile name={look.name} />
@@ -255,7 +262,7 @@ const heroPhones = [
                         All three pages use <b data-look-now>{demoLooks[0]?.label}</b>.
                     </p>
                 </div>
-                <div class="lk-pages" data-look-pages style={lookStyle("sap")}>
+                <div class="lk-pages" data-look-pages style={demoStyle("madder")}>
                     {demoPages.map((person) => (
                         <div class="ml">
                             {demoLooks.map((look, i) => (

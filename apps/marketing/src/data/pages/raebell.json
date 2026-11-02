@@ -1,14 +1,18 @@
 {
     "version": 2,
-    "look": "sap",
+    "look": "madder",
+    "style": {
+        "colour": {
+            "mode": "plain",
+            "brand": "#a42a55"
+        }
+    },
     "header": {
-        "layout": "look",
+        "layout": "full",
         "name": "Rae Bell",
         "tagline": "Weddings, Aster & Bell",
         "photo": {
-            "file": "woman25.jpg",
-            "x": 85,
-            "y": 30
+            "file": "woman32.jpg"
         },
         "links": [
             {
@@ -29,7 +33,7 @@
             "type": "button",
             "variant": "filled",
             "section": "b3",
-            "url": "",
+            "url": "https://example.com/raebell/dates",
             "text": "Ask about your date"
         },
         {
@@ -48,7 +52,7 @@
                 {
                     "id": "i6",
                     "photo": {
-                        "file": "florist6.jpg"
+                        "file": "florist10.jpg"
                     },
                     "name": "Single stems",
                     "price": "From $8",
