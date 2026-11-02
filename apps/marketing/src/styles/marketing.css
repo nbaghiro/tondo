@@ -44,7 +44,7 @@ body {
     line-height: 1.07;
 }
 .wrap {
-    max-width: 1200px;
+    max-width: 1320px;
     margin: auto;
     padding: 0 28px;
 }
@@ -58,6 +58,11 @@ body {
 }
 .m nav a {
     text-decoration: none;
+}
+.m nav a[aria-current="page"] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 7px;
 }
 .logo {
     display: flex;
@@ -342,36 +347,6 @@ html:not(.member) [data-member] {
 .teamimg img:nth-child(odd) {
     margin-top: 28px;
 }
-.plans {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
-    margin-top: 40px;
-}
-.plan {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 30px;
-}
-.plan h3 {
-    font:
-        600 17px Mulish,
-        sans-serif;
-    margin: 0;
-    color: var(--soft);
-}
-.plan strong {
-    display: block;
-    font:
-        500 37px/1.2 Fraunces,
-        serif;
-    margin: 2px 0 12px;
-}
-.plan ul {
-    margin: 0;
-    padding-left: 18px;
-}
 .close {
     text-align: center;
     position: relative;
@@ -418,7 +393,6 @@ html:not(.member) [data-member] {
         columns: 1;
     }
     .steps,
-    .plans,
     .art,
     .teamg {
         grid-template-columns: minmax(0, 1fr);
@@ -514,9 +488,6 @@ html:not(.member) [data-member] {
 }
 .exgrid figcaption {
     display: none;
-}
-.logo-wide {
-    max-width: 1320px;
 }
 .back {
     margin-left: auto;

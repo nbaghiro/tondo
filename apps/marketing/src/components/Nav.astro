@@ -5,6 +5,8 @@ import Art from "./Art.astro";
 const editorUrl =
     (import.meta.env["PUBLIC_EDITOR_URL"] as string | undefined) ??
     (import.meta.env.DEV ? "http://localhost:8100" : "/app");
+const here = Astro.url.pathname.replace(/\/$/, "");
+const current = (path: string) => (here === path ? "page" : undefined);
 ---
 
 <nav>
@@ -14,13 +16,13 @@ const editorUrl =
         </span>
         Tondo
     </a>
-    <a class="navlink" href="/gallery">
+    <a class="navlink" href="/gallery" aria-current={current("/gallery")}>
         Gallery
     </a>
-    <a class="navlink" href="/teams">
+    <a class="navlink" href="/teams" aria-current={current("/teams")}>
         Teams
     </a>
-    <a class="navlink" href="/pricing">
+    <a class="navlink" href="/pricing" aria-current={current("/pricing")}>
         Pricing
     </a>
     <a data-guest href="/login">

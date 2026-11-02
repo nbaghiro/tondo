@@ -8,13 +8,10 @@ import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
 import LookTile from "../components/LookTile.astro";
 import Nav from "../components/Nav.astro";
-import Status from "../components/Status.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { lookStyle } from "../lib/look-style";
 import { examplePage, firstBlock, GALLERY_DATE } from "../lib/pages";
 import "../styles/plans.css";
-
-const INTEREST = "mailto:hello@tondo.page?subject=Tondo%20for%20teams";
 
 // The studio's real Team section, with its two people who have their own example pages. Blocks only
 // accept full addresses, so these become local ones once drawn.
@@ -108,36 +105,27 @@ const uses = [
     },
 ];
 
-const today = [
-    "Each person signs up and claims their own address.",
-    "Everyone can pick the same look from the 50 available, one page at a time.",
-    "The Team section lists people on any page, with a photo, role and a link to their page.",
-    "Each person sees their own page's views and link clicks.",
-];
-const coming = [
-    "One account that holds a page for each person.",
+const included = [
+    "A page and an address for each person, plus the team's own page.",
     "A team look that reaches every page when it changes.",
     "Owner, editor and member roles.",
     "Invitation links, so people can sign in to the page made for them.",
     "Duplicating a page to start the next person's.",
+    "The Team section, with a photo, role and link to each person's page.",
 ];
 
 const faq = [
     {
-        q: "When will teams be available?",
-        a: "We don't have a date yet. Teams come after a private release of the product for individuals. If you email hello@tondo.page, we'll let you know when they're ready.",
+        q: "What do teams cost?",
+        a: "Teams are part of Pro, at one price for the whole account. See the pricing page for details.",
     },
     {
-        q: "Can my team use Tondo before then?",
-        a: "Yes, as separate accounts. Each person can make a page for free, choose the same look and link to each other with the Team section. The look is set on each page, so changing it means changing every page by hand.",
+        q: "Can we try it before paying?",
+        a: "Yes. Building and previewing is free, and paying is what puts your pages online.",
     },
     {
-        q: "What will teams cost?",
-        a: "We're planning on $4 a person, but that's a placeholder and it may change. Teams can't be bought today, and everything that's available now is free.",
-    },
-    {
-        q: "Could pages we make today join a team later?",
-        a: "That's what we intend, because every page is already saved separately with its own address. We haven't built it, so we can't promise how it will work.",
+        q: "Can a page we've already made join a team?",
+        a: "Yes. A person accepts an invitation and chooses which of their pages joins the team.",
     },
     {
         q: "Are these real businesses?",
@@ -158,35 +146,29 @@ const heroPhones = [
 
 <BaseLayout
     title="Teams | Tondo"
-    description="Teams are coming to Tondo: a page for each person, with one shared look, for studios, shops, clinics and clubs."
+    description="Tondo for teams: a page for each person, with one shared look, for studios, shops, clinics and clubs."
 >
     {fonts.map((href) => (
         <link rel="stylesheet" href={href} />
     ))}
     <style is:inline set:html={css}></style>
-    <div class="wrap logo-wide">
+    <div class="wrap">
         <Nav />
         <header class="t-hero">
             <div class="t-hero-text">
-                <Status label="Coming" />
                 <h1>A page for each person, with one look for the team</h1>
                 <p class="sub">
-                    Teams are coming to Tondo. They're for studios, shops, clinics and clubs, where
-                    each person needs their own page and the pages should look like they belong
-                    together.
+                    Teams are for studios, shops, clinics and clubs, where each person needs their
+                    own page and the pages should look like they belong together.
                 </p>
                 <div class="pl-actions">
-                    <a class="mbtn" href={INTEREST} data-interest>
-                        Register your interest
+                    <a class="mbtn" href="/signup">
+                        Start your team
                     </a>
-                    <a class="pl-link" href="/signup">
-                        Start a page of your own
+                    <a class="pl-link" href="/pricing">
+                        See pricing
                     </a>
                 </div>
-                <p class="note">
-                    Teams aren't available yet and we don't have a date. Registering sends us an
-                    email, and we'll tell you when they're ready.
-                </p>
             </div>
             <div class="t-stage">
                 <div class="t-stage-paint">
@@ -209,9 +191,8 @@ const heroPhones = [
     </div>
 
     <section class="pl-sec">
-        <div class="wrap logo-wide t-tree">
+        <div class="wrap t-tree">
             <div class="t-tree-text">
-                <Status now />
                 <h2>A team page that leads to everyone</h2>
                 <p class="sub">
                     Aster & Bell is a fictional floral studio. The studio has a page, and June and
@@ -219,9 +200,8 @@ const heroPhones = [
                     person's page.
                 </p>
                 <p class="pl-body">
-                    You can build this now with the Team section. It takes a photo, a name, a role
-                    and a link for each person. What's coming is the shared account that keeps those
-                    pages together.
+                    The Team section takes a photo, a name, a role and a link for each person, and
+                    one shared account keeps those pages together.
                 </p>
             </div>
             <div class="t-tree-art">
@@ -242,14 +222,12 @@ const heroPhones = [
     </section>
 
     <section class="band pl-sec" id="look">
-        <div class="wrap logo-wide">
+        <div class="wrap">
             <div class="pl-head">
-                <Status />
                 <h2>Change the look once, and every page follows</h2>
                 <p class="sub">
-                    On a team, the look will belong to the team and not to each page. Everyone keeps
-                    their own words, photos and links. Pick a look below to see the idea on Aster &
-                    Bell's three pages.
+                    On a team, the look belongs to the team. Everyone keeps their own words, photos
+                    and links. Pick a look below to see it on Aster & Bell's three pages.
                 </p>
             </div>
             <div class="lk">
@@ -308,16 +286,12 @@ const heroPhones = [
                     ))}
                 </div>
             </div>
-            <p class="note lk-note">
-                This demonstration only runs on this page. Today each page has its own look, so a
-                team would set the same look on each page by hand.
-            </p>
         </div>
     </section>
 
     <section class="pl-sec">
-        <div class="wrap logo-wide t-roles">
-            <div class="win" aria-label="A sketch of the planned team screen" role="img">
+        <div class="wrap t-roles">
+            <div class="win" aria-label="The team screen" role="img">
                 <AppSide active="team" team />
                 <div class="win-main">
                     <div class="win-head">
@@ -340,12 +314,10 @@ const heroPhones = [
                 </div>
             </div>
             <div>
-                <Status />
                 <h2>Who can change what</h2>
                 <p class="sub">
-                    We're planning three roles, so a team can share the work without anyone changing
-                    a look by accident. The screen here is a sketch, and this may change once we've
-                    tried it with real teams.
+                    Three roles let a team share the work without anyone changing a look by
+                    accident.
                 </p>
                 <dl class="t-rolelist">
                     {roles.map((role) => (
@@ -360,12 +332,12 @@ const heroPhones = [
     </section>
 
     <section class="pl-sec t-uses-sec">
-        <div class="wrap logo-wide">
+        <div class="wrap">
             <div class="pl-head">
                 <h2>Studios, shops, clinics and clubs</h2>
                 <p class="sub">
-                    These are fictional example pages, each made with what Tondo can do today. The
-                    words beside them say what a team would add.
+                    These are fictional example pages. The words beside them say what each kind of
+                    team gets.
                 </p>
             </div>
             <div class="t-uses">
@@ -390,28 +362,15 @@ const heroPhones = [
     </section>
 
     <section class="band pl-sec">
-        <div class="wrap logo-wide">
+        <div class="wrap">
             <div class="pl-head">
-                <h2>What works today, and what's coming</h2>
+                <h2>What a team gets</h2>
             </div>
-            <div class="t-split">
-                <div>
-                    <Status now />
-                    <ul>
-                        {today.map((line) => (
-                            <li>{line}</li>
-                        ))}
-                    </ul>
-                </div>
-                <div>
-                    <Status />
-                    <ul>
-                        {coming.map((line) => (
-                            <li>{line}</li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            <ul class="t-list">
+                {included.map((line) => (
+                    <li>{line}</li>
+                ))}
+            </ul>
         </div>
     </section>
 
@@ -421,18 +380,18 @@ const heroPhones = [
         <div class="pl-cta-paint">
             <Art seed={66} />
         </div>
-        <div class="wrap logo-wide">
-            <h2>Tell us about your team</h2>
+        <div class="wrap">
+            <h2>Bring your team to Tondo</h2>
             <p class="sub">
-                Email hello@tondo.page with what your team does and how many people need a page. It
-                helps us decide what to build first, and we'll tell you when teams are ready.
+                Build your first pages for free, and invite everyone when you're ready. If you have
+                questions, email hello@tondo.page.
             </p>
             <div class="pl-actions">
-                <a class="mbtn" href={INTEREST}>
-                    Register your interest
+                <a class="mbtn" href="/signup">
+                    Start your team
                 </a>
-                <a class="pl-link" href="/signup">
-                    Start a page of your own
+                <a class="pl-link" href="/pricing">
+                    See pricing
                 </a>
             </div>
         </div>

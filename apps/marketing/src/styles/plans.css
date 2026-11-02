@@ -1,19 +1,4 @@
 /* The Teams and Pricing pages, and the links to them from Home. */
-.st {
-    display: inline-block;
-    padding: 3px 11px;
-    border: 1.5px solid var(--madder);
-    border-radius: 30px;
-    color: var(--madder);
-    font-size: 13.5px;
-    font-weight: 700;
-    line-height: 1.35;
-    white-space: nowrap;
-}
-.st-now {
-    border-color: var(--ink);
-    color: var(--ink);
-}
 .pl-link {
     font-weight: 700;
     text-underline-offset: 4px;
@@ -24,16 +9,6 @@
     font-weight: 700;
     color: var(--madder) !important;
     text-underline-offset: 4px;
-}
-.plan-coming {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin: 2px 0 12px;
-}
-.m .plan-coming strong {
-    margin: 0;
 }
 .pl-actions {
     display: flex;
@@ -652,18 +627,15 @@
 }
 
 /* Teams: today and coming */
-.t-split {
+.t-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 60px;
-    margin-top: 40px;
-}
-.t-split ul {
-    margin: 16px 0 0;
+    column-gap: 60px;
+    margin: 40px 0 0;
     padding: 0;
     list-style: none;
 }
-.t-split li {
+.t-list li {
     padding: 14px 0;
     border-top: 1px solid var(--line);
 }
@@ -743,103 +715,112 @@
     text-align: center;
 }
 .m .r-hero h1 {
+    text-wrap: balance;
     font-size: clamp(42px, 5.6vw, 80px);
 }
 .r-hero > .sub {
     margin: 20px auto 0;
 }
-.r-discs {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: 40px;
-    align-items: start;
+/* The plan cards, on Pricing and Home. One wash of paint sits behind the row, never on a card. */
+.pc-row {
+    position: relative;
     margin-top: 60px;
 }
-.r-plan {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 0;
-}
-.r-art {
+.pc-wash {
+    position: absolute;
+    inset: -56px 0;
     display: grid;
     place-items: center;
-    width: 100%;
-    height: clamp(300px, 31vw, 450px);
+    overflow: hidden;
+    opacity: 0.24;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(farthest-side, #000 70%, transparent);
+    mask-image: radial-gradient(farthest-side, #000 70%, transparent);
 }
-.r-art > * {
-    grid-area: 1 / 1;
+.pc-wash svg {
+    display: block;
+    width: max(100%, 640px);
+    height: auto;
 }
-.r-disc {
+.pc-cards {
     position: relative;
-    height: 74%;
-    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 1080px;
+    margin: 0 auto;
+    text-align: left;
 }
-.r-disc-free {
-    height: 100%;
+#pricing .pc-cards {
+    max-width: none;
 }
-.r-disc-free img {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: 46%;
-    height: 90%;
-    margin-left: -23%;
-    object-fit: cover;
-    object-position: top;
-    border-radius: 18px;
-    box-shadow: 0 20px 42px rgba(59, 18, 34, 0.28);
-}
-.r-inside {
+.pc-card {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: clamp(220px, 23vw, 333px);
-}
-.r-domain {
-    padding: 10px 20px;
+    flex-direction: column;
+    padding: 28px;
     background: #fff;
-    border: 1.5px solid var(--line);
-    border-radius: 40px;
-    box-shadow: 0 8px 20px rgba(59, 18, 34, 0.12);
-    font-weight: 700;
+    border: 1px solid var(--line);
+    border-radius: 16px;
 }
-.r-faces img {
-    width: 27%;
-    aspect-ratio: 1;
-    margin-left: -7%;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 8px 18px rgba(59, 18, 34, 0.18);
-}
-.r-faces img:first-child {
-    margin-left: 0;
-}
-.m .r-plan h2 {
-    margin: 22px 0 0;
+.m .pc-card h3 {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0;
     font:
-        600 17px Mulish,
+        700 17px Mulish,
         sans-serif;
     letter-spacing: 0;
-    color: var(--soft);
 }
-.r-plan strong {
-    margin: 2px 0 10px;
+.pc-card h3 small {
+    color: var(--madder);
+    font-size: 13px;
+    font-weight: 700;
+}
+.pc-card strong {
+    margin-top: 12px;
     font:
-        500 37px/1.2 Fraunces,
+        500 34px/1.15 Fraunces,
         serif;
 }
-.r-plan p {
-    max-width: 19em;
-    min-height: 3.1em;
-    margin: 12px 0 14px;
+.m .pc-period {
+    margin: 4px 0 0;
     color: var(--soft);
-    font-size: 17px;
+    font-size: 15px;
+}
+.pc-card ul {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15.5px;
+}
+.pc-card li {
+    padding-left: 22px;
+    background: linear-gradient(var(--madder), var(--madder)) 2px 0.65em / 8px 2px no-repeat;
+}
+.m .pc-note {
+    margin: 16px 0 0;
+    color: var(--soft);
+    font-size: 14px;
+}
+.pc-card .mbtn {
+    align-self: stretch;
+    justify-content: center;
+    margin-top: 22px;
+    text-align: center;
+}
+.m .pc-card a.mbtn.pc-quiet {
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    color: var(--ink) !important;
 }
 
-/* Pricing: what's free now */
+/* Pricing: the whole editor */
 .r-today-in {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -867,21 +848,6 @@
 }
 
 /* Pricing: the table */
-.r-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 28px;
-    margin: 28px 0 0;
-    padding: 0;
-    list-style: none;
-    font-size: 15.5px;
-    color: var(--soft);
-}
-.r-legend li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 .r-value {
     display: block;
     font-weight: 600;
@@ -898,9 +864,6 @@
     background: var(--madder);
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
         center / contain no-repeat;
-}
-.r-yes.r-later {
-    background: var(--soft);
 }
 .r-no {
     position: relative;
@@ -1010,6 +973,10 @@
     }
 }
 @media (max-width: 980px) {
+    .pc-cards {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 480px;
+    }
     .m .t-hero,
     .t-tree,
     .t-roles,
@@ -1091,9 +1058,8 @@
     .win-main {
         padding: 16px;
     }
-    .t-split {
+    .t-list {
         grid-template-columns: minmax(0, 1fr);
-        gap: 36px;
     }
     .t-uses {
         gap: 26px 14px;
@@ -1145,10 +1111,6 @@
     .r-table tbody td {
         padding: 12px 1px;
     }
-    .r-table .st {
-        padding: 2px 5px;
-        font-size: 11px;
-    }
     .r-table .r-group th {
         font-size: 22px;
     }
@@ -1175,9 +1137,4 @@
 }
 .pl-cta .sub {
     color: var(--ink);
-}
-
-.ex-pro {
-    font-size: 12px;
-    font-weight: 600;
 }

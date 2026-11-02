@@ -47,7 +47,7 @@ test.describe("the teams and pricing pages", () => {
         await expect(page.locator("h1")).toContainText("one look for the team");
         await page.locator('.foot a[href="/pricing"]').click();
         await expect(page).toHaveURL(/\/pricing$/);
-        await expect(page.locator("h1")).toHaveText("Free for now, with paid plans on the way");
+        await expect(page.locator("h1")).toHaveText("Free to build, and paying puts it online");
     });
 
     test("the nav goes to the pages, and Home links to both", async ({ page }, testInfo) => {
@@ -63,13 +63,28 @@ test.describe("the teams and pricing pages", () => {
         await expect(page).toHaveURL(/\/pricing$/);
     });
 
-    test("teams says it's coming, and registering interest sends an email", async ({ page }) => {
+    test("the header stays put between pages, and marks the current one", async ({ page }) => {
+        const place = async (path: string) => {
+            await page.goto(path);
+            return page.locator("nav").first().boundingBox();
+        };
+        const home = await place("/");
+        for (const path of ["/teams", "/pricing", "/gallery", "/privacy"]) {
+            expect(await place(path)).toEqual(home);
+        }
         await page.goto("/teams");
-        await expect(page.locator(".t-hero .st")).toHaveText("Coming");
-        await expect(page.locator("[data-interest]")).toHaveAttribute(
-            "href",
-            /^mailto:hello@tondo\.page/,
+        await expect(page.locator('nav a[aria-current="page"]')).toHaveText("Teams");
+    });
+
+    test("teams reads as a finished product, and leads to sign-up and pricing", async ({
+        page,
+    }) => {
+        await page.goto("/teams");
+        await expect(page.locator("main, body").first()).not.toContainText(
+            /coming|planned|sketch/i,
         );
+        await expect(page.locator(".t-hero .mbtn")).toHaveAttribute("href", "/signup");
+        await expect(page.locator(".t-hero .pl-link")).toHaveAttribute("href", "/pricing");
     });
 
     test("the Team section leads to each person's page", async ({ page }) => {
@@ -110,22 +125,31 @@ test.describe("the teams and pricing pages", () => {
         expect(motion).toBe("none");
     });
 
-    test("pricing separates what's free now from what's planned", async ({ page }) => {
+    test("pricing states the plans, with cards that go to sign-up", async ({ page }) => {
         await page.goto("/pricing");
         await expect(page.locator(".r-table thead th")).toHaveText([
-            /Free.*\$0.*Available today/,
-            /Pro.*\$6 a month or \$60 a year.*Planned/,
-            /Team.*\$4 a person, from 3 people.*Planned/,
+            /Free.*\$0/,
+            /Starter.*\$4 a month or \$40 a year/,
+            /Pro.*\$10 a month or \$100 a year/,
         ]);
-        for (const feature of ["Custom domain", "Shared looks", "Roles and permissions"]) {
-            const row = page.locator(".r-table tbody tr", { hasText: feature });
-            await expect(row.locator(".r-yes")).toHaveCount(0);
-            await expect(row.locator(".st").first()).toHaveText("Coming");
+        const live = page.locator(".r-table tbody tr", { hasText: "Live pages" });
+        await expect(live.locator(".r-value")).toHaveText(["None", "1", "5"]);
+        await expect(page.locator(".pc-card")).toHaveCount(3);
+        await expect(page.locator(".pc-card a")).toHaveCount(3);
+        for (const link of await page.locator(".pc-card a").all()) {
+            await expect(link).toHaveAttribute("href", "/signup");
         }
-        await expect(page.locator(".r-table")).not.toContainText("All 50 looks");
-        const looks = page.locator(".r-table tbody tr", { hasText: "Looks" }).first();
-        await expect(looks.locator(".r-value")).toHaveText(["12", "All 50", "All 50"]);
-        await expect(page.locator(".r-hero")).toContainText("can't be bought yet");
+        const body = page.locator("body");
+        for (const words of [
+            "Made with Tondo",
+            "a person",
+            "Planned",
+            "Available today",
+            "Coming",
+            "can't be bought",
+        ]) {
+            await expect(body).not.toContainText(words);
+        }
     });
 
     for (const path of ["/teams", "/pricing"]) {
@@ -294,14 +318,4 @@ test.describe("the filmstrip", () => {
             await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before + 80);
         });
     });
-});
-
-test("the gallery says which looks need Pro", async ({ page }) => {
-    await page.goto("/gallery");
-    await expect(
-        page.locator(".ex", { hasText: "Bakehouse look" }).first().locator(".ex-pro"),
-    ).toHaveText("Pro");
-    await expect(
-        page.locator(".ex", { hasText: "Madder look" }).first().locator(".ex-pro"),
-    ).toHaveCount(0);
 });
