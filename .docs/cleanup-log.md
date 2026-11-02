@@ -99,3 +99,4 @@ The site changes are in `apps/marketing`.
 | Done | Expand the gallery from 50 to 75 pages, weighted towards common kinds of user | 25 new pages in `apps/marketing/src/data/pages`, each with a different look, and 11 plain groups in place of 7. New photos are from Pexels and listed in `packages/brand/photos/credits.md`. Home's strip now shows a selection of 30 so it stays light, and the sign-in wall still shows 56 |
 | Done | No Free plan, packs of 5 pages on Pro, a 14-day trial and a badge on live pages | `limits.ts`, `billing.ts`, Account and the New page prompt. Against the stand-in only |
 | Done | Pricing: two cards with a monthly and yearly switch, one line about adding pages, and a fuller Questions section | `PlanCards.astro`, `Faq.astro`, `pricing.astro`, Home and Teams |
+| Done | Pricing belongs with Home and Teams | Paint and real example pages frame the cards, with one recommended plan, tick bullets, and Questions on a tinted band |

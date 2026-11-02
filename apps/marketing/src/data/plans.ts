@@ -28,6 +28,7 @@ export const heads = [
 export const cards = [
     {
         name: "Starter",
+        recommended: true,
         month: `$${String(PRICES.starter.month)} a month`,
         year: `$${String(PRICES.starter.year)} a year`,
         features: [
@@ -39,6 +40,7 @@ export const cards = [
     },
     {
         name: "Pro",
+        recommended: false,
         month: `$${String(PRICES.pro.month)} a month`,
         year: `$${String(PRICES.pro.year)} a year`,
         features: [

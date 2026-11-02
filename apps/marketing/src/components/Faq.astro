@@ -1,12 +1,14 @@
 ---
 interface Props {
     items: readonly { q: string; a: string; link?: { href: string; text: string } }[];
+    /** Sets the section on the tinted band. */
+    band?: boolean;
 }
 
-const { items } = Astro.props;
+const { items, band = false } = Astro.props;
 ---
 
-<section class="pl-sec pl-faq">
+<section class:list={["pl-sec", "pl-faq", { band }]}>
     <div class="wrap">
         <h2>Questions</h2>
         <p class="sub pl-faq-lead">

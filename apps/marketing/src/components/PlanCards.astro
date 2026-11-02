@@ -2,12 +2,36 @@
 import { cards, MORE_LINE } from "../data/plans";
 import Art from "./Art.astro";
 import "../styles/plans.css";
+
+interface Props {
+    /** Frames the cards with paint and example pages, where there's room for it. */
+    framed?: boolean;
+}
+
+const { framed = false } = Astro.props;
 ---
 
-<div class="pc-row" data-plan-cards data-period="month">
-    <div class="pc-wash" aria-hidden="true">
-        <Art seed={37} />
-    </div>
+<div class:list={["pc-row", { "pc-framed": framed }]} data-plan-cards data-period="month">
+    {framed ? (
+        <div class="pc-frame" aria-hidden="true">
+            <div class="pc-side pc-side-l">
+                <div class="pc-paint">
+                    <Art seed={23} />
+                </div>
+                <img src="/shots/maya.jpg" alt="" width="390" height="844" />
+            </div>
+            <div class="pc-side pc-side-r">
+                <div class="pc-paint">
+                    <Art seed={66} />
+                </div>
+                <img src="/shots/aster.jpg" alt="" width="390" height="844" />
+            </div>
+        </div>
+    ) : (
+        <div class="pc-wash" aria-hidden="true">
+            <Art seed={37} />
+        </div>
+    )}
     <div class="pc-switch" role="group" aria-label="How often to pay">
         <button type="button" data-set-period="month" aria-pressed="true">
             Monthly
@@ -19,7 +43,10 @@ import "../styles/plans.css";
     <div class="pc-cards">
         {cards.map((card) => (
             <article class="pc-card" data-plan-card={card.name}>
-                <h3>{card.name}</h3>
+                <h3>
+                    {card.name}
+                    {card.recommended ? <small>Recommended</small> : null}
+                </h3>
                 <strong class="pc-month">{card.month}</strong>
                 <strong class="pc-year">{card.year}</strong>
                 <ul>
@@ -27,7 +54,7 @@ import "../styles/plans.css";
                         <li>{feature}</li>
                     ))}
                 </ul>
-                <a class="mbtn" href="/signup">
+                <a class:list={["mbtn", { "pc-quiet": !card.recommended }]} href="/signup">
                     Try free for 14 days
                 </a>
             </article>
